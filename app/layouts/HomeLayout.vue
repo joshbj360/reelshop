@@ -113,10 +113,10 @@ import RightSideNav from '~/layouts/children/RightSideNav.vue';
 import MobileAIChatButton from '../../layers/AI/chat/MobileAIChat.vue';
 import CreateModal from '~/components/home/CreateModal.vue';
 import PostUploadModal from '../../layers/post/app/components/modals/PostUploadModal.vue';
-// import StoryUploadModal from '~/components/stories/StoryModal.vue';
+import StoryUploadModal from '../components/modals/StoryUploadModal.vue';
 // import QuickProductModal from '~/components/product/QuickProductModal.vue';
 import SearchOverlay from '~/components/search/SearchOverLay.vue';
-//import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue';
+import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue';
 import { useLayoutData } from '~/composables/useLayoutData';
 
 const route = useRoute();

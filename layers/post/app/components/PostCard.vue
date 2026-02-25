@@ -40,7 +40,7 @@
         <div v-if="post.media" class="relative w-full cursor-pointer group media-container" @click="$emit('open-details', post)">
             <div class="media-wrapper">
                 <video
-                    v-if="post.media && post.contentType?.includes('video')"
+                    v-if="post.media && post.media.type === 'VIDEO'"
                     ref="videoRef"
                     :src="post.media.url"
                     class="media-content"
@@ -49,7 +49,7 @@
                     playsinline
                 ></video>
                 <img 
-                    v-else-if="post.content"
+                    v-else-if="post.media && post.media.type === 'IMAGE'"
                     :src="post.media.url" 
                     class="media-content" 
                     :alt="post.caption || 'Post'"
@@ -234,7 +234,7 @@ onMounted(() => {
     if (videoRef.value) {
         observer.value = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting) {
+                if (entry!.isIntersecting) {
                     videoRef.value?.play().catch(() => {});
                 } else {
                     videoRef.value?.pause();

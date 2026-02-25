@@ -147,6 +147,12 @@ import { useStory } from '~~/layers/feed/app/composables/useStory';
 // Layouts & Components
 import HomeLayout from '~/layouts/HomeLayout.vue';
 import HomepageSkeleton from '~/components/home/HomePageSkeleton.vue';
+import StoryUploadModal from '~/components/modals/StoryUploadModal.vue';
+import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue';
+import ProductDetailModal from '~/components/modals/ProductDetailModal.vue';
+import PostCommentModal from '~/components/modals/PostCommentModal.vue';
+import ProductCommentModal from '~/components/modals/ProductCommentModal.vue';
+import ProductCard from '~/components/home/ProductCard.vue';
 
 import PostCard from '../../layers/post/app/components/PostCard.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue';

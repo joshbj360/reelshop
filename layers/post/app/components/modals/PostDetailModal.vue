@@ -61,9 +61,9 @@
 
 <script setup lang="ts">
 import type { IPost, IProduct } from '../../types/post.types';
+import PostDetails from '../PostDetails.vue';
+import ProductDetails from '../ProductDetails.vue';
 
-// We are re-using the theme-compliant detailed info component
-
-defineProps<{ product: IProduct | null, post: IPost | null }>();
+defineProps<{ product: IProduct | null; post: IPost | null }>();
 defineEmits(['close']);
 </script>

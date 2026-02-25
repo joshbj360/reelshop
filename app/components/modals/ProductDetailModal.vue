@@ -12,7 +12,7 @@
         <div class="aspect-square bg-gray-100 dark:bg-neutral-800 rounded-lg overflow-hidden mb-4">
           <img
             v-if="product.media?.length"
-            :src="product.media[0].url"
+            :src="product.media[0]?.url"
             :alt="product.title"
             class="w-full h-full object-cover"
           />
@@ -25,7 +25,9 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ product: any }>()
+import type { IProduct } from '~~/layers/post/app/types/post.types';
+
+defineProps<{ product: IProduct }>()
 defineEmits(['close'])
 
 const formatPrice = (price: number) =>
