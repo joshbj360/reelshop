@@ -1,0 +1,109 @@
+import { productRepository } from '../repositories/product.repository'
+import { auditService } from '../../shared/audit/audit.service'
+import { createProductSchema, updateProductSchema, listProductsSchema } from '../schemas/product.schema'
+import { UserError } from '../../profile/types/user.types'
+
+async function generateUniqueSlug(title: string): Promise<string> {
+  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const existing = await productRepository.getProductBySlug(base)
+  if (!existing) return base
+  let counter = 1
+  while (true) {
+    const candidate = `${base}-${counter}`
+    const taken = await productRepository.getProductBySlug(candidate)
+    if (!taken) return candidate
+    counter++
+  }
+}
+
+export const productService = {
+  async createProduct(sellerId: string, storeSlug: string, data: any, ipAddress: string, userAgent: string) {
+    const validated = createProductSchema.parse(data)
+    const slug = await generateUniqueSlug(validated.title)
+    const product = await productRepository.createProduct(sellerId, storeSlug, { ...validated, slug })
+
+    await auditService.logUserAction({
+      userId: sellerId,
+      action: 'PRODUCT_CREATED',
+      resource: 'Products',
+      resourceId: String(product.id),
+      reason: 'Created new product',
+      changes: { title: validated.title, status: validated.status },
+      ipAddress,
+      userAgent
+    })
+
+    return product
+  },
+
+  async getProducts(filters: any, pagination: any) {
+    const { limit, offset, status, search, sellerId } = listProductsSchema.parse({
+      limit: pagination?.limit,
+      offset: pagination?.offset,
+      status: filters?.status,
+      search: filters?.search,
+      sellerId: filters?.sellerId
+    })
+
+    const [products, total] = await Promise.all([
+      productRepository.getProducts({ status, search, sellerId }, { limit, offset }),
+      productRepository.countProducts({ status, search, sellerId })
+    ])
+
+    return { products, total, limit, offset }
+  },
+
+  async getProductById(id: number) {
+    const product = await productRepository.getProductById(id)
+    if (!product) throw new UserError('PRODUCT_NOT_FOUND', 'Product not found', 404)
+    return product
+  },
+
+  async getSellerProducts(storeSlug: string, pagination: { limit: number; offset: number }, status?: string) {
+    const [products, total] = await Promise.all([
+      productRepository.getProductsBySellerSlug(storeSlug, pagination, status),
+      productRepository.countProducts({ storeSlug, status })
+    ])
+    return { products, total, limit: pagination.limit, offset: pagination.offset }
+  },
+
+  async updateProduct(id: number, sellerId: string, data: any, ipAddress: string, userAgent: string) {
+    const isOwner = await productRepository.checkOwnership(id, sellerId)
+    if (!isOwner) throw new UserError('FORBIDDEN', 'You can only edit your own products', 403)
+
+    const validated = updateProductSchema.parse(data)
+    const updated = await productRepository.updateProduct(id, validated)
+
+    await auditService.logUserAction({
+      userId: sellerId,
+      action: 'PRODUCT_UPDATED',
+      resource: 'Products',
+      resourceId: String(id),
+      reason: 'Updated product',
+      changes: validated,
+      ipAddress,
+      userAgent
+    })
+
+    return updated
+  },
+
+  async archiveProduct(id: number, sellerId: string, ipAddress: string, userAgent: string) {
+    const isOwner = await productRepository.checkOwnership(id, sellerId)
+    if (!isOwner) throw new UserError('FORBIDDEN', 'You can only archive your own products', 403)
+
+    const product = await productRepository.archiveProduct(id)
+
+    await auditService.logUserAction({
+      userId: sellerId,
+      action: 'PRODUCT_ARCHIVED',
+      resource: 'Products',
+      resourceId: String(id),
+      reason: 'Archived product',
+      ipAddress,
+      userAgent
+    })
+
+    return product
+  }
+}

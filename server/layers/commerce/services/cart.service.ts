@@ -1,0 +1,50 @@
+import { cartRepository } from '../repositories/cart.repository'
+import { UserError } from '../../profile/types/user.types'
+import { prisma } from '../../../utils/db'
+
+export const cartService = {
+  async getCart(userId: string) {
+    const items = await cartRepository.getCartItems(userId)
+    return { items }
+  },
+
+  async addToCart(userId: string, variantId: number, quantity: number = 1) {
+    if (quantity < 1) throw new UserError('INVALID_QUANTITY', 'Quantity must be at least 1', 400)
+
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
+      select: { id: true, stock: true }
+    })
+    if (!variant) throw new UserError('VARIANT_NOT_FOUND', 'Product variant not found', 404)
+    if (variant.stock < quantity) throw new UserError('INSUFFICIENT_STOCK', 'Not enough stock available', 400)
+
+    return cartRepository.addToCart(userId, variantId, quantity)
+  },
+
+  async updateQuantity(userId: string, variantId: number, quantity: number) {
+    if (quantity < 1) throw new UserError('INVALID_QUANTITY', 'Quantity must be at least 1', 400)
+
+    const existing = await cartRepository.getCartItem(userId, variantId)
+    if (!existing) throw new UserError('ITEM_NOT_FOUND', 'Cart item not found', 404)
+
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
+      select: { stock: true }
+    })
+    if (!variant || variant.stock < quantity) {
+      throw new UserError('INSUFFICIENT_STOCK', 'Not enough stock available', 400)
+    }
+
+    return cartRepository.updateCartItem(userId, variantId, quantity)
+  },
+
+  async removeFromCart(userId: string, variantId: number) {
+    const existing = await cartRepository.getCartItem(userId, variantId)
+    if (!existing) throw new UserError('ITEM_NOT_FOUND', 'Cart item not found', 404)
+    return cartRepository.removeFromCart(userId, variantId)
+  },
+
+  async clearCart(userId: string) {
+    return cartRepository.clearCart(userId)
+  }
+}
