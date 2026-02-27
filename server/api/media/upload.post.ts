@@ -112,6 +112,6 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: error.status, statusMessage: error.message })
     }
     console.error('[Media Upload] Error:', error)
-    throw createError({ statusCode: 500, statusMessage: 'Failed to upload media' })
+    throw createError({ statusCode: 500, statusMessage: 'Failed to upload media' + error }) // TODO: remove error details in production 
   }
 })

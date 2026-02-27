@@ -12,7 +12,10 @@ export const updateProfileSchema = z.object({
     .optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
   location: z.string().max(100).optional(),
-  website: z.string().url('Invalid website URL').optional(),
+  links: z.array(z.object({
+    type: z.enum(['website', 'twitter', 'instagram', 'linkedin', 'facebook']),
+    url: z.string().url('Invalid URL')
+  })).optional(),
   phone: z.string().optional(),
 })
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>

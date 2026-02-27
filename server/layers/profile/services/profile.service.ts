@@ -54,7 +54,7 @@ export const profileService = {
       bio?: string
       avatar?: string
       location?: string
-      website?: string
+      links?: any
     },
     ipAddress: string,
     userAgent: string

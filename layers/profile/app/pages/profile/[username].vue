@@ -117,7 +117,7 @@
         <!-- Modals -->
         <EditProfileModal 
             v-if="showEditModal"
-            :profile="profile"
+            :profile="profile!"
             @close="showEditModal = false"
             @updated="handleProfileUpdated"
         />

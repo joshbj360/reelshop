@@ -20,6 +20,8 @@ model Profile {
   email_verified_at DateTime?      @db.Timestamptz(6)
   email_verified    Boolean        @default(false)
   bio               String?
+  location          String?
+  links             Json?
   addresses         Addresses?     @relation("UserAddress")
   cartItems         CartItem[]
   comments          Comment[]      @relation("UserComments")

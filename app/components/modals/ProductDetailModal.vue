@@ -15,6 +15,7 @@
             :src="product.media[0]?.url"
             :alt="product.title"
             class="w-full h-full object-cover"
+            
           />
         </div>
         <p v-if="product.description" class="text-gray-600 dark:text-neutral-300 text-sm">{{ product.description }}</p>

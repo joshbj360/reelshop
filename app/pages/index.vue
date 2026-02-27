@@ -176,7 +176,7 @@ const selectedProduct = ref<IProduct | null>(null);
 const selectedPost = ref<IFeedItem | null>(null);
 const showUploadModal = ref(false);
 const loadMoreTrigger = ref<HTMLElement | null>(null);
-//const observer = ref<IntersectionObserver | null>(null);
+const observer = ref<IntersectionObserver | null>(null);
 
 // 1. Fetch layout data (top sellers, categories)
 //const { data: layoutData } = useLayoutData();
@@ -253,27 +253,27 @@ const loadMore = async () => {
     }
 };
 
-// onMounted(() => {
-//     // Setup intersection observer for infinite scroll
-//     observer.value = new IntersectionObserver(
-//         (entries) => {
-//             if (entries[0]?.isIntersecting) {
-//                 loadMore();
-//             }
-//         },
-//         { rootMargin: '200px' }
-//     );
+onMounted(() => {
+    // Setup intersection observer for infinite scroll
+    observer.value = new IntersectionObserver(
+        (entries) => {
+            if (entries[0]?.isIntersecting) {
+                loadMore();
+            }
+        },
+        { rootMargin: '200px' }
+    );
 
-//     if (loadMoreTrigger.value) {
-//         observer.value.observe(loadMoreTrigger.value);
-//     }
-// });
+    if (loadMoreTrigger.value) {
+        observer.value.observe(loadMoreTrigger.value);
+    }
+});
 
-// onUnmounted(() => {
-//     if (observer.value) {
-//         observer.value.disconnect();
-//     }
-// });
+onUnmounted(() => {
+    if (observer.value) {
+        observer.value.disconnect();
+    }
+});
 
 // Modal Handlers
 const openCommentsModal = (product: IProduct) => {

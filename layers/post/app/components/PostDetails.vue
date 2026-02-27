@@ -4,7 +4,7 @@
     <div class="bg-black flex items-center justify-center shrink-0" style="aspect-ratio: 4/5; max-height: 40vh;">
       <video
         v-if="isVideo"
-        :src="mediaUrl"
+        :src="mediaUrl!"
         class="w-full h-full object-contain"
         controls
         playsinline
@@ -171,8 +171,9 @@ import { usePostStore } from '../store/post.store'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import FollowButton from '~~/layers/profile/app/components/FollowButton.vue'
 import { notify } from '@kyvg/vue3-notification'
+import type { IPost } from '../types/post.types'
 
-const props = defineProps<{ post: any }>()
+const props = defineProps<{ post: IPost }>()
 
 const { likePost, unlikePost, savePost, unsavePost } = usePost()
 const { fetchPostComments, createComment } = useComment()
@@ -184,7 +185,7 @@ const commentText = ref('')
 const isSaved = ref(false)
 const isLoadingComments = ref(false)
 const isPostingComment = ref(false)
-const likeCount = ref<number>(props.post._count?.likes ?? props.post.likeCount ?? 0)
+const likeCount = ref<number>(props.post._count?.likes ?? props.post._count?.likes ?? 0)
 const commentsContainer = ref<HTMLElement | null>(null)
 const commentInputRef = ref<HTMLInputElement | null>(null)
 

@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Validation Error',
+        statusMessage: 'Validation Error' + error , // TODO: remove in production
         data: error.errors
       })
     }
@@ -49,20 +49,20 @@ export default defineEventHandler(async (event) => {
       const userError = error as any
       throw createError({
         statusCode: userError.statusCode || 400,
-        statusMessage: error.message
+        statusMessage: error.message + error , // TODO: remove in production
       })
     }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message
+        statusMessage: error.message + error , // TODO: remove in production
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error' + error , // TODO: remove in production  
     })
   }
 })

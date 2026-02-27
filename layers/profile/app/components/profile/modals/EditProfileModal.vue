@@ -85,10 +85,10 @@
                         <!-- Website -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
-                                Website
+                                Links
                             </label>
                             <input 
-                                v-model="formData.website"
+                                v-model="formData.links"
                                 type="url"
                                 placeholder="https://example.com"
                                 class="w-full px-4 py-2 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand"
@@ -120,7 +120,7 @@ import type { IProfile } from '~~/layers/profile/app/types/profile.types'
 import { useProfile } from '~~/layers/profile/app/composables/useProfile'
 
 const props = defineProps<{
-    profile: IProfile | Partial<IProfile>
+    profile: IProfile 
 }>()
 
 
@@ -137,7 +137,7 @@ const pendingAvatarFile = ref<File | null>(null)
 const formData = reactive({
     avatar: props.profile.avatar,
     bio: props.profile.bio || '',
-    website: props.profile.profileUrl || '',
+    links: props.profile.links || [],
     location: props.profile.stateOfResidence || ''
 })
 
@@ -174,7 +174,7 @@ const saveChanges = async () => {
 
         await updateMyProfile({
             bio: formData.bio,
-            website: formData.website,
+            website: formData.links,
             location: formData.location,
             avatar: avatarUrl
         })
@@ -194,7 +194,7 @@ const handleClose = () => {
     // Check if there are unsaved changes
     const hasChanges = 
         formData.bio !== (props.profile.bio || '') ||
-        formData.website !== (props.profile.profileUrl || '') ||
+        JSON.stringify(formData.links) !== JSON.stringify(props.profile.links || []) ||
         formData.location !== (props.profile.stateOfResidence || '') ||
         formData.avatar !== props.profile.avatar
     
