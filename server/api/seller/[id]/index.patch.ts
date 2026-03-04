@@ -1,10 +1,10 @@
 // FILE PATH: server/layers/seller/api/[id].patch.ts
 
 import { defineEventHandler, readBody } from 'h3'
-import { updateSellerProfileSchema } from '../../layers/seller/schemas/seller.schema'
-import { requireAuth } from '../../layers/shared/middleware/requireAuth'
+import { updateSellerProfileSchema } from '../../../layers/seller/schemas/seller.schema'
+import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { ZodError } from 'zod'
-import { sellerService } from '../../layers/seller/services/seller.services'
+import { sellerService } from '../../../layers/seller/services/seller.services'
 
 export default defineEventHandler(async (event) => {
   try {
