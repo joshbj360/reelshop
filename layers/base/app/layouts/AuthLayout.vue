@@ -8,7 +8,7 @@
         <!-- Brand -->
         <div class="flex items-center gap-3 mb-8">
           <NuxtLink to="/" class="flex items-center gap-2">
-            <img src="/assets/images/logo2.png" alt="Logo" class="w-14 h-14 object-contain" />
+            <img src="" alt="Logo" class="w-14 h-14 object-contain" />
           </NuxtLink>
         </div>
 
