@@ -1,7 +1,38 @@
 import { usePostApi } from '../services/post.api'
 import { usePostStore } from '../store/post.store'
 import { useProfileStore } from '../../../profile/app/stores/profile.store'
-import type { ICreatePostData } from '../types/post.types'
+import type { ICreatePostData, IPost } from '../types/post.types'
+import type { IFeedItem } from '../../../feed/app/types/feed.types'
+
+/**
+ * Normalize an IPost (from profile/user API) into IFeedItem shape.
+ * IPost has media as an array; IFeedItem has a single media object.
+ * All components that open PostDetailModal must use IFeedItem.
+ */
+export function normalizePost(post: IPost | any): IFeedItem {
+  const rawMedia = Array.isArray(post.media) ? post.media[0] : post.media
+  return {
+    id: post.id,
+    type: 'POST',
+    created_at: post.created_at ?? post.createdAt ?? new Date(),
+    author: {
+      id: post.author?.id ?? post.authorId ?? '',
+      username: post.author?.username ?? '',
+      avatar: post.author?.avatar ?? null,
+      role: ((post.author?.role ?? 'USER') as string).toLowerCase() as 'user' | 'seller',
+    },
+    media: rawMedia
+      ? { id: rawMedia.id, url: rawMedia.url, type: rawMedia.type, thumbnailUrl: rawMedia.thumbnailUrl }
+      : undefined,
+    caption: post.caption ?? '',
+    content: post.content ?? null,
+    contentType: post.contentType ?? 'EXPERIENCE',
+    likeCount: post._count?.likes ?? post.likeCount ?? 0,
+    commentCount: post._count?.comments ?? post.commentCount ?? 0,
+    shareCount: post._count?.shares ?? post.shareCount ?? 0,
+    taggedProducts: post.taggedProducts ?? [],
+  }
+}
 
 export const usePost = () => {
   const postApi = usePostApi()
@@ -132,5 +163,49 @@ export const usePost = () => {
     }
   }
 
-  return { isLoading, error, fetchSavedPosts, unsavePost, savePost, createPost, fetchUserFeed, likePost, unlikePost, fetchUserPosts, getPostById }
+  const fetchUserLikedPosts = async (username: string, limit = 20, offset = 0) => {
+    postStore.setLoading(true)
+    try {
+      const result = await postApi.getUserLikedPosts(username, limit, offset)
+      postStore.addLikedPostsByUser(result.data, username)
+      return result
+    } catch (e: any) {
+      postStore.setError(e.message)
+      throw e
+    } finally {
+      postStore.setLoading(false)
+    }
+  }
+
+  const deletePost = async (id: string) => {
+    try {
+      await postApi.deletePost(id)
+      postStore.deletePost(id)
+      profileStore.removeMyPost(id)
+    } catch (error: any) {
+      postStore.setError(error.message || 'Failed to delete post')
+      throw error
+    }
+  }
+
+  const updatePost = async (id: string, data: { caption?: string; content?: string; contentType?: string; visibility?: string }) => {
+    try {
+      const updated = await postApi.updatePost(id, data)
+      postStore.updatePost(id, updated)
+      return updated
+    } catch (error: any) {
+      postStore.setError(error.message || 'Failed to update post')
+      throw error
+    }
+  }
+
+  return {
+    isLoading, error,
+    normalizePost,
+    createPost, fetchUserFeed, fetchUserPosts, getPostById,
+    likePost, unlikePost,
+    savePost, fetchSavedPosts, unsavePost,
+    fetchUserLikedPosts,
+    deletePost, updatePost,
+  }
 }

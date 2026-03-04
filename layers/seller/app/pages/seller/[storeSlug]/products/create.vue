@@ -1,18 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-neutral-900">
-    <!-- Header -->
-    <div class="bg-white dark:bg-neutral-800 border-b border-gray-200 dark:border-neutral-700 sticky top-0 z-10">
-      <div class="max-w-3xl mx-auto px-4 py-4 sm:px-6">
-        <div class="flex items-center gap-3">
-          <NuxtLink :to="`/seller/${storeSlug}/products`" class="text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200">
-            <Icon name="mdi:arrow-left" size="20" />
-          </NuxtLink>
-          <h1 class="text-xl font-bold text-gray-900 dark:text-white">New Product</h1>
-        </div>
-      </div>
+  <div class="p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <NuxtLink :to="`/seller/${storeSlug}/products`" class="text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200">
+        <Icon name="mdi:arrow-left" size="20" />
+      </NuxtLink>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">New Product</h1>
     </div>
 
-    <div class="max-w-3xl mx-auto px-4 py-8 sm:px-6">
+    <div class="max-w-3xl">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Error -->
         <div v-if="error" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -176,7 +171,7 @@
 <script setup lang="ts">
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 
-definePageMeta({ middleware: 'auth', layout: 'default' })
+definePageMeta({ middleware: 'auth', layout: 'seller' })
 
 const route = useRoute()
 const router = useRouter()

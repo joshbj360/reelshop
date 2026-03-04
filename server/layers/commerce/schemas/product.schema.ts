@@ -41,7 +41,8 @@ export const listProductsSchema = z.object({
   offset: z.coerce.number().min(0).default(0),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   search: z.string().optional(),
-  sellerId: z.string().uuid().optional()
+  sellerId: z.string().uuid().optional(),
+  isThrift: z.coerce.boolean().optional()
 })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>

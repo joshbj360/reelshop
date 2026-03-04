@@ -2,6 +2,7 @@
 
 import { useSellerApi } from "../services/seller.services"
 import { useSellerStore } from "../store/seller.store"
+import { useProfile } from "~~/layers/profile/app/composables/useProfile"
 
 /**
  * Seller Management Composable
@@ -15,6 +16,7 @@ export function useSellerManagement() {
   const sellerStore = useSellerStore()
   const sellerApi = useSellerApi()
   const router = useRouter()
+  const { fetchMyProfile } = useProfile()
 
   // ==================== CREATE SELLER ====================
 
@@ -37,9 +39,12 @@ export function useSellerManagement() {
       
       sellerStore.addSeller(result.data)
       sellerStore.setMessage('Seller profile created successfully!')
-      
+
+      // Refresh me so profileStore.me.role updates to 'seller' immediately
+      await fetchMyProfile().catch(() => {})
+
       // Navigate to seller dashboard
-      await router.push(`/seller/${result.data.id}/dashboard`)
+      await router.push('/sellers/dashboard')
       
       return result
     } catch (error: any) {

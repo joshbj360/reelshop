@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     './layers/post',
     // ... other layers
   ],
-  modules: [ 
+  modules: [
     '@nuxt/icon',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
@@ -20,8 +20,32 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
     'pinia-plugin-persistedstate/nuxt',
-    '@nuxt/image'
+    '@nuxt/image',
+    '@nuxtjs/i18n'
   ],
+
+  i18n: {
+    defaultLocale: 'en',
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    locales: [
+      { code: 'en', name: 'English',   file: 'en.json' },
+      { code: 'fr', name: 'Français',  file: 'fr.json' },
+      { code: 'es', name: 'Español',   file: 'es.json' },
+      { code: 'de', name: 'Deutsch',   file: 'de.json' },
+      { code: 'pt', name: 'Português', file: 'pt.json' },
+      { code: 'zh', name: '中文',       file: 'zh.json' },
+      { code: 'ar', name: 'العربية',   file: 'ar.json', dir: 'rtl' }
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+      fallbackLocale: 'en'
+    }
+  },
+
   image: {
       provider: 'cloudinary',
     cloudinary: {

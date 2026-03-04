@@ -67,6 +67,12 @@ export const sellerService = {
         store_socials: data.store_socials
       })
 
+      // Promote user role to 'seller' so UI hides "Become a Seller" prompts
+      await prisma.userProfile.update({
+        where: { id: userId },
+        data: { role: 'seller' },
+      })
+
       return seller
     } catch (error: any) {
       throw new SellerError(

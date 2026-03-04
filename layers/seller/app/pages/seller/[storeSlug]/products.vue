@@ -1,30 +1,21 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-neutral-900">
-    <!-- Header -->
-    <div class="bg-white dark:bg-neutral-800 border-b border-gray-200 dark:border-neutral-700 sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <NuxtLink to="/seller/dashboard" class="text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200">
-              <Icon name="mdi:arrow-left" size="20" />
-            </NuxtLink>
-            <div>
-              <h1 class="text-xl font-bold text-gray-900 dark:text-white">Products</h1>
-              <p class="text-xs text-gray-500 dark:text-gray-400">@{{ storeSlug }}</p>
-            </div>
-          </div>
-          <NuxtLink
-            :to="`/seller/${storeSlug}/products/create`"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-[#d81b36] transition-colors"
-          >
-            <Icon name="mdi:plus" size="18" />
-            Add Product
-          </NuxtLink>
-        </div>
+  <div class="p-6">
+    <!-- Page header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">Products</h1>
+        <p class="text-[13px] text-gray-400 dark:text-neutral-500 mt-0.5">@{{ storeSlug }}</p>
       </div>
+      <NuxtLink
+        :to="`/seller/${storeSlug}/products/create`"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-[#d81b36] transition-colors"
+      >
+        <Icon name="mdi:plus" size="18" />
+        Add Product
+      </NuxtLink>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <div>
       <!-- Filter Bar -->
       <div class="flex items-center gap-3 mb-6">
         <div class="flex rounded-lg overflow-hidden border border-gray-200 dark:border-neutral-700">
@@ -179,7 +170,7 @@
 <script setup lang="ts">
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 
-definePageMeta({ middleware: 'auth', layout: 'default' })
+definePageMeta({ middleware: 'auth', layout: 'seller' })
 
 const route = useRoute()
 const storeSlug = computed(() => route.params.storeSlug as string)

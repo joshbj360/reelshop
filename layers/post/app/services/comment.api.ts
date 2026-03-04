@@ -7,7 +7,8 @@ export class CommentApiClient extends BaseApiClient {
   }
   
   async createComment(postId: string, data: ICreateCommentData): Promise<IComment> {
-    return this.request(`/api/posts/${postId}/comments`, { method: 'POST', body: data })
+    const response = await this.request<{ success: boolean; data: IComment }>(`/api/posts/${postId}/comments`, { method: 'POST', body: data })
+    return response.data
   }
   
   async deleteComment(postId: string, commentId: string): Promise<any> {

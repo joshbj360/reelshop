@@ -1,98 +1,92 @@
 <template>
-    <HomeLayout>
-        <div class="max-w-xl mx-auto space-y-8">
+    <HomeLayout :narrow-feed="true">
+        <div class="w-full space-y-8">
             <!-- Loading Skeleton (Initial Load) -->
             <HomepageSkeleton v-if="pending && !mainFeed.length" />
-            
+
             <!-- Error State -->
-            <div v-else-if="error" class="text-center py-20">
-                <p class="text-red-600 dark:text-red-400 mb-2">Failed to load feed</p>
-                <button 
+            <div v-else-if="error" class="flex flex-col items-center justify-center py-24 gap-4">
+                <Icon name="mdi:wifi-off" size="48" class="text-gray-300 dark:text-neutral-600" />
+                <p class="text-sm font-medium text-gray-500 dark:text-neutral-400">{{ $t('feed.loadError') }}</p>
+                <button
                     @click="refresh()"
-                    class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-[#d81b36] transition-colors"
+                    class="px-5 py-2 bg-brand text-white text-sm font-semibold rounded-full hover:bg-[#d81b36] transition-colors"
                 >
-                    Retry
+                    {{ $t('common.tryAgain') }}
                 </button>
             </div>
-            
+
             <!-- Content -->
             <div v-else>
                 <!-- Stories Section -->
-                <section v-if="profileStore.isLoggedIn">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
-                        Today's Inspo
+                <section v-if="profileStore.isLoggedIn" class="pb-2">
+                    <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500 mb-4">
+                        {{ $t('feed.todayInspo') }}
                     </h2>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-                        <!-- Add Story Button (Logged In Users) -->
-                        <div v-if="profileStore.isLoggedIn" class="flex flex-col items-center space-y-2 min-w-[80px]">
-                            <div 
-                                @click="showUploadModal = true"
-                                class="w-20 h-20 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors border-2 border-dashed border-gray-300 dark:border-neutral-600"
-                            >
-                                <Icon name="mdi:plus-thick" class="w-8 h-8 text-gray-500 dark:text-neutral-400" />
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-neutral-400">Your Story</span>
-                        </div>
+                    <div class="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
 
-                        <!-- Login Prompt (Non-logged In) -->
-                        <div v-else class="flex flex-col items-center space-y-2 min-w-[80px]">
-                            <NuxtLink 
-                                to="/auth/login"
-                                class="w-20 h-20 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors border-2 border-dashed border-gray-300 dark:border-neutral-600"
+                        <!-- Add Story Button -->
+                        <div class="flex flex-col items-center gap-2 shrink-0">
+                            <button
+                                @click="showUploadModal = true"
+                                aria-label="Add your story"
+                                class="story-ring p-[2px] rounded-full transition-transform hover:scale-105 active:scale-95"
                             >
-                                <Icon name="mdi:login" class="w-8 h-8 text-gray-500 dark:text-neutral-400" />
-                            </NuxtLink>
-                            <span class="text-xs text-gray-600 dark:text-neutral-400">Log in to post</span>
+                                <div class="w-[66px] h-[66px] rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center">
+                                    <Icon name="mdi:plus-thick" size="22" class="text-brand" />
+                                </div>
+                            </button>
+                            <span class="text-[11px] text-gray-500 dark:text-neutral-400 font-medium">{{ $t('feed.yourStory') }}</span>
                         </div>
 
                         <!-- Stories -->
-                        <div 
-                            v-for="story in stories" 
-                            :key="story.id" 
+                        <div
+                            v-for="story in stories"
+                            :key="story.id"
                             @click="router.push(`/stories/${story.id}`)"
-                            class="flex flex-col items-center space-y-2 min-w-[80px] cursor-pointer group"
+                            class="flex flex-col items-center gap-2 shrink-0 cursor-pointer group"
                         >
-                            <div class="relative">
-                                <img 
-                                    :src="getMediaThumbnailUrl(story.media)" 
+                            <div class="story-ring p-[2px] rounded-full transition-transform group-hover:scale-105 group-active:scale-95">
+                                <img
+                                    :src="getMediaThumbnailUrl(story.media)"
                                     alt="Story"
-                                    class="w-20 h-20 rounded-full object-cover ring-2 ring-gray-200 dark:ring-neutral-700 group-hover:ring-[#f02c56] transition-all" 
+                                    class="w-[66px] h-[66px] rounded-full object-cover ring-2 ring-white dark:ring-neutral-950"
                                 />
                             </div>
-                            <span class="text-xs text-center text-gray-600 dark:text-neutral-400 truncate w-20">
-                                {{ story.author?.username || 'A user' }}
+                            <span class="text-[11px] text-center text-gray-500 dark:text-neutral-400 font-medium truncate w-[70px]">
+                                {{ story.author?.username || 'User' }}
                             </span>
                         </div>
                     </div>
+                    <div class="mt-4 border-t border-gray-100 dark:border-neutral-800" />
                 </section>
 
                 <!-- Main Feed -->
-                <section class="space-y-6">
+                <section class="space-y-5 pt-2">
                     <template v-for="item in mainFeed" :key="item.id">
-                        <!-- Product Card (Type A) -->
-                        <ProductCard 
-                            v-if="item.type === 'PRODUCT' && item.product" 
+                        <ProductCard
+                            v-if="item.type === 'PRODUCT' && item.product"
                             :product="item.product"
                             @open-comments="openCommentsModal"
                             @open-details="openProductModal"
                         />
-                        
-                        <!-- Social Post Card (Types B, C, D, E) -->
-                        <PostCard 
-                            v-else-if="item.type === 'POST'" 
+                        <PostCard
+                            v-else-if="item.type === 'POST'"
                             :post="item"
                             @open-comments="openPostCommentsModal"
                             @open-details="openPostModal"
+                            @deleted="removeFromFeed"
                         />
                     </template>
                 </section>
 
                 <!-- Infinite Scroll Trigger -->
-                <div ref="loadMoreTrigger" class="h-10"></div>
-                
+                <div ref="loadMoreTrigger" class="h-10" />
+
                 <!-- Loading More Indicator -->
-                <div v-if="feedStore.isLoading && mainFeed.length > 0" class="flex justify-center py-8">
-                    <Icon name="eos-icons:loading" size="32" class="text-brand" />
+                <div v-if="feedStore.isLoading && mainFeed.length > 0" class="flex items-center justify-center gap-2 py-6">
+                    <Icon name="eos-icons:loading" size="20" class="text-brand" />
+                    <span class="text-xs text-gray-400 dark:text-neutral-500">{{ $t('common.loadingMore') }}</span>
                 </div>
             </div>
         </div>
@@ -118,14 +112,16 @@
             @close="commentPost = null" 
         />
 
-        <ProductDetailModal 
-            :product="selectedProduct" 
-            @close="selectedProduct = null" 
+        <ProductDetailModal
+            v-if="selectedProduct"
+            :product="selectedProduct"
+            @close="selectedProduct = null"
         />
-        
-        <PostDetailModal 
-            :post="selectedPost" 
-            @close="selectedPost = null" 
+
+        <PostDetailModal
+            v-if="selectedPost"
+            :post="selectedPost"
+            @close="selectedPost = null"
         />
         
         <StoryUploadModal 
@@ -182,57 +178,27 @@ const observer = ref<IntersectionObserver | null>(null);
 //const { data: layoutData } = useLayoutData();
 //const topSellers = computed(() => layoutData.value?.topSellers || []);
 
-// 2. Fetch page-specific data with useLazyAsyncData
-const { data: pageData, pending, error, refresh } = await useLazyAsyncData(
-    'homepage-main', 
-    async () => {
-        try {
-            // Fetch all data in parallel
-            const [feedResponse] = await Promise.all([
-                feedApi.getHomeFeed({ limit: 20 }),
-                fetchStories(),
-                //categoryStore.fetchCategories()
-            ]);
-
-            // Populate feed store
-            if (feedResponse && feedResponse.items) {
-                feedStore.setInitialFeed(
-                    feedResponse.items, 
-                    feedResponse.meta,
-                    'main'
-                );
-            }
-
-            // Populate story store
-            // if (storiesData && storiesData.length > 0) {
-            //     //storyStore.setHomepageStories(storiesData);
-            // }
-
-            return {
-                feedLoaded: true,
-                //storiesCount: storiesData?.length || 0,
-                //categoriesCount: categoryStore.categories?.length || 0
-            };
-        } catch (error: any) {
-            console.error('Failed to fetch homepage data:', error);
-            throw error;
-        }
-    },
+// 2. Fetch feed data — client-only to avoid a server→server HTTP call during SSR
+// that would hang indefinitely. The skeleton shows briefly then data loads.
+const { data: feedData, pending, error, refresh } = useLazyAsyncData(
+    'homepage-main',
+    () => feedApi.getHomeFeed({ limit: 20 }),
     {
-        // Options for useLazyAsyncData
-        server: true,      // Fetch on server-side
-        lazy: true,        // Non-blocking
-        default: () => ({
-            feedLoaded: false,
-            // storiesCount: 0,
-            // categoriesCount: 0
-        })
+        server: false,
+        default: () => ({ items: [], meta: { total: 0, limit: 20, offset: 0, hasMore: false } } as any)
     }
 );
 
+// Sync Pinia feed store whenever data arrives or refreshes.
+watch(feedData, (val) => {
+    if (val?.items?.length) {
+        feedStore.setInitialFeed(val.items, val.meta, 'main');
+    }
+}, { immediate: true });
+
 // 3. Use computed properties for reactive data
 const stories = storyList
-const mainFeed = computed(() => feedStore.mainFeed || []);
+const mainFeed = computed(() => feedStore.mainFeed?.length ? feedStore.mainFeed : (feedData.value?.items ?? []));
 //const categories = computed(() => categoryStore.categories || []);
 
 // 4. Infinite scroll setup
@@ -254,6 +220,9 @@ const loadMore = async () => {
 };
 
 onMounted(() => {
+    // Load stories independently — failure must never block the feed
+    fetchStories().catch(() => {});
+
     // Setup intersection observer for infinite scroll
     observer.value = new IntersectionObserver(
         (entries) => {
@@ -281,7 +250,8 @@ const openCommentsModal = (product: IProduct) => {
 };
 
 const openPostCommentsModal = (post: IFeedItem) => {
-    commentPost.value = post;
+    // Open full detail modal — PostDetails contains the comment thread
+    selectedPost.value = post;
 };
 
 const openProductModal = (product: IProduct) => {
@@ -292,13 +262,15 @@ const openPostModal = (post: IFeedItem) => {
     selectedPost.value = post;
 };
 
+const removeFromFeed = (postId: string) => {
+    feedStore.removeItem(postId);
+};
+
 const handleStoryPosted = async () => {
     showUploadModal.value = false;
-    
-    // Refresh all data
     await Promise.all([
-        refreshNuxtData('layout-data'),
         refreshNuxtData('homepage-main'),
+        fetchStories().catch(() => {}),
     ]);
 };
 </script>
@@ -310,5 +282,10 @@ const handleStoryPosted = async () => {
 }
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
+}
+
+/* Gradient ring shared by story avatars and the Add Story button */
+.story-ring {
+    background: linear-gradient(135deg, #f02c56, #ff9a3c, #a855f7);
 }
 </style>

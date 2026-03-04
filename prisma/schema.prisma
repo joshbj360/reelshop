@@ -72,6 +72,7 @@ model SellerProfile {
   updated_at            DateTime               @updatedAt @db.Timestamptz(6)
   store_slug            String                 @unique
   auto_answer_enabled   Boolean                @default(false)
+  default_currency      String                 @default("NGN")
   media                 Media[]                @relation("MediaSeller")
   products              Products[]             @relation("SellerProducts")
   profile               Profile                @relation("SellerProfile", fields: [profileId], references: [id], onDelete: Cascade)
@@ -323,14 +324,15 @@ model Post {
   caption        String?
   content        String?
   contentType    String?
-  mediaId        String?          @db.Uuid
   created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  visibility     VisibilityType?  @default(PUBLIC)
+  allowComments  Boolean          @default(true)
   comments       Comment[]
   notifications  Notification[]
   author         Profile          @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
   media          Media[]          @relation("PostMedia")
   likes          PostLike[]
- shares         Share[]          @relation("PostShares") // Matches Share model
+  shares         Share[]          @relation("PostShares") // Matches Share model
   taggedProducts ProductPostTag[]
   savedBy        SavedPost[]      @relation("PostSavedBy")
 
@@ -454,6 +456,7 @@ model Media {
   product    Products?      @relation(fields: [productId], references: [id])
   seller     SellerProfile? @relation("MediaSeller", fields: [sellerId], references: [id])
   postId     String?        @db.Uuid
+  isBgMusic  Boolean        @default(false)
   post       Post?    @relation("PostMedia", fields: [postId], references: [id], onDelete: Cascade)
   story      Story?
 }
@@ -708,4 +711,10 @@ enum NotificationType {
   NEW_FOLLOWER
   NEW_POST
   POST_LIKE
+}
+
+enum VisibilityType {
+  PUBLIC
+  PRIVATE
+  FOLLOWERS
 }

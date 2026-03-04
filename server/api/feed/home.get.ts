@@ -1,100 +1,47 @@
-import { IFeedResponse } from "~~/layers/feed/app/types/feed.types"
-import { normalizePost, normalizeProduct } from "~~/server/layers/feed/utils/feed.utils"
+import { defineEventHandler, getValidatedQuery, createError } from 'h3'
+import { z, ZodError } from 'zod'
+import { feedService } from '~~/server/layers/feed/services/feed.services'
 
+// Safely parse and convert query strings to numbers
+const querySchema = z.object({
+  limit: z.coerce.number().min(1).max(50).default(20),
+  offset: z.coerce.number().min(0).default(0),
+  type: z.enum(['all', 'posts', 'products']).default('all').optional()
+})
 
-
-export default defineEventHandler(async (event): Promise<IFeedResponse> => {
-  const query = getQuery(event)
-  const limit = Number(query.limit) || 20
-  const offset = Number(query.offset) || 0
-  const type = query.type as 'all' | 'posts' | 'products' || 'all'
-  
-  // TODO: Get user from session
-  const userId = event.context.user?.id
-  
+export default defineEventHandler(async (event) => {
   try {
-    const items: any[] = []
-    
-    // Fetch posts (if needed)
-    if (type === 'all' || type === 'posts') {
-      const posts = await prisma.post.findMany({
-        take: Math.ceil(limit / 2),
-        skip: offset,
-        orderBy: { created_at: 'desc' },
-        include: {
-          author: true,
-          media: true,
-          _count: {
-            select: {
-              likes: true,
-              comments: true,
-              shares: true
-            }
-          }
-        }
-      })
-      
-      items.push(...posts.map(normalizePost))
-    }
-    
-    // Fetch products (if needed)
-    if (type === 'all' || type === 'products') {
-      const products = await prisma.products.findMany({
-        take: Math.ceil(limit / 2),
-        skip: offset,
-        orderBy: { created_at: 'desc' },
-        include: {
-          seller: true,
-          media: true,
-          _count: {
-            select: {
-              likes: true,
-              comments: true,
-              shares: true
-            }
-          }
-        }
-      })
-      
-      items.push(...products.map(normalizeProduct))
-    }
-    
-    // Sort by date
-    const sortedItems = items.sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    // 1. Validate Query Params (Throws 400 automatically if invalid)
+    const query = await getValidatedQuery(event, (data) => querySchema.parse(data))
+
+    // 2. Extract Context (Optional User Auth)
+    const userId = event.context.user?.id
+
+    // 3. Call your existing Feed Service
+    // We pass limit and offset as per your IFeedOptions interface
+    const feed = await feedService.getHomeFeed({
+      limit: query.limit,
+      offset: query.offset,
+      // If your IFeedOptions supports 'type', you can pass it here:
+      type: query.type
     })
-    
-    // Slice to exact limit
-    const finalItems = sortedItems.slice(0, limit)
-    
-    return {
-      items: finalItems,
-      meta: {
-        total: await getTotalCount(type),
-        limit,
-        offset,
-        hasMore: sortedItems.length === limit
-      }
+
+    return feed
+
+  } catch (error: any) {
+    // Handle Validation Errors safely
+    if (error instanceof ZodError) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid query parameters',
+        data: error.errors
+      })
     }
-  } catch (error) {
+
+    console.error('[Home Feed API] Error:', error)
     throw createError({
       statusCode: 500,
-      message: 'Failed to fetch feed'
+      statusMessage: 'Failed to fetch feed'
     })
   }
 })
-
-async function getTotalCount(type: 'all' | 'posts' | 'products'): Promise<number> {
-  if (type === 'posts') {
-    return await prisma.post.count()
-  }
-  if (type === 'products') {
-    return await prisma.products.count()
-  }
-  // For 'all', return combined count
-  const [postsCount, productsCount] = await Promise.all([
-    prisma.post.count(),
-    prisma.products.count()
-  ])
-  return postsCount + productsCount
-}

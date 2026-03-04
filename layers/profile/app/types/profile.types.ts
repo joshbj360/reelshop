@@ -1,11 +1,13 @@
 
 //Location:** `~/layers/profile/app/types/profile.types.ts`
 import type { Profile as ProfileModel } from '@prisma/client'
+import type { ISellerProfile } from '~~/layers/seller/app/types/seller.types'
 export interface IProfile extends ProfileModel {
   stateOfResidence?: string
   fullAddress?: string,
   profileUrl?: string
-   profileStats?: IProfileStats
+  profileStats?: IProfileStats
+  sellerProfile?: ISellerProfile
 }
 
 

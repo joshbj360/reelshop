@@ -40,8 +40,21 @@ export class PostApiClient extends BaseApiClient {
     return this.request(`/api/posts/save`, { method: 'POST', body: { postId: id } })
   }
   
-  async unsavePost(id: string): Promise<any> {  
+  async unsavePost(id: string): Promise<any> {
     return this.request(`/api/posts/save/${id}`, { method: 'DELETE' })
+  }
+
+  async getUserLikedPosts(username: string, limit = 20, offset = 0): Promise<IPaginatedResponse<IPost>> {
+    return this.request(`/api/profile/${username}/likes?limit=${limit}&offset=${offset}`, { method: 'GET' })
+  }
+
+  async deletePost(id: string): Promise<any> {
+    return this.request(`/api/posts/${id}`, { method: 'DELETE' })
+  }
+
+  async updatePost(id: string, data: { caption?: string; content?: string; contentType?: string; visibility?: string }): Promise<IPost> {
+    const response = await this.request<{ success: boolean; data: IPost }>(`/api/posts/${id}`, { method: 'PATCH', body: data })
+    return (response as any).data ?? response
   }
 }
 

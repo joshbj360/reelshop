@@ -54,13 +54,14 @@ export const productRepository = {
   },
 
   async getProducts(
-    filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string },
+    filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean },
     pagination: { limit: number; offset: number }
   ) {
     const where: any = {}
     if (filters.status) where.status = filters.status
     if (filters.sellerId) where.sellerId = filters.sellerId
     if (filters.storeSlug) where.store_slug = filters.storeSlug
+    if (filters.isThrift !== undefined) where.isThrift = filters.isThrift
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },
@@ -122,11 +123,12 @@ export const productRepository = {
     return prisma.products.update({ where: { id }, data: { status: 'ARCHIVED' }, include: productInclude })
   },
 
-  async countProducts(filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string }) {
+  async countProducts(filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean }) {
     const where: any = {}
     if (filters.status) where.status = filters.status
     if (filters.sellerId) where.sellerId = filters.sellerId
     if (filters.storeSlug) where.store_slug = filters.storeSlug
+    if (filters.isThrift !== undefined) where.isThrift = filters.isThrift
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },

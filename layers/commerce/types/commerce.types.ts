@@ -5,6 +5,7 @@ export interface IProduct extends Products {
     store_slug: string
     store_logo?: string | null
     store_name?: string | null
+    default_currency?: string | null
   }
   media?: Array<{
     id: string

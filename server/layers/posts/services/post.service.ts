@@ -39,12 +39,18 @@ export const contentService = {
     return { posts, total, limit, offset }
   },
 
-  async getUserPosts(username: string, limit = 20, offset = 0) {
+  async getUserPosts(username: string, limit = 20, offset = 0, viewerId?: string) {
     const user = await postRepository.getUserByUsername(username)
     if (!user) throw new UserError('USER_NOT_FOUND', `User @${username} not found`, 404)
 
-    const posts = await postRepository.getPostsByUserId(user.id, limit, offset)
-    const total = await postRepository.getPostCountByUserId(user.id)
+    // Visibility: owner sees all posts; everyone else sees only PUBLIC
+    const isOwner = !!viewerId && viewerId === user.id
+    const visibilityFilter = isOwner ? undefined : { visibility: 'PUBLIC' }
+
+    const [posts, total] = await Promise.all([
+      postRepository.getPostsByUserId(user.id, limit, offset, visibilityFilter),
+      postRepository.getPostCountByUserId(user.id, visibilityFilter),
+    ])
     return { posts, total, limit, offset }
   },
 

@@ -6,9 +6,14 @@ import type { IFeedItem } from "../../../../layers/feed/app/types/feed.types"
  * Normalize a post into feed item format
  */
 export const normalizePost = (post: IPost): IFeedItem => {
-  const primaryMedia = post.media?.[0]
+  // Split content media from background music
+  const allMedia = (post.media ?? []) as Array<any>
+  const contentMedia = allMedia.filter((m) => !m.isBgMusic)
+  const bgMusicItem = allMedia.find((m) => m.isBgMusic)
+  const primaryMedia = contentMedia[0]
+
   return {
-    id: `post-${post.id}`,
+    id: post.id,
     type: 'POST',
     created_at: post.created_at,
     author: {
@@ -17,19 +22,27 @@ export const normalizePost = (post: IPost): IFeedItem => {
       avatar: post.author?.avatar,
       role: 'user'
     },
-   media: primaryMedia ? {
+    // Primary media (first content item, for legacy consumers)
+    media: primaryMedia ? {
       id: primaryMedia.id,
       url: primaryMedia.url,
-      type: primaryMedia.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+      type: primaryMedia.type as 'IMAGE' | 'VIDEO' | 'AUDIO',
     } : undefined,
+    // All content media items
+    mediaItems: contentMedia.map((m) => ({
+      id: m.id,
+      url: m.url,
+      type: m.type as 'IMAGE' | 'VIDEO' | 'AUDIO',
+    })),
+    // Background music (altText stores the display filename)
+    bgMusic: bgMusicItem ? { id: bgMusicItem.id, url: bgMusicItem.url, name: bgMusicItem.altText ?? undefined } : undefined,
     caption: post.caption || '',
-    content: post.content || null, 
+    content: post.content || null,
     contentType: post.contentType || 'COMMERCE',
     likeCount: post._count?.likes || 0,
     commentCount: post._count?.comments || 0,
     shareCount: post._count?.shares || 0,
-    taggedProducts: [], // TODO: Add when post-product tagging is implemented
-    _raw: post
+    taggedProducts: [],
   }
 }
 
@@ -55,13 +68,14 @@ export const normalizeProduct = (product: IProduct): IFeedItem => {
       type: primaryMedia.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
     } : undefined,
     caption: product.title,
+    content: product.description,
     contentType: 'PRODUCT',
     likeCount: product._count?.likes || 0,
     commentCount: product._count?.comments || 0,
     shareCount: 0,
     taggedProducts: [],
     product: product,
-    _raw: product
+    //_raw: product
   }
 }
 

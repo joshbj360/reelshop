@@ -11,7 +11,7 @@
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage and monitor your seller profiles</p>
           </div>
           <NuxtLink
-            to="/seller/create"
+            to="/sellers/create"
             class="px-4 py-2 rounded-lg bg-gradient-to-r from-brand-dark to-brand text-white font-semibold hover:shadow-lg transition-all"
           >
             Create Store
@@ -43,7 +43,7 @@
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No stores yet</h3>
         <p class="text-gray-600 dark:text-gray-400 mb-6">Create your first seller profile to start selling</p>
         <NuxtLink
-          to="/seller/create"
+          to="/sellers/create"
           class="inline-block px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:shadow-lg transition-all"
         >
           Create Your First Store
@@ -126,7 +126,7 @@
                 Products
               </NuxtLink>
               <NuxtLink
-                :to="`/seller/${seller.id}/edit`"
+                :to="`/seller/${seller.store_slug}/settings`"
                 class="flex-1 px-3 py-2 rounded-lg border border-gray-200 dark:border-neutral-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors text-sm font-medium text-center"
               >
                 Edit
@@ -157,7 +157,7 @@ import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 
 definePageMeta({
   middleware: 'auth',
-  layout: 'default'
+  layout: 'seller'
 })
 
 const { sellers, isLoading, error, message, loadUserSellers, activateSeller, deactivateSeller, hasSellers } = useSellerManagement()

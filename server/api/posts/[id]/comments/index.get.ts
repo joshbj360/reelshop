@@ -1,18 +1,27 @@
-// GET /api/user/posts/[id]/comments - Get post comments
+// GET /api/posts/[id]/comments - Get post comments
 import { contentService } from "../../../../layers/posts/services/post.service"
 import { UserError } from "../../../../layers/profile/types/user.types"
-
 
 export default defineEventHandler(async (event) => {
   try {
     const id = getRouterParam(event, 'id')
-if (!id) throw new UserError('INVALID_ID', 'ID is required', 400)
+    if (!id) throw new UserError('INVALID_ID', 'ID is required', 400)
     const query = getQuery(event)
     const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
     const offset = Math.max(Number(query.offset) || 0, 0)
-    
-    const result = await contentService.getPostComments(id, limit, offset)
-    return { success: true, data: result }
+
+    const { comments, total } = await contentService.getPostComments(id, limit, offset)
+
+    return {
+      success: true,
+      data: comments,
+      meta: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + comments.length < total,
+      },
+    }
   } catch (error: any) {
     if (error instanceof UserError) {
       throw createError({ statusCode: error.status, statusMessage: error.message })

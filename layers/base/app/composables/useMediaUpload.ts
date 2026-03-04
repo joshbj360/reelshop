@@ -1,70 +1,27 @@
 /**
  * useMediaUpload
- * Shared composable for uploading files to Cloudinary via /api/media/upload
- * Returns mediaId, url, and type for use in post/avatar/story creation
+ * Shared composable for uploading files.
+ * Bridges the UI with the MediaApiClient.
  */
 
-import { useAuthStore } from '../stores/auth.store'
-
-export interface IUploadedMedia {
-  mediaId: string
-  url: string
-  public_id: string | null
-  type: 'IMAGE' | 'VIDEO' | 'AUDIO'
-}
+import { useMediaApi } from '../services/media.api'
+import type { IUploadedMedia, ICloudinaryUploadResult } from '../types/media.types'
 
 export const useMediaUpload = () => {
+  const mediaApi = useMediaApi()
+
   const isUploading = ref(false)
-  const uploadProgress = ref(0)
   const uploadError = ref<string | null>(null)
 
-  /**
-   * Get auth token from auth store or localStorage (mirrors BaseApiClient.getAuthToken)
-   */
-  const getAuthToken = (): string | null => {
-    if (import.meta.server) return null
-    try {
-      const authStore = useAuthStore()
-      if (authStore?.accessToken) return authStore.accessToken
-    } catch {
-      // Store might not be initialised yet — fall through to localStorage
-    }
-    try {
-      return localStorage.getItem('accessToken')
-    } catch {
-      return null
-    }
-  }
-
-  /**
-   * Upload a file and return media metadata
-   * @param file - The File object to upload
-   */
-  const uploadMedia = async (file: File): Promise<IUploadedMedia> => {
+  const uploadMedia = async (media: IUploadedMedia): Promise<ICloudinaryUploadResult> => {
     isUploading.value = true
     uploadError.value = null
-    uploadProgress.value = 0
 
     try {
-      const formData = new FormData()
-      formData.append('file', file, file.name)
-
-      const token = getAuthToken()
-
-      const result = await $fetch<{ success: boolean; data: IUploadedMedia }>('/api/media/upload', {
-        method: 'POST',
-        body: formData,
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        onUploadProgress: (event) => {
-          if (event.total) {
-            uploadProgress.value = Math.round((event.loaded / event.total) * 100)
-          }
-        },
-      })
-
-      uploadProgress.value = 100
-      return result.data
+      const response = await mediaApi.upload(media)
+      return response.data as ICloudinaryUploadResult
     } catch (error: any) {
+      console.error('Upload failed:', error)
       const message = error?.data?.statusMessage || error?.message || 'Failed to upload media'
       uploadError.value = message
       throw new Error(message)
@@ -78,14 +35,15 @@ export const useMediaUpload = () => {
    */
   const resetUpload = () => {
     isUploading.value = false
-    uploadProgress.value = 0
     uploadError.value = null
   }
 
   return {
-    isUploading,
-    uploadProgress,
-    uploadError,
+    // Expose as readonly computed properties for safety
+    isUploading: computed(() => isUploading.value),
+    uploadError: computed(() => uploadError.value),
+    
+    // Methods
     uploadMedia,
     resetUpload,
   }

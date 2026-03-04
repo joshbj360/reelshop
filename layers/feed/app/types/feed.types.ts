@@ -6,7 +6,7 @@ import type { IPost, IProduct } from "../../../../layers/post/app/types/post.typ
  * Normalizes posts and products into a single consumable format
  */
 export interface IFeedItem {
-  id: string                    // Unique identifier: "post-{id}" or "product-{id}"
+  id: string                    // Unique identifier (raw UUID for posts; "product-{id}" for products)
   type: 'POST' | 'PRODUCT'      // Discriminator for rendering
   created_at: Date            // ISO timestamp for sorting
   
@@ -18,12 +18,27 @@ export interface IFeedItem {
     role: 'user' | 'seller'
   }
   
-  // Media (primary display)
+  // Media (primary display — first non-music item, kept for backward compat)
   media?: {
     id: string
     url: string
     type: 'IMAGE' | 'VIDEO' | 'AUDIO'
     thumbnailUrl?: string
+  }
+
+  // All content media items (images + videos, excludes bg music)
+  mediaItems?: Array<{
+    id: string
+    url: string
+    type: 'IMAGE' | 'VIDEO' | 'AUDIO'
+    thumbnailUrl?: string
+  }>
+
+  // Background music track (optional audio attached separately)
+  bgMusic?: {
+    id: string
+    url: string
+    name?: string   // original filename / display title
   }
   
   // Content
@@ -41,7 +56,7 @@ export interface IFeedItem {
   product?: IProduct                     // For PRODUCT type, the actual product
   
   // Original data (for type-specific operations)
-  _raw: IPost | IProduct        // Preserve original object
+  //_raw: IPost | IProduct        // Preserve original object
 }
 
 /**

@@ -1,33 +1,33 @@
 <template>
     <HomeLayout>
-        <div class="max-w-5xl mx-auto space-y-6 pb-20">
-            <!-- Loading State -->
-            <div v-if="isLoading" class="text-center py-20">
-                <Icon name="eos-icons:loading" size="48" class="text-brand animate-spin" />
+        <div class="max-w-5xl mx-auto space-y-4 pb-20">
+
+            <!-- Loading -->
+            <div v-if="isLoading && !profile" class="flex flex-col items-center justify-center py-24 gap-3">
+                <Icon name="eos-icons:loading" size="40" class="text-brand animate-spin" />
+                <span class="text-sm text-gray-400 dark:text-neutral-500">Loading profile…</span>
             </div>
 
-            <!-- Error State -->
-            <div v-else-if="error" class="text-center py-20">
-                <div class="space-y-4">
-                    <Icon name="mdi:alert-circle" size="48" class="text-red-500" />
-                    <p class="text-gray-900 dark:text-neutral-100 font-semibold">{{ error }}</p>
-                    <button 
-                        @click="retryFetch"
-                        class="px-6 py-2 bg-brand text-white rounded-lg hover:bg-[#d81b36] transition-colors"
-                    >
-                        Try Again
-                    </button>
-                </div>
+            <!-- Error -->
+            <div v-else-if="error && !profile" class="flex flex-col items-center justify-center py-24 gap-4">
+                <Icon name="mdi:alert-circle-outline" size="48" class="text-red-400" />
+                <p class="text-gray-700 dark:text-neutral-300 font-medium">{{ error }}</p>
+                <button
+                    @click="retryFetch"
+                    class="px-5 py-2 bg-brand text-white rounded-lg text-sm font-semibold hover:bg-[#d81b36] transition-colors"
+                >
+                    Try Again
+                </button>
             </div>
 
             <!-- Profile Content -->
             <template v-else-if="profile">
-                <!-- Profile Header -->
-                <ProfileHeader 
-                    :profile="profile" 
+                <ProfileHeader
+                    :profile="profile"
                     :stats="stats"
                     :is-own-profile="isOwnProfile"
                     :is-following="isFollowing"
+                    :is-follow-loading="isFollowLoading"
                     @edit="showEditModal = true"
                     @message="startConversation"
                     @follow="handleFollow"
@@ -37,75 +37,62 @@
                     @show-following="showFollowingModal = true"
                 />
 
-                <!-- Navigation Tabs -->
-                <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-800 overflow-hidden">
-                    <!-- Tab Headers -->
+                <!-- Tab strip -->
+                <div class="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 overflow-hidden">
                     <div class="flex overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-neutral-800">
-                        <button 
-                            v-for="tab in availableTabs" 
+                        <button
+                            v-for="tab in availableTabs"
                             :key="tab.id"
                             @click="activeTab = tab.id"
-                            class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap transition-colors relative"
-                            :class="activeTab === tab.id 
-                                ? 'text-gray-900 dark:text-neutral-100' 
-                                : 'text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200'"
+                            class="relative flex items-center gap-1.5 px-5 py-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors"
+                            :class="activeTab === tab.id
+                                ? 'text-gray-900 dark:text-neutral-100'
+                                : 'text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-neutral-300'"
                         >
-                            <Icon :name="tab.icon" size="20" />
-                            <span>{{ tab.label }}</span>
-                            
-                            <!-- Badge (for orders, notifications) -->
-                            <span 
+                            <Icon :name="tab.icon" size="16" />
+                            {{ tab.label }}
+                            <span
                                 v-if="tab.badge && tab.badge > 0"
-                                class="px-2 py-0.5 text-xs bg-brand text-white rounded-full"
-                            >
-                                {{ tab.badge }}
-                            </span>
-
-                            <!-- Active Indicator -->
-                            <div 
+                                class="px-1.5 py-0.5 text-[10px] bg-brand text-white rounded-full leading-none"
+                            >{{ tab.badge }}</span>
+                            <div
                                 v-if="activeTab === tab.id"
-                                class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand"
-                            ></div>
+                                class="absolute bottom-0 left-0 right-0 h-[2px] bg-brand rounded-t-full"
+                            />
                         </button>
                     </div>
 
-                    <!-- Tab Content -->
-                    <div class="min-h-[400px]">
-                        <!-- Posts Tab -->
-                        <PostsTab 
+                    <!-- Tab content -->
+                    <div class="min-h-[300px]">
+                        <PostsTab
                             v-if="activeTab === 'posts'"
                             :username="username"
                             :is-own-profile="isOwnProfile"
                         />
-
-                        <!-- Orders Tab (Own profile only) -->
-                        <OrdersTab 
+                        <LikesTab
+                            v-else-if="activeTab === 'likes'"
+                            :username="username"
+                        />
+                        <SavedTab
+                            v-else-if="activeTab === 'saved' && isOwnProfile"
+                        />
+                        <OrdersTab
                             v-else-if="activeTab === 'orders' && isOwnProfile"
                         />
-
-                        <!-- Wallet Tab (Own profile only) -->
-                        <WalletTab 
+                        <WalletTab
                             v-else-if="activeTab === 'wallet' && isOwnProfile"
                         />
-
-                        <!-- Affiliate Tab (Own profile only) -->
-                        <AffiliateTab 
+                        <AffiliateTab
                             v-else-if="activeTab === 'affiliate' && isOwnProfile"
                         />
-
-                        <!-- Tagged Tab -->
-                        <TaggedTab 
+                        <TaggedTab
                             v-else-if="activeTab === 'tagged'"
                             :username="username"
                         />
-
-                        <!-- Saved Tab (Own profile only) -->
-                        <SavedTab 
-                            v-else-if="activeTab === 'saved' && isOwnProfile"
+                        <StoresTab
+                            v-else-if="activeTab === 'stores' && isOwnProfile"
                         />
-
-                        <!-- About Tab -->
-                        <AboutTab 
+                        <AboutTab
                             v-else-if="activeTab === 'about'"
                             :profile="profile"
                         />
@@ -115,21 +102,19 @@
         </div>
 
         <!-- Modals -->
-        <EditProfileModal 
+        <EditProfileModal
             v-if="showEditModal"
             :profile="profile!"
             @close="showEditModal = false"
             @updated="handleProfileUpdated"
         />
-
-        <FollowListModal 
+        <FollowListModal
             v-if="showFollowersModal"
             type="followers"
             :username="username"
             @close="showFollowersModal = false"
         />
-
-        <FollowListModal 
+        <FollowListModal
             v-if="showFollowingModal"
             type="following"
             :username="username"
@@ -139,183 +124,166 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useProfileStore } from '../../stores/profile.store'
-import { useProfile } from '../../composables/useProfile'
-import { useFollow } from '../../composables/useFollow'
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useProfileStore } from '../../stores/profile.store';
+import { useSellerStore } from '~~/layers/seller/app/store/seller.store';
+
+import { useProfile } from '../../composables/useProfile';
+import { useFollow } from '../../composables/useFollow';
+import type { IProfile } from '../../types/profile.types';
 
 // Components
-import HomeLayout from '~/layouts/HomeLayout.vue'
-import ProfileHeader from '../../components/profile/ProfileHeader.vue'
-import PostsTab from '../../components/profile/tabs/PostTab.vue'
-import OrdersTab from '../../components/profile/tabs/OrdersTab.vue'
-import WalletTab from '../../components/profile/tabs/WalletTab.vue'
-import AffiliateTab from '../../components/profile/tabs/AffiliateTab.vue'
-import TaggedTab from '../../components/profile/tabs/TaggedTab.vue'
-import SavedTab from '../../components/profile/tabs/SavedTab.vue'
-import AboutTab from '../../components/profile/tabs/AboutTab.vue'
-import EditProfileModal from '../../components/profile/modals/EditProfileModal.vue'
-import FollowListModal from '../../components/profile/modals/FollowListModal.vue'
-import { useFollowStore } from '../../stores/follow.store'
-import type { IProfile } from '../../types/profile.types'
+import HomeLayout from '~/layouts/HomeLayout.vue';
+import ProfileHeader from '../../components/profile/ProfileHeader.vue';
+import PostsTab from '../../components/profile/tabs/PostTab.vue';
+import LikesTab from '../../components/profile/tabs/LikesTab.vue';
+import SavedTab from '../../components/profile/tabs/SavedTab.vue';
+import OrdersTab from '../../components/profile/tabs/OrdersTab.vue';
+import WalletTab from '../../components/profile/tabs/WalletTab.vue';
+import AffiliateTab from '../../components/profile/tabs/AffiliateTab.vue';
+import TaggedTab from '../../components/profile/tabs/TaggedTab.vue';
+import AboutTab from '../../components/profile/tabs/AboutTab.vue';
+import EditProfileModal from '../../components/profile/modals/EditProfileModal.vue';
+import FollowListModal from '../../components/profile/modals/FollowListModal.vue';
+import StoresTab from '../../components/profile/tabs/StoresTab.vue';
 
-const route = useRoute()
-const router = useRouter()
-const profileStore = useProfileStore()
-const followStore = useFollowStore()
+const route = useRoute();
+const router = useRouter();
+const profileStore = useProfileStore();
+const sellerStore = useSellerStore();
 
-const { fetchPublicProfile, fetchMyProfile, isLoading, error } = useProfile()
-const { followUser, unfollowUser} = useFollow()
+const { fetchPublicProfile, fetchUserStats, isLoading, error } = useProfile();
+const { followUser, unfollowUser, checkIfFollowing } = useFollow();
 
-// ==================== STATE ====================
+// ── State ──────────────────────────────────────────────────────────────────────
+const username        = computed(() => route.params.username as string);
+const activeTab       = ref('posts');
+const showEditModal   = ref(false);
+const showFollowersModal = ref(false);
+const showFollowingModal = ref(false);
+const isFollowing     = ref(false);
+const isFollowLoading = ref(false);
 
-const username = computed(() => route.params.username as string)
-const activeTab = ref('posts')
-const showEditModal = ref(false)
-const showFollowersModal = ref(false)
-const showFollowingModal = ref(false)
-const isFollowing = ref(false)
+// ── Reactive profile & stats ───────────────────────────────────────────────────
+const isOwnProfile = computed(() =>
+    !!profileStore.me?.username && profileStore.me.username === username.value
+);
 
-// Get profile from store
-const profile = computed(() => {
-    // If viewing own profile, use me
-    if (isOwnProfile.value) {
-        return profileStore.me
-    }
-    // Otherwise get public profile
-    return profileStore.publicProfiles.get(username.value) as IProfile
-})
+const profile = computed<IProfile | undefined>(() => {
+    if (isOwnProfile.value) return profileStore.me ?? undefined;
+    return profileStore.publicProfiles.get(username.value) as IProfile | undefined;
+});
 
-const isOwnProfile = computed(() => {
-    return profileStore.me?.username === username.value
-})
+// stats MUST be reactive — getProfileStats(username) can change when username changes
+const stats = computed(() => profileStore.getProfileStats(username.value));
 
-const stats = profileStore.getProfileStats(username.value)
-// ==================== TABS CONFIGURATION ====================
-
+// ── Tab config ─────────────────────────────────────────────────────────────────
 const availableTabs = computed(() => {
-    const publicTabs = [
-        { id: 'posts', label: 'Posts', icon: 'mdi:grid' },
-        { id: 'tagged', label: 'Tagged', icon: 'mdi:account-tag' },
-        { id: 'about', label: 'About', icon: 'mdi:information' }
-    ]
+    type Tab = { id: string; label: string; icon: string; badge?: number }
+    const publicTabs: Tab[] = [
+        { id: 'posts',  label: 'Posts',   icon: 'mdi:grid' },
+        { id: 'tagged', label: 'Tagged',  icon: 'mdi:account-tag' },
+        { id: 'about',  label: 'About',   icon: 'mdi:information-outline' },
+    ];
 
     if (isOwnProfile.value) {
-        return [
-            { id: 'posts', label: 'Posts', icon: 'mdi:grid' },
-            { 
-                id: 'orders', 
-                label: 'Orders', 
-                icon: 'mdi:package-variant',
-                badge: pendingOrdersCount.value
-            },
-            { 
-                id: 'wallet', 
-                label: 'Wallet', 
-                icon: 'mdi:wallet'
-            },
-            { 
-                id: 'affiliate', 
-                label: 'Affiliate', 
-                icon: 'mdi:cash-multiple',
-                badge: 0 // TODO: Add affiliate earnings badge
-            },
-            { id: 'saved', label: 'Saved', icon: 'mdi:bookmark' },
-            { id: 'about', label: 'About', icon: 'mdi:information' }
-        ]
+        const tabs: Tab[] = [
+            { id: 'posts',     label: 'Posts',     icon: 'mdi:grid' },
+            { id: 'likes',     label: 'Liked',     icon: 'mdi:heart-outline' },
+            { id: 'saved',     label: 'Saved',     icon: 'mdi:bookmark-outline' },
+            { id: 'orders',    label: 'Orders',    icon: 'mdi:package-variant', badge: 0 },
+            { id: 'wallet',    label: 'Wallet',    icon: 'mdi:wallet-outline' },
+            { id: 'affiliate', label: 'Affiliate', icon: 'mdi:cash-multiple' },
+            { id: 'about',     label: 'About',     icon: 'mdi:information-outline' },
+        ];
+        if (sellerStore.hasSellers) {
+            tabs.splice(3, 0, { id: 'stores', label: 'My Stores', icon: 'mdi:store-outline' });
+        }
+        return tabs;
     }
+    return publicTabs;
+});
 
-    return publicTabs
-})
+// ── Data fetching ──────────────────────────────────────────────────────────────
+const loadProfile = async (uname: string) => {
+    if (!uname) return;
 
-// TODO: Fetch pending orders count
-const pendingOrdersCount = computed(() => 0)
-
-// ==================== METHODS ====================
-
-const retryFetch = async () => {
-    if (isOwnProfile.value) {
-        await fetchMyProfile()
+    if (profileStore.me?.username === uname) {
+        // Own profile — data already in store from auth-init, just ensure stats are fresh
+        if (!profileStore.getProfileStats(uname).postsCount && profileStore.me) {
+            await fetchUserStats(uname).catch(() => {});
+        }
+        isFollowing.value = false;
     } else {
-        await fetchPublicProfile(username.value)
+        await fetchPublicProfile(uname);
+        // Fetch stats separately if not bundled in profile response
+        const existingStats = profileStore.getProfileStats(uname);
+        if (!existingStats.postsCount) {
+            await fetchUserStats(uname).catch(() => {});
+        }
+        // Check follow status (guest → always false)
+        if (profileStore.me) {
+            isFollowing.value = await checkIfFollowing(uname);
+        }
     }
-}
+};
 
+// ── Actions ────────────────────────────────────────────────────────────────────
 const handleFollow = async () => {
-    await followUser(username.value)
-    isFollowing.value = true
-    profileStore.updateStat(username.value, 'followersCount', 1)
-}
+    isFollowLoading.value = true;
+    try {
+        await followUser(username.value);
+        isFollowing.value = true;
+    } catch { /* followUser notifies on error */ } finally {
+        isFollowLoading.value = false;
+    }
+};
 
 const handleUnfollow = async () => {
-    await unfollowUser(username.value)
-    isFollowing.value = false
-    profileStore.updateStat(username.value, 'followersCount', -1)
-}
+    isFollowLoading.value = true;
+    try {
+        await unfollowUser(username.value);
+        isFollowing.value = false;
+    } catch { /* unfollowUser notifies on error */ } finally {
+        isFollowLoading.value = false;
+    }
+};
+
+const retryFetch = () => loadProfile(username.value);
 
 const startConversation = () => {
-    if (profile.value) {
-        router.push(`/messages/new?user=${profile.value.id}`)
-    }
-}
+    if (profile.value) router.push(`/messages/new?user=${profile.value.id}`);
+};
 
-const goToSettings = () => {
-    router.push('/settings')
-}
+const goToSettings = () => router.push('/settings');
 
 const handleProfileUpdated = () => {
-    showEditModal.value = false
-    retryFetch()
-}
+    showEditModal.value = false;
+    retryFetch();
+};
 
-// ==================== LIFECYCLE ====================
+// ── Lifecycle ──────────────────────────────────────────────────────────────────
+// Watch handles navigation between profiles (e.g. clicking a different username)
+// Initial load is handled by onMounted (client-only, avoids SSR server-to-server HTTP hang)
+watch(username, (u) => loadProfile(u));
 
-// Fetch profile on mount and when username changes
-watch(username, async (newUsername) => {
-    if (!newUsername) return
+onMounted(async () => {
+    // Initial load (watch handles subsequent username changes)
+    await loadProfile(username.value);
 
-    // Check if viewing own profile
-    if (profileStore.me?.username === newUsername) {
-        // Fetch own profile if not loaded
-        if (!profileStore.me) {
-            await fetchMyProfile()
-//alert(JSON.stringify(stats))
-
-        }
-    } else {
-        // Fetch public profile
-        await fetchPublicProfile(newUsername)
-
-        
-        // Check if following
-        isFollowing.value = followStore.isFollowing(profileStore.me?.id || '')
-    }
-}, { immediate: true })
-
-// Set default tab from query params
-onMounted(() => {
-    const tabFromQuery = route.query.tab as string
+    const tabFromQuery = route.query.tab as string;
     if (tabFromQuery && availableTabs.value.some(t => t.id === tabFromQuery)) {
-        activeTab.value = tabFromQuery
+        activeTab.value = tabFromQuery;
     }
-})
+});
 
-// Update URL when tab changes
-watch(activeTab, (newTab) => {
-    router.replace({ 
-        query: { ...route.query, tab: newTab }
-    })
-})
+watch(activeTab, (tab) => {
+    router.replace({ query: { ...route.query, tab } });
+});
 </script>
 
 <style scoped>
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
-}
-
-.scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

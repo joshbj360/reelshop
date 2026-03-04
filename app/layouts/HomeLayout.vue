@@ -12,10 +12,11 @@
         
         <!-- Left Sidebar (Desktop) -->
         <aside class="hidden md:block w-20 xl:w-72 fixed top-0 left-0 h-full z-20 bg-white border-r border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide">
-            <SideNav 
-                @create="showCreateModal = true" 
-                @open-search="showSearchOverlay = true" 
-                @open-notifications="showNotificationOverlay = true" 
+            <SideNav
+                @create="showCreateModal = true"
+                @open-search="showSearchOverlay = true"
+                @open-notifications="showNotificationOverlay = true"
+                @open-cart="showCart = true"
             />
         </aside>
 
@@ -25,10 +26,13 @@
                 
                 <!-- MAIN FEED/CONTENT AREA -->
                 <div
-                    class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-6 py-6"
+                    class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
                     :class="mainContentClasses"
                 >
-                    <div class="pb-20 md:pb-0">
+                    <div
+                        class="pb-20 md:pb-0 w-full"
+                        :class="isNarrowFeed ? 'max-w-[560px] mx-auto' : ''"
+                    >
                         <!-- Page Content Slot -->
                         <slot />
                     </div>
@@ -37,7 +41,7 @@
                 <!-- RIGHT SIDEBAR (Desktop) -->
                 <aside
                     v-if="showRightSidebar"
-                    class="hidden lg:block w-[420px] shrink-0 p-4 h-[100vh] overflow-y-auto bg-white border-l border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide"
+                    class="hidden lg:block w-[380px] shrink-0 p-4 h-[100vh] overflow-y-auto bg-white border-l border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide"
                 >
                     <!-- Right Sidebar Slot -->
                     <slot name="right-sidebar">
@@ -50,7 +54,7 @@
         </main>
         
         <!-- Bottom Navigation (Mobile) -->
-        <BottomNavMobile @create="showCreateModal = true" />
+        <BottomNavMobile @create="showCreateModal = true" @open-cart="showCart = true" />
 
         <!-- Mobile AI Chat Floating Button -->
         <MobileAIChatButton 
@@ -97,10 +101,42 @@
         />
         
         <!-- Notification Overlay -->
-        <NotificationOverlay 
-            :is-open="showNotificationOverlay" 
-            @close="showNotificationOverlay = false" 
+        <NotificationOverlay
+            :is-open="showNotificationOverlay"
+            @close="showNotificationOverlay = false"
         />
+
+        <!-- Cart Sidebar -->
+        <CartSidebar :is-open="showCart" @close="showCart = false" />
+
+        <!-- Mobile: Become a Seller Banner -->
+        <ClientOnly>
+            <Transition name="seller-banner">
+                <div
+                    v-if="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
+                    class="md:hidden fixed bottom-16 left-0 right-0 z-20 px-3 pb-2"
+                >
+                    <div class="bg-gradient-to-r from-[#f02c56] to-purple-600 rounded-2xl px-3 py-2.5 flex items-center gap-2.5 shadow-xl">
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                            <Icon name="mdi:store-plus-outline" size="16" class="text-white" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white text-[12px] font-bold leading-tight">Start selling on Fitsy</p>
+                            <p class="text-white/70 text-[10px]">Turn your passion into profit</p>
+                        </div>
+                        <NuxtLink
+                            to="/sellers/create"
+                            class="bg-white text-brand text-[11px] font-bold px-3 py-1.5 rounded-xl shrink-0 whitespace-nowrap"
+                        >
+                            Start →
+                        </NuxtLink>
+                        <button @click="dismissSellerBanner = true" class="text-white/60 hover:text-white shrink-0">
+                            <Icon name="mdi:close" size="16" />
+                        </button>
+                    </div>
+                </div>
+            </Transition>
+        </ClientOnly>
     </div>
 </template>
 
@@ -117,7 +153,10 @@ import StoryUploadModal from '../components/modals/StoryUploadModal.vue';
 // import QuickProductModal from '~/components/product/QuickProductModal.vue';
 import SearchOverlay from '~/components/search/SearchOverLay.vue';
 import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue';
+import CartSidebar from '~/components/shop/CartSidebar.vue';
 import { useLayoutData } from '~/composables/useLayoutData';
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
+import { useSellerStore } from '~~/layers/seller/app/store/seller.store';
 
 const route = useRoute();
 
@@ -160,20 +199,14 @@ const mainContentClasses = computed(() => {
         classes.push('pt-16 md:pt-6'); // Space for header only
     }
     
-    // Desktop centering and max width
-    if (isNarrowFeed.value) {
-        classes.push('max-w-2xl mx-auto lg:px-20');
-    } else {
-        classes.push('lg:px-6');
-    }
+    // Desktop padding
+    classes.push('lg:px-4');
     
     return classes.join(' ');
 });
 
 // Layout data
-const { data: layoutData, refresh } = useLayoutData();
-const topSellers = computed(() => layoutData.value?.topSellers || []);
-const categories = computed(() => layoutData.value?.categories || []);
+const { refresh } = useLayoutData();
 
 // Modal states
 const showCreateModal = ref(false);
@@ -183,6 +216,11 @@ const showQuickProductModal = ref(false);
 const showSearchOverlay = ref(false);
 const showNotificationOverlay = ref(false);
 const showAI = ref(false);
+const showCart = ref(false);
+const dismissSellerBanner = ref(false);
+
+const profileStore = useProfileStore();
+const sellerStore = useSellerStore();
 
 // Modal handlers
 const openPostUploader = () => {
@@ -235,4 +273,8 @@ onUnmounted(() => {
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
+.seller-banner-enter-active { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease; }
+.seller-banner-leave-active { transition: transform 0.2s ease, opacity 0.2s ease; }
+.seller-banner-enter-from, .seller-banner-leave-to { transform: translateY(100%); opacity: 0; }
 </style>

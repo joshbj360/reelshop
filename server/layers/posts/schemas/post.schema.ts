@@ -9,10 +9,17 @@ import { z } from 'zod'
 
 // ==================== POSTS ====================
 
+const mediaItemSchema = z.object({
+  url: z.string().url(),
+  public_id: z.string(),
+  type: z.enum(['IMAGE', 'VIDEO', 'AUDIO']),
+})
+
 export const createPostSchema = z.object({
   caption: z.string().max(2000).optional(),
   content: z.string().max(10000).optional(),
-  mediaId: z.string().uuid().optional(),  // ← Now optional
+  mediaData: z.array(mediaItemSchema).max(10).optional(),
+  musicData: mediaItemSchema.optional(),
   contentType: z.enum([
     'COMMERCE',
     'EXPERIENCE',
@@ -21,27 +28,8 @@ export const createPostSchema = z.object({
     'ENTERTAINMENT'
   ]).default('COMMERCE')
 }).refine(
-  (data) => {
-    // Rules:
-    // 1. COMMERCE, EXPERIENCE, INSPIRATION require media
-    // 2. At least one of caption, content, or media required
-    
-    const needsMedia = ['COMMERCE', 'EXPERIENCE', 'INSPIRATION'].includes(data.contentType)
-    const hasMediaOrContent = !!data.mediaId || !!data.content || !!data.caption
-    
-    if (needsMedia && !data.mediaId) {
-      return false
-    }
-    
-    if (!hasMediaOrContent) {
-      return false
-    }
-    
-    return true
-  },
-  {
-    message: 'Commerce/Experience/Inspiration posts require mediaId. All posts need at least caption, content, or media.'
-  }
+  (data) => (data.mediaData && data.mediaData.length > 0) || !!data.content || !!data.caption,
+  { message: 'Post must have at least a caption, content, or media.' }
 )
 
 export const updatePostSchema = z.object({

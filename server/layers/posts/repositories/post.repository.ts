@@ -1,7 +1,5 @@
 // FILE PATH: server/layers/user/repositories/content.repository.ts
 
-import { get } from "node:http"
-
 export const postRepository = {
 
   async getUserByUsername(username: string) {
@@ -10,48 +8,88 @@ export const postRepository = {
 
   // ========== POSTS ==========
   async createPost(userId: string, data: any) {
-  const postData: any = {
-    id: crypto.randomUUID(),
-    authorId: userId,
-    caption: data.caption,
-    content: data.content,
-    contentType: data.contentType || 'COMMERCE'
-  }
-  
-  // Only add mediaId if provided
-  if (data.mediaId) {
-    postData.mediaId = data.mediaId
-  }
-  
-  return await prisma.post.create({
-    data: postData,
-    include: { 
-      author: true,
-      media: true,
-      taggedProducts: true
+    const postData: any = {
+      id: crypto.randomUUID(),
+      authorId: userId,
+      caption: data.caption,
+      content: data.content,
+      visibility: data.visibility || 'PUBLIC',
+      contentType: data.contentType || 'COMMERCE'
     }
-  })
-},
+
+    if (data.allowComments !== undefined) {
+      postData.allowComments = data.allowComments
+    }
+
+    if (data.taggedProducts && data.taggedProducts.length > 0) {
+      postData.taggedProducts = {
+        connect: data.taggedProducts.map((id: string) => ({ id }))
+      }
+    }
+
+    // Atomically create all Media records (images/videos) + optional bg music
+    const mediaCreates: any[] = []
+
+    if (data.mediaData && data.mediaData.length > 0) {
+      for (const m of data.mediaData) {
+        mediaCreates.push({
+          url: m.url,
+          public_id: m.public_id,
+          type: m.type,
+          authorId: userId,
+          isBgMusic: false,
+        })
+      }
+    }
+
+    if (data.musicData) {
+      mediaCreates.push({
+        url: data.musicData.url,
+        public_id: data.musicData.public_id,
+        type: 'AUDIO',
+        authorId: userId,
+        isBgMusic: true,
+        altText: data.musicData.name ?? null,
+      })
+    }
+
+    if (mediaCreates.length > 0) {
+      postData.media = { create: mediaCreates }
+    }
+
+    return await prisma.post.create({
+      data: postData,
+      include: {
+        author: true,
+        media: true,
+        taggedProducts: true
+      }
+    })
+  },
 
   async getPostById(postId: string) {
     return await prisma.post.findUnique({
       where: { id: postId },
-      include: { author: true, likes: true, comments: true }
+      include: { author: true, likes: true, comments: true, media: true }
     })
   },
 
-  async getPostsByUserId(userId: string, limit: number, offset: number) {
+  async getPostsByUserId(userId: string, limit: number, offset: number, visibilityFilter?: any) {
     return await prisma.post.findMany({
-      where: { authorId: userId },
-      include: { author: true, likes: true, comments: true },
+      where: { authorId: userId, ...visibilityFilter },
+      include: {
+        author: { select: { id: true, username: true, avatar: true, role: true } },
+        media: { select: { id: true, url: true, type: true, isBgMusic: true } },
+        _count: { select: { likes: true, comments: true, shares: true } },
+      },
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' }
     })
   },
 
-  async getPostCountByUserId(userId: string) {
-    return await prisma.post.count({ where: { authorId: userId } })
+  async getPostCountByUserId(userId: string, visibilityFilter?: any) {
+    return await prisma.post.count({ where: { authorId: userId, ...visibilityFilter } })
   },
 
   async updatePost(postId: string, data: any) {
@@ -62,52 +100,58 @@ export const postRepository = {
     })
   },
 
-      async getPosts(options: {
-        take?: number
-        skip?: number
-        where?: any
-        orderBy?: any
-        include?: any
-    }) {
-        return await prisma.post.findMany({
-            take: options.take,
-            skip: options.skip,
-            where: options.where,
-            orderBy: options.orderBy,
-            include: {
-                author: true,
-                _count: {
-                    select: {
-                        likes: true,
-                        comments: true,
-                        shares: true
-                    }
-                },
-                ...options.include
-            }
-        })
-    },
+  async getPosts(options: {
+    take?: number
+    skip?: number
+    where?: any
+    orderBy?: any
+    include?: any
+  }) {
+    return await prisma.post.findMany({
+      take: options.take,
+      skip: options.skip,
+      where: options.where,
+      orderBy: options.orderBy,
+      include: {
+        author: true,
+        media: {
+          select: { id: true, url: true, type: true, isBgMusic: true, altText: true }
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            shares: true
+          }
+        },
+        ...options.include
+      }
+    })
+  },
 
   async getPostsByAuthorIds(authorIds: string[], options: any) {
-        return await prisma.post.findMany({
-            where: {
-                authorId: { in: authorIds }
-            },
-            take: options.limit,
-            skip: options.offset,
-            orderBy: { created_at: 'desc' },
-            include: {
-                author: true,
-                _count: {
-                    select: {
-                        likes: true,
-                        comments: true,
-                        shares: true
-                    }
-                }
-            }
-        })
-    },
+    return await prisma.post.findMany({
+      where: {
+        authorId: { in: authorIds }
+      },
+      take: options.limit,
+      skip: options.offset,
+      orderBy: { created_at: 'desc' },
+      include: {
+        author: true,
+        media: {
+          select: { id: true, url: true, type: true, isBgMusic: true, altText: true }
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            shares: true
+          }
+        }
+      }
+    })
+  },
 
   async deletePost(postId: string) {
     return await prisma.post.delete({ where: { id: postId } })
@@ -159,18 +203,18 @@ export const postRepository = {
   },
 
   async getCommentReplies(commentId: string, limit: number, offset: number) {
-  return await prisma.comment.findMany({
-    where: { parentId: commentId },  // ← Filters by parent comment
-    include: { author: true },
-    take: limit,
-    skip: offset,
-    orderBy: { created_at: 'desc' }
-  })
-},
+    return await prisma.comment.findMany({
+      where: { parentId: commentId },  // ← Filters by parent comment
+      include: { author: true },
+      take: limit,
+      skip: offset,
+      orderBy: { created_at: 'desc' }
+    })
+  },
 
-async getCommentRepliesCount(commentId: string) {
-  return await prisma.comment.count({ where: { parentId: commentId } })
-},
+  async getCommentRepliesCount(commentId: string) {
+    return await prisma.comment.count({ where: { parentId: commentId } })
+  },
 
   // ========== POST LIKES ==========
   async createPostLike(userId: string, postId: string) {

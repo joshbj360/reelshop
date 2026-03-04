@@ -1,5 +1,5 @@
 <template>
-    <header class="fixed top-0 left-0 right-0 z-20 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 md:hidden">
+    <header class="fixed top-0 left-0 right-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200/60 dark:border-neutral-800/60 md:hidden">
         <div class="flex items-center justify-between h-14 px-4">
             <!-- Logo -->
             <NuxtLink to="/" class="flex items-center gap-2">
@@ -43,6 +43,6 @@ const unreadCount = computed(() => notificationStore.unreadCount);
 
 <style scoped>
 .header-button {
-    @apply p-2 text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-neutral-100 transition-colors;
+    @apply p-2 rounded-full text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-neutral-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors;
 }
 </style>

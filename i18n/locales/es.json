@@ -1,0 +1,154 @@
+{
+  "zod": {
+    "errors": {
+      "invalid_type": "Se esperaba {expected}, se recibió {received}",
+      "invalid_string": {
+        "email": "Introduce un correo electrónico empresarial válido",
+        "url": "Formato de URL no válido"
+      }
+    }
+  },
+  "nav": {
+    "home": "Inicio",
+    "search": "Buscar",
+    "discover": "Descubrir",
+    "thrift": "Segunda mano",
+    "reels": "Reels",
+    "create": "Crear",
+    "notifications": "Notificaciones",
+    "messages": "Mensajes",
+    "profile": "Perfil",
+    "signIn": "Iniciar sesión"
+  },
+  "post": {
+    "addComment": "Añadir un comentario…",
+    "post": "Publicar",
+    "shopThisPost": "Comprar en este post",
+    "noComments": "Sin comentarios aún.",
+    "beFirstComment": "¡Sé el primero en comentar!",
+    "reply": "Responder",
+    "like": "me gusta",
+    "likes": "me gustas",
+    "comment": "comentario",
+    "comments": "comentarios",
+    "viewAll": "Ver todos",
+    "follow": "Seguir",
+    "following": "Siguiendo",
+    "share": "Compartir",
+    "save": "Guardar",
+    "linkCopied": "¡Enlace copiado!",
+    "editPost": "Editar post",
+    "deletePost": "Eliminar post",
+    "confirmDelete": "¿Eliminar este post? Esta acción no se puede deshacer.",
+    "deleted": "Post eliminado"
+  },
+  "contentType": {
+    "EXPERIENCE": "Experiencia",
+    "INSPIRATION": "Inspirar",
+    "COMMERCE": "Tienda",
+    "EDUCATIONAL": "Aprender",
+    "ENTERTAINMENT": "Entretenimiento"
+  },
+  "contentTypeLabel": {
+    "EXPERIENCE": "Experiencia / Reseña",
+    "INSPIRATION": "Inspiración de moda",
+    "EDUCATIONAL": "Tutorial / Guía",
+    "ENTERTAINMENT": "Fun / Entretenimiento"
+  },
+  "time": {
+    "justNow": "ahora mismo",
+    "minutesAgo": "hace {n}m",
+    "hoursAgo": "hace {n}h",
+    "daysAgo": "hace {n}d"
+  },
+  "upload": {
+    "newPost": "Nuevo post",
+    "share": "Compartir",
+    "sharing": "Compartiendo…",
+    "whatOnMind": "¿Qué tienes en mente?",
+    "addPhotosVideos": "Añadir fotos o vídeos",
+    "dragDrop": "Arrastra o haz clic · Hasta 10 archivos · 50MB cada uno",
+    "addMore": "Añadir",
+    "addMusic": "Añadir música de fondo",
+    "changeMusic": "Cambiar música",
+    "caption": "Descripción",
+    "captionPlaceholder": "Escribe una descripción…",
+    "contentType": "Tipo de contenido",
+    "publish": "Publicar",
+    "publishing": "Publicando…",
+    "tagProducts": "Etiquetar productos",
+    "advancedOptions": "Opciones avanzadas",
+    "whoCanSee": "¿Quién puede verlo?",
+    "everyone": "Todos",
+    "followersOnly": "Solo seguidores",
+    "onlyMe": "Solo yo",
+    "allowComments": "Permitir comentarios",
+    "confirmDiscard": "¿Descartar el post?"
+  },
+  "music": {
+    "backgroundMusic": "Música de fondo",
+    "nowPlaying": "Reproduciendo"
+  },
+  "auth": {
+    "password_min": "La contraseña debe tener al menos {min} caracteres",
+    "loginToLike": "Inicia sesión para dar me gusta",
+    "loginToSave": "Inicia sesión para guardar posts",
+    "loginToComment": "Inicia sesión para comentar",
+    "loginToFollow": "Inicia sesión para seguir"
+  },
+  "errors": {
+    "failedLike": "No se pudo actualizar el me gusta",
+    "failedSave": "No se pudo guardar el post",
+    "failedComment": "No se pudo publicar el comentario",
+    "failedLoad": "Error al cargar",
+    "failedDelete": "No se pudo eliminar el post",
+    "failedShare": "No se pudo compartir",
+    "failedFollow": "No se pudo actualizar el seguimiento",
+    "failedPost": "No se pudo crear el post. Inténtalo de nuevo.",
+    "somethingWentWrong": "Algo salió mal"
+  },
+  "common": {
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "loading": "Cargando…",
+    "loadingMore": "Cargando…",
+    "seeAll": "Ver todo",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "remove": "Quitar",
+    "more": "más",
+    "add": "Añadir",
+    "tryAgain": "Intentar de nuevo"
+  },
+  "feed": {
+    "forYou": "Para ti",
+    "following": "Siguiendo",
+    "trending": "Tendencias",
+    "loadError": "No se pudo cargar tu feed",
+    "todayInspo": "Inspo de hoy",
+    "yourStory": "Tu historia",
+    "suggestedForYou": "Sugerido para ti",
+    "suggested": "Sugerido",
+    "topSellers": "Mejores vendedores",
+    "categories": "Categorías",
+    "products": "{n} productos"
+  },
+  "saved": {
+    "noSaved": "No hay posts guardados",
+    "bookmarkHint": "Guarda posts para verlos aquí",
+    "loadMore": "Cargar más"
+  },
+  "profile": {
+    "posts": "Posts",
+    "saved": "Guardados",
+    "likes": "Me gustas",
+    "followers": "Seguidores",
+    "following": "Siguiendo",
+    "editProfile": "Editar perfil",
+    "noPostsYet": "Aún no hay posts",
+    "seller": "Vendedor",
+    "message": "Mensaje"
+  }
+}

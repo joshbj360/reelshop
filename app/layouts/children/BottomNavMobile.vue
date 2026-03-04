@@ -1,46 +1,55 @@
 <template>
-    <nav class="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-800">
-        <div class="flex items-center justify-around h-14 px-2">
+    <nav class="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border-t border-gray-200/60 dark:border-neutral-800/60">
+        <div class="flex items-center justify-around h-16 px-2">
+
             <NuxtLink to="/" class="nav-item" active-class="active">
-                <Icon name="mdi:home" size="28" />
+                <Icon name="mdi:home" size="26" />
             </NuxtLink>
-            
+
             <NuxtLink to="/discover" class="nav-item" active-class="active">
-                <Icon name="mdi:compass-outline" size="28" />
+                <Icon name="mdi:compass-outline" size="26" />
             </NuxtLink>
-            
-            <button 
-                v-if="profileStore.isLoggedIn" 
-                @click="$emit('create')" 
-                class="nav-item"
+
+            <!-- Create button — gradient pill -->
+            <button
+                v-if="profileStore.isLoggedIn"
+                @click="$emit('create')"
+                class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#f02c56] to-purple-600 rounded-2xl shadow-md active:scale-95 transition-transform"
+                aria-label="Create"
             >
-                <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
-                    <Icon name="mdi:plus" size="24" class="text-white" />
-                </div>
+                <Icon name="mdi:plus" size="26" class="text-white" />
             </button>
             <NuxtLink v-else to="/auth/login" class="nav-item">
-                <Icon name="mdi:plus-circle-outline" size="28" />
+                <Icon name="mdi:plus-circle-outline" size="26" />
             </NuxtLink>
-            
+
             <NuxtLink to="/reels" class="nav-item" active-class="active">
-                <Icon name="mdi:play-box-outline" size="28" />
+                <Icon name="mdi:play-box-outline" size="26" />
             </NuxtLink>
-            
-            <NuxtLink 
-                v-if="profileStore.isLoggedIn" 
-                :to="profileStore.me?.role === 'buyer' ? '/buyer/profile'  : profileStore.me?.role === 'seller' ? '/sellers/dashboard' : '/buyer/profile'" 
-                class="nav-item relative" 
+
+            <button @click="$emit('open-cart')" class="nav-item relative">
+                <div class="relative">
+                    <Icon name="mdi:shopping-outline" size="26" />
+                    <span v-if="cartCount > 0" class="absolute -top-1 -right-1 min-w-[16px] h-4 rounded-full bg-brand text-white text-[9px] font-bold flex items-center justify-center px-0.5">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+                </div>
+            </button>
+
+            <NuxtLink
+                v-if="profileStore.isLoggedIn"
+                :to="profileStore.me?.role === 'buyer' ? '/buyer/profile' : profileStore.me?.role === 'seller' ? '/sellers/dashboard' : '/buyer/profile'"
+                class="nav-item"
                 active-class="active"
             >
-                <img 
-                    :src="profileStore.me?.avatar || 'https://i.pravatar.cc/150?u=a042581f4e29026704d' "
-                    class="w-7 h-7 rounded-full border-2 border-transparent"
-                    :class="{ 'border-brand': isProfileActive }"
+                <img
+                    :src="profileStore.me?.avatar || ''"
+                    class="w-7 h-7 rounded-full ring-2 transition-all"
+                    :class="isProfileActive ? 'ring-brand' : 'ring-transparent'"
                 />
             </NuxtLink>
             <NuxtLink v-else to="/auth/login" class="nav-item">
-                <Icon name="mdi:account-circle-outline" size="28" />
+                <Icon name="mdi:account-circle-outline" size="26" />
             </NuxtLink>
+
         </div>
     </nav>
 </template>
@@ -50,22 +59,22 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
 
-
-defineEmits(['create']);
+defineEmits(['create', 'open-cart']);
 
 const route = useRoute();
 const profileStore = useProfileStore();
+const { cartCount } = useCart();
 
-const isProfileActive = computed(() => {
-    return route.path.includes('/profile') || 
-           route.path.includes('/sellers/dashboard') || 
-           route.path.includes('/buyer/profile');
-});
+const isProfileActive = computed(() =>
+    route.path.includes('/profile') ||
+    route.path.includes('/sellers/dashboard') ||
+    route.path.includes('/buyer/profile')
+);
 </script>
 
 <style scoped>
 .nav-item {
-    @apply flex items-center justify-center w-12 h-12 text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-neutral-100 transition-colors;
+    @apply flex items-center justify-center w-12 h-12 text-gray-500 dark:text-neutral-500 hover:text-gray-900 dark:hover:text-neutral-100 transition-colors rounded-xl;
 }
 
 .nav-item.active {

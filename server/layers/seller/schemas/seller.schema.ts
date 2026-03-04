@@ -70,6 +70,11 @@ export const createSellerProfileSchema = z.object({
       linkedin: z.string().optional(),
     })
     .optional(),
+
+  default_currency: z
+    .enum(['NGN', 'USD', 'GBP', 'EUR', 'GHS', 'KES', 'ZAR'])
+    .default('NGN')
+    .optional(),
 })
 
 export type CreateSellerProfileRequest = z.infer<typeof createSellerProfileSchema>
@@ -126,6 +131,10 @@ export const updateSellerProfileSchema = z.object({
     .optional(),
   
   auto_answer_enabled: z.boolean().optional(),
+
+  default_currency: z
+    .enum(['NGN', 'USD', 'GBP', 'EUR', 'GHS', 'KES', 'ZAR'])
+    .optional(),
 }).refine(
   (data) => Object.values(data).some(value => value !== undefined),
   'At least one field must be provided for update'

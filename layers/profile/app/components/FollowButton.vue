@@ -1,11 +1,13 @@
 <template>
-    <button 
-        @click.stop="handleFollow" 
-        :disabled="isLoading"
-        class="text-xs font-semibold transition-colors disabled:opacity-50"
-        :class="isFollowing ? 'text-gray-400 dark:text-neutral-500' : 'text-brand hover:text-[#d81b36]'"
+    <button
+        @click.stop="handleFollow"
+        :disabled="isLoading || isProcessing"
+        class="text-xs font-semibold transition-colors disabled:opacity-50 leading-none"
+        :class="following
+            ? 'text-gray-400 dark:text-neutral-500 hover:text-red-500'
+            : 'text-brand hover:text-[#d81b36]'"
     >
-        {{ buttonText }}
+        {{ label }}
     </button>
 </template>
 
@@ -15,39 +17,43 @@ import { useFollow } from '../composables/useFollow';
 import { useFollowStore } from '../stores/follow.store';
 import { useProfileStore } from '../stores/profile.store';
 import { notify } from '@kyvg/vue3-notification';
+const { t } = useI18n();
 
 const props = defineProps<{
     userId: string;
     username: string;
 }>();
 
-const followStore = useFollowStore();
+const followStore  = useFollowStore();
 const profileStore = useProfileStore();
 const { followUser, unfollowUser, isLoading } = useFollow();
 
-const isFollowing = computed(() => followStore.followedUserIds?.has(props.userId) || false);
+const isProcessing = ref(false);
 
-const buttonText = computed(() => {
-    if (isLoading.value) return 'Loading...';
-    return isFollowing.value ? 'Following' : 'Follow';
+// Follow status keyed by username (matches followStatusCache keys in follow.store)
+const following = computed(() => followStore.isFollowing(props.username));
+
+const label = computed(() => {
+    if (isProcessing.value || isLoading.value) return '…';
+    return following.value ? t('post.following') : t('post.follow');
 });
 
 const handleFollow = async () => {
     if (!profileStore.userId) {
-        notify({ type: 'warn', text: 'Please log in to follow users' });
+        notify({ type: 'warn', text: t('auth.loginToFollow') });
         return;
     }
-
+    isProcessing.value = true;
     try {
-        if (isFollowing.value) {
+        if (following.value) {
             await unfollowUser(props.username);
-            followStore.removeFollowedUser(props.userId);
         } else {
             await followUser(props.username);
-            followStore.addFollowedUser(props.userId);
         }
-    } catch (error: any) {
-        notify({ type: 'error', text: error.message || 'Failed to update follow status' });
+    } catch (err: any) {
+        notify({ type: 'error', text: err.message || t('errors.failedFollow') });
+    } finally {
+        isProcessing.value = false;
     }
 };
 </script>

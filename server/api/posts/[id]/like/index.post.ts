@@ -20,6 +20,6 @@ if (!id) throw new UserError('INVALID_ID', 'ID is required', 400)
     if (error instanceof UserError) {
       throw createError({ statusCode: error.status, statusMessage: error.message })
     }
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    throw createError({ statusCode: 500, statusMessage: 'Internal server error' + error } )
   }
 })

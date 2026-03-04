@@ -1,7 +1,7 @@
 import { BaseApiClient } from '../../../base/app/services/base.api'
 
 export class ProductApiClient extends BaseApiClient {
-  async getProducts(params?: { status?: string; search?: string; sellerId?: string; limit?: number; offset?: number }) {
+  async getProducts(params?: { status?: string; search?: string; sellerId?: string; isThrift?: boolean; limit?: number; offset?: number }) {
     const query = params ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)])).toString() : ''
     return this.request(`/api/commerce/products${query}`, { method: 'GET' })
   }

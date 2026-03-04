@@ -17,7 +17,7 @@ if (!postId) throw new UserError('INVALID_ID', 'ID is required', 400)
     const ipAddress = getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
     const userAgent = getHeader(event, 'user-agent') || 'unknown'
     
-    const result = await contentService.unSavePost(user.ids, postId, ipAddress, userAgent)
+    const result = await contentService.unSavePost(user.id, postId, ipAddress, userAgent)
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) {

@@ -1,0 +1,154 @@
+{
+  "zod": {
+    "errors": {
+      "invalid_type": "متوقع {expected}، تم استقبال {received}",
+      "invalid_string": {
+        "email": "يرجى إدخال بريد إلكتروني تجاري صالح",
+        "url": "تنسيق URL غير صالح"
+      }
+    }
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "search": "بحث",
+    "discover": "اكتشاف",
+    "thrift": "ملابس مستعملة",
+    "reels": "ريلز",
+    "create": "إنشاء",
+    "notifications": "الإشعارات",
+    "messages": "الرسائل",
+    "profile": "الملف الشخصي",
+    "signIn": "تسجيل الدخول"
+  },
+  "post": {
+    "addComment": "أضف تعليقاً…",
+    "post": "نشر",
+    "shopThisPost": "تسوق هذا المنشور",
+    "noComments": "لا توجد تعليقات بعد.",
+    "beFirstComment": "كن أول من يعلق!",
+    "reply": "رد",
+    "like": "إعجاب",
+    "likes": "إعجابات",
+    "comment": "تعليق",
+    "comments": "تعليقات",
+    "viewAll": "عرض الكل",
+    "follow": "متابعة",
+    "following": "تتابع",
+    "share": "مشاركة",
+    "save": "حفظ",
+    "linkCopied": "تم نسخ الرابط!",
+    "editPost": "تعديل المنشور",
+    "deletePost": "حذف المنشور",
+    "confirmDelete": "حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deleted": "تم حذف المنشور"
+  },
+  "contentType": {
+    "EXPERIENCE": "تجربة",
+    "INSPIRATION": "إلهام",
+    "COMMERCE": "تسوق",
+    "EDUCATIONAL": "تعلم",
+    "ENTERTAINMENT": "ترفيه"
+  },
+  "contentTypeLabel": {
+    "EXPERIENCE": "تجربة / مراجعة",
+    "INSPIRATION": "إلهام في الأزياء",
+    "EDUCATIONAL": "برنامج تعليمي / دليل",
+    "ENTERTAINMENT": "مرح / ترفيه"
+  },
+  "time": {
+    "justNow": "الآن",
+    "minutesAgo": "منذ {n}د",
+    "hoursAgo": "منذ {n}س",
+    "daysAgo": "منذ {n}ي"
+  },
+  "upload": {
+    "newPost": "منشور جديد",
+    "share": "نشر",
+    "sharing": "جارٍ النشر…",
+    "whatOnMind": "ما الذي يدور في ذهنك؟",
+    "addPhotosVideos": "إضافة صور أو مقاطع فيديو",
+    "dragDrop": "اسحب وأفلت أو انقر · حتى 10 ملفات · 50MB لكل ملف",
+    "addMore": "إضافة المزيد",
+    "addMusic": "إضافة موسيقى الخلفية",
+    "changeMusic": "تغيير الموسيقى",
+    "caption": "التعليق",
+    "captionPlaceholder": "اكتب تعليقاً…",
+    "contentType": "نوع المحتوى",
+    "publish": "نشر",
+    "publishing": "جارٍ النشر…",
+    "tagProducts": "وضع علامة على المنتجات",
+    "advancedOptions": "خيارات متقدمة",
+    "whoCanSee": "من يمكنه رؤية هذا؟",
+    "everyone": "الجميع",
+    "followersOnly": "المتابعون فقط",
+    "onlyMe": "أنا فقط",
+    "allowComments": "السماح بالتعليقات",
+    "confirmDiscard": "تجاهل المنشور؟"
+  },
+  "music": {
+    "backgroundMusic": "موسيقى الخلفية",
+    "nowPlaying": "يُشغَّل الآن"
+  },
+  "auth": {
+    "password_min": "يجب أن تتكون كلمة المرور من {min} أحرف على الأقل",
+    "loginToLike": "يرجى تسجيل الدخول للإعجاب بالمنشورات",
+    "loginToSave": "يرجى تسجيل الدخول لحفظ المنشورات",
+    "loginToComment": "يرجى تسجيل الدخول للتعليق",
+    "loginToFollow": "يرجى تسجيل الدخول للمتابعة"
+  },
+  "errors": {
+    "failedLike": "فشل تحديث الإعجاب",
+    "failedSave": "فشل حفظ المنشور",
+    "failedComment": "فشل نشر التعليق",
+    "failedLoad": "فشل التحميل",
+    "failedDelete": "فشل حذف المنشور",
+    "failedShare": "تعذّر المشاركة",
+    "failedFollow": "فشل تحديث حالة المتابعة",
+    "failedPost": "فشل إنشاء المنشور. يرجى المحاولة مرة أخرى.",
+    "somethingWentWrong": "حدث خطأ ما"
+  },
+  "common": {
+    "close": "إغلاق",
+    "cancel": "إلغاء",
+    "next": "التالي",
+    "previous": "السابق",
+    "loading": "جارٍ التحميل…",
+    "loadingMore": "تحميل المزيد",
+    "seeAll": "عرض الكل",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "remove": "إزالة",
+    "more": "المزيد",
+    "add": "إضافة",
+    "tryAgain": "حاول مرة أخرى"
+  },
+  "feed": {
+    "forYou": "لك",
+    "following": "المتابَعون",
+    "trending": "الرائج",
+    "loadError": "تعذّر تحميل الخلاصة",
+    "todayInspo": "إلهام اليوم",
+    "yourStory": "قصتك",
+    "suggestedForYou": "مقترح لك",
+    "suggested": "مقترح",
+    "topSellers": "أفضل البائعين",
+    "categories": "الفئات",
+    "products": "{n} منتجات"
+  },
+  "saved": {
+    "noSaved": "لا توجد منشورات محفوظة",
+    "bookmarkHint": "احفظ المنشورات لتراها هنا",
+    "loadMore": "تحميل المزيد"
+  },
+  "profile": {
+    "posts": "المنشورات",
+    "saved": "المحفوظات",
+    "likes": "الإعجابات",
+    "followers": "المتابعون",
+    "following": "المتابَعون",
+    "editProfile": "تعديل الملف الشخصي",
+    "noPostsYet": "لا توجد منشورات بعد",
+    "seller": "بائع",
+    "message": "رسالة"
+  }
+}

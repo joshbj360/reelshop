@@ -1,0 +1,154 @@
+{
+  "zod": {
+    "errors": {
+      "invalid_type": "Erwartet {expected}, erhalten {received}",
+      "invalid_string": {
+        "email": "Bitte gib eine gültige geschäftliche E-Mail-Adresse ein",
+        "url": "Ungültiges URL-Format"
+      }
+    }
+  },
+  "nav": {
+    "home": "Startseite",
+    "search": "Suchen",
+    "discover": "Entdecken",
+    "thrift": "Secondhand",
+    "reels": "Reels",
+    "create": "Erstellen",
+    "notifications": "Benachrichtigungen",
+    "messages": "Nachrichten",
+    "profile": "Profil",
+    "signIn": "Anmelden"
+  },
+  "post": {
+    "addComment": "Kommentar hinzufügen…",
+    "post": "Posten",
+    "shopThisPost": "Diesen Post kaufen",
+    "noComments": "Noch keine Kommentare.",
+    "beFirstComment": "Sei der Erste, der kommentiert!",
+    "reply": "Antworten",
+    "like": "Gefällt mir",
+    "likes": "Gefällt mir",
+    "comment": "Kommentar",
+    "comments": "Kommentare",
+    "viewAll": "Alle ansehen",
+    "follow": "Folgen",
+    "following": "Gefolgt",
+    "share": "Teilen",
+    "save": "Speichern",
+    "linkCopied": "Link kopiert!",
+    "editPost": "Post bearbeiten",
+    "deletePost": "Post löschen",
+    "confirmDelete": "Diesen Post löschen? Das kann nicht rückgängig gemacht werden.",
+    "deleted": "Post gelöscht"
+  },
+  "contentType": {
+    "EXPERIENCE": "Erfahrung",
+    "INSPIRATION": "Inspiration",
+    "COMMERCE": "Shop",
+    "EDUCATIONAL": "Lernen",
+    "ENTERTAINMENT": "Unterhaltung"
+  },
+  "contentTypeLabel": {
+    "EXPERIENCE": "Erfahrung / Bewertung",
+    "INSPIRATION": "Style-Inspiration",
+    "EDUCATIONAL": "Tutorial / Anleitung",
+    "ENTERTAINMENT": "Spaß / Unterhaltung"
+  },
+  "time": {
+    "justNow": "gerade eben",
+    "minutesAgo": "vor {n}m",
+    "hoursAgo": "vor {n}h",
+    "daysAgo": "vor {n}d"
+  },
+  "upload": {
+    "newPost": "Neuer Post",
+    "share": "Teilen",
+    "sharing": "Wird geteilt…",
+    "whatOnMind": "Was denkst du?",
+    "addPhotosVideos": "Fotos / Videos hinzufügen",
+    "dragDrop": "Ziehen & ablegen oder klicken · Bis zu 10 Dateien · Je 50MB",
+    "addMore": "Mehr hinzufügen",
+    "addMusic": "Hintergrundmusik hinzufügen",
+    "changeMusic": "Musik ändern",
+    "caption": "Beschriftung",
+    "captionPlaceholder": "Beschriftung schreiben…",
+    "contentType": "Inhaltstyp",
+    "publish": "Veröffentlichen",
+    "publishing": "Wird veröffentlicht…",
+    "tagProducts": "Produkte markieren",
+    "advancedOptions": "Erweiterte Optionen",
+    "whoCanSee": "Wer kann das sehen?",
+    "everyone": "Alle",
+    "followersOnly": "Nur Follower",
+    "onlyMe": "Nur ich",
+    "allowComments": "Kommentare erlauben",
+    "confirmDiscard": "Post verwerfen?"
+  },
+  "music": {
+    "backgroundMusic": "Hintergrundmusik",
+    "nowPlaying": "Jetzt läuft"
+  },
+  "auth": {
+    "password_min": "Das Passwort muss mindestens {min} Zeichen lang sein",
+    "loginToLike": "Bitte melde dich an, um Posts zu liken",
+    "loginToSave": "Bitte melde dich an, um Posts zu speichern",
+    "loginToComment": "Bitte melde dich an, um zu kommentieren",
+    "loginToFollow": "Bitte melde dich an, um zu folgen"
+  },
+  "errors": {
+    "failedLike": "Like konnte nicht aktualisiert werden",
+    "failedSave": "Post konnte nicht gespeichert werden",
+    "failedComment": "Kommentar konnte nicht gepostet werden",
+    "failedLoad": "Laden fehlgeschlagen",
+    "failedDelete": "Post konnte nicht gelöscht werden",
+    "failedShare": "Teilen fehlgeschlagen",
+    "failedFollow": "Folge-Status konnte nicht aktualisiert werden",
+    "failedPost": "Post konnte nicht erstellt werden. Bitte erneut versuchen.",
+    "somethingWentWrong": "Etwas ist schiefgelaufen"
+  },
+  "common": {
+    "close": "Schließen",
+    "cancel": "Abbrechen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "loading": "Wird geladen…",
+    "loadingMore": "Mehr laden",
+    "seeAll": "Alle anzeigen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "remove": "Entfernen",
+    "more": "mehr",
+    "add": "Hinzufügen",
+    "tryAgain": "Erneut versuchen"
+  },
+  "feed": {
+    "forYou": "Für dich",
+    "following": "Gefolgt",
+    "trending": "Trending",
+    "loadError": "Feed konnte nicht geladen werden",
+    "todayInspo": "Inspiration des Tages",
+    "yourStory": "Deine Story",
+    "suggestedForYou": "Vorschläge für dich",
+    "suggested": "Vorgeschlagen",
+    "topSellers": "Top-Verkäufer",
+    "categories": "Kategorien",
+    "products": "{n} Produkte"
+  },
+  "saved": {
+    "noSaved": "Noch keine gespeicherten Posts",
+    "bookmarkHint": "Lesezeichen setzen, um Posts hier zu sehen",
+    "loadMore": "Mehr laden"
+  },
+  "profile": {
+    "posts": "Posts",
+    "saved": "Gespeichert",
+    "likes": "Gefällt mir",
+    "followers": "Follower",
+    "following": "Gefolgt",
+    "editProfile": "Profil bearbeiten",
+    "noPostsYet": "Noch keine Posts",
+    "seller": "Verkäufer",
+    "message": "Nachricht"
+  }
+}

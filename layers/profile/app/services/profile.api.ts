@@ -17,9 +17,10 @@ export class ProfileApiClient extends BaseApiClient {
   }
 
   async getPublicProfile(username: string): Promise<IProfile> {
-    return this.request(`/api/profile/${username}`, {
+    const response = await this.request<{ success: boolean; data: IProfile }>(`/api/profile/${username}`, {
       method: 'GET',
     })
+    return response.data
   }
 
   async getProfileStats(username: string): Promise<{success: boolean, data: IProfileStats}> {

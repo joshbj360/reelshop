@@ -1,93 +1,92 @@
 <template>
-    <div class="p-6">
-        <!-- Loading State -->
-        <div v-if="isLoading" class="grid grid-cols-3 gap-1">
-            <div 
-                v-for="i in 9" 
-                :key="i"
-                class="aspect-square bg-gray-200 dark:bg-neutral-800 animate-pulse rounded"
-            ></div>
+    <div class="p-4">
+        <!-- Skeleton -->
+        <div v-if="isLoading && savedPosts.length === 0" class="grid grid-cols-3 gap-0.5">
+            <div v-for="i in 9" :key="i" class="aspect-square bg-gray-100 dark:bg-neutral-800 animate-pulse rounded-sm" />
         </div>
 
-        <!-- Empty State -->
-        <div v-else-if="savedPosts.length === 0" class="text-center py-20">
-            <Icon 
-                name="mdi:bookmark-outline" 
-                size="64" 
-                class="text-gray-300 dark:text-neutral-700 mx-auto mb-4" 
-            />
-            <p class="text-gray-500 dark:text-neutral-400">
-                No saved posts yet
-            </p>
-            <p class="text-sm text-gray-400 dark:text-neutral-500 mt-2">
-                Bookmark posts to save them for later
-            </p>
+        <!-- Empty -->
+        <div v-else-if="savedPosts.length === 0" class="flex flex-col items-center justify-center py-16 gap-3">
+            <Icon name="mdi:bookmark-outline" size="56" class="text-gray-300 dark:text-neutral-700" />
+            <p class="text-[14px] text-gray-500 dark:text-neutral-400">{{ $t('saved.noSaved') }}</p>
+            <p class="text-[12px] text-gray-400 dark:text-neutral-500">{{ $t('saved.bookmarkHint') }}</p>
         </div>
 
-        <!-- Saved Posts Grid -->
+        <!-- Grid -->
         <div v-else>
-            <div class="grid grid-cols-3 gap-1">
+            <div class="grid grid-cols-3 gap-0.5">
+                <!-- Outer wrapper changed from <button> to <div> to avoid nested button HTML violation -->
                 <div
                     v-for="post in savedPosts"
                     :key="post.id"
                     @click="openPost(post)"
-                    class="aspect-square relative group overflow-hidden rounded"
+                    class="aspect-square relative group overflow-hidden bg-gray-100 dark:bg-neutral-800 rounded-sm cursor-pointer"
                 >
-                    <!-- Post Image/Video -->
-                    <img 
-                        v-if="post.media?.[0]?.type === 'image'"
-                        :src="post.media[0].url"
-                        :alt="post.caption"
+                    <img
+                        v-if="firstMedia(post)?.type === 'IMAGE'"
+                        :src="firstMedia(post)!.url"
+                        :alt="post.caption || 'Saved post'"
                         class="w-full h-full object-cover"
+                        loading="lazy"
                     />
-                    <video 
-                        v-else-if="post.media?.[0]?.type === 'video'"
-                        :src="post.media[0].url"
+                    <video
+                        v-else-if="firstMedia(post)?.type === 'VIDEO'"
+                        :src="firstMedia(post)!.url"
                         class="w-full h-full object-cover"
                         muted
-                    ></video>
-
-                    <!-- Overlay on Hover -->
-                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                        <div class="flex items-center gap-1 text-white">
-                            <Icon name="mdi:heart" size="24" />
-                            <span class="font-semibold">{{ formatNumber(post._count?.likes || 0) }}</span>
-                        </div>
-                        <div class="flex items-center gap-1 text-white">
-                            <Icon name="mdi:comment" size="24" />
-                            <span class="font-semibold">{{ formatNumber(post._count?.comments || 0) }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Saved Badge -->
-                    <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm p-1.5 rounded-full">
-                        <Icon name="mdi:bookmark" size="16" class="text-white" />
-                    </div>
-
-                    <!-- Remove from Saved (on hover) -->
-                    <button
-                        @click.stop="unsavePost(post.id)"
-                        class="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        preload="none"
+                    />
+                    <div
+                        v-else
+                        class="w-full h-full flex items-center justify-center p-3 bg-gradient-to-br from-gray-400 to-gray-600"
                     >
-                        <Icon name="mdi:bookmark-remove" size="16" />
+                        <p class="text-[11px] text-white font-medium line-clamp-4 text-center leading-relaxed">
+                            {{ post.caption || post.content || '…' }}
+                        </p>
+                    </div>
+
+                    <!-- Hover overlay -->
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                        <div class="flex items-center gap-1 text-white drop-shadow">
+                            <Icon name="mdi:heart" size="20" />
+                            <span class="text-[13px] font-semibold">{{ formatNum(post._count?.likes || 0) }}</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-white drop-shadow">
+                            <Icon name="mdi:comment" size="20" />
+                            <span class="text-[13px] font-semibold">{{ formatNum(post._count?.comments || 0) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Bookmark badge -->
+                    <div class="absolute top-1.5 right-1.5 pointer-events-none">
+                        <Icon name="mdi:bookmark" size="16" class="text-white drop-shadow-lg" />
+                    </div>
+
+                    <!-- Remove on hover — now a <button> inside a <div>, valid HTML -->
+                    <button
+                        @click.stop="handleUnsave(post.id)"
+                        class="absolute bottom-1.5 right-1.5 bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                        :title="$t('post.save')"
+                    >
+                        <Icon name="mdi:bookmark-remove" size="14" />
                     </button>
                 </div>
             </div>
 
-            <!-- Load More -->
-            <div v-if="hasMore" class="text-center mt-6">
-                <button 
+            <!-- Load more -->
+            <div v-if="hasMore" class="flex justify-center mt-4">
+                <button
                     @click="loadMore"
-                    :disabled="isLoadingMore"
-                    class="px-6 py-2 text-brand font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 rounded-lg transition-colors disabled:opacity-50"
+                    :disabled="isLoading"
+                    class="px-6 py-2 text-[13px] text-brand font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 rounded-lg transition-colors disabled:opacity-50"
                 >
-                    {{ isLoadingMore ? 'Loading...' : 'Load More' }}
+                    {{ isLoading ? $t('common.loading') : $t('saved.loadMore') }}
                 </button>
             </div>
         </div>
 
-        <!-- Post Detail Modal -->
-        <PostDetailModal 
+        <!-- Post detail modal -->
+        <PostDetailModal
             v-if="selectedPost"
             :post="selectedPost"
             @close="selectedPost = null"
@@ -96,38 +95,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { usePost } from '~~/layers/post/app/composables/usePost'
-import { usePostStore } from '~~/layers/post/app/store/post.store'
+import { ref, computed, onMounted } from 'vue';
+import { usePost } from '~~/layers/post/app/composables/usePost';
+import { usePostStore } from '~~/layers/post/app/store/post.store';
+import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue';
+import type { IFeedItem } from '~~/layers/feed/app/types/feed.types';
 
-const postStore = usePostStore()
-const { fetchSavedPosts, unsavePost, isLoading } = usePost()
+const postStore = usePostStore();
+const { fetchSavedPosts, unsavePost, isLoading, normalizePost } = usePost();
 
-const posts = computed(() => postStore.mySavedPosts)
-const selectedPost = ref(null)
-const hasMore = ref(false)
-const offset = ref(0)
-const limit = 9
+const selectedPost = ref<IFeedItem | null>(null);
+const hasMore = ref(false);
+const offset = ref(0);
+const LIMIT = 9;
+
+const savedPosts = computed(() => postStore.mySavedPosts);
 
 onMounted(async () => {
-    if (posts.value.length === 0) await handleFetch()
-})
+    if (savedPosts.value.length === 0) await loadPosts();
+});
 
-async function handleFetch() {
-    const result = await fetchSavedPosts(limit, offset.value)
-    hasMore.value = result.meta.hasMore
+async function loadPosts() {
+    const result = await fetchSavedPosts(LIMIT, offset.value);
+    if (result) hasMore.value = result.meta?.hasMore ?? false;
 }
 
 const loadMore = async () => {
-    offset.value += limit
-    await handleFetch()
-}
+    offset.value += LIMIT;
+    await loadPosts();
+};
+
+const firstMedia = (post: any) =>
+    Array.isArray(post.media) ? (post.media[0] ?? null) : (post.media ?? null);
+
+const openPost = (post: any) => {
+    selectedPost.value = normalizePost(post);
+};
 
 const handleUnsave = async (id: string) => {
-    await unsavePost(id)
-    postStore.removeSavedPost(id)
-}
+    await unsavePost(id);
+};
 
-const openPost = (post: any) => selectedPost.value = post
-const formatNumber = (n: number) => n >= 1000 ? (n/1000).toFixed(1) + 'k' : n
+const formatNum = (n: number) =>
+    n >= 1_000 ? `${(n / 1_000).toFixed(1)}k` : n.toString();
 </script>

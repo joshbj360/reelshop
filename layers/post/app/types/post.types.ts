@@ -14,10 +14,16 @@ export interface IPost extends PostModel {
 }
 
 export interface ICreatePostData {
-    caption: string
-    content?: string
+    caption?: string
+    content: string
     contentType?: string
-    mediaId?: string
+    // Array of content media (images / videos)
+    mediaData?: Array<{ url: string; public_id: string; type: string }>
+    // Optional background music track
+    musicData?: { url: string; public_id: string; type: string; name?: string }
+    visibility?: 'PUBLIC' | 'PRIVATE' | 'FOLLOWERS'
+    allowComments?: boolean
+    taggedProducts?: string[]
 }
 
 export interface IPaginatedResponse<T> {

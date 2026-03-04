@@ -1,16 +1,18 @@
-// POST /api/media/upload - Upload media to Cloudinary and create Media record
+// POST /api/media/upload - Upload media to Cloudinary (pure proxy, no DB write)
 import { requireAuth } from '../../layers/shared/middleware/requireAuth'
 import { UserError } from '../../layers/profile/types/user.types'
-import { prisma } from '../../utils/db'
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm']
+const ALLOWED_TYPES = [
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'video/mp4', 'video/webm',
+  'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/aac', 'audio/webm', 'audio/x-m4a',
+]
 const MAX_SIZE_BYTES = 50 * 1024 * 1024 // 50MB
 
 export default defineEventHandler(async (event) => {
   try {
-    const user = await requireAuth(event)
+    await requireAuth(event)
 
-    // Parse multipart form data
     const formData = await readMultipartFormData(event)
     if (!formData || formData.length === 0) {
       throw new UserError('NO_FILE', 'No file provided', 400)
@@ -38,12 +40,13 @@ export default defineEventHandler(async (event) => {
       throw new UserError('CONFIG_ERROR', 'Cloudinary not configured', 500)
     }
 
-    // Determine resource type
-    const resourceType = mimeType.startsWith('video/') ? 'video' : 'image'
+    // Cloudinary uses 'video' resource type for both video and audio
+    const isAudio = mimeType.startsWith('audio/')
+    const resourceType = (mimeType.startsWith('video/') || isAudio) ? 'video' : 'image'
+    const mediaType = isAudio ? 'AUDIO' : resourceType === 'video' ? 'VIDEO' : 'IMAGE'
 
-    // Upload to Cloudinary via REST API (no SDK needed)
     const uploadFormData = new FormData()
-    const blob = new Blob([fileField.data], { type: mimeType })
+    const blob = new Blob([new Uint8Array(fileField.data)], { type: mimeType })
     uploadFormData.append('file', blob, fileField.filename || 'upload')
     uploadFormData.append('folder', 'reelshop')
 
@@ -53,12 +56,10 @@ export default defineEventHandler(async (event) => {
 
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`
 
-    // If using signed upload (with API key/secret)
     const cloudinaryApiKey = config.public.CloudinaryApiKey
     const cloudinaryApiSecret = config.private?.cloudinary?.apiSecret
 
     if (cloudinaryApiKey && cloudinaryApiSecret && !uploadPreset) {
-      // Signed upload
       const timestamp = Math.round(Date.now() / 1000)
       uploadFormData.append('api_key', cloudinaryApiKey)
       uploadFormData.append('timestamp', timestamp.toString())
@@ -77,34 +78,13 @@ export default defineEventHandler(async (event) => {
       body: uploadFormData,
     })
 
-    // Determine MediaType for DB
-    const mediaType = resourceType === 'video' ? 'VIDEO' : 'IMAGE'
-
-    // Create Media record in database
-    const media = await prisma.media.create({
-      data: {
-        url: uploadResult.secure_url,
-        public_id: uploadResult.public_id,
-        type: mediaType as any,
-        authorId: user.id,
-        altText: fileField.filename || null,
-        metadata: {
-          format: uploadResult.format,
-          width: uploadResult.width,
-          height: uploadResult.height,
-          duration: uploadResult.duration,
-          resourceType: uploadResult.resource_type,
-        },
-      }
-    })
-
+    // Return Cloudinary result — no DB write. Media is created atomically during post creation.
     return {
       success: true,
       data: {
-        mediaId: media.id,
-        url: media.url,
-        public_id: media.public_id,
-        type: media.type,
+        url: uploadResult.secure_url,
+        public_id: uploadResult.public_id,
+        type: mediaType,
       }
     }
   } catch (error: any) {
@@ -112,6 +92,6 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: error.status, statusMessage: error.message })
     }
     console.error('[Media Upload] Error:', error)
-    throw createError({ statusCode: 500, statusMessage: 'Failed to upload media' + error }) // TODO: remove error details in production 
+    throw createError({ statusCode: 500, statusMessage: 'Failed to upload media' })
   }
 })

@@ -1,0 +1,154 @@
+{
+  "zod": {
+    "errors": {
+      "invalid_type": "Attendu {expected}, reçu {received}",
+      "invalid_string": {
+        "email": "Veuillez entrer un e-mail professionnel valide",
+        "url": "Format d'URL invalide"
+      }
+    }
+  },
+  "nav": {
+    "home": "Accueil",
+    "search": "Rechercher",
+    "discover": "Découvrir",
+    "thrift": "Friperie",
+    "reels": "Reels",
+    "create": "Créer",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "profile": "Profil",
+    "signIn": "Se connecter"
+  },
+  "post": {
+    "addComment": "Ajouter un commentaire…",
+    "post": "Publier",
+    "shopThisPost": "Acheter dans ce post",
+    "noComments": "Aucun commentaire pour l'instant.",
+    "beFirstComment": "Soyez le premier à commenter !",
+    "reply": "Répondre",
+    "like": "j'aime",
+    "likes": "j'aimes",
+    "comment": "commentaire",
+    "comments": "commentaires",
+    "viewAll": "Voir tous",
+    "follow": "Suivre",
+    "following": "Suivi",
+    "share": "Partager",
+    "save": "Enregistrer",
+    "linkCopied": "Lien copié !",
+    "editPost": "Modifier le post",
+    "deletePost": "Supprimer le post",
+    "confirmDelete": "Supprimer ce post ? Cette action est irréversible.",
+    "deleted": "Post supprimé"
+  },
+  "contentType": {
+    "EXPERIENCE": "Expérience",
+    "INSPIRATION": "Inspirer",
+    "COMMERCE": "Boutique",
+    "EDUCATIONAL": "Apprendre",
+    "ENTERTAINMENT": "Divertissement"
+  },
+  "contentTypeLabel": {
+    "EXPERIENCE": "Expérience / Avis",
+    "INSPIRATION": "Inspiration mode",
+    "EDUCATIONAL": "Tutoriel / Guide",
+    "ENTERTAINMENT": "Fun / Divertissement"
+  },
+  "time": {
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {n}m",
+    "hoursAgo": "il y a {n}h",
+    "daysAgo": "il y a {n}j"
+  },
+  "upload": {
+    "newPost": "Nouveau post",
+    "share": "Partager",
+    "sharing": "Partage…",
+    "whatOnMind": "Quoi de neuf ?",
+    "addPhotosVideos": "Ajouter des photos ou vidéos",
+    "dragDrop": "Glisser-déposer ou cliquer · 10 fichiers max · 50MB chacun",
+    "addMore": "Ajouter",
+    "addMusic": "Ajouter une musique de fond",
+    "changeMusic": "Changer la musique",
+    "caption": "Légende",
+    "captionPlaceholder": "Écrire une légende…",
+    "contentType": "Type de contenu",
+    "publish": "Publier",
+    "publishing": "Publication…",
+    "tagProducts": "Tagger des produits",
+    "advancedOptions": "Options avancées",
+    "whoCanSee": "Qui peut voir ça ?",
+    "everyone": "Tout le monde",
+    "followersOnly": "Abonnés uniquement",
+    "onlyMe": "Seulement moi",
+    "allowComments": "Autoriser les commentaires",
+    "confirmDiscard": "Abandonner le post ?"
+  },
+  "music": {
+    "backgroundMusic": "Musique de fond",
+    "nowPlaying": "En cours"
+  },
+  "auth": {
+    "password_min": "Le mot de passe doit comporter au moins {min} caractères",
+    "loginToLike": "Connectez-vous pour aimer des posts",
+    "loginToSave": "Connectez-vous pour enregistrer des posts",
+    "loginToComment": "Connectez-vous pour commenter",
+    "loginToFollow": "Connectez-vous pour suivre"
+  },
+  "errors": {
+    "failedLike": "Échec de la mise à jour du j'aime",
+    "failedSave": "Échec de l'enregistrement du post",
+    "failedComment": "Échec de la publication du commentaire",
+    "failedLoad": "Échec du chargement",
+    "failedDelete": "Échec de la suppression du post",
+    "failedShare": "Impossible de partager",
+    "failedFollow": "Échec de la mise à jour du suivi",
+    "failedPost": "Échec de la création du post. Veuillez réessayer.",
+    "somethingWentWrong": "Quelque chose a mal tourné"
+  },
+  "common": {
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "loading": "Chargement…",
+    "loadingMore": "Chargement…",
+    "seeAll": "Voir tout",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "more": "plus",
+    "add": "Ajouter",
+    "tryAgain": "Réessayer"
+  },
+  "feed": {
+    "forYou": "Pour vous",
+    "following": "Abonnements",
+    "trending": "Tendances",
+    "loadError": "Impossible de charger votre fil",
+    "todayInspo": "L'inspo du jour",
+    "yourStory": "Votre story",
+    "suggestedForYou": "Suggéré pour vous",
+    "suggested": "Suggéré",
+    "topSellers": "Meilleurs vendeurs",
+    "categories": "Catégories",
+    "products": "{n} produits"
+  },
+  "saved": {
+    "noSaved": "Aucun post enregistré",
+    "bookmarkHint": "Enregistrez des posts pour les retrouver ici",
+    "loadMore": "Charger plus"
+  },
+  "profile": {
+    "posts": "Posts",
+    "saved": "Enregistrés",
+    "likes": "J'aimes",
+    "followers": "Abonnés",
+    "following": "Abonnements",
+    "editProfile": "Modifier le profil",
+    "noPostsYet": "Aucun post pour l'instant",
+    "seller": "Vendeur",
+    "message": "Message"
+  }
+}

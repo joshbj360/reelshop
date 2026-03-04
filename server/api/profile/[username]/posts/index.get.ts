@@ -1,4 +1,4 @@
-// GET /api/user/@[username]/posts - Get user's posts
+// GET /api/profile/[username]/posts - Get user's posts (PUBLIC only for guests; all for owner)
 import { contentService } from "../../../../layers/posts/services/post.service"
 import { UserError } from "../../../../layers/profile/types/user.types"
 
@@ -11,9 +11,22 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
     const offset = Math.max(Number(query.offset) || 0, 0)
-    
-    const result = await contentService.getUserPosts(username, limit, offset)
-    return { success: true, data: result }
+
+    // Optional auth: set by global auth middleware when token is present
+    const viewerId: string | undefined = (event.context.auth as any)?.user?.userId
+
+    const { posts, total } = await contentService.getUserPosts(username, limit, offset, viewerId)
+
+    return {
+      success: true,
+      data: posts,
+      meta: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + posts.length < total,
+      },
+    }
   } catch (error: any) {
     if (error instanceof UserError) {
       throw createError({ statusCode: error.status, statusMessage: error.message })

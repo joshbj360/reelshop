@@ -1,0 +1,154 @@
+{
+  "zod": {
+    "errors": {
+      "invalid_type": "期望 {expected}，收到 {received}",
+      "invalid_string": {
+        "email": "请输入有效的企业邮箱",
+        "url": "无效的URL格式"
+      }
+    }
+  },
+  "nav": {
+    "home": "首页",
+    "search": "搜索",
+    "discover": "发现",
+    "thrift": "二手",
+    "reels": "视频",
+    "create": "创作",
+    "notifications": "通知",
+    "messages": "消息",
+    "profile": "我的",
+    "signIn": "登录"
+  },
+  "post": {
+    "addComment": "添加评论…",
+    "post": "发布",
+    "shopThisPost": "购买此帖",
+    "noComments": "暂无评论。",
+    "beFirstComment": "成为第一个评论的人！",
+    "reply": "回复",
+    "like": "赞",
+    "likes": "赞",
+    "comment": "评论",
+    "comments": "评论",
+    "viewAll": "查看全部",
+    "follow": "关注",
+    "following": "已关注",
+    "share": "分享",
+    "save": "收藏",
+    "linkCopied": "链接已复制！",
+    "editPost": "编辑帖子",
+    "deletePost": "删除帖子",
+    "confirmDelete": "删除此帖子？此操作无法撤销。",
+    "deleted": "帖子已删除"
+  },
+  "contentType": {
+    "EXPERIENCE": "体验",
+    "INSPIRATION": "灵感",
+    "COMMERCE": "购物",
+    "EDUCATIONAL": "学习",
+    "ENTERTAINMENT": "娱乐"
+  },
+  "contentTypeLabel": {
+    "EXPERIENCE": "体验 / 评测",
+    "INSPIRATION": "穿搭灵感",
+    "EDUCATIONAL": "教程 / 攻略",
+    "ENTERTAINMENT": "趣味 / 娱乐"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{n}分钟前",
+    "hoursAgo": "{n}小时前",
+    "daysAgo": "{n}天前"
+  },
+  "upload": {
+    "newPost": "新帖子",
+    "share": "发布",
+    "sharing": "发布中…",
+    "whatOnMind": "你在想什么？",
+    "addPhotosVideos": "添加照片或视频",
+    "dragDrop": "拖放或点击 · 最多10个文件 · 每个50MB",
+    "addMore": "继续添加",
+    "addMusic": "添加背景音乐",
+    "changeMusic": "更换音乐",
+    "caption": "说明",
+    "captionPlaceholder": "写一段说明…",
+    "contentType": "内容类型",
+    "publish": "发布",
+    "publishing": "发布中…",
+    "tagProducts": "标记商品",
+    "advancedOptions": "高级选项",
+    "whoCanSee": "谁可以看到？",
+    "everyone": "所有人",
+    "followersOnly": "仅粉丝",
+    "onlyMe": "仅自己",
+    "allowComments": "允许评论",
+    "confirmDiscard": "放弃帖子？"
+  },
+  "music": {
+    "backgroundMusic": "背景音乐",
+    "nowPlaying": "正在播放"
+  },
+  "auth": {
+    "password_min": "密码必须至少包含 {min} 个字符",
+    "loginToLike": "请登录后点赞",
+    "loginToSave": "请登录后收藏帖子",
+    "loginToComment": "请登录后评论",
+    "loginToFollow": "请登录后关注"
+  },
+  "errors": {
+    "failedLike": "点赞更新失败",
+    "failedSave": "帖子收藏失败",
+    "failedComment": "评论发布失败",
+    "failedLoad": "加载失败",
+    "failedDelete": "帖子删除失败",
+    "failedShare": "分享失败",
+    "failedFollow": "关注状态更新失败",
+    "failedPost": "帖子创建失败，请重试。",
+    "somethingWentWrong": "出现了问题"
+  },
+  "common": {
+    "close": "关闭",
+    "cancel": "取消",
+    "next": "下一个",
+    "previous": "上一个",
+    "loading": "加载中…",
+    "loadingMore": "加载更多中",
+    "seeAll": "查看全部",
+    "edit": "编辑",
+    "delete": "删除",
+    "remove": "移除",
+    "more": "更多",
+    "add": "添加",
+    "tryAgain": "重试"
+  },
+  "feed": {
+    "forYou": "为你推荐",
+    "following": "关注",
+    "trending": "热门",
+    "loadError": "无法加载动态",
+    "todayInspo": "今日灵感",
+    "yourStory": "你的故事",
+    "suggestedForYou": "推荐关注",
+    "suggested": "推荐",
+    "topSellers": "热门卖家",
+    "categories": "分类",
+    "products": "{n} 件商品"
+  },
+  "saved": {
+    "noSaved": "暂无收藏",
+    "bookmarkHint": "收藏帖子即可在此查看",
+    "loadMore": "加载更多"
+  },
+  "profile": {
+    "posts": "帖子",
+    "saved": "已收藏",
+    "likes": "点赞",
+    "followers": "粉丝",
+    "following": "关注",
+    "editProfile": "编辑资料",
+    "noPostsYet": "暂无帖子",
+    "seller": "卖家",
+    "message": "消息"
+  }
+}

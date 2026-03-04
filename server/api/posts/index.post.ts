@@ -13,8 +13,8 @@ export default defineEventHandler(async (event) => {
     const userAgent = getHeader(event, 'user-agent') || 'unknown'
     
 
-    if (body.mediaId && typeof body.mediaId !== 'string') {
-      throw new UserError('INVALID_MEDIA', 'mediaId must be a valid string', 400)
+    if (body.mediaData && !Array.isArray(body.mediaData)) {
+      throw new UserError('INVALID_MEDIA', 'mediaData must be an array', 400)
     }
     const result = await contentService.createPost(user.id, body, ipAddress, userAgent)
     return { success: true, data: result }
