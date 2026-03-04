@@ -87,12 +87,8 @@
             @posted="handlePost" 
         />
         
-        <!-- Quick Product Modal -->
-        <QuickProductModal
-            :is-open="showQuickProductModal"
-            @close="showQuickProductModal = false"
-            @posted="handlePost"
-        />
+        <!-- Quick Product Modal (component not yet implemented) -->
+        <!-- <QuickProductModal :is-open="showQuickProductModal" @close="showQuickProductModal = false" @posted="handlePost" /> -->
         
         <!-- Search Overlay -->
         <SearchOverlay 
