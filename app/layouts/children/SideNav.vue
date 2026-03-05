@@ -3,7 +3,7 @@
         <!-- Logo -->
         <NuxtLink to="/" class="mb-6 flex items-center justify-center xl:justify-start gap-2.5">
             <div class="w-9 h-9 shrink-0 bg-gradient-to-br from-[#f02c56] to-purple-600 rounded-full flex items-center justify-center">
-                <Icon name="mdi:store-fashion" class="w-5 h-5 text-white" />
+                <Icon name="mdi:hanger" class="w-5 h-5 text-white" />
             </div>
             <span class="hidden xl:inline text-xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">Fitsy</span>
         </NuxtLink>
@@ -35,18 +35,20 @@
                 <span class="nav-text">{{ $t('nav.reels') }}</span>
             </NuxtLink>
 
-            <button v-if="profileStore.isLoggedIn" @click="$emit('create')" class="create-button">
-                <Icon name="mdi:plus-circle-outline" size="26" />
-                <span class="nav-text">{{ $t('nav.create') }}</span>
-            </button>
+            <ClientOnly>
+                <button v-if="profileStore.isLoggedIn" @click="$emit('create')" class="create-button">
+                    <Icon name="mdi:plus-circle-outline" size="26" />
+                    <span class="nav-text">{{ $t('nav.create') }}</span>
+                </button>
 
-            <button v-if="profileStore.isLoggedIn" @click="$emit('open-notifications')" class="nav-button relative">
-                <div class="relative">
-                    <Icon name="mdi:bell-outline" size="26" />
-                    <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 block h-2.5 w-2.5 rounded-full bg-brand"></span>
-                </div>
-                <span class="nav-text">{{ $t('nav.notifications') }}</span>
-            </button>
+                <button v-if="profileStore.isLoggedIn" @click="$emit('open-notifications')" class="nav-button relative">
+                    <div class="relative">
+                        <Icon name="mdi:bell-outline" size="26" />
+                        <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 block h-2.5 w-2.5 rounded-full bg-brand"></span>
+                    </div>
+                    <span class="nav-text">{{ $t('nav.notifications') }}</span>
+                </button>
+            </ClientOnly>
 
             <NuxtLink to="/messages" class="nav-button relative" active-class="active">
                 <div class="relative">
@@ -66,15 +68,17 @@
             </button>
 
             <!-- Seller Dashboard -->
-            <NuxtLink
-                v-if="profileStore.isLoggedIn && sellerStore.hasSellers"
-                to="/seller/dashboard"
-                class="nav-button"
-                active-class="active"
-            >
-                <Icon name="mdi:store-outline" size="26" />
-                <span class="nav-text">My Stores</span>
-            </NuxtLink>
+            <ClientOnly>
+                <NuxtLink
+                    v-if="profileStore.isLoggedIn && sellerStore.hasSellers"
+                    to="/seller/dashboard"
+                    class="nav-button"
+                    active-class="active"
+                >
+                    <Icon name="mdi:store-outline" size="26" />
+                    <span class="nav-text">My Stores</span>
+                </NuxtLink>
+            </ClientOnly>
         </nav>
 
         <!-- Profile Link (at the bottom) -->

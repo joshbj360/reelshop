@@ -13,6 +13,19 @@ import { useSellerStore } from "~~/layers/seller/app/store/seller.store"
  * re-hydrate profileStore.me so isLoggedIn stays true across refreshes.
  */
 
+const hydrateSellerStore = async (token: string, sellerStore: ReturnType<typeof useSellerStore>) => {
+  try {
+    const sellerRes = await $fetch<{ success: boolean; data: any[] }>('/api/seller/list', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (sellerRes?.data) {
+      sellerStore.setSellers(sellerRes.data)
+    }
+  } catch {
+    // Non-sellers — silently ignore
+  }
+}
+
 export default defineNuxtPlugin(async () => {
   const profileStore = useProfileStore()
   const authStore = useAuthStore()
@@ -38,19 +51,21 @@ export default defineNuxtPlugin(async () => {
       authStore.clearAuth()
     }
 
-    // Hydrate seller store so hasSellers is accurate on all pages
+    // Hydrate seller store on initial load
     if (authStore.accessToken) {
-      try {
-        const sellerRes = await $fetch<{ success: boolean; data: any[] }>('/api/seller/list', {
-          headers: { Authorization: `Bearer ${authStore.accessToken}` }
-        })
-        if (sellerRes?.data?.length) {
-          sellerStore.setSellers(sellerRes.data)
-        }
-      } catch {
-        // Non-sellers will 404 — silently ignore
-      }
+      await hydrateSellerStore(authStore.accessToken, sellerStore)
     }
+  }
+
+  // Watch for token changes (login/logout mid-session) to keep seller store in sync
+  if (import.meta.client) {
+    watch(() => authStore.accessToken, async (newToken) => {
+      if (newToken) {
+        await hydrateSellerStore(newToken, sellerStore)
+      } else {
+        sellerStore.setSellers([])
+      }
+    })
   }
 
   return {

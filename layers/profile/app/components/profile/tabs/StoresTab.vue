@@ -89,7 +89,7 @@
                             View
                         </NuxtLink>
                         <NuxtLink
-                            :to="`/sellers/${seller.store_slug}/edit`"
+                            :to="`/seller/${seller.store_slug}/dashboard`"
                             class="flex-1 py-1.5 text-center text-[12px] font-semibold text-white bg-gradient-to-r from-[#f02c56] to-purple-600 rounded-lg hover:opacity-90 transition-opacity"
                         >
                             Manage

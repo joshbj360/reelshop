@@ -1,106 +1,71 @@
 <template>
     <!-- Mobile Header -->
-    <HeaderNavMobile 
-        @open-search="showSearchOverlay = true" 
-        @open-notifications="showNotificationOverlay = true" 
-    />
-    
+    <HeaderNavMobile @open-search="showSearchOverlay = true" @open-notifications="showNotificationOverlay = true"
+        @open-cart="showCart = true" />
+
     <!-- Mobile Category Bar (Optional - only on specific pages) -->
     <CategoryListMobile v-if="showCategoryBar" />
 
-    <div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-neutral-100 transition-colors duration-300">
-        
+    <div
+        class="min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-neutral-100 transition-colors duration-300">
+
         <!-- Left Sidebar (Desktop) -->
-        <aside class="hidden md:block w-20 xl:w-72 fixed top-0 left-0 h-full z-20 bg-white border-r border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide">
-            <SideNav
-                @create="showCreateModal = true"
-                @open-search="showSearchOverlay = true"
-                @open-notifications="showNotificationOverlay = true"
-                @open-cart="showCart = true"
-            />
+        <aside
+            class="hidden md:block w-20 xl:w-72 fixed top-0 left-0 h-full z-20 bg-white border-r border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide">
+            <SideNav @create="showCreateModal = true" @open-search="showSearchOverlay = true"
+                @open-notifications="showNotificationOverlay = true" @open-cart="showCart = true" />
         </aside>
 
         <!-- Main Content Area -->
         <main class="md:ml-20 xl:ml-72">
             <div class="flex max-w-[1500px] mx-auto">
-                
+
                 <!-- MAIN FEED/CONTENT AREA -->
-                <div
-                    class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
-                    :class="mainContentClasses"
-                >
-                    <div
-                        class="pb-20 md:pb-0 w-full"
-                        :class="isNarrowFeed ? 'max-w-[560px] mx-auto' : ''"
-                    >
+                <div class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
+                    :class="mainContentClasses">
+                    <div class="pb-20 md:pb-0 w-full" :class="isNarrowFeed ? 'max-w-[560px] mx-auto' : ''">
                         <!-- Page Content Slot -->
                         <slot />
                     </div>
                 </div>
 
                 <!-- RIGHT SIDEBAR (Desktop) -->
-                <aside
-                    v-if="showRightSidebar"
-                    class="hidden lg:block w-[380px] shrink-0 p-4 h-[100vh] overflow-y-auto bg-white border-l border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide"
-                >
+                <aside v-if="showRightSidebar"
+                    class="hidden lg:block w-[380px] shrink-0 p-4 h-[100vh] overflow-y-auto bg-white border-l border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide">
                     <!-- Right Sidebar Slot -->
                     <slot name="right-sidebar">
-                        <RightSideNav 
-
-                        />
+                        <RightSideNav />
                     </slot>
                 </aside>
             </div>
         </main>
-        
+
         <!-- Bottom Navigation (Mobile) -->
-        <BottomNavMobile @create="showCreateModal = true" @open-cart="showCart = true" />
+        <BottomNavMobile @create="showCreateModal = true" />
 
         <!-- Mobile AI Chat Floating Button -->
-        <MobileAIChatButton 
-            :is-open="showAI" 
-            @open="showAI = true" 
-            @close="showAI = false" 
-        />
+        <MobileAIChatButton :is-open="showAI" @open="showAI = true" @close="showAI = false" />
 
         <!-- MODALS -->
         <!-- Create Modal (Main) -->
-        <CreateModal 
-            :is-open="showCreateModal" 
-            @close="showCreateModal = false" 
-            @open-post-modal="openPostUploader"
-            @open-story-modal="openStoryUploader"
-            @open-product-modal="openQuickProductUploader"
-        />
-        
+        <CreateModal :is-open="showCreateModal" @close="showCreateModal = false" @open-post-modal="openPostUploader"
+            @open-story-modal="openStoryUploader" @open-product-modal="openQuickProductUploader" />
+
         <!-- Post Upload Modal -->
-        <PostUploadModal 
-            :is-open="showPostModal" 
-            @close="showPostModal = false" 
-            @posted="handlePost" 
-        />
-        
+        <PostUploadModal :is-open="showPostModal" @close="showPostModal = false" @posted="handlePost" />
+
         <!-- Story Upload Modal -->
-        <StoryUploadModal 
-            :is-open="showStoryModal" 
-            @close="showStoryModal = false" 
-            @posted="handlePost" 
-        />
-        
-        <!-- Quick Product Modal (component not yet implemented) -->
-        <!-- <QuickProductModal :is-open="showQuickProductModal" @close="showQuickProductModal = false" @posted="handlePost" /> -->
-        
+        <StoryUploadModal :is-open="showStoryModal" @close="showStoryModal = false" @posted="handlePost" />
+
+        <!-- Quick Product Modal -->
+        <QuickProductModal :is-open="showQuickProductModal" @close="showQuickProductModal = false"
+            @posted="handlePost" />
+
         <!-- Search Overlay -->
-        <SearchOverlay 
-            :is-open="showSearchOverlay" 
-            @close="showSearchOverlay = false" 
-        />
-        
+        <SearchOverlay :is-open="showSearchOverlay" @close="showSearchOverlay = false" />
+
         <!-- Notification Overlay -->
-        <NotificationOverlay
-            :is-open="showNotificationOverlay"
-            @close="showNotificationOverlay = false"
-        />
+        <NotificationOverlay :is-open="showNotificationOverlay" @close="showNotificationOverlay = false" />
 
         <!-- Cart Sidebar -->
         <CartSidebar :is-open="showCart" @close="showCart = false" />
@@ -108,11 +73,10 @@
         <!-- Mobile: Become a Seller Banner -->
         <ClientOnly>
             <Transition name="seller-banner">
-                <div
-                    v-if="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
-                    class="md:hidden fixed bottom-16 left-0 right-0 z-20 px-3 pb-2"
-                >
-                    <div class="bg-gradient-to-r from-[#f02c56] to-purple-600 rounded-2xl px-3 py-2.5 flex items-center gap-2.5 shadow-xl">
+                <div v-if="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
+                    class="md:hidden fixed bottom-16 left-0 right-0 z-20 px-3 pb-2">
+                    <div
+                        class="bg-gradient-to-r from-[#f02c56] to-purple-600 rounded-2xl px-3 py-2.5 flex items-center gap-2.5 shadow-xl">
                         <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                             <Icon name="mdi:store-plus-outline" size="16" class="text-white" />
                         </div>
@@ -120,10 +84,8 @@
                             <p class="text-white text-[12px] font-bold leading-tight">Start selling on Fitsy</p>
                             <p class="text-white/70 text-[10px]">Turn your passion into profit</p>
                         </div>
-                        <NuxtLink
-                            to="/sellers/create"
-                            class="bg-white text-brand text-[11px] font-bold px-3 py-1.5 rounded-xl shrink-0 whitespace-nowrap"
-                        >
+                        <NuxtLink to="/sellers/create"
+                            class="bg-white text-brand text-[11px] font-bold px-3 py-1.5 rounded-xl shrink-0 whitespace-nowrap">
                             Start →
                         </NuxtLink>
                         <button @click="dismissSellerBanner = true" class="text-white/60 hover:text-white shrink-0">
@@ -146,7 +108,7 @@ import MobileAIChatButton from '../../layers/AI/chat/MobileAIChat.vue';
 import CreateModal from '~/components/home/CreateModal.vue';
 import PostUploadModal from '../../layers/post/app/components/modals/PostUploadModal.vue';
 import StoryUploadModal from '../components/modals/StoryUploadModal.vue';
-// import QuickProductModal from '~/components/product/QuickProductModal.vue';
+import QuickProductModal from '~/components/modals/QuickProductModal.vue';
 import SearchOverlay from '~/components/search/SearchOverLay.vue';
 import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue';
 import CartSidebar from '~/components/shop/CartSidebar.vue';
@@ -187,17 +149,17 @@ const showRightSidebar = computed(() => {
 // Dynamic main content classes
 const mainContentClasses = computed(() => {
     const classes = [];
-    
+
     // Mobile top spacing
     if (showCategoryBar.value) {
         classes.push('pt-28 md:pt-6'); // Extra space for header + category bar
     } else {
         classes.push('pt-16 md:pt-6'); // Space for header only
     }
-    
+
     // Desktop padding
     classes.push('lg:px-4');
-    
+
     return classes.join(' ');
 });
 
@@ -251,8 +213,8 @@ const handlePost = async () => {
 let refreshInterval: NodeJS.Timeout | null = null;
 onMounted(() => {
     // Refresh every 5 minutes
-    refreshInterval = setInterval(() => { 
-        refresh(); 
+    refreshInterval = setInterval(() => {
+        refresh();
     }, 300000);
 });
 
@@ -266,11 +228,22 @@ onUnmounted(() => {
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
 
-.seller-banner-enter-active { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease; }
-.seller-banner-leave-active { transition: transform 0.2s ease, opacity 0.2s ease; }
-.seller-banner-enter-from, .seller-banner-leave-to { transform: translateY(100%); opacity: 0; }
+.seller-banner-enter-active {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+.seller-banner-leave-active {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.seller-banner-enter-from,
+.seller-banner-leave-to {
+    transform: translateY(100%);
+    opacity: 0;
+}
 </style>

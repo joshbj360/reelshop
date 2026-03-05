@@ -38,7 +38,7 @@
         <Transition name="dropdown">
             <div
                 v-if="isOpen"
-                class="absolute top-full left-0 xl:w-56 mt-1 bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-gray-200 dark:border-neutral-700 z-50 overflow-hidden min-w-[2.5rem]"
+                class="absolute top-full left-0 mt-1 bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-gray-200 dark:border-neutral-700 z-50 overflow-hidden min-w-[260px] max-w-[calc(100vw-2rem)] xl:w-56"
             >
                 <!-- Store list -->
                 <div class="py-1">
@@ -53,7 +53,7 @@
                             <img v-if="seller.store_logo" :src="seller.store_logo" class="w-full h-full object-cover" :alt="seller.store_name" />
                             <Icon v-else name="mdi:store" size="14" class="text-white" />
                         </div>
-                        <div class="hidden xl:flex flex-1 min-w-0 flex-col text-left">
+                        <div class="flex flex-1 min-w-0 flex-col text-left">
                             <span class="text-[12px] font-semibold text-gray-900 dark:text-neutral-100 truncate">{{ seller.store_name }}</span>
                             <span class="text-[10px] text-gray-400 dark:text-neutral-500">@{{ seller.store_slug }}</span>
                         </div>
@@ -61,7 +61,7 @@
                             v-if="activeSeller?.id === seller.id"
                             name="mdi:check"
                             size="14"
-                            class="hidden xl:block shrink-0 text-brand"
+                            class="shrink-0 text-brand"
                         />
                     </button>
                 </div>
@@ -73,7 +73,7 @@
                         class="flex items-center gap-2.5 px-3 py-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors text-brand"
                     >
                         <Icon name="mdi:plus" size="16" class="shrink-0" />
-                        <span class="hidden xl:inline text-[12px] font-semibold">Create Store</span>
+                        <span class="text-[12px] font-semibold">Create Store</span>
                     </NuxtLink>
                 </div>
             </div>

@@ -17,21 +17,23 @@ async function generateUniqueSlug(title: string): Promise<string> {
 }
 
 export const productService = {
-  async createProduct(sellerId: string, storeSlug: string, data: any, ipAddress: string, userAgent: string) {
+  async createProduct(sellerId: string, storeSlug: string, data: any, ipAddress: string, userAgent: string, authorId?: string) {
     const validated = createProductSchema.parse(data)
     const slug = await generateUniqueSlug(validated.title)
-    const product = await productRepository.createProduct(sellerId, storeSlug, { ...validated, slug })
+    const product = await productRepository.createProduct(sellerId, storeSlug, { ...validated, slug }, authorId)
 
-    await auditService.logUserAction({
-      userId: sellerId,
-      action: 'PRODUCT_CREATED',
-      resource: 'Products',
-      resourceId: String(product.id),
-      reason: 'Created new product',
-      changes: { title: validated.title, status: validated.status },
-      ipAddress,
-      userAgent
-    })
+    if (authorId) {
+      await auditService.logUserAction({
+        userId: authorId,
+        action: 'PRODUCT_CREATED',
+        resource: 'Products',
+        resourceId: String(product.id),
+        reason: 'Created new product',
+        changes: { title: validated.title, status: validated.status },
+        ipAddress,
+        userAgent
+      })
+    }
 
     return product
   },

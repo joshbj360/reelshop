@@ -91,7 +91,7 @@
                                     <!-- Remove -->
                                     <button
                                         @click="removeMediaItem(idx)"
-                                        class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                        class="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10"
                                     >
                                         <Icon name="mdi:close" size="14" class="text-white" />
                                     </button>

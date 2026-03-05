@@ -59,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { useProfileStore } from '../../../layers/profile/app/stores/profile.store';
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
+
 
 defineProps<{
     isOpen: boolean;

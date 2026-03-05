@@ -6,7 +6,7 @@
                 <div class="absolute inset-0 bg-black/40" @click="$emit('close')" />
 
                 <!-- Panel -->
-                <div class="relative bg-white dark:bg-neutral-900 w-full max-w-[400px] h-full flex flex-col shadow-2xl">
+                <div class="relative bg-white dark:bg-neutral-900 w-full sm:max-w-[400px] h-full flex flex-col shadow-2xl">
                     <!-- Header -->
                     <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-neutral-800 shrink-0">
                         <div class="flex items-center gap-2">
@@ -86,25 +86,25 @@
                                         <div class="flex items-center border border-gray-200 dark:border-neutral-700 rounded-lg overflow-hidden">
                                             <button
                                                 @click="handleDecrement(item)"
-                                                class="w-6 h-6 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-gray-500"
+                                                class="w-9 h-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-gray-500"
                                             >
-                                                <Icon name="mdi:minus" size="12" />
+                                                <Icon name="mdi:minus" size="14" />
                                             </button>
-                                            <span class="w-6 text-center text-[12px] font-semibold text-gray-900 dark:text-neutral-100">{{ item.quantity }}</span>
+                                            <span class="w-8 text-center text-[13px] font-semibold text-gray-900 dark:text-neutral-100">{{ item.quantity }}</span>
                                             <button
                                                 @click="updateQuantity(item.variantId, item.quantity + 1)"
-                                                class="w-6 h-6 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-gray-500"
+                                                class="w-9 h-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-gray-500"
                                             >
-                                                <Icon name="mdi:plus" size="12" />
+                                                <Icon name="mdi:plus" size="14" />
                                             </button>
                                         </div>
 
-                                        <!-- Remove -->
+                                        <!-- Remove — always visible on touch, fade on desktop -->
                                         <button
                                             @click="removeFromCart(item.variantId)"
-                                            class="ml-auto p-1 rounded-full text-gray-300 dark:text-neutral-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors opacity-0 group-hover:opacity-100"
+                                            class="ml-auto p-1.5 rounded-full text-gray-400 dark:text-neutral-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors sm:opacity-0 sm:group-hover:opacity-100"
                                         >
-                                            <Icon name="mdi:trash-can-outline" size="15" />
+                                            <Icon name="mdi:trash-can-outline" size="16" />
                                         </button>
                                     </div>
                                 </div>

@@ -48,7 +48,7 @@
                 </button>
                 <div
                     v-if="menuOpen"
-                    class="absolute right-0 top-8 z-20 bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[140px]"
+                    class="absolute right-0 top-8 z-20 bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[140px] max-w-[calc(100vw-2rem)]"
                     @click.stop
                 >
                     <button
@@ -268,7 +268,7 @@
         <audio v-if="post.bgMusic" ref="musicRef" :src="post.bgMusic.url" loop preload="none" />
 
         <!-- ─── Action Bar ────────────────────────────────────────────────── -->
-        <div class="px-2 pt-1">
+        <div class="px-3 pt-2">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <!-- Like -->
@@ -329,7 +329,7 @@
             </p>
 
             <!-- Caption (media posts) -->
-            <div v-if="hasMedia && (cleanCaption || post.content)" class="px-1 mt-0.5">
+            <div v-if="hasMedia && (cleanCaption || post.content)" class="px-0 mt-0.5">
                 <p class="text-[13px] text-gray-900 dark:text-neutral-100 leading-snug">
                     <NuxtLink
                         :to="`/profile/${post.author?.username}`"

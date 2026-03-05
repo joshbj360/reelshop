@@ -1,7 +1,7 @@
 <template>
-  <div class="p-6">
+  <div class="px-3 py-4 sm:p-6">
     <!-- Page header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center gap-2 justify-between mb-4 sm:mb-6">
       <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">Products</h1>
         <p class="text-[13px] text-gray-400 dark:text-neutral-500 mt-0.5">@{{ storeSlug }}</p>
@@ -17,8 +17,8 @@
 
     <div>
       <!-- Filter Bar -->
-      <div class="flex items-center gap-3 mb-6">
-        <div class="flex rounded-lg overflow-hidden border border-gray-200 dark:border-neutral-700">
+      <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
+        <div class="flex overflow-x-auto scrollbar-hide rounded-lg border border-gray-200 dark:border-neutral-700 shrink-0">
           <button
             v-for="tab in statusTabs"
             :key="tab.value"
@@ -33,7 +33,7 @@
             {{ tab.label }}
           </button>
         </div>
-        <div class="flex-1 relative max-w-xs">
+        <div class="flex-1 relative min-w-0">
           <Icon name="mdi:magnify" size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             v-model="search"

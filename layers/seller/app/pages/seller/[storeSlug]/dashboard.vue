@@ -1,5 +1,5 @@
 <template>
-    <div class="p-6 max-w-5xl">
+    <div class="px-3 py-4 sm:px-6 sm:py-6 max-w-5xl">
 
         <!-- Loading skeleton -->
         <div v-if="isPageLoading" class="animate-pulse space-y-6">
@@ -56,15 +56,15 @@
             <!-- Stats row -->
             <div class="grid grid-cols-3 gap-4 mb-6">
                 <div class="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-4 text-center">
-                    <p class="text-2xl font-bold text-gray-900 dark:text-neutral-100">{{ productCount }}</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-neutral-100">{{ productCount }}</p>
                     <p class="text-[12px] text-gray-500 dark:text-neutral-400 mt-0.5">Products</p>
                 </div>
                 <div class="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-4 text-center">
-                    <p class="text-2xl font-bold text-gray-900 dark:text-neutral-100">{{ seller?.followers_count ?? 0 }}</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-neutral-100">{{ seller?.followers_count ?? 0 }}</p>
                     <p class="text-[12px] text-gray-500 dark:text-neutral-400 mt-0.5">Followers</p>
                 </div>
                 <div class="bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-4 text-center">
-                    <p class="text-2xl font-bold text-gray-500 dark:text-neutral-500">0</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-500 dark:text-neutral-500">0</p>
                     <p class="text-[12px] text-gray-500 dark:text-neutral-400 mt-0.5">Orders</p>
                 </div>
             </div>

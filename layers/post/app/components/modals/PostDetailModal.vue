@@ -137,14 +137,14 @@
                             <template v-if="mediaItems.length > 1">
                                 <button
                                     @click.stop="prev"
-                                    class="absolute left-1.5 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/50 text-white"
+                                    class="absolute left-1.5 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white"
                                     :class="currentIndex === 0 ? 'opacity-30 pointer-events-none' : ''"
                                 >
                                     <Icon name="mdi:chevron-left" size="20" />
                                 </button>
                                 <button
                                     @click.stop="next"
-                                    class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/50 text-white"
+                                    class="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white"
                                     :class="currentIndex === mediaItems.length - 1 ? 'opacity-30 pointer-events-none' : ''"
                                 >
                                     <Icon name="mdi:chevron-right" size="20" />

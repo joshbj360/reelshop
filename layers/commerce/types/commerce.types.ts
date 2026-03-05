@@ -11,6 +11,7 @@ export interface IProduct extends Products {
     id: string
     url: string
     type: 'IMAGE' | 'VIDEO' | 'AUDIO'
+    isBgMusic?: boolean
   }>
   variants?: IProductVariant[]
   _count?: {

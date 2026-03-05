@@ -44,7 +44,7 @@
                             v-for="tab in availableTabs"
                             :key="tab.id"
                             @click="activeTab = tab.id"
-                            class="relative flex items-center gap-1.5 px-5 py-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors"
+                            class="relative flex items-center gap-1.5 px-3 sm:px-5 py-2.5 sm:py-3.5 text-[12px] sm:text-[13px] font-semibold whitespace-nowrap transition-colors"
                             :class="activeTab === tab.id
                                 ? 'text-gray-900 dark:text-neutral-100'
                                 : 'text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-neutral-300'"

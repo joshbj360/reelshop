@@ -1,14 +1,26 @@
 import { z } from 'zod'
 
+const mediaItemSchema = z.object({
+  url: z.string().url(),
+  public_id: z.string(),
+  type: z.enum(['IMAGE', 'VIDEO', 'AUDIO']).default('IMAGE')
+})
+
+// Accept "size" or "name" (form alias) — normalized to size internally
 export const productVariantSchema = z.object({
-  size: z.string().min(1),
+  size: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
   stock: z.number().int().min(0),
   price: z.number().positive().optional()
-})
+}).transform(v => ({
+  size: v.size || v.name || '',
+  stock: v.stock,
+  price: v.price
+}))
 
 export const createProductSchema = z.object({
   title: z.string().min(2).max(100),
-  description: z.string().min(10).max(2000),
+  description: z.string().min(10).max(2000).optional(),
   price: z.number().positive(),
   discount: z.number().min(0).max(100).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
@@ -18,7 +30,10 @@ export const createProductSchema = z.object({
   SKU: z.string().optional(),
   bannerImageUrl: z.string().url().optional(),
   mediaId: z.string().uuid().optional(),
-  variants: z.array(productVariantSchema).optional()
+  variants: z.array(productVariantSchema).optional(),
+  // Multi-image + background music
+  mediaItems: z.array(mediaItemSchema).optional(),
+  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional()
 })
 
 export const updateProductSchema = z.object({
@@ -33,7 +48,9 @@ export const updateProductSchema = z.object({
   SKU: z.string().optional(),
   bannerImageUrl: z.string().url().optional(),
   mediaId: z.string().uuid().optional(),
-  variants: z.array(productVariantSchema).optional()
+  variants: z.array(productVariantSchema).optional(),
+  mediaItems: z.array(mediaItemSchema).optional(),
+  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional()
 })
 
 export const listProductsSchema = z.object({

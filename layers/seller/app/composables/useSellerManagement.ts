@@ -3,6 +3,7 @@
 import { useSellerApi } from "../services/seller.services"
 import { useSellerStore } from "../store/seller.store"
 import { useProfile } from "~~/layers/profile/app/composables/useProfile"
+import { useAuthStore } from "~~/layers/base/app/stores/auth.store"
 
 /**
  * Seller Management Composable
@@ -59,6 +60,10 @@ export function useSellerManagement() {
   // ==================== GET SELLERS ====================
 
   const loadUserSellers = async () => {
+    if (!import.meta.client) return
+    const authStore = useAuthStore()
+    if (!authStore.accessToken) return
+
     sellerStore.setLoading(true)
     sellerStore.setError(null)
 

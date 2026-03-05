@@ -5,11 +5,13 @@ const productInclude = {
     select: {
       store_slug: true,
       store_logo: true,
-      store_name: true
+      store_name: true,
+      default_currency: true
     }
   },
   media: {
-    select: { id: true, url: true, type: true }
+    select: { id: true, url: true, type: true, isBgMusic: true },
+    orderBy: { created_at: 'asc' as const }
   },
   variants: true,
   _count: {
@@ -18,7 +20,7 @@ const productInclude = {
 }
 
 export const productRepository = {
-  async createProduct(sellerId: string, storeSlug: string, data: any) {
+  async createProduct(sellerId: string, storeSlug: string, data: any, authorId?: string) {
     const productData: any = {
       title: data.title,
       slug: data.slug,
@@ -48,6 +50,25 @@ export const productRepository = {
           price: v.price
         }))
       }
+    }
+
+    // Inline media creation (images + background music)
+    const mediaToCreate: any[] = []
+    if (authorId && data.mediaItems?.length) {
+      for (const m of data.mediaItems) {
+        mediaToCreate.push({ url: m.url, public_id: m.public_id, type: m.type || 'IMAGE', isBgMusic: false, authorId })
+      }
+    }
+    if (authorId && data.bgMusic?.url) {
+      mediaToCreate.push({ url: data.bgMusic.url, public_id: data.bgMusic.public_id || '', type: 'AUDIO', isBgMusic: true, authorId })
+    }
+    if (mediaToCreate.length) {
+      productData.media = { create: mediaToCreate }
+    }
+
+    // Set first image as bannerImageUrl if none provided
+    if (!productData.bannerImageUrl && data.mediaItems?.[0]?.url) {
+      productData.bannerImageUrl = data.mediaItems[0].url
     }
 
     return prisma.products.create({ data: productData, include: productInclude })
