@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
     return { success: true, data: product }
   } catch (error: any) {
     if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
+      console.error('[GET /api/commerce/products/:id]', error)
     throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
   }
 })
