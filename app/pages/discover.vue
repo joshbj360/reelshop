@@ -55,6 +55,7 @@
                     :product="product"
                     @open-detail="openDetail"
                     @quick-add="quickAdd"
+                    @market="marketProduct = $event"
                 />
             </div>
 
@@ -74,6 +75,13 @@
             @close="selectedProduct = null"
         />
 
+        <!-- Affiliate market modal -->
+        <ProductMarketModal
+            :is-open="!!marketProduct"
+            :product="marketProduct"
+            @close="marketProduct = null"
+        />
+
         <!-- Cart sidebar -->
         <CartSidebar :is-open="showCart" @close="showCart = false" />
     </HomeLayout>
@@ -85,6 +93,7 @@ import HomeLayout from '~/layouts/HomeLayout.vue'
 import ShopProductCard from '~/components/shop/ShopProductCard.vue'
 import CartSidebar from '~/components/shop/CartSidebar.vue'
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
+import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
 import { notify } from '@kyvg/vue3-notification'
 
 const { fetchProducts, isLoading } = useProduct()
@@ -96,6 +105,7 @@ const offset = ref(0)
 const error = ref(false)
 const searchInput = ref('')
 const selectedProduct = ref<IProduct | null>(null)
+const marketProduct = ref<IProduct | null>(null)
 const showCart = ref(false)
 const trigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null

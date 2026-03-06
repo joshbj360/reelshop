@@ -101,7 +101,7 @@
                             Store URL <span class="text-gray-400 font-normal text-[11px]">(cannot be changed)</span>
                         </label>
                         <div class="w-full px-4 py-2.5 bg-gray-100 dark:bg-neutral-800/50 border border-gray-200 dark:border-neutral-700 rounded-xl text-[14px] text-gray-500 dark:text-neutral-400 select-none">
-                            fitsy.com/sellers/profile/{{ storeSlug }}
+                            styli.com/sellers/profile/{{ storeSlug }}
                         </div>
                     </div>
 

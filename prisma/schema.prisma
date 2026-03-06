@@ -154,7 +154,8 @@ model Products {
   isAccessory    Boolean             @default(false)
   store_slug     String
   // embedding      Unsupported("vector")?
-  isThrift       Boolean             @default(false)
+  isThrift              Boolean             @default(false)
+  affiliateCommission   Float?
   comments       Comment[]
   conversations  Conversation[]      @relation("ConversationProduct")
   likes          Like[]

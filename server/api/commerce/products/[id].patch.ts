@@ -16,10 +16,11 @@ export default defineEventHandler(async (event) => {
     const sellerProfile = user.sellerProfile
     if (!sellerProfile) throw new UserError('SELLER_REQUIRED', 'A seller profile is required', 403)
 
-    const result = await productService.updateProduct(id, sellerProfile.id, body, ipAddress, userAgent)
+    const result = await productService.updateProduct(id, sellerProfile.id, body, ipAddress, userAgent, user.id)
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
+    console.error('[PATCH /api/commerce/products/:id]', error)
     throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
   }
 })

@@ -6,7 +6,7 @@
                 <div class="w-8 h-8 bg-gradient-to-br from-[#f02c56] to-purple-600 rounded-full flex items-center justify-center">
                     <Icon name="mdi:hanger" class="w-4 h-4 text-white" />
                 </div>
-                <span class="text-lg font-bold text-gray-900 dark:text-neutral-100">Fitsy</span>
+                <span class="text-lg font-bold text-gray-900 dark:text-neutral-100">Styli</span>
             </NuxtLink>
 
             <!-- Actions -->

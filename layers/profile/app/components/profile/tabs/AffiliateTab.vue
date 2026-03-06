@@ -139,7 +139,7 @@ const { isLoading, isEnrolled, affiliateCode, stats, referrals, fetchAffiliateSt
 const enrollMessage = ref('')
 
 const affiliateLink = computed(() =>
-    affiliateCode.value ? `${window?.location?.origin ?? 'https://fitsy.com'}/ref/${affiliateCode.value}` : ''
+    affiliateCode.value ? `${window?.location?.origin ?? 'https://styli.com'}/ref/${affiliateCode.value}` : ''
 )
 
 onMounted(async () => {

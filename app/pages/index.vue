@@ -64,11 +64,11 @@
                 <!-- Main Feed -->
                 <section class="space-y-5 pt-2">
                     <template v-for="item in mainFeed" :key="item.id">
-                        <ProductCard
+                        <ShopProductCard
                             v-if="item.type === 'PRODUCT' && item.product"
                             :product="item.product"
-                            @open-comments="openCommentsModal"
-                            @open-details="openProductModal"
+                            @open-detail="openProductModal"
+                            @market="marketProduct = $event"
                         />
                         <PostCard
                             v-else-if="item.type === 'POST'"
@@ -118,6 +118,12 @@
             @close="selectedProduct = null"
         />
 
+        <ProductMarketModal
+            :is-open="!!marketProduct"
+            :product="marketProduct"
+            @close="marketProduct = null"
+        />
+
         <PostDetailModal
             v-if="selectedPost"
             :post="selectedPost"
@@ -146,9 +152,10 @@ import HomepageSkeleton from '~/components/home/HomePageSkeleton.vue';
 import StoryUploadModal from '~/components/modals/StoryUploadModal.vue';
 import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue';
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue';
+import ProductMarketModal from '~/components/modals/ProductMarketModal.vue';
 import PostCommentModal from '~/components/modals/PostCommentModal.vue';
 import ProductCommentModal from '~/components/modals/ProductCommentModal.vue';
-import ProductCard from '~/components/home/ProductCard.vue';
+import ShopProductCard from '~/components/shop/ShopProductCard.vue';
 
 import PostCard from '../../layers/post/app/components/PostCard.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue';
@@ -169,6 +176,7 @@ const feedApi = useFeedApi();
 const commentProduct = ref<IProduct | null>(null);
 const commentPost = ref<IFeedItem | null>(null);
 const selectedProduct = ref<IProduct | null>(null);
+const marketProduct = ref<IProduct | null>(null);
 const selectedPost = ref<IFeedItem | null>(null);
 const showUploadModal = ref(false);
 const loadMoreTrigger = ref<HTMLElement | null>(null);

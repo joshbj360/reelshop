@@ -169,6 +169,21 @@
                             </div>
                         </div>
 
+                        <!-- Affiliate Commission -->
+                        <div class="px-3 py-3 bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 rounded-lg">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1.5">Affiliate Commission (₦) <span class="font-normal text-gray-400">(optional)</span></label>
+                            <input
+                                v-model="form.affiliateCommission"
+                                type="number"
+                                min="0"
+                                placeholder="e.g. 500"
+                                class="w-full px-3 py-2.5 text-sm bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand"
+                            />
+                            <p v-if="Number(form.affiliateCommission) > 0" class="mt-1.5 text-[11px] text-purple-600 dark:text-purple-400">
+                                Marketers will see: "Earn ₦{{ Number(form.affiliateCommission).toLocaleString() }} by selling this"
+                            </p>
+                        </div>
+
                         <!-- Description (optional) -->
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1.5">Description <span class="font-normal text-gray-400">(optional)</span></label>
@@ -296,6 +311,7 @@ const form = reactive({
     price: '',
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
     description: '',
+    affiliateCommission: '',
 })
 
 const canSubmit = computed(() =>
@@ -323,6 +339,7 @@ const submit = async () => {
             status: form.status,
         }
         if (form.description.trim()) payload.description = form.description.trim()
+        if (Number(form.affiliateCommission) > 0) payload.affiliateCommission = Number(form.affiliateCommission)
         if (coverResult.value) payload.mediaItems = [coverResult.value]
         if (bgMusicResult.value) payload.bgMusic = bgMusicResult.value
 
@@ -350,6 +367,7 @@ watch(() => props.isOpen, (open) => {
         form.price = ''
         form.status = 'DRAFT'
         form.description = ''
+        form.affiliateCommission = ''
         coverPreview.value = null
         coverResult.value = null
         bgMusicName.value = null

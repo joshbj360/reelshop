@@ -84,6 +84,25 @@
             </div>
           </div>
 
+          <!-- Affiliate Commission -->
+          <div class="p-4 bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 rounded-lg">
+            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+              Affiliate Commission (₦)
+              <span class="ml-1 text-xs font-normal text-gray-400 dark:text-neutral-500">— optional. Set this to let others earn by marketing your product.</span>
+            </label>
+            <input
+              v-model.number="form.affiliateCommission"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="e.g. 500"
+              class="w-full sm:w-1/2 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+            />
+            <p v-if="form.affiliateCommission && form.affiliateCommission > 0" class="mt-1.5 text-xs text-purple-600 dark:text-purple-400">
+              Marketers will see: "Earn ₦{{ Number(form.affiliateCommission).toLocaleString() }} by selling this product"
+            </p>
+          </div>
+
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">SKU</label>
@@ -167,6 +186,7 @@ const form = reactive({
   description: '',
   price: 0,
   discount: 0,
+  affiliateCommission: null as number | null,
   SKU: '',
   status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
   isFeatured: false,
@@ -187,6 +207,7 @@ onMounted(async () => {
       form.isFeatured = product.isFeatured ?? false
       form.isThrift = product.isThrift ?? false
       form.isAccessory = product.isAccessory ?? false
+      form.affiliateCommission = product.affiliateCommission ?? null
     }
   } catch (e: any) {
     fetchError.value = e.message || 'Failed to load product'
@@ -209,6 +230,7 @@ const handleSubmit = async () => {
       isAccessory: form.isAccessory,
     }
     if (form.SKU) payload.SKU = form.SKU
+    payload.affiliateCommission = (form.affiliateCommission && form.affiliateCommission > 0) ? form.affiliateCommission : null
 
     await updateProduct(productId.value, payload)
     successMsg.value = 'Product updated successfully!'

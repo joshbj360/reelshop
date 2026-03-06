@@ -5,7 +5,7 @@
             <div class="w-9 h-9 shrink-0 bg-gradient-to-br from-[#f02c56] to-purple-600 rounded-full flex items-center justify-center">
                 <Icon name="mdi:hanger" class="w-5 h-5 text-white" />
             </div>
-            <span class="hidden xl:inline text-xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">Fitsy</span>
+            <span class="hidden xl:inline text-xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">Styli</span>
         </NuxtLink>
 
         <!-- Navigation Links -->

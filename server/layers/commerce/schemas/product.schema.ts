@@ -33,7 +33,8 @@ export const createProductSchema = z.object({
   variants: z.array(productVariantSchema).optional(),
   // Multi-image + background music
   mediaItems: z.array(mediaItemSchema).optional(),
-  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional()
+  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
+  affiliateCommission: z.number().min(0).optional()
 })
 
 export const updateProductSchema = z.object({
@@ -50,7 +51,8 @@ export const updateProductSchema = z.object({
   mediaId: z.string().uuid().optional(),
   variants: z.array(productVariantSchema).optional(),
   mediaItems: z.array(mediaItemSchema).optional(),
-  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional()
+  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
+  affiliateCommission: z.number().min(0).nullable().optional()
 })
 
 export const listProductsSchema = z.object({

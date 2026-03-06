@@ -37,6 +37,7 @@ export const productRepository = {
     if (data.discount !== undefined) productData.discount = data.discount
     if (data.SKU) productData.SKU = data.SKU
     if (data.bannerImageUrl) productData.bannerImageUrl = data.bannerImageUrl
+    if (data.affiliateCommission !== undefined) productData.affiliateCommission = data.affiliateCommission
 
     if (data.mediaId) {
       productData.media = { connect: [{ id: data.mediaId }] }
@@ -134,6 +135,7 @@ export const productRepository = {
     if (data.isThrift !== undefined) updateData.isThrift = data.isThrift
     if (data.SKU !== undefined) updateData.SKU = data.SKU
     if (data.bannerImageUrl !== undefined) updateData.bannerImageUrl = data.bannerImageUrl
+    if (data.affiliateCommission !== undefined) updateData.affiliateCommission = data.affiliateCommission
     if (data.mediaId) {
       updateData.media = { connect: [{ id: data.mediaId }] }
     }

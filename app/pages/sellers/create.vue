@@ -85,7 +85,7 @@
                 <div>
                     <label class="text-[12px] font-semibold text-gray-600 dark:text-neutral-400 mb-1.5 block">Store URL <span class="text-brand">*</span></label>
                     <div class="relative">
-                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-gray-400 dark:text-neutral-500 select-none">fitsy.com/sellers/</span>
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-gray-400 dark:text-neutral-500 select-none">styli.com/sellers/</span>
                         <input
                             v-model="form.store_slug"
                             type="text"

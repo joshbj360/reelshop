@@ -12,7 +12,7 @@
                         <Icon name="mdi:store-plus-outline" size="18" class="text-white" />
                     </div>
                     <div>
-                        <p class="text-[13px] font-bold text-gray-900 dark:text-neutral-100 leading-tight">Start selling on Fitsy</p>
+                        <p class="text-[13px] font-bold text-gray-900 dark:text-neutral-100 leading-tight">Start selling on Styli</p>
                         <p class="text-[11px] text-gray-400 dark:text-neutral-500">Open your store today</p>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                 <NuxtLink to="/privacy" class="hover:underline">Privacy</NuxtLink>
             </div>
             <div class="flex items-center justify-between">
-                <p class="text-gray-400 dark:text-neutral-500">© 2024 Fitsy</p>
+                <p class="text-gray-400 dark:text-neutral-500">© 2024 Styli</p>
                 <LanguageSwitcher />
             </div>
         </div>

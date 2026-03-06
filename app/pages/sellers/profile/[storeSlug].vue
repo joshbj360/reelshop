@@ -121,6 +121,7 @@
                     :product="product"
                     @open-detail="selectedProduct = product"
                     @quick-add="quickAdd"
+                    @market="marketProduct = $event"
                 />
             </div>
 
@@ -137,6 +138,13 @@
         <!-- Product detail modal -->
         <ProductDetailModal :product="selectedProduct" @close="selectedProduct = null" />
 
+        <!-- Affiliate market modal -->
+        <ProductMarketModal
+            :is-open="!!marketProduct"
+            :product="marketProduct"
+            @close="marketProduct = null"
+        />
+
     </HomeLayout>
 </template>
 
@@ -144,6 +152,7 @@
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import ShopProductCard from '~/components/shop/ShopProductCard.vue'
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
+import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
@@ -170,6 +179,7 @@ const offset = ref(0)
 const LIMIT = 24
 const hasMore = computed(() => products.value.length < total.value)
 const selectedProduct = ref<IProduct | null>(null)
+const marketProduct = ref<IProduct | null>(null)
 
 // Follow state
 const isFollowing = ref(false)

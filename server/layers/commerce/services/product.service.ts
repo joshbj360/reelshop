@@ -70,15 +70,15 @@ export const productService = {
     return { products, total, limit: pagination.limit, offset: pagination.offset }
   },
 
-  async updateProduct(id: number, sellerId: string, data: any, ipAddress: string, userAgent: string) {
+  async updateProduct(id: number, sellerId: string, data: any, ipAddress: string, userAgent: string, authorId?: string) {
     const isOwner = await productRepository.checkOwnership(id, sellerId)
     if (!isOwner) throw new UserError('FORBIDDEN', 'You can only edit your own products', 403)
 
     const validated = updateProductSchema.parse(data)
     const updated = await productRepository.updateProduct(id, validated)
 
-    await auditService.logUserAction({
-      userId: sellerId,
+    if (authorId) await auditService.logUserAction({
+      userId: authorId,
       action: 'PRODUCT_UPDATED',
       resource: 'Products',
       resourceId: String(id),

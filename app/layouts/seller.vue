@@ -4,13 +4,13 @@
         <!-- ── Desktop Sidebar (xl+) ─────────────────────────────────── -->
         <aside class="hidden xl:flex w-60 shrink-0 flex-col h-screen sticky top-0 bg-white dark:bg-neutral-900 border-r border-gray-200 dark:border-neutral-800 overflow-y-auto">
 
-            <!-- Logo / Back to Fitsy -->
+            <!-- Logo / Back to Styli -->
             <div class="p-4 border-b border-gray-100 dark:border-neutral-800">
                 <NuxtLink to="/" class="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
                     <div class="w-9 h-9 shrink-0 bg-gradient-to-br from-[#f02c56] to-purple-600 rounded-full flex items-center justify-center">
                         <Icon name="mdi:hanger" class="w-5 h-5 text-white" />
                     </div>
-                    <span class="text-sm font-bold text-gray-500 dark:text-neutral-400">← Back to Fitsy</span>
+                    <span class="text-sm font-bold text-gray-500 dark:text-neutral-400">← Back to Styli</span>
                 </NuxtLink>
             </div>
 

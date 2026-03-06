@@ -81,7 +81,7 @@
                             <Icon name="mdi:store-plus-outline" size="16" class="text-white" />
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-white text-[12px] font-bold leading-tight">Start selling on Fitsy</p>
+                            <p class="text-white text-[12px] font-bold leading-tight">Start selling on Styli</p>
                             <p class="text-white/70 text-[10px]">Turn your passion into profit</p>
                         </div>
                         <NuxtLink to="/sellers/create"
