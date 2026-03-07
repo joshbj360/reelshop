@@ -195,6 +195,28 @@
                             />
                         </div>
 
+                        <!-- Categories -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1.5">Categories <span class="font-normal text-gray-400">(optional)</span></label>
+                            <div v-if="categoriesLoading" class="flex items-center gap-2 text-xs text-gray-400 dark:text-neutral-500">
+                                <Icon name="mdi:loading" size="14" class="animate-spin" /> Loading…
+                            </div>
+                            <div v-else class="flex flex-wrap gap-1.5">
+                                <button
+                                    v-for="cat in categories"
+                                    :key="cat.id"
+                                    type="button"
+                                    @click="toggleCategory(cat.id)"
+                                    class="px-2.5 py-1 rounded-full text-xs font-medium border transition-colors"
+                                    :class="selectedCategoryIds.includes(cat.id)
+                                        ? 'bg-brand text-white border-brand'
+                                        : 'bg-gray-100 dark:bg-neutral-700 text-gray-600 dark:text-neutral-300 border-gray-200 dark:border-neutral-600 hover:border-brand'"
+                                >
+                                    {{ cat.name }}
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Error -->
                         <p v-if="submitError" class="text-xs text-red-500 dark:text-red-400">{{ submitError }}</p>
                     </div>
@@ -314,6 +336,17 @@ const form = reactive({
     affiliateCommission: '',
 })
 
+// Categories
+const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
+const categoriesLoading = ref(false)
+const selectedCategoryIds = ref<number[]>([])
+
+const toggleCategory = (id: number) => {
+    const idx = selectedCategoryIds.value.indexOf(id)
+    if (idx === -1) selectedCategoryIds.value.push(id)
+    else selectedCategoryIds.value.splice(idx, 1)
+}
+
 const canSubmit = computed(() =>
     !!selectedSeller.value &&
     form.title.trim().length >= 2 &&
@@ -340,6 +373,7 @@ const submit = async () => {
         }
         if (form.description.trim()) payload.description = form.description.trim()
         if (Number(form.affiliateCommission) > 0) payload.affiliateCommission = Number(form.affiliateCommission)
+        if (selectedCategoryIds.value.length) payload.categoryIds = selectedCategoryIds.value
         if (coverResult.value) payload.mediaItems = [coverResult.value]
         if (bgMusicResult.value) payload.bgMusic = bgMusicResult.value
 
@@ -372,12 +406,21 @@ watch(() => props.isOpen, (open) => {
         coverResult.value = null
         bgMusicName.value = null
         bgMusicResult.value = null
+        selectedCategoryIds.value = []
         submitError.value = null
         submitted.value = false
         // Keep selectedSeller — convenient for repeat additions
     } else {
         // Load sellers if not loaded
         if (sellers.value.length === 0) loadUserSellers().catch(() => {})
+        // Load categories if not loaded
+        if (categories.value.length === 0) {
+            categoriesLoading.value = true
+            $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
+                .then(res => { categories.value = res.data || [] })
+                .catch(() => {})
+                .finally(() => { categoriesLoading.value = false })
+        }
         // Auto-select if only one store
         if (sellers.value.length === 1 && !selectedSeller.value) {
             selectedSeller.value = sellers.value[0]

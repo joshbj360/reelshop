@@ -9,7 +9,7 @@
                 <div class="bg-white dark:bg-neutral-900 rounded-t-3xl sm:rounded-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[88vh] overflow-hidden shadow-2xl flex flex-col sm:flex-row">
 
                     <!-- ── Left: Image Gallery ── -->
-                    <div class="relative bg-gray-100 dark:bg-neutral-800 sm:w-[48%] shrink-0 aspect-square sm:aspect-auto sm:min-h-[400px]">
+                    <div class="relative bg-gray-100 dark:bg-neutral-800 sm:w-[48%] shrink-0 h-56 sm:h-auto sm:aspect-auto sm:min-h-[400px]">
                         <template v-if="mediaItems.length">
                             <img
                                 :src="mediaItems[currentIndex].url"
@@ -54,7 +54,7 @@
                     </div>
 
                     <!-- ── Right: Details ── -->
-                    <div class="flex-1 overflow-y-auto flex flex-col min-h-0">
+                    <div class="flex-1 flex flex-col min-h-0">
                         <!-- Header -->
                         <div class="flex items-start justify-between px-5 pt-5 pb-2 shrink-0">
                             <div class="flex-1 min-w-0 pr-3">
@@ -96,12 +96,24 @@
                             </button>
                         </div>
 
-                        <!-- Body -->
+                        <!-- Scrollable body -->
                         <div class="flex-1 overflow-y-auto px-5 pb-2 space-y-4">
                             <!-- Description -->
-                            <p v-if="product.description" class="text-[13px] text-gray-600 dark:text-neutral-400 leading-relaxed">
-                                {{ product.description }}
-                            </p>
+                            <div v-if="product.description">
+                                <p
+                                    class="text-[13px] text-gray-600 dark:text-neutral-400 leading-relaxed"
+                                    :class="descExpanded ? '' : 'line-clamp-3'"
+                                >
+                                    {{ product.description }}
+                                </p>
+                                <button
+                                    v-if="product.description.length > 120"
+                                    @click="descExpanded = !descExpanded"
+                                    class="text-[12px] text-brand mt-0.5 hover:underline"
+                                >
+                                    {{ descExpanded ? 'Show less' : 'Read more' }}
+                                </button>
+                            </div>
 
                             <!-- Badges -->
                             <div v-if="product.isThrift || product.isAccessory" class="flex flex-wrap gap-1.5">
@@ -156,8 +168,29 @@
                             </div>
                         </div>
 
-                        <!-- Footer: Add to Cart -->
-                        <div class="px-5 pt-3 pb-5 border-t border-gray-100 dark:border-neutral-800 shrink-0">
+                        <!-- Footer -->
+                        <div class="px-5 pt-3 pb-5 border-t border-gray-100 dark:border-neutral-800 shrink-0 space-y-2">
+                            <!-- Create content buttons (logged-in users) -->
+                            <ClientOnly>
+                                <div v-if="profileStore.isLoggedIn" class="flex gap-2">
+                                    <button
+                                        @click="showPostModal = true"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 dark:border-neutral-700 text-[12px] font-semibold text-gray-600 dark:text-neutral-400 hover:border-brand hover:text-brand dark:hover:text-brand transition-colors"
+                                    >
+                                        <Icon name="mdi:camera-plus-outline" size="16" />
+                                        Create Post
+                                    </button>
+                                    <button
+                                        @click="showStoryModal = true"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 dark:border-neutral-700 text-[12px] font-semibold text-gray-600 dark:text-neutral-400 hover:border-purple-500 hover:text-purple-500 dark:hover:text-purple-400 transition-colors"
+                                    >
+                                        <Icon name="mdi:image-plus-outline" size="16" />
+                                        Add to Story
+                                    </button>
+                                </div>
+                            </ClientOnly>
+
+                            <!-- Add to Cart -->
                             <button
                                 @click="handleAddToCart"
                                 :disabled="!canAddToCart || isAdding"
@@ -189,29 +222,57 @@
                 </div>
             </div>
         </Transition>
+
+        <!-- Post creation modal (product pre-tagged) -->
+        <PostUploadModal
+            v-if="showPostModal"
+            :is-open="showPostModal"
+            :initial-tagged-product="product ? { id: product.id, name: product.title } : null"
+            @close="showPostModal = false"
+            @posted="showPostModal = false"
+        />
+
+        <!-- Story creation modal (product linked) -->
+        <StoryUploadModal
+            v-if="showStoryModal"
+            :is-open="showStoryModal"
+            :initial-product-id="product?.id ?? null"
+            @close="showStoryModal = false"
+            @posted="showStoryModal = false"
+        />
     </Teleport>
 </template>
 
 <script setup lang="ts">
 import { notify } from '@kyvg/vue3-notification'
 import type { IProduct, IProductVariant } from '~~/layers/commerce/types/commerce.types'
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
+import StoryUploadModal from '~/components/modals/StoryUploadModal.vue'
 
 const props = defineProps<{ product: IProduct | null }>()
 defineEmits(['close'])
 
 const { addToCart } = useCart()
+const profileStore = useProfileStore()
 
 const currentIndex = ref(0)
 const selectedVariant = ref<IProductVariant | null>(null)
 const qty = ref(1)
 const isAdding = ref(false)
 const cartAdded = ref(false)
+const descExpanded = ref(false)
+const showPostModal = ref(false)
+const showStoryModal = ref(false)
 
 watch(() => props.product?.id, () => {
     currentIndex.value = 0
     selectedVariant.value = null
     qty.value = 1
     cartAdded.value = false
+    descExpanded.value = false
+    showPostModal.value = false
+    showStoryModal.value = false
 })
 
 const mediaItems = computed(() => props.product?.media ?? [])
@@ -253,8 +314,6 @@ const handleAddToCart = async () => {
         isAdding.value = false
     }
 }
-
-
 </script>
 
 <style scoped>

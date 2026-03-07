@@ -34,7 +34,8 @@ export const createProductSchema = z.object({
   // Multi-image + background music
   mediaItems: z.array(mediaItemSchema).optional(),
   bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
-  affiliateCommission: z.number().min(0).optional()
+  affiliateCommission: z.number().min(0).optional(),
+  categoryIds: z.array(z.number().int()).optional()
 })
 
 export const updateProductSchema = z.object({
@@ -52,7 +53,8 @@ export const updateProductSchema = z.object({
   variants: z.array(productVariantSchema).optional(),
   mediaItems: z.array(mediaItemSchema).optional(),
   bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
-  affiliateCommission: z.number().min(0).nullable().optional()
+  affiliateCommission: z.number().min(0).nullable().optional(),
+  categoryIds: z.array(z.number().int()).optional()
 })
 
 export const listProductsSchema = z.object({
@@ -61,7 +63,8 @@ export const listProductsSchema = z.object({
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   search: z.string().optional(),
   sellerId: z.string().uuid().optional(),
-  isThrift: z.coerce.boolean().optional()
+  isThrift: z.coerce.boolean().optional(),
+  categorySlug: z.string().optional()
 })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>

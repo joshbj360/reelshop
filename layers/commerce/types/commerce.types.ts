@@ -19,6 +19,9 @@ export interface IProduct extends Products {
     comments: number
     shares: number
   }
+  category?: Array<{
+    category: { id: number; name: string; slug: string }
+  }>
 }
 
 export interface IProductVariant extends ProductVariant {}

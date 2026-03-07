@@ -39,18 +39,19 @@ export const productService = {
   },
 
   async getProducts(filters: any, pagination: any) {
-    const { limit, offset, status, search, sellerId, isThrift } = listProductsSchema.parse({
+    const { limit, offset, status, search, sellerId, isThrift, categorySlug } = listProductsSchema.parse({
       limit: pagination?.limit,
       offset: pagination?.offset,
       status: filters?.status,
       search: filters?.search,
       sellerId: filters?.sellerId,
-      isThrift: filters?.isThrift
+      isThrift: filters?.isThrift,
+      categorySlug: filters?.categorySlug
     })
 
     const [products, total] = await Promise.all([
-      productRepository.getProducts({ status, search, sellerId, isThrift }, { limit, offset }),
-      productRepository.countProducts({ status, search, sellerId, isThrift })
+      productRepository.getProducts({ status, search, sellerId, isThrift, categorySlug }, { limit, offset }),
+      productRepository.countProducts({ status, search, sellerId, isThrift, categorySlug })
     ])
 
     return { products, total, limit, offset }

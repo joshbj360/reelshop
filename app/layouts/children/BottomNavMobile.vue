@@ -1,5 +1,5 @@
 <template>
-    <nav class="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border-t border-gray-200/60 dark:border-neutral-800/60">
+    <nav class="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border-t border-gray-200/60 dark:border-neutral-800/60 transition-transform duration-300 ease-in-out">
         <div class="flex items-center justify-around h-16 px-2">
 
             <NuxtLink to="/" class="nav-item" active-class="active">

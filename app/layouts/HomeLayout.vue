@@ -1,10 +1,18 @@
 <template>
     <!-- Mobile Header -->
-    <HeaderNavMobile @open-search="showSearchOverlay = true" @open-notifications="showNotificationOverlay = true"
-        @open-cart="showCart = true" />
+    <HeaderNavMobile
+        :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-full'"
+        @open-search="showSearchOverlay = true"
+        @open-notifications="showNotificationOverlay = true"
+        @open-cart="showCart = true"
+    />
 
     <!-- Mobile Category Bar (Optional - only on specific pages) -->
-    <CategoryListMobile v-if="showCategoryBar" />
+    <!-- Translates up by header height (56px) + its own height when hidden -->
+    <CategoryListMobile
+        v-if="showCategoryBar"
+        :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-[calc(100%+56px)]'"
+    />
 
     <div
         class="min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-neutral-100 transition-colors duration-300">
@@ -21,8 +29,12 @@
             <div class="flex max-w-[1500px] mx-auto">
 
                 <!-- MAIN FEED/CONTENT AREA -->
-                <div class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
-                    :class="mainContentClasses">
+                <div
+                    ref="mainScrollRef"
+                    class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
+                    :class="mainContentClasses"
+                    @scroll.passive="onMainScroll"
+                >
                     <div class="pb-20 md:pb-0 w-full" :class="isNarrowFeed ? 'max-w-[560px] mx-auto' : ''">
                         <!-- Page Content Slot -->
                         <slot />
@@ -41,7 +53,10 @@
         </main>
 
         <!-- Bottom Navigation (Mobile) -->
-        <BottomNavMobile @create="showCreateModal = true" />
+        <BottomNavMobile
+            :class="mobileNavVisible ? 'translate-y-0' : 'translate-y-full'"
+            @create="showCreateModal = true"
+        />
 
         <!-- Mobile AI Chat Floating Button -->
         <MobileAIChatButton :is-open="showAI" @open="showAI = true" @close="showAI = false" />
@@ -165,6 +180,23 @@ const mainContentClasses = computed(() => {
 
 // Layout data
 const { refresh } = useLayoutData();
+
+// ── Mobile nav scroll-hide/show ──────────────────────────────────────────────
+const mainScrollRef = ref<HTMLElement | null>(null);
+const mobileNavVisible = ref(true);
+let lastScrollY = 0;
+
+const onMainScroll = () => {
+    const el = mainScrollRef.value;
+    if (!el) return;
+    const y = el.scrollTop;
+    const delta = y - lastScrollY;
+    // Ignore tiny jitter
+    if (Math.abs(delta) < 6) return;
+    // Always show when near the top
+    mobileNavVisible.value = delta < 0 || y < 80;
+    lastScrollY = y;
+};
 
 // Modal states
 const showCreateModal = ref(false);

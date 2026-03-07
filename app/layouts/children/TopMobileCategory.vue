@@ -1,40 +1,47 @@
 <template>
-    <div class="fixed top-14 left-0 right-0 z-10 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 md:hidden">
+    <div class="fixed top-14 left-0 right-0 z-10 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 md:hidden transition-transform duration-300 ease-in-out">
         <div class="flex items-center gap-2 overflow-x-auto px-4 py-2 scrollbar-hide">
-            <NuxtLink 
-                to="/" 
+            <NuxtLink
+                to="/"
                 class="category-pill"
-                :class="{ 'active': currentCategory === 'all' }"
+                :class="{ active: route.path === '/' && !route.params.slug }"
             >
                 All
             </NuxtLink>
-            
-            <!-- <NuxtLink 
-                v-for="category in categories" 
-                :key="category.id"
-                :to="`/category/${category.slug}`"
+
+            <NuxtLink
+                to="/thrift"
                 class="category-pill"
-                :class="{ 'active': currentCategory === category.slug }"
+                :class="{ active: route.path === '/thrift' }"
             >
-                {{ category.name }}
-            </NuxtLink> -->
-            
-            <NuxtLink to="/thrift" class="category-pill">
-                <Icon name="mdi:hanger" size="16" class="mr-1" />
+                <Icon name="mdi:hanger" size="14" class="mr-1" />
                 Thrift
+            </NuxtLink>
+
+            <NuxtLink
+                v-for="cat in categories"
+                :key="cat.id"
+                :to="`/category/${cat.slug}`"
+                class="category-pill"
+                :class="{ active: route.params.slug === cat.slug }"
+            >
+                {{ cat.name }}
             </NuxtLink>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+const route = useRoute()
 
-const route = useRoute();
+const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
 
-//const categories = computed(() => categoryStore.categories?.slice(0, 8) || []);
-const currentCategory = computed(() => route.params.slug || 'all');
+onMounted(async () => {
+    try {
+        const res = await $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
+        categories.value = res.data || []
+    } catch { /* non-fatal */ }
+})
 </script>
 
 <style scoped>
@@ -47,10 +54,10 @@ const currentCategory = computed(() => route.params.slug || 'all');
 }
 
 .category-pill {
-    @apply inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors;
+    @apply inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors shrink-0;
 }
 
 .category-pill.active {
-    @apply bg-red-500 text-white;
+    @apply bg-brand text-white;
 }
 </style>

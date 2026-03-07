@@ -201,6 +201,30 @@
           </p>
         </div>
 
+        <!-- Categories -->
+        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6">
+          <h2 class="font-semibold text-gray-900 dark:text-neutral-100 mb-1">Categories</h2>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 mb-3">Select all that apply.</p>
+          <div v-if="categoriesLoading" class="flex items-center gap-2 text-sm text-gray-400 dark:text-neutral-500">
+            <Icon name="mdi:loading" size="16" class="animate-spin" /> Loading categories…
+          </div>
+          <div v-else-if="categories.length === 0" class="text-sm text-gray-400 dark:text-neutral-500">No categories available.</div>
+          <div v-else class="flex flex-wrap gap-2">
+            <button
+              v-for="cat in categories"
+              :key="cat.id"
+              type="button"
+              @click="toggleCategory(cat.id)"
+              class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
+              :class="form.categoryIds.includes(cat.id)
+                ? 'bg-brand text-white border-brand'
+                : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 border-gray-200 dark:border-neutral-600 hover:border-brand'"
+            >
+              {{ cat.name }}
+            </button>
+          </div>
+        </div>
+
         <!-- Flags -->
         <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6">
           <h2 class="font-semibold text-gray-900 dark:text-neutral-100 mb-4">Product Flags</h2>
@@ -338,7 +362,30 @@ const form = reactive({
   isThrift: false,
   isAccessory: false,
   variants: [] as Array<{ size: string; price: number | null; stock: number }>,
+  categoryIds: [] as number[],
 })
+
+// ── Categories ────────────────────────────────────────────────────────────────
+const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
+const categoriesLoading = ref(false)
+
+onMounted(async () => {
+  categoriesLoading.value = true
+  try {
+    const res = await $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
+    categories.value = res.data || []
+  } catch {
+    // non-fatal
+  } finally {
+    categoriesLoading.value = false
+  }
+})
+
+const toggleCategory = (id: number) => {
+  const idx = form.categoryIds.indexOf(id)
+  if (idx === -1) form.categoryIds.push(id)
+  else form.categoryIds.splice(idx, 1)
+}
 
 const addVariant = () => {
   form.variants.push({ size: '', price: null, stock: 0 })
@@ -364,6 +411,7 @@ const handleSubmit = async () => {
 
     if (form.affiliateCommission && form.affiliateCommission > 0) payload.affiliateCommission = form.affiliateCommission
     if (form.SKU) payload.SKU = form.SKU
+    if (form.categoryIds.length) payload.categoryIds = form.categoryIds
 
     if (form.variants.length) {
       payload.variants = form.variants

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     await optionalAuth(event)
     const query = getQuery(event)
     const result = await productService.getProducts(
-      { status: query.status as string, search: query.search as string, sellerId: query.sellerId as string },
+      { status: query.status as string, search: query.search as string, sellerId: query.sellerId as string, isThrift: query.isThrift, categorySlug: query.categorySlug as string },
       { limit: query.limit, offset: query.offset }
     )
     return { success: true, data: result }

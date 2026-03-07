@@ -83,7 +83,7 @@
 import { useMediaUpload } from '~~/layers/base/app/composables/useMediaUpload'
 import { useStory } from '~~/layers/feed/app/composables/useStory'
 
-defineProps<{ isOpen: boolean }>()
+const props = defineProps<{ isOpen: boolean; initialProductId?: number | null }>()
 const emit = defineEmits(['close', 'posted'])
 
 const { uploadMedia, isUploading, uploadProgress, uploadError, resetUpload } = useMediaUpload()
@@ -116,7 +116,7 @@ const handlePost = async () => {
   error.value = null
   try {
     const uploaded = await uploadMedia(selectedFile.value)
-    await createStory({ mediaId: uploaded.mediaId })
+    await createStory({ mediaId: uploaded.mediaId, productId: props.initialProductId ?? undefined })
     emit('posted')
     emit('close')
     clearMedia()

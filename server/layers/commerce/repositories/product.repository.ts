@@ -16,6 +16,11 @@ const productInclude = {
   variants: true,
   _count: {
     select: { likes: true, comments: true, shares: true }
+  },
+  category: {
+    include: {
+      category: { select: { id: true, name: true, slug: true } }
+    }
   }
 }
 
@@ -38,6 +43,12 @@ export const productRepository = {
     if (data.SKU) productData.SKU = data.SKU
     if (data.bannerImageUrl) productData.bannerImageUrl = data.bannerImageUrl
     if (data.affiliateCommission !== undefined) productData.affiliateCommission = data.affiliateCommission
+
+    if (data.categoryIds?.length) {
+      productData.category = {
+        create: data.categoryIds.map((catId: number) => ({ categoryId: catId }))
+      }
+    }
 
     if (data.mediaId) {
       productData.media = { connect: [{ id: data.mediaId }] }
@@ -76,7 +87,7 @@ export const productRepository = {
   },
 
   async getProducts(
-    filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean },
+    filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean; categorySlug?: string },
     pagination: { limit: number; offset: number }
   ) {
     const where: any = {}
@@ -84,6 +95,9 @@ export const productRepository = {
     if (filters.sellerId) where.sellerId = filters.sellerId
     if (filters.storeSlug) where.store_slug = filters.storeSlug
     if (filters.isThrift !== undefined) where.isThrift = filters.isThrift
+    if (filters.categorySlug) {
+      where.category = { some: { category: { slug: filters.categorySlug } } }
+    }
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },
@@ -136,6 +150,12 @@ export const productRepository = {
     if (data.SKU !== undefined) updateData.SKU = data.SKU
     if (data.bannerImageUrl !== undefined) updateData.bannerImageUrl = data.bannerImageUrl
     if (data.affiliateCommission !== undefined) updateData.affiliateCommission = data.affiliateCommission
+    if (data.categoryIds !== undefined) {
+      updateData.category = {
+        deleteMany: {},
+        create: data.categoryIds.map((catId: number) => ({ categoryId: catId }))
+      }
+    }
     if (data.mediaId) {
       updateData.media = { connect: [{ id: data.mediaId }] }
     }
@@ -146,12 +166,15 @@ export const productRepository = {
     return prisma.products.update({ where: { id }, data: { status: 'ARCHIVED' }, include: productInclude })
   },
 
-  async countProducts(filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean }) {
+  async countProducts(filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean; categorySlug?: string }) {
     const where: any = {}
     if (filters.status) where.status = filters.status
     if (filters.sellerId) where.sellerId = filters.sellerId
     if (filters.storeSlug) where.store_slug = filters.storeSlug
     if (filters.isThrift !== undefined) where.isThrift = filters.isThrift
+    if (filters.categorySlug) {
+      where.category = { some: { category: { slug: filters.categorySlug } } }
+    }
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },

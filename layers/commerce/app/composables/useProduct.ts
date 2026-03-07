@@ -8,7 +8,7 @@ export const useProduct = () => {
   const isLoading = computed(() => store.isLoading)
   const error = computed(() => store.error)
 
-  const fetchProducts = async (params?: { status?: string; search?: string; sellerId?: string; limit?: number; offset?: number }) => {
+  const fetchProducts = async (params?: { status?: string; search?: string; sellerId?: string; limit?: number; offset?: number; isThrift?: boolean; categorySlug?: string }) => {
     store.setLoading(true)
     store.setError(null)
     try {

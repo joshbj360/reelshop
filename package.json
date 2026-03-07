@@ -34,6 +34,9 @@
     "zod": "^3.25.76",
     "zod-i18n-map": "^2.27.0"
   },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "devDependencies": {
     "@iconify-json/mdi": "^1.2.3",
     "@types/pg": "^8.16.0",

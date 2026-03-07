@@ -126,6 +126,30 @@
           </div>
         </div>
 
+        <!-- Categories -->
+        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-6">
+          <h2 class="font-semibold text-gray-900 dark:text-neutral-100 mb-1">Categories</h2>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 mb-3">Select all that apply.</p>
+          <div v-if="categoriesLoading" class="flex items-center gap-2 text-sm text-gray-400 dark:text-neutral-500">
+            <Icon name="mdi:loading" size="16" class="animate-spin" /> Loading categories…
+          </div>
+          <div v-else-if="categories.length === 0" class="text-sm text-gray-400 dark:text-neutral-500">No categories available.</div>
+          <div v-else class="flex flex-wrap gap-2">
+            <button
+              v-for="cat in categories"
+              :key="cat.id"
+              type="button"
+              @click="toggleCategory(cat.id)"
+              class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
+              :class="form.categoryIds.includes(cat.id)
+                ? 'bg-brand text-white border-brand'
+                : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 border-gray-200 dark:border-neutral-600 hover:border-brand'"
+            >
+              {{ cat.name }}
+            </button>
+          </div>
+        </div>
+
         <!-- Flags -->
         <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="font-semibold text-gray-900 dark:text-neutral-100 mb-4">Product Flags</h2>
@@ -192,28 +216,47 @@ const form = reactive({
   isFeatured: false,
   isThrift: false,
   isAccessory: false,
+  categoryIds: [] as number[],
 })
 
+const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
+const categoriesLoading = ref(false)
+
+const toggleCategory = (id: number) => {
+  const idx = form.categoryIds.indexOf(id)
+  if (idx === -1) form.categoryIds.push(id)
+  else form.categoryIds.splice(idx, 1)
+}
+
 onMounted(async () => {
-  try {
-    const product = await getProductById(productId.value)
-    if (product) {
-      form.title = product.title || ''
-      form.description = product.description || ''
-      form.price = Number(product.price) || 0
-      form.discount = Number(product.discount) || 0
-      form.SKU = product.SKU || ''
-      form.status = product.status || 'DRAFT'
-      form.isFeatured = product.isFeatured ?? false
-      form.isThrift = product.isThrift ?? false
-      form.isAccessory = product.isAccessory ?? false
-      form.affiliateCommission = product.affiliateCommission ?? null
-    }
-  } catch (e: any) {
-    fetchError.value = e.message || 'Failed to load product'
-  } finally {
-    isFetching.value = false
-  }
+  categoriesLoading.value = true
+  const [, catRes] = await Promise.allSettled([
+    (async () => {
+      try {
+        const product = await getProductById(productId.value)
+        if (product) {
+          form.title = product.title || ''
+          form.description = product.description || ''
+          form.price = Number(product.price) || 0
+          form.discount = Number(product.discount) || 0
+          form.SKU = product.SKU || ''
+          form.status = product.status || 'DRAFT'
+          form.isFeatured = product.isFeatured ?? false
+          form.isThrift = product.isThrift ?? false
+          form.isAccessory = product.isAccessory ?? false
+          form.affiliateCommission = product.affiliateCommission ?? null
+          form.categoryIds = (product.category || []).map((c: any) => c.category.id)
+        }
+      } catch (e: any) {
+        fetchError.value = e.message || 'Failed to load product'
+      } finally {
+        isFetching.value = false
+      }
+    })(),
+    $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
+  ])
+  if (catRes.status === 'fulfilled') categories.value = catRes.value.data || []
+  categoriesLoading.value = false
 })
 
 const handleSubmit = async () => {
@@ -231,6 +274,7 @@ const handleSubmit = async () => {
     }
     if (form.SKU) payload.SKU = form.SKU
     payload.affiliateCommission = (form.affiliateCommission && form.affiliateCommission > 0) ? form.affiliateCommission : null
+    payload.categoryIds = form.categoryIds
 
     await updateProduct(productId.value, payload)
     successMsg.value = 'Product updated successfully!'

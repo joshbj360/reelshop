@@ -1,5 +1,5 @@
 <template>
-    <header class="fixed top-0 left-0 right-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200/60 dark:border-neutral-800/60 md:hidden">
+    <header class="fixed top-0 left-0 right-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200/60 dark:border-neutral-800/60 md:hidden transition-transform duration-300 ease-in-out">
         <div class="flex items-center justify-between h-14 px-4">
             <!-- Logo -->
             <NuxtLink to="/" class="flex items-center gap-2">

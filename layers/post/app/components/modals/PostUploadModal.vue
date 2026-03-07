@@ -235,7 +235,10 @@ import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 import type { IUploadedMedia } from '~~/layers/base/app/types/media.types'
 
-defineProps<{ isOpen: boolean }>()
+const props = defineProps<{
+    isOpen: boolean
+    initialTaggedProduct?: { id: number; name: string } | null
+}>()
 const emit = defineEmits(['close', 'posted'])
 
 const profileStore = useProfileStore()
@@ -358,6 +361,16 @@ const handleProductSelect = (products: any[]) => {
 const removeProduct = (id: string) => {
     taggedProducts.value = taggedProducts.value.filter(p => p.id !== id)
 }
+
+// Pre-populate tagged product when opened from ProductDetailModal
+watch(() => props.isOpen, (open) => {
+    if (open && props.initialTaggedProduct) {
+        const p = props.initialTaggedProduct
+        if (!taggedProducts.value.find((x: any) => x.id === p.id)) {
+            taggedProducts.value = [{ id: p.id, name: p.name }]
+        }
+    }
+})
 
 // ── Post submission ───────────────────────────────────────────────────────────
 const handlePost = async () => {
