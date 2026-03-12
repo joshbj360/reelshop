@@ -148,6 +148,8 @@ import EditProfileModal from '../../components/profile/modals/EditProfileModal.v
 import FollowListModal from '../../components/profile/modals/FollowListModal.vue';
 import StoresTab from '../../components/profile/tabs/StoresTab.vue';
 
+definePageMeta({ middleware: 'auth' })
+
 const route = useRoute();
 const router = useRouter();
 const profileStore = useProfileStore();

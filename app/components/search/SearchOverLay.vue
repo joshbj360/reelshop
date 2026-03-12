@@ -12,7 +12,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search users, products, posts..."
+              placeholder="Search products, posts... or @username"
               autofocus
               class="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-neutral-800 rounded-lg text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 focus:outline-none"
             />
@@ -173,7 +173,15 @@ watch(searchQuery, (val) => {
   isSearching.value = true
   debounceTimer = setTimeout(async () => {
     try {
-      const res = await searchApi.search(val.trim())
+      const isUserSearch = val.trim().startsWith('@')
+      const cleanQuery = isUserSearch ? val.trim().slice(1) : val.trim()
+      const searchType = isUserSearch ? 'users' : 'all'
+      if (!cleanQuery || cleanQuery.length < 2) {
+        results.value = { users: [], products: [], posts: [] }
+        isSearching.value = false
+        return
+      }
+      const res = await searchApi.search(cleanQuery, searchType)
       if (res?.success && res.data) {
         results.value = {
           users: res.data.users || [],
@@ -191,7 +199,7 @@ watch(searchQuery, (val) => {
 
 const navigateToUser = (username: string) => {
   emit('close')
-  router.push(`/@${username}`)
+  router.push(`/profile/${username}`)
 }
 
 const navigateToProduct = (id: number) => {

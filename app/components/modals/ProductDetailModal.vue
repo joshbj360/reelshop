@@ -12,7 +12,7 @@
                     <div class="relative bg-gray-100 dark:bg-neutral-800 sm:w-[48%] shrink-0 h-56 sm:h-auto sm:aspect-auto sm:min-h-[400px]">
                         <template v-if="mediaItems.length">
                             <img
-                                :src="mediaItems[currentIndex].url"
+                                :src="mediaItems[currentIndex]?.url"
                                 :alt="product.title"
                                 class="w-full h-full object-cover"
                             />
@@ -160,6 +160,24 @@
                                 </div>
                             </div>
 
+                            <!-- Background music player -->
+                            <div v-if="bgMusic" class="flex items-center gap-3 px-3 py-2 bg-gray-50 dark:bg-neutral-800 rounded-xl">
+                                <audio ref="audioRef" :src="bgMusic.url" loop preload="none" @ended="bgMusicPlaying = false" />
+                                <button
+                                    @click="toggleBgMusic"
+                                    class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center shrink-0 hover:bg-[#d81b36] transition-colors"
+                                >
+                                    <Icon :name="bgMusicPlaying ? 'mdi:pause' : 'mdi:play'" size="16" />
+                                </button>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[11px] font-semibold text-gray-700 dark:text-neutral-300 truncate">Background music</p>
+                                    <div class="flex items-center gap-1 mt-0.5">
+                                        <Icon name="mdi:music-note" size="10" class="text-brand" />
+                                        <span class="text-[10px] text-gray-400 dark:text-neutral-500">{{ bgMusicPlaying ? 'Playing' : 'Tap to play' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Stats -->
                             <div v-if="product._count" class="flex items-center gap-4 text-[12px] text-gray-400 dark:text-neutral-500 pt-3 border-t border-gray-100 dark:border-neutral-800">
                                 <span class="flex items-center gap-1"><Icon name="mdi:heart-outline" size="14" />{{ product._count.likes }}</span>
@@ -182,7 +200,7 @@
                                     </button>
                                     <button
                                         @click="showStoryModal = true"
-                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 dark:border-neutral-700 text-[12px] font-semibold text-gray-600 dark:text-neutral-400 hover:border-purple-500 hover:text-purple-500 dark:hover:text-purple-400 transition-colors"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 dark:border-neutral-700 text-[12px] font-semibold text-gray-600 dark:text-neutral-400 hover:border-brand hover:text-brand transition-colors"
                                     >
                                         <Icon name="mdi:image-plus-outline" size="16" />
                                         Add to Story
@@ -263,6 +281,8 @@ const cartAdded = ref(false)
 const descExpanded = ref(false)
 const showPostModal = ref(false)
 const showStoryModal = ref(false)
+const bgMusicPlaying = ref(false)
+const audioRef = ref<HTMLAudioElement | null>(null)
 
 watch(() => props.product?.id, () => {
     currentIndex.value = 0
@@ -272,9 +292,23 @@ watch(() => props.product?.id, () => {
     descExpanded.value = false
     showPostModal.value = false
     showStoryModal.value = false
+    bgMusicPlaying.value = false
+    if (audioRef.value) { audioRef.value.pause(); audioRef.value.currentTime = 0 }
 })
 
-const mediaItems = computed(() => props.product?.media ?? [])
+const mediaItems = computed(() => (props.product?.media ?? []).filter((m: any) => !m.isBgMusic))
+const bgMusic = computed(() => (props.product?.media ?? []).find((m: any) => m.isBgMusic) ?? null)
+
+const toggleBgMusic = () => {
+    if (!audioRef.value) return
+    if (bgMusicPlaying.value) {
+        audioRef.value.pause()
+        bgMusicPlaying.value = false
+    } else {
+        audioRef.value.play()
+        bgMusicPlaying.value = true
+    }
+}
 const discountPercent = computed(() => props.product?.discount ?? 0)
 const discountedPrice = computed(() => {
     if (!props.product) return 0

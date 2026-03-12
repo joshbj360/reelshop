@@ -23,7 +23,25 @@
                     <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500 mb-4">
                         {{ $t('feed.todayInspo') }}
                     </h2>
-                    <div class="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+                    <div class="relative">
+                        <!-- Left scroll arrow -->
+                        <button
+                            v-if="storiesScrollLeft > 0"
+                            @click="scrollStories('left')"
+                            class="absolute left-0 top-[33px] -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white dark:bg-neutral-900 shadow-md border border-gray-200 dark:border-neutral-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                        >
+                            <Icon name="mdi:chevron-left" size="18" class="text-gray-600 dark:text-neutral-300" />
+                        </button>
+                        <!-- Right scroll arrow -->
+                        <button
+                            v-if="storiesCanScrollRight"
+                            @click="scrollStories('right')"
+                            class="absolute right-0 top-[33px] -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white dark:bg-neutral-900 shadow-md border border-gray-200 dark:border-neutral-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                        >
+                            <Icon name="mdi:chevron-right" size="18" class="text-gray-600 dark:text-neutral-300" />
+                        </button>
+
+                    <div ref="storiesScroller" class="flex gap-4 overflow-x-auto pb-3 scrollbar-hide" @scroll="onStoriesScroll">
 
                         <!-- Add Story Button -->
                         <div class="flex flex-col items-center gap-2 shrink-0">
@@ -57,7 +75,8 @@
                                 {{ story.author?.username || 'User' }}
                             </span>
                         </div>
-                    </div>
+                    </div><!-- end storiesScroller -->
+                    </div><!-- end relative wrapper -->
                     <div class="mt-4 border-t border-gray-100 dark:border-neutral-800" />
                 </section>
 
@@ -185,6 +204,23 @@ const showUploadModal = ref(false);
 const loadMoreTrigger = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 
+// Stories scroller
+const storiesScroller = ref<HTMLElement | null>(null);
+const storiesScrollLeft = ref(0);
+const storiesCanScrollRight = ref(false);
+
+const onStoriesScroll = () => {
+    if (!storiesScroller.value) return;
+    storiesScrollLeft.value = storiesScroller.value.scrollLeft;
+    storiesCanScrollRight.value =
+        storiesScroller.value.scrollLeft + storiesScroller.value.clientWidth < storiesScroller.value.scrollWidth - 4;
+};
+
+const scrollStories = (dir: 'left' | 'right') => {
+    if (!storiesScroller.value) return;
+    storiesScroller.value.scrollBy({ left: dir === 'left' ? -220 : 220, behavior: 'smooth' });
+};
+
 // 1. Fetch layout data (top sellers, categories)
 //const { data: layoutData } = useLayoutData();
 //const topSellers = computed(() => layoutData.value?.topSellers || []);
@@ -232,7 +268,9 @@ const loadMore = async () => {
 
 onMounted(() => {
     // Load stories independently — failure must never block the feed
-    fetchStories().catch(() => {});
+    fetchStories().catch(() => {}).then(() => {
+        nextTick(() => onStoriesScroll());
+    });
 
     // Setup intersection observer for infinite scroll
     observer.value = new IntersectionObserver(
