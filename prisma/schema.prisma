@@ -192,25 +192,33 @@ model ProductVariant {
 }
 
 model Orders {
-  id             Int            @id @default(autoincrement())
-  userId         String         @db.Uuid
-  stripeId       String         @unique
-  name           String
-  address        String
-  zipcode        String
-  county         String
-  country        String
-  totalAmount    Int
-  status         OrderStatus    @default(PENDING)
-  created_at     DateTime       @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime       @updatedAt @db.Timestamptz(6)
-  paymentMethod  String
-  shipper        String?
-  trackingNumber String?
-  payoutAmount   Int?
-  notifications  Notification[] @relation("NotificationToOrder")
-  orderItem      OrderItem[]
-  user           Profile        @relation("BuyerOrders", fields: [userId], references: [id])
+  id              Int            @id @default(autoincrement())
+  userId          String         @db.Uuid
+  /// Legacy Stripe reference — now used as generic payment reference
+  stripeId        String         @unique
+  /// Paystack transaction reference (populated after payment init)
+  paymentRef      String?        @unique
+  paymentStatus   PaymentStatus  @default(UNPAID)
+  name            String
+  address         String
+  zipcode         String
+  county          String
+  country         String
+  /// Shipping cost in cents
+  shippingCost    Int            @default(0)
+  shippingZone    String?
+  estimatedDays   String?
+  totalAmount     Int
+  status          OrderStatus    @default(PENDING)
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime       @updatedAt @db.Timestamptz(6)
+  paymentMethod   String
+  shipper         String?
+  trackingNumber  String?
+  payoutAmount    Int?
+  notifications   Notification[] @relation("NotificationToOrder")
+  orderItem       OrderItem[]
+  user            Profile        @relation("BuyerOrders", fields: [userId], references: [id])
 }
 
 model OrderItem {
@@ -271,6 +279,23 @@ model ZoneRate {
   countries String[]
   states    String[]
   zone      ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+}
+
+/// Global platform-level shipping zones (not seller-scoped)
+model GlobalShippingZone {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String   @unique
+  countries     String[]
+  /// Base shipping cost in cents
+  baseRate      Int
+  /// Additional cost per kg in cents
+  perKgRate     Int      @default(0)
+  /// e.g. "3-5 business days"
+  estimatedDays String
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @updatedAt @db.Timestamptz(6)
 }
 
 model SellerWallet {
@@ -686,12 +711,22 @@ enum MediaType {
 
 enum OrderStatus {
   PENDING
+  CONFIRMED
   COMPLETED
+  CANCELLED
   CANCELED
   PAID
   SHIPPED
   DELIVERED
   RETURNED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }
 
 enum VerificationStatus {

@@ -187,13 +187,19 @@
                     </div>
                 </div>
                 <!-- 3: 1 tall left + 2 stacked right -->
-                <div v-else-if="mediaItems.length === 3" class="grid grid-cols-2 gap-0.5">
-                    <div class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900" style="aspect-ratio: 4/5;">
-                        <img :src="mediaItems[0]!.url" class="w-full h-full object-cover" />
-                    </div>
-                    <div class="grid grid-rows-2 gap-0.5">
-                        <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-900"><img :src="mediaItems[1]!.url" class="w-full h-full object-cover" /></div>
-                        <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-900"><img :src="mediaItems[2]!.url" class="w-full h-full object-cover" /></div>
+                <div v-else-if="mediaItems.length === 3" class="relative w-full" style="aspect-ratio: 4/3;">
+                    <div class="absolute inset-0 grid grid-cols-2 gap-0.5">
+                        <div class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900">
+                            <img :src="mediaItems[0]!.url" class="absolute inset-0 w-full h-full object-cover" />
+                        </div>
+                        <div class="grid grid-rows-2 gap-0.5">
+                            <div class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900">
+                                <img :src="mediaItems[1]!.url" class="absolute inset-0 w-full h-full object-cover" />
+                            </div>
+                            <div class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900">
+                                <img :src="mediaItems[2]!.url" class="absolute inset-0 w-full h-full object-cover" />
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- 4: 2×2 grid -->
@@ -621,7 +627,8 @@ const timeAgo = (date: Date | string) => {
 };
 
 // ─── Video mute toggle ────────────────────────────────────────────────────────
-const videoMuted = ref(true);
+const { settings: appSettings } = useSettings();
+const videoMuted = ref(appSettings.value.autoMute);
 const toggleMute = () => {
     videoMuted.value = !videoMuted.value;
     if (videoRef.value) videoRef.value.muted = videoMuted.value;
@@ -631,7 +638,7 @@ const toggleMute = () => {
 onMounted(() => {
     // Video observer
     if (videoRef.value) {
-        videoRef.value.muted = true;
+        videoRef.value.muted = appSettings.value.autoMute;
         observer.value = new IntersectionObserver(
             ([entry]) => {
                 if (entry!.isIntersecting) videoRef.value?.play().catch(() => {});

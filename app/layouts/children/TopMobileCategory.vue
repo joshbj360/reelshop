@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed top-14 left-0 right-0 z-10 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 md:hidden transition-transform duration-300 ease-in-out">
+    <div class="category-bar fixed top-14 left-0 right-0 z-10 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 transition-transform duration-300 ease-in-out">
         <div class="flex items-center gap-2 overflow-x-auto px-4 py-2 scrollbar-hide">
             <NuxtLink
                 to="/"
@@ -45,6 +45,17 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.category-bar {
+    top: calc(3.5rem + env(safe-area-inset-top, 0px));
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+    .category-bar {
+        display: none;
+    }
+}
+
 .scrollbar-hide {
     scrollbar-width: none;
     -ms-overflow-style: none;

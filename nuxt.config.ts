@@ -2,6 +2,11 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  app: {
+    head: {
+      viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+    }
+  },
   extends: [
     './layers/AI',     // ← this makes auth server routes available
     './layers/base',
@@ -72,7 +77,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/callback',
-      exclude: ['/'],
+      exclude: ['/', '/discover', '/thrift', '/category/*', '/sellers/profile/*', '/profile/*', '/stories/*', '/reels', '/search'],
     }
   },
   runtimeConfig: {

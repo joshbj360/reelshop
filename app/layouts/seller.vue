@@ -30,11 +30,10 @@
                         <Icon name="mdi:package-variant-closed" size="22" />
                         <span>Products</span>
                     </NuxtLink>
-                    <button disabled class="seller-nav-link opacity-40 cursor-not-allowed">
+                    <NuxtLink :to="`/seller/${storeSlug}/orders`" class="seller-nav-link" active-class="active">
                         <Icon name="mdi:truck-outline" size="22" />
                         <span>Orders</span>
-                        <span class="ml-auto text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-neutral-800 text-gray-400 rounded-full">Soon</span>
-                    </button>
+                    </NuxtLink>
                     <NuxtLink :to="`/seller/${storeSlug}/settings`" class="seller-nav-link" active-class="active">
                         <Icon name="mdi:cog-outline" size="22" />
                         <span>Settings</span>
@@ -94,10 +93,14 @@
                     <Icon name="mdi:package-variant-closed" size="24" />
                     <span>Products</span>
                 </NuxtLink>
-                <button disabled class="mobile-tab opacity-40 cursor-not-allowed">
+                <NuxtLink
+                    :to="`/seller/${storeSlug}/orders`"
+                    class="mobile-tab"
+                    active-class="mobile-tab-active"
+                >
                     <Icon name="mdi:truck-outline" size="24" />
                     <span>Orders</span>
-                </button>
+                </NuxtLink>
                 <NuxtLink
                     :to="`/seller/${storeSlug}/settings`"
                     class="mobile-tab"

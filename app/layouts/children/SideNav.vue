@@ -15,19 +15,9 @@
                 <span class="nav-text">{{ $t('nav.home') }}</span>
             </NuxtLink>
 
-            <!-- <button @click="$emit('open-search')" class="nav-button">
-                <Icon name="mdi:magnify" size="26" />
-                <span class="nav-text">{{ $t('nav.search') }}</span>
-            </button> -->
-
             <NuxtLink to="/discover" class="nav-button" active-class="active">
                 <Icon name="mdi:view-grid-outline" size="26" />
                 <span class="nav-text">{{ $t('nav.discover') }}</span>
-            </NuxtLink>
-
-            <NuxtLink to="/thrift" class="nav-button" active-class="active">
-                <Icon name="mdi:tshirt-crew-outline" size="26" />
-                <span class="nav-text">{{ $t('nav.thrift') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/reels" class="nav-button" active-class="active">
@@ -66,54 +56,96 @@
                 </div>
                 <span class="nav-text">Cart</span>
             </button>
-
-            <!-- Seller Dashboard -->
-            <ClientOnly>
-                <NuxtLink
-                    v-if="profileStore.isLoggedIn && sellerStore.hasSellers"
-                    to="/seller/dashboard"
-                    class="nav-button"
-                    active-class="active"
-                >
-                    <Icon name="mdi:store-outline" size="26" />
-                    <span class="nav-text">My Stores</span>
-                </NuxtLink>
-            </ClientOnly>
         </nav>
 
-        <!-- Profile Link (at the bottom) -->
-        <div class="mt-auto">
+        <!-- Bottom: Profile button + popup menu -->
+        <div class="mt-auto relative" ref="menuRef">
             <ClientOnly>
-                <NuxtLink
+                <!-- Logged in: avatar triggers popup -->
+                <button
                     v-if="profileStore.isLoggedIn"
-                    :to="profileStore.me?.role === 'buyer' ? '/buyer/profile' : profileStore.me?.role === 'seller' ? '/sellers/dashboard' : '/profile/' + profileStore.me?.username"
-                    class="nav-button w-full"
-                    active-class="active"
+                    @click="menuOpen = !menuOpen"
+                    class="nav-button w-full relative"
+                    :class="menuOpen ? 'bg-gray-100 dark:bg-neutral-800' : ''"
                 >
-                    <img
-                        :src="profileStore.me?.avatar || ''"
-                        class="w-7 h-7 rounded-full ring-2 ring-transparent hover:ring-[#f02c56]"
-                    />
-                    <span class="nav-text">{{ $t('nav.profile') }}</span>
-                </NuxtLink>
+                    <div class="relative">
+                        <img
+                            :src="profileStore.me?.avatar || ''"
+                            class="w-7 h-7 rounded-full ring-2 ring-transparent"
+                            :class="menuOpen ? 'ring-brand' : ''"
+                        />
+                        <!-- Combined cart + notification dot -->
+                        <span
+                            v-if="cartCount > 0"
+                            class="absolute -top-1 -right-1 min-w-[14px] h-3.5 rounded-full bg-brand text-white text-[8px] font-bold flex items-center justify-center px-0.5"
+                        >{{ cartCount > 9 ? '9+' : cartCount }}</span>
+                    </div>
+                    <span class="nav-text">{{ profileStore.me?.username || $t('nav.profile') }}</span>
+                    <Icon name="mdi:dots-horizontal" size="18" class="ml-auto hidden xl:block text-gray-400" />
+                </button>
 
-                <!-- Login Button (if not logged in) -->
+                <!-- Not logged in -->
                 <NuxtLink v-else to="/user-login" class="nav-button">
                     <Icon name="mdi:login-variant" size="26" />
                     <span class="nav-text">{{ $t('nav.signIn') }}</span>
                 </NuxtLink>
             </ClientOnly>
+
+            <!-- Popup menu -->
+            <Transition name="menu-pop">
+                <div
+                    v-if="menuOpen"
+                    class="absolute bottom-full mb-2 left-0 w-56 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-2xl shadow-xl overflow-hidden z-50"
+                >
+                    <!-- Profile -->
+                    <NuxtLink
+                        :to="'/profile/' + profileStore.me?.username"
+                        @click="menuOpen = false"
+                        class="menu-item"
+                    >
+                        <Icon name="mdi:account-circle-outline" size="20" />
+                        <span>View Profile</span>
+                    </NuxtLink>
+
+                    <div class="h-px bg-gray-100 dark:bg-neutral-800 mx-3" />
+
+                    <!-- Orders -->
+                    <NuxtLink to="/buyer/orders" @click="menuOpen = false" class="menu-item">
+                        <Icon name="mdi:package-variant-closed" size="20" />
+                        <span>My Orders</span>
+                    </NuxtLink>
+
+                    <!-- My Stores (sellers only) -->
+                    <NuxtLink
+                        v-if="sellerStore.hasSellers"
+                        to="/seller/dashboard"
+                        @click="menuOpen = false"
+                        class="menu-item"
+                    >
+                        <Icon name="mdi:store-outline" size="20" />
+                        <span>My Stores</span>
+                    </NuxtLink>
+
+                    <div class="h-px bg-gray-100 dark:bg-neutral-800 mx-3" />
+
+                    <!-- Settings -->
+                    <NuxtLink to="/settings" @click="menuOpen = false" class="menu-item">
+                        <Icon name="mdi:cog-outline" size="20" />
+                        <span>Settings</span>
+                    </NuxtLink>
+                </div>
+            </Transition>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
 import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store';
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store';
 
-defineEmits(['create', 'open-search', 'open-notifications', 'open-cart']);
+const emit = defineEmits(['create', 'open-search', 'open-notifications', 'open-cart']);
 
 const profileStore = useProfileStore();
 const notificationStore = useNotificationStore();
@@ -121,7 +153,20 @@ const sellerStore = useSellerStore();
 const { cartCount } = useCart();
 
 const unreadCount = computed(() => notificationStore.unreadCount);
-const messageCount = computed(() => 0); // Updated when chat unread tracking is added
+const messageCount = computed(() => 0);
+
+const menuOpen = ref(false);
+const menuRef = ref<HTMLElement | null>(null);
+
+// Close on outside click
+const onClickOutside = (e: MouseEvent) => {
+    if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
+        menuOpen.value = false;
+    }
+};
+
+onMounted(() => document.addEventListener('click', onClickOutside, true));
+onUnmounted(() => document.removeEventListener('click', onClickOutside, true));
 </script>
 
 <style scoped>
@@ -139,5 +184,21 @@ const messageCount = computed(() => 0); // Updated when chat unread tracking is 
 
 .nav-text {
     @apply hidden xl:inline;
+}
+
+.menu-item {
+    @apply flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors;
+}
+
+.menu-pop-enter-active {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.menu-pop-leave-active {
+    transition: opacity 0.1s ease, transform 0.1s ease;
+}
+.menu-pop-enter-from,
+.menu-pop-leave-to {
+    opacity: 0;
+    transform: translateY(6px);
 }
 </style>

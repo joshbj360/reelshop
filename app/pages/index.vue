@@ -142,6 +142,9 @@
 import { useRouter } from 'vue-router';
 
 import { useFeedStore } from '../../layers/feed/app/stores/feed.stores';
+
+const { setHomePage } = useSeo()
+setHomePage()
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
 import { useStory } from '~~/layers/feed/app/composables/useStory';
 

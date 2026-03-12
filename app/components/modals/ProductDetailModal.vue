@@ -244,7 +244,6 @@
 </template>
 
 <script setup lang="ts">
-import { notify } from '@kyvg/vue3-notification'
 import type { IProduct, IProductVariant } from '~~/layers/commerce/types/commerce.types'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
@@ -308,8 +307,8 @@ const handleAddToCart = async () => {
         await addToCart(variantId, qty.value)
         cartAdded.value = true
         setTimeout(() => { cartAdded.value = false }, 1800)
-    } catch (e: any) {
-        notify({ type: 'error', text: e.message || 'Failed to add to cart' })
+    } catch {
+        // useCart handles error notification
     } finally {
         isAdding.value = false
     }

@@ -116,7 +116,7 @@ const handlePost = async () => {
   error.value = null
   try {
     const uploaded = await uploadMedia(selectedFile.value)
-    await createStory({ mediaId: uploaded.mediaId, productId: props.initialProductId ?? undefined })
+    await createStory({ mediaUrl: uploaded.url, mediaPublicId: uploaded.public_id, mediaType: uploaded.type, productId: props.initialProductId ?? undefined })
     emit('posted')
     emit('close')
     clearMedia()

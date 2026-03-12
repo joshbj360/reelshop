@@ -14,6 +14,19 @@ export class OrderApiClient extends BaseApiClient {
   async cancelOrder(id: number) {
     return this.request(`/api/commerce/orders/${id}/cancel`, { method: 'POST' })
   }
+  async initializePayment(data: any) {
+    return this.request('/api/commerce/payments/initialize', { method: 'POST', body: data })
+  }
+  async verifyPayment(reference: string) {
+    return this.request('/api/commerce/payments/verify', { method: 'POST', body: { reference } })
+  }
+  async getSellerOrders(storeSlug: string, params?: { status?: string; limit?: number; offset?: number }) {
+    const q = new URLSearchParams({ storeSlug, ...(params as any) }).toString()
+    return this.request(`/api/commerce/orders/seller?${q}`, { method: 'GET' })
+  }
+  async updateOrderStatus(id: number, body: { status: string; trackingNumber?: string; shipper?: string }) {
+    return this.request(`/api/commerce/orders/${id}/status`, { method: 'PATCH', body })
+  }
 }
 
 let instance: OrderApiClient | null = null

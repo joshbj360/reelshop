@@ -3,6 +3,7 @@
 import { useProfileStore } from "~~/layers/profile/app/stores/profile.store"
 import { useAuthStore } from "../stores/auth.store"
 import { useSellerStore } from "~~/layers/seller/app/store/seller.store"
+import { useNotificationStore } from "~~/layers/profile/app/stores/notification.store"
 
 /**
  * Auth Initialization Plugin
@@ -26,10 +27,20 @@ const hydrateSellerStore = async (token: string, sellerStore: ReturnType<typeof 
   }
 }
 
+const hydrateNotificationCount = async (token: string, notificationStore: ReturnType<typeof useNotificationStore>) => {
+  try {
+    const res = await $fetch<{ success: boolean; data: { count: number } }>('/api/shared/notifications/unread', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (res?.data) notificationStore.unreadCount = res.data.count
+  } catch { /* non-fatal */ }
+}
+
 export default defineNuxtPlugin(async () => {
   const profileStore = useProfileStore()
   const authStore = useAuthStore()
   const sellerStore = useSellerStore()
+  const notificationStore = useNotificationStore()
 
   // Restore tokens from localStorage (client-only, guarded inside the action)
   authStore.initializeAuth()
@@ -51,9 +62,12 @@ export default defineNuxtPlugin(async () => {
       authStore.clearAuth()
     }
 
-    // Hydrate seller store on initial load
+    // Hydrate seller store + notification count on initial load
     if (authStore.accessToken) {
-      await hydrateSellerStore(authStore.accessToken, sellerStore)
+      await Promise.all([
+        hydrateSellerStore(authStore.accessToken, sellerStore),
+        hydrateNotificationCount(authStore.accessToken, notificationStore),
+      ])
     }
   }
 

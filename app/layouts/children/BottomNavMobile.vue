@@ -1,5 +1,5 @@
 <template>
-    <nav class="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border-t border-gray-200/60 dark:border-neutral-800/60 transition-transform duration-300 ease-in-out">
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-gray-200/60 dark:border-neutral-800/60">
         <div class="flex items-center justify-around h-16 px-2">
 
             <NuxtLink to="/" class="nav-item" active-class="active">
@@ -71,6 +71,20 @@ const isProfileActive = computed(() =>
 </script>
 
 <style scoped>
+.bottom-nav {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transition: transform 0.25s ease;
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+    .bottom-nav {
+        display: none;
+    }
+}
+
 .nav-item {
     @apply flex items-center justify-center w-12 h-12 text-gray-500 dark:text-neutral-500 hover:text-gray-900 dark:hover:text-neutral-100 transition-colors rounded-xl;
 }

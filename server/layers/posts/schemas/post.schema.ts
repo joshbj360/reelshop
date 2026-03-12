@@ -20,6 +20,7 @@ export const createPostSchema = z.object({
   content: z.string().max(10000).optional(),
   mediaData: z.array(mediaItemSchema).max(10).optional(),
   musicData: mediaItemSchema.optional(),
+  taggedProducts: z.array(z.number()).optional(),
   contentType: z.enum([
     'COMMERCE',
     'EXPERIENCE',

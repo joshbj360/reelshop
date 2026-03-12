@@ -235,8 +235,8 @@ const handleAddToCart = async () => {
     notify({ type: 'success', text: 'Added to cart!' })
     // Reset after 2s
     setTimeout(() => { addedToCart.value = false }, 2000)
-  } catch (e: any) {
-    notify({ type: 'error', text: e?.message || 'Failed to add to cart' })
+  } catch {
+    // useCart handles error notification
   } finally {
     isAddingToCart.value = false
   }

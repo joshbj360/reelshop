@@ -1,3 +1,4 @@
+import { notify } from '@kyvg/vue3-notification'
 import { useCartApi } from '../services/cart.api'
 import { useCartStore } from '../stores/cart.store'
 
@@ -35,6 +36,7 @@ export const useCart = () => {
       return result.data
     } catch (e: any) {
       store.setError(e.message || 'Failed to add to cart')
+      notify({ type: 'error', text: e.message || 'Failed to add to cart' })
       throw e
     } finally {
       store.setLoading(false)
@@ -49,6 +51,7 @@ export const useCart = () => {
     } catch (e: any) {
       await fetchCart() // revert on error
       store.setError(e.message || 'Failed to update cart')
+      notify({ type: 'error', text: e.message || 'Failed to update cart' })
       throw e
     }
   }
@@ -60,6 +63,7 @@ export const useCart = () => {
     } catch (e: any) {
       await fetchCart() // revert on error
       store.setError(e.message || 'Failed to remove from cart')
+      notify({ type: 'error', text: e.message || 'Failed to remove from cart' })
       throw e
     }
   }

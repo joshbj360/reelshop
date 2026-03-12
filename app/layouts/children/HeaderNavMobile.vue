@@ -1,5 +1,5 @@
 <template>
-    <header class="fixed top-0 left-0 right-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200/60 dark:border-neutral-800/60 md:hidden transition-transform duration-300 ease-in-out">
+    <header class="mobile-header fixed top-0 left-0 right-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-gray-200/60 dark:border-neutral-800/60 transition-transform duration-300 ease-in-out">
         <div class="flex items-center justify-between h-14 px-4">
             <!-- Logo -->
             <NuxtLink to="/" class="flex items-center gap-2">
@@ -53,6 +53,17 @@ const unreadCount = computed(() => notificationStore.unreadCount);
 </script>
 
 <style scoped>
+.mobile-header {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+    .mobile-header {
+        display: none;
+    }
+}
+
 .header-button {
     @apply p-2 rounded-full text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-neutral-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors;
 }

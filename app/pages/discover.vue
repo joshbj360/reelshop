@@ -48,7 +48,7 @@
             </div>
 
             <!-- Product grid -->
-            <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div v-else class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 <ShopProductCard
                     v-for="product in products"
                     :key="product.id"
@@ -95,6 +95,9 @@ import CartSidebar from '~/components/shop/CartSidebar.vue'
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
 import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
 import { notify } from '@kyvg/vue3-notification'
+
+const { setDiscoverPage } = useSeo()
+setDiscoverPage()
 
 const { fetchProducts, isLoading } = useProduct()
 const { addToCart } = useCart()
@@ -150,9 +153,7 @@ const quickAdd = async (product: IProduct) => {
         await addToCart(variant.id, 1)
         notify({ type: 'success', text: `${product.title} added to cart` })
         showCart.value = true
-    } catch (e: any) {
-        notify({ type: 'error', text: e.message || 'Failed to add to cart' })
-    }
+    } catch { /* useCart handles error notification */ }
 }
 
 onMounted(() => {

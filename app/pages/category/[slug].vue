@@ -61,12 +61,15 @@ import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
 
 const route = useRoute()
 const { fetchProducts, isLoading } = useProduct()
+const { setCategoryPage } = useSeo()
 
 const slug = computed(() => route.params.slug as string)
 const categoryName = computed(() => {
     // Prettify slug → "womens-fashion" → "Women's Fashion"
     return slug.value.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 })
+
+watch(slug, (s) => setCategoryPage(categoryName.value, s), { immediate: true })
 
 const products = ref<IProduct[]>([])
 const total = ref(0)

@@ -24,7 +24,7 @@ export const useStory = () => {
     }
   }
 
-  const createStory = async (data: { mediaId: string; productId?: number }) => {
+  const createStory = async (data: { mediaUrl: string; mediaPublicId?: string; mediaType?: string; productId?: number }) => {
     store.setLoading(true)
     store.setError(null)
     try {
