@@ -54,10 +54,17 @@ export class FeedApiClient extends BaseApiClient {
    */
   async getUserFeed(userId: string, options: IFeedOptions = {}): Promise<IFeedResponse> {
     const { limit = 20, offset = 0 } = options
-    
+
     return this.request(`/api/feed/user/${userId}?limit=${limit}&offset=${offset}`, {
       method: 'GET'
     })
+  }
+
+  /**
+   * Fetch reels (video posts)
+   */
+  async getReels(limit = 10, offset = 0): Promise<any> {
+    return this.request(`/api/feed/reels?limit=${limit}&offset=${offset}`, { method: 'GET' })
   }
 }
 

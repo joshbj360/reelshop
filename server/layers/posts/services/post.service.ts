@@ -121,12 +121,11 @@ export const contentService = {
   async savePost(userId: string, postId: string, ipAddress: string, userAgent: string) {
     const post = await postRepository.getPostById(postId)
     if (!post) throw new UserError('POST_NOT_FOUND', 'Post not found', 404)
-    const existing = await postRepository.getSavedPost(postId)
-    if (existing) throw new UserError('ALREADY_SAVED', 'Post already saved', 400) 
+    // savePost handles idempotency internally (findFirst + create)
     const saved = await postRepository.savePost(userId, postId)
     await auditService.logUserAction({
       userId,
-      action: 'POST_SAVED', 
+      action: 'POST_SAVED',
       resource: 'Post',
       resourceId: postId,
       ipAddress,
@@ -137,8 +136,6 @@ export const contentService = {
   async unSavePost(userId: string, postId: string, ipAddress: string, userAgent: string) {
     const post = await postRepository.getPostById(postId)
     if (!post) throw new UserError('POST_NOT_FOUND', 'Post not found', 404)
-    const existing = await postRepository.getSavedPost(postId)
-    if (!existing) throw new UserError('ALREADY_DELETED', 'Post already unsaved', 400) 
     const saved = await postRepository.unsavePost(userId, postId)
     await auditService.logUserAction({
       userId,

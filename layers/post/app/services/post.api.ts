@@ -48,6 +48,10 @@ export class PostApiClient extends BaseApiClient {
     return this.request(`/api/profile/${username}/likes?limit=${limit}&offset=${offset}`, { method: 'GET' })
   }
 
+  async getTaggedPosts(username: string, limit = 9, page = 1): Promise<any> {
+    return this.request(`/api/posts/tagged?username=${username}&limit=${limit}&page=${page}`, { method: 'GET', skipAuth: true })
+  }
+
   async deletePost(id: string): Promise<any> {
     return this.request(`/api/posts/${id}`, { method: 'DELETE' })
   }

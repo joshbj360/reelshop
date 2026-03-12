@@ -26,6 +26,18 @@ export class ProductApiClient extends BaseApiClient {
     const query = params ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)])).toString() : ''
     return this.request(`/api/seller/${storeSlug}/products${query}`, { method: 'GET' })
   }
+
+  async likeProduct(id: number) {
+    return this.request(`/api/commerce/products/${id}/like`, { method: 'POST' })
+  }
+
+  async unlikeProduct(id: number) {
+    return this.request(`/api/commerce/products/${id}/like`, { method: 'DELETE' })
+  }
+
+  async getCategories() {
+    return this.request('/api/commerce/categories', { method: 'GET', skipAuth: true })
+  }
 }
 
 let instance: ProductApiClient | null = null

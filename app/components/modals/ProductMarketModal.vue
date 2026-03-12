@@ -18,7 +18,7 @@
                     <!-- Header -->
                     <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-neutral-800">
                         <div class="flex items-center gap-2">
-                            <Icon name="mdi:bullhorn-outline" size="20" class="text-purple-500" />
+                            <Icon name="mdi:bullhorn-outline" size="20" class="text-brand" />
                             <h2 class="text-base font-semibold text-gray-900 dark:text-neutral-100">Market This Product</h2>
                         </div>
                         <button
@@ -52,7 +52,7 @@
                         </div>
 
                         <!-- Earn pill -->
-                        <div class="rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-5 text-white text-center shadow-lg shadow-purple-200 dark:shadow-none">
+                        <div class="rounded-2xl bg-gradient-to-br from-brand to-[#8a0f2b] p-5 text-white text-center shadow-lg shadow-brand/20 dark:shadow-none">
                             <p class="text-xs font-medium uppercase tracking-wider opacity-80 mb-1">You earn</p>
                             <p class="text-4xl font-extrabold tracking-tight">{{ formatPrice(product.affiliateCommission!) }}</p>
                             <p class="text-sm opacity-80 mt-1">for every sale you drive</p>
@@ -62,20 +62,20 @@
                         <div class="space-y-2.5">
                             <p class="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">How it works</p>
                             <div class="flex items-start gap-2.5">
-                                <div class="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400">1</span>
+                                <div class="w-5 h-5 rounded-full bg-brand/10 dark:bg-brand/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="text-[10px] font-bold text-brand">1</span>
                                 </div>
                                 <p class="text-sm text-gray-600 dark:text-neutral-300">Copy your unique referral link below</p>
                             </div>
                             <div class="flex items-start gap-2.5">
-                                <div class="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400">2</span>
+                                <div class="w-5 h-5 rounded-full bg-brand/10 dark:bg-brand/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="text-[10px] font-bold text-brand">2</span>
                                 </div>
                                 <p class="text-sm text-gray-600 dark:text-neutral-300">Share it on your socials, stories, or DMs</p>
                             </div>
                             <div class="flex items-start gap-2.5">
-                                <div class="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400">3</span>
+                                <div class="w-5 h-5 rounded-full bg-brand/10 dark:bg-brand/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="text-[10px] font-bold text-brand">3</span>
                                 </div>
                                 <p class="text-sm text-gray-600 dark:text-neutral-300">Earn <strong>{{ formatPrice(product.affiliateCommission!) }}</strong> when someone buys through your link</p>
                             </div>
@@ -101,7 +101,7 @@
                     <div class="px-5 pb-5 flex gap-3">
                         <button
                             @click="shareLink"
-                            class="flex-1 flex items-center justify-center gap-2 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-colors"
+                            class="flex-1 flex items-center justify-center gap-2 py-3 bg-brand hover:bg-[#d81b36] text-white rounded-xl text-sm font-semibold transition-colors"
                         >
                             <Icon name="mdi:share-variant-outline" size="18" />
                             Share Now

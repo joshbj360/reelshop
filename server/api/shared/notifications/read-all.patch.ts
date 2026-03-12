@@ -5,7 +5,7 @@ import { notificationService } from "../../../layers/profile/services/notificati
 export default defineEventHandler(async (event) => {
   try {
     const user = await requireAuth(event)
-    const result = await notificationService.markAllAsRead(user.userId)
+    const result = await notificationService.markAllAsRead(user.id)
     return { success: true, data: result }
   } catch (error: any) {
     throw createError({ statusCode: 500, statusMessage: 'Server error' })

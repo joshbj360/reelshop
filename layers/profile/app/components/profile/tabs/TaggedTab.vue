@@ -88,6 +88,9 @@
 import { ref, onMounted } from 'vue'
 import type { IPost } from '../../../../../post/app/types/post.types'
 import PostDetailModal from '../../../../../post/app/components/modals/PostDetailModal.vue'
+import { usePostApi } from '../../../../../post/app/services/post.api'
+
+const postApi = usePostApi()
 
 const props = defineProps<{
     username: string
@@ -107,10 +110,9 @@ onMounted(() => {
 const fetchTaggedPosts = async () => {
     isLoading.value = true
     try {
-        // TODO: Replace with actual API call
-        const response = await $fetch(`/api/posts/tagged?username=${props.username}&limit=9`)
+        const response = await postApi.getTaggedPosts(props.username, 9, 1)
         taggedPosts.value = response.items
-        hasMore.value = response.meta.hasMore
+        hasMore.value = response.meta?.hasMore ?? false
     } catch (error) {
         console.error('Failed to fetch tagged posts:', error)
     } finally {
@@ -122,9 +124,9 @@ const loadMore = async () => {
     isLoadingMore.value = true
     try {
         page.value++
-        const response = await $fetch(`/api/posts/tagged?username=${props.username}&limit=9&page=${page.value}`)
+        const response = await postApi.getTaggedPosts(props.username, 9, page.value)
         taggedPosts.value.push(...response.items)
-        hasMore.value = response.meta.hasMore
+        hasMore.value = response.meta?.hasMore ?? false
     } catch (error) {
         console.error('Failed to load more posts:', error)
     } finally {

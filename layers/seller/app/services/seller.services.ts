@@ -122,6 +122,14 @@ export class SellerApiClient extends BaseApiClient {
       skipAuth: true, // Public endpoint
     })
   }
+
+  async followSeller(storeSlug: string): Promise<any> {
+    return this.request(`/api/seller/${storeSlug}/follow`, { method: 'POST' })
+  }
+
+  async unfollowSeller(storeSlug: string): Promise<any> {
+    return this.request(`/api/seller/${storeSlug}/unfollow`, { method: 'DELETE' })
+  }
 }
 
 /**

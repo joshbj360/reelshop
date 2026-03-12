@@ -275,7 +275,7 @@ const route = useRoute()
 const router = useRouter()
 const storeSlug = computed(() => route.params.storeSlug as string)
 
-const { createProduct, isLoading, error } = useProduct()
+const { createProduct, fetchCategories, isLoading, error } = useProduct()
 const { uploadMedia } = useMediaUpload()
 
 // ── Media state ──────────────────────────────────────────────────────────────
@@ -372,8 +372,7 @@ const categoriesLoading = ref(false)
 onMounted(async () => {
   categoriesLoading.value = true
   try {
-    const res = await $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
-    categories.value = res.data || []
+    categories.value = await fetchCategories()
   } catch {
     // non-fatal
   } finally {

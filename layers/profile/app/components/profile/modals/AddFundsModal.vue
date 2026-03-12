@@ -149,8 +149,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useWallet } from '~~/layers/commerce/app/composables/useWallet'
 
 const emit = defineEmits(['close', 'success'])
+const { addFunds } = useWallet()
 
 const amount = ref(50)
 const selectedMethod = ref('card')
@@ -205,15 +207,7 @@ const handleAddFunds = async () => {
         // Simulate payment processing
         await new Promise(resolve => setTimeout(resolve, 2000))
 
-        // TODO: Call API to update wallet balance
-        await $fetch('/api/wallet/add-funds', {
-            method: 'POST',
-            body: {
-                amount: amount.value,
-                paymentMethod: selectedMethod.value,
-                processingFee: processingFee.value
-            }
-        })
+        await addFunds(amount.value)
 
         // Success
         emit('success', amount.value)

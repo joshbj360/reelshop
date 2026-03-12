@@ -101,7 +101,18 @@ export const useFeed = () => {
     feedStore.setInitialFeed(response.items, response.meta, 'main')
     return response
   }
-  
+
+  /**
+   * Fetch reels (video-only feed)
+   */
+  const fetchReels = async (limit = 10, offset = 0) => {
+    try {
+      return await feedApi.getReels(limit, offset)
+    } catch (err: any) {
+      throw new Error(err.message || 'Failed to fetch reels')
+    }
+  }
+
   return {
     // State
     isLoading,
@@ -118,6 +129,7 @@ export const useFeed = () => {
     loadMoreFeedItems,
     fetchFollowingFeed,
     fetchDiscoverFeed,
-    refreshFeed
+    refreshFeed,
+    fetchReels
   }
 }

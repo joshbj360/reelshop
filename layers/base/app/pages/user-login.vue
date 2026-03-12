@@ -24,9 +24,9 @@
           placeholder="Email address"
           :disabled="isLoading"
           :class="[
-            'w-full px-4 py-3 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm',
-            errors.email 
-              ? 'border-red-300 dark:border-red-700' 
+            'w-full px-4 py-3 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-brand/40 focus:border-transparent transition-all text-sm',
+            errors.email
+              ? 'border-red-300 dark:border-red-700'
               : 'border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-white'
           ]"
         />
@@ -44,7 +44,7 @@
             placeholder="Password"
             :disabled="isLoading"
             :class="[
-              'w-full px-4 py-3 pr-12 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm',
+              'w-full px-4 py-3 pr-12 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-brand/40 focus:border-transparent transition-all text-sm',
               errors.password 
                 ? 'border-red-300 dark:border-red-700' 
                 : 'border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-white'
@@ -68,7 +68,7 @@
       <div class="flex justify-end">
         <NuxtLink
           to="/forgot-password"
-          class="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors font-medium"
+          class="text-sm text-brand hover:text-[#d81b36] transition-colors font-medium"
         >
           Forgot password?
         </NuxtLink>
@@ -78,7 +78,7 @@
       <button
         type="submit"
         :disabled="isLoading"
-        class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold shadow-md hover:shadow-lg hover:from-purple-700 hover:to-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        class="w-full py-3 rounded-xl bg-brand hover:bg-[#d81b36] text-white font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
       >
         <span v-if="isLoading" class="flex items-center justify-center gap-2">
           <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -124,7 +124,7 @@
         Don't have an account?
         <NuxtLink
           to="/user-register"
-          class="text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 transition-colors ml-1"
+          class="text-brand font-semibold hover:text-[#d81b36] transition-colors ml-1"
         >
           Sign Up
         </NuxtLink>

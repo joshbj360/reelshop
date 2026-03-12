@@ -172,10 +172,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useWallet } from '~~/layers/commerce/app/composables/useWallet'
 
 const props = defineProps<{
     balance: number
 }>()
+const { withdraw } = useWallet()
 
 const emit = defineEmits(['close', 'success'])
 
@@ -265,15 +267,7 @@ const handleWithdraw = async () => {
     isProcessing.value = true
 
     try {
-        // TODO: Call API to process withdrawal
-        await $fetch('/api/wallet/withdraw', {
-            method: 'POST',
-            body: {
-                amount: amount.value,
-                method: selectedMethod.value,
-                fee: withdrawalFee.value
-            }
-        })
+        await withdraw(amount.value, { method: selectedMethod.value })
 
         // Success
         emit('success', amount.value)

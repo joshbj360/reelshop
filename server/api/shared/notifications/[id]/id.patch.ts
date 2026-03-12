@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
       throw new UserError('INVALID_ID', 'ID must be a valid number', 400)
     }
 
-    const result = await notificationService.markAsRead(notificationId, user.userId)
+    const result = await notificationService.markAsRead(notificationId, user.id)
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) {

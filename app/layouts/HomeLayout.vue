@@ -11,7 +11,7 @@
     <!-- Translates up by header height (56px) + its own height when hidden -->
     <CategoryListMobile
         v-if="showCategoryBar"
-        :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-[calc(100%+56px)]'"
+        :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-[calc(100%+3.5rem+env(safe-area-inset-top,0px))]'"
     />
 
     <div
@@ -31,8 +31,8 @@
                 <!-- MAIN FEED/CONTENT AREA -->
                 <div
                     ref="mainScrollRef"
-                    class="flex-1 min-w-0 h-[100vh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
-                    :class="mainContentClasses"
+                    class="main-scroll flex-1 min-w-0 h-[100dvh] overflow-y-auto scrollbar-hide px-2 sm:px-4 py-6"
+                    :class="[mainContentClasses, showCategoryBar ? 'has-category' : '']"
                     @scroll.passive="onMainScroll"
                 >
                     <div class="pb-20 md:pb-0 w-full" :class="isNarrowFeed ? 'max-w-[560px] mx-auto' : ''">
@@ -43,10 +43,10 @@
 
                 <!-- RIGHT SIDEBAR (Desktop) -->
                 <aside v-if="showRightSidebar"
-                    class="hidden lg:block w-[380px] shrink-0 p-4 h-[100vh] overflow-y-auto bg-white border-l border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide">
+                    class="hidden lg:block w-[380px] shrink-0 p-4 h-[100dvh] overflow-y-auto bg-white border-l border-gray-200 dark:bg-neutral-900 dark:border-neutral-800 scrollbar-hide">
                     <!-- Right Sidebar Slot -->
                     <slot name="right-sidebar">
-                        <RightSideNav />
+                        <RightSideNav @open-ai="showAI = true" />
                     </slot>
                 </aside>
             </div>
@@ -54,7 +54,7 @@
 
         <!-- Bottom Navigation (Mobile) -->
         <BottomNavMobile
-            :class="mobileNavVisible ? 'translate-y-0' : 'translate-y-full'"
+            :class="bottomNavVisible ? 'translate-y-0' : 'translate-y-full'"
             @create="showCreateModal = true"
         />
 
@@ -84,6 +84,14 @@
 
         <!-- Cart Sidebar -->
         <CartSidebar :is-open="showCart" @close="showCart = false" />
+
+        <!-- Global Share Modal -->
+        <ShareModal
+            :is-open="shareState.isOpen"
+            :url="shareState.url"
+            :title="shareState.title"
+            @close="closeShare"
+        />
 
         <!-- Mobile: Become a Seller Banner -->
         <ClientOnly>
@@ -127,11 +135,13 @@ import QuickProductModal from '~/components/modals/QuickProductModal.vue';
 import SearchOverlay from '~/components/search/SearchOverLay.vue';
 import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue';
 import CartSidebar from '~/components/shop/CartSidebar.vue';
+import ShareModal from '~/components/modals/ShareModal.vue';
 import { useLayoutData } from '~/composables/useLayoutData';
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store';
 
 const route = useRoute();
+const { shareState, closeShare } = useShareModal();
 
 // Props for layout customization
 const props = defineProps<{
@@ -184,18 +194,29 @@ const { refresh } = useLayoutData();
 // ── Mobile nav scroll-hide/show ──────────────────────────────────────────────
 const mainScrollRef = ref<HTMLElement | null>(null);
 const mobileNavVisible = ref(true);
+const bottomNavVisible = ref(true);
 let lastScrollY = 0;
+let scrollStopTimer: ReturnType<typeof setTimeout> | null = null;
 
 const onMainScroll = () => {
     const el = mainScrollRef.value;
     if (!el) return;
     const y = el.scrollTop;
     const delta = y - lastScrollY;
-    // Ignore tiny jitter
-    if (Math.abs(delta) < 6) return;
-    // Always show when near the top
-    mobileNavVisible.value = delta < 0 || y < 80;
+    if (Math.abs(delta) < 3) return;
+
+    const scrollingDown = delta > 0 && y > 80;
+    mobileNavVisible.value = !scrollingDown;
+    bottomNavVisible.value = !scrollingDown;
     lastScrollY = y;
+
+    // Auto-reveal bottom nav after user stops scrolling for 1.5s
+    if (scrollStopTimer) clearTimeout(scrollStopTimer);
+    if (scrollingDown) {
+        scrollStopTimer = setTimeout(() => {
+            bottomNavVisible.value = true;
+        }, 1500);
+    }
 };
 
 // Modal states
@@ -252,6 +273,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     if (refreshInterval) clearInterval(refreshInterval);
+    if (scrollStopTimer) clearTimeout(scrollStopTimer);
 });
 </script>
 
@@ -263,6 +285,23 @@ onUnmounted(() => {
 
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
+}
+
+/* On mobile, add safe-area-inset-top on top of the header height */
+@media (max-width: 767px) {
+    .main-scroll {
+        padding-top: max(4rem, calc(3.5rem + env(safe-area-inset-top, 0px)));
+    }
+    .main-scroll.has-category {
+        padding-top: max(7rem, calc(7rem + env(safe-area-inset-top, 0px)));
+    }
+}
+
+/* Bottom content gap also needs to account for nav + safe area */
+@media (max-width: 767px) {
+    .main-scroll > div {
+        padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    }
 }
 
 .seller-banner-enter-active {

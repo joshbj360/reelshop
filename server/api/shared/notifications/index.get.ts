@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
     const offset = Math.max(Number(query.offset) || 0, 0)
     
-    const result = await notificationService.getNotifications(user.userId, limit, offset)
+    const result = await notificationService.getNotifications(user.id, limit, offset)
     return { success: true, data: result }
   } catch (error: any) {
     throw createError({ statusCode: 500, statusMessage: 'Server error' })

@@ -18,6 +18,10 @@ export class CommentApiClient extends BaseApiClient {
   async likeComment(postId: string, commentId: string): Promise<any> {
     return this.request(`/api/posts/${postId}/comments/${commentId}/like`, { method: 'POST' })
   }
+
+  async unlikeComment(postId: string, commentId: string): Promise<any> {
+    return this.request(`/api/posts/${postId}/comments/${commentId}/like`, { method: 'DELETE' })
+  }
 }
 
 let instance: CommentApiClient | null = null

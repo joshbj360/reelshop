@@ -36,22 +36,43 @@ export const storyRepository = {
   },
 
   async getActiveStoriesForUser(userId: string, limit = 50) {
-    // Get stories from followed users + own stories
-    const following = await prisma.follow.findMany({
-      where: { followerId: userId },
+    // USER-type follows: followingId is a Profile.id
+    const userFollows = await prisma.follow.findMany({
+      where: { followerId: userId, followingType: 'USER' },
       select: { followingId: true }
     })
-    const followingIds = [userId, ...following.map(f => f.followingId)]
+    // SELLER-type follows: followingId is SellerProfile.id — resolve to profileId
+    const sellerFollows = await prisma.follow.findMany({
+      where: { followerId: userId, followingType: 'SELLER' },
+      select: { followingId: true }
+    })
+    const sellerProfileIds = sellerFollows.length
+      ? (await prisma.sellerProfile.findMany({
+          where: { id: { in: sellerFollows.map(f => f.followingId) } },
+          select: { profileId: true }
+        })).map(s => s.profileId)
+      : []
 
-    return prisma.story.findMany({
-      where: {
-        authorId: { in: followingIds },
-        expiresAt: { gt: new Date() }
-      },
+    const profileIds = [userId, ...userFollows.map(f => f.followingId), ...sellerProfileIds]
+
+    const stories = await prisma.story.findMany({
+      where: { authorId: { in: profileIds }, expiresAt: { gt: new Date() } },
       include: storyInclude,
       orderBy: { created_at: 'desc' },
       take: limit
     })
+
+    // No followed-user stories? Fall back to all active public stories
+    if (!stories.length) {
+      return prisma.story.findMany({
+        where: { expiresAt: { gt: new Date() } },
+        include: storyInclude,
+        orderBy: { created_at: 'desc' },
+        take: limit
+      })
+    }
+
+    return stories
   },
 
   async getMyStories(authorId: string) {

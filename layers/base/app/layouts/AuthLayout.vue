@@ -8,7 +8,9 @@
         <!-- Brand -->
         <div class="flex items-center gap-3 mb-8">
           <NuxtLink to="/" class="flex items-center gap-2">
-            <img src="" alt="Logo" class="w-14 h-14 object-contain" />
+            <div class="w-10 h-10 bg-brand rounded-xl flex items-center justify-center">
+              <Icon name="mdi:hanger" class="w-6 h-6 text-white" />
+            </div>
           </NuxtLink>
         </div>
 
@@ -39,7 +41,7 @@
             class="w-full h-full object-cover"
           />
           <!-- Gradient Overlay -->
-          <div class="absolute inset-0 bg-gradient-to-br from-text-brand-dark/90 via-text-brand-dark/85 to-text-brand/90" />
+          <div class="absolute inset-0 bg-gradient-to-br from-[#f02c56]/90 via-[#c01a40]/85 to-[#8a0f2b]/90" />
         </div>
 
         <!-- Content -->

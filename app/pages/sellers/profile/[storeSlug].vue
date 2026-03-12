@@ -163,7 +163,7 @@ import { useCart } from '~~/layers/commerce/app/composables/useCart'
 const route = useRoute()
 const storeSlug = route.params.storeSlug as string
 
-const { loadPublicSeller, currentSeller } = useSellerManagement()
+const { loadPublicSeller, currentSeller, followSeller, unfollowSeller } = useSellerManagement()
 const { fetchSellerProducts, isLoading: productsLoading } = useProduct()
 const profileStore = useProfileStore()
 const { addToCart } = useCart()
@@ -234,11 +234,11 @@ const toggleFollow = async () => {
     followLoading.value = true
     try {
         if (isFollowing.value) {
-            await $fetch(`/api/seller/${storeSlug}/unfollow`, { method: 'DELETE' })
+            await unfollowSeller(storeSlug)
             isFollowing.value = false
             if (currentSeller.value) (currentSeller.value as any).followers_count = Math.max(0, ((currentSeller.value as any).followers_count ?? 0) - 1)
         } else {
-            await $fetch(`/api/seller/${storeSlug}/follow`, { method: 'POST' })
+            await followSeller(storeSlug)
             isFollowing.value = true
             if (currentSeller.value) (currentSeller.value as any).followers_count = ((currentSeller.value as any).followers_count ?? 0) + 1
         }
@@ -255,8 +255,6 @@ const quickAdd = async (product: IProduct) => {
     try {
         await addToCart(variant.id, 1)
         notify({ type: 'success', text: `${product.title} added to cart` })
-    } catch (e: any) {
-        notify({ type: 'error', text: e.message || 'Failed to add to cart' })
-    }
+    } catch { /* useCart handles error notification */ }
 }
 </script>

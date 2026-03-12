@@ -83,13 +83,10 @@
             <!-- Share -->
             <button
                 @click="handleShare"
-                class="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-colors"
-                :class="shared
-                    ? 'text-green-500'
-                    : 'text-gray-500 dark:text-neutral-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20'"
+                class="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-colors text-gray-500 dark:text-neutral-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
             >
-                <Icon :name="shared ? 'mdi:check' : 'mdi:share-outline'" size="16" />
-                <span>{{ shared ? 'Copied' : product._count?.shares ?? 0 }}</span>
+                <Icon name="mdi:share-outline" size="16" />
+                <span>{{ product._count?.shares ?? 0 }}</span>
             </button>
 
             <!-- Market — only shown when seller has set an affiliate commission -->
@@ -127,18 +124,20 @@
 <script setup lang="ts">
 import type { IProduct } from '~~/layers/commerce/types/commerce.types'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
-import { useAuthStore } from '~~/layers/base/app/stores/auth.store'
+import { notify } from '@kyvg/vue3-notification'
 
 const props = defineProps<{ product: IProduct }>()
 const emit = defineEmits<{
     'open-detail': [product: IProduct]
     'quick-add': [product: IProduct]
     'market': [product: IProduct]
+    'share': [product: IProduct]
 }>()
 
 const profileStore = useProfileStore()
-const authStore = useAuthStore()
 const { addToCart } = useCart()
+const { openShare } = useShareModal()
+const { likeProduct, unlikeProduct } = useProduct()
 
 // ── Media ────────────────────────────────────────────────────────────────────
 const imageItems = computed(() =>
@@ -171,35 +170,35 @@ const localLiked = ref(false)
 const localLikeCount = ref(props.product._count?.likes ?? 0)
 
 const handleLike = async () => {
-    if (!profileStore.isLoggedIn) return emit('open-detail', props.product)
+    if (!profileStore.isLoggedIn) {
+        notify({ type: 'warn', text: 'Sign in to like products' })
+        return
+    }
     const wasLiked = localLiked.value
     localLiked.value = !wasLiked
     localLikeCount.value += wasLiked ? -1 : 1
     try {
-        await $fetch(`/api/commerce/products/${props.product.id}/like`, {
-            method: wasLiked ? 'DELETE' : 'POST',
-            headers: authStore.accessToken ? { Authorization: `Bearer ${authStore.accessToken}` } : {}
-        })
-    } catch {
-        // revert
+        if (wasLiked) await unlikeProduct(props.product.id)
+        else await likeProduct(props.product.id)
+    } catch (err: any) {
         localLiked.value = wasLiked
         localLikeCount.value += wasLiked ? 1 : -1
+        const status = err?.response?.status ?? err?.statusCode
+        if (status === 401 || status === 403) {
+            notify({ type: 'warn', text: 'Sign in to like products' })
+        } else {
+            notify({ type: 'error', text: 'Could not like product' })
+        }
     }
 }
 
 // ── Share ────────────────────────────────────────────────────────────────────
-const shared = ref(false)
-
-const handleShare = async () => {
-    const url = `${window.location.origin}/discover?product=${props.product.id}`
+const handleShare = () => {
+    const url = `${import.meta.client ? window.location.origin : ''}/discover?product=${props.product.id}`
     if (navigator.share) {
-        try {
-            await navigator.share({ title: props.product.title, url })
-        } catch {}
+        navigator.share({ title: props.product.title, url }).catch(() => openShare(url, props.product.title))
     } else {
-        await navigator.clipboard.writeText(url)
-        shared.value = true
-        setTimeout(() => { shared.value = false }, 2000)
+        openShare(url, props.product.title)
     }
 }
 

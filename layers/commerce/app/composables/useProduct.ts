@@ -94,6 +94,23 @@ export const useProduct = () => {
     }
   }
 
+  const likeProduct = async (id: number) => {
+    return api.likeProduct(id)
+  }
+
+  const unlikeProduct = async (id: number) => {
+    return api.unlikeProduct(id)
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const result: any = await api.getCategories()
+      return result.data || []
+    } catch (e: any) {
+      throw e
+    }
+  }
+
   return {
     isLoading,
     error,
@@ -103,6 +120,9 @@ export const useProduct = () => {
     createProduct,
     updateProduct,
     deleteProduct,
+    likeProduct,
+    unlikeProduct,
+    fetchCategories,
     store
   }
 }

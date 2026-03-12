@@ -7,7 +7,7 @@ import { requireAuth } from "../../../layers/shared/middleware/requireAuth"
 export default defineEventHandler(async (event) => {
   try {
     const user = await requireAuth(event)
-    const result = await notificationService.getUnreadCount(user.userId)
+    const result = await notificationService.getUnreadCount(user.id)
     return { success: true, data: result }
   } catch (error: any) {
     throw createError({ statusCode: 500, statusMessage: 'Server error' })

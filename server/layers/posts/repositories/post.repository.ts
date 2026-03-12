@@ -23,7 +23,7 @@ export const postRepository = {
 
     if (data.taggedProducts && data.taggedProducts.length > 0) {
       postData.taggedProducts = {
-        connect: data.taggedProducts.map((id: string) => ({ id }))
+        create: data.taggedProducts.map((id: number) => ({ productId: Number(id) }))
       }
     }
 
@@ -314,26 +314,18 @@ export const postRepository = {
   },
 
   async savePost(userId: string, postId: string) {
-    return await prisma.savedPost.upsert({
-      where: {
-        userId_postId: { userId, postId }
-      },
-      update: {}, // If already saved, do nothing
-      create: { userId, postId }
-    })
+    const existing = await prisma.savedPost.findFirst({ where: { userId, postId } })
+    if (existing) return existing
+    return await prisma.savedPost.create({ data: { userId, postId } })
   },
 
   async unsavePost(userId: string, postId: string) {
-    return await prisma.savedPost.delete({
-      where: {
-        userId_postId: { userId, postId }
-      }
-    })
+    return await prisma.savedPost.deleteMany({ where: { userId, postId } })
   },
 
-  async getSavedPost(postId: string) {
+  async getSavedPost(userId: string, postId: string) {
     return await prisma.savedPost.findFirst({
-      where: { postId },
+      where: { userId, postId },
       include: {
         post: {
           include: {

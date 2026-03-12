@@ -197,6 +197,16 @@ export function useSellerManagement() {
     }
   }
 
+  // ==================== FOLLOW / UNFOLLOW ====================
+
+  const followSeller = async (storeSlug: string) => {
+    return sellerApi.followSeller(storeSlug)
+  }
+
+  const unfollowSeller = async (storeSlug: string) => {
+    return sellerApi.unfollowSeller(storeSlug)
+  }
+
   // ==================== GETTERS ====================
 
   return {
@@ -219,6 +229,8 @@ export function useSellerManagement() {
     activateSeller,
     deactivateSeller,
     checkSlugAvailability,
-    suggestSlugs
+    suggestSlugs,
+    followSeller,
+    unfollowSeller
   }
 }

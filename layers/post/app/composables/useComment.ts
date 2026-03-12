@@ -38,5 +38,13 @@ export const useComment = () => {
     }
   }
 
-  return { isLoading, error, fetchPostComments, createComment }
+  const likeComment = async (postId: string, commentId: string) => {
+    return commentApi.likeComment(postId, commentId)
+  }
+
+  const unlikeComment = async (postId: string, commentId: string) => {
+    return commentApi.unlikeComment(postId, commentId)
+  }
+
+  return { isLoading, error, fetchPostComments, createComment, likeComment, unlikeComment }
 }

@@ -1,5 +1,12 @@
 <template>
     <div class="flex flex-col h-full overflow-hidden">
+        <!-- Share modal -->
+        <ShareModal
+            :is-open="showShareModal"
+            :url="shareUrl"
+            :title="post.caption || 'Check out this post'"
+            @close="showShareModal = false"
+        />
 
         <!-- ── Author header ──────────────────────────────────────────── -->
         <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-neutral-800 shrink-0">
@@ -122,7 +129,7 @@
                 <div
                     v-for="comment in comments"
                     :key="comment.id"
-                    class="flex items-start gap-3"
+                    class="flex items-start gap-3 group/comment"
                 >
                     <Avatar
                         :username="comment.author?.username ?? 'User'"
@@ -144,6 +151,18 @@
                             <button class="text-[11px] font-semibold text-gray-400 dark:text-neutral-500 hover:text-gray-600">{{ $t('post.reply') }}</button>
                         </div>
                     </div>
+                    <!-- Comment like -->
+                    <button
+                        @click="handleCommentLike(comment)"
+                        class="shrink-0 flex flex-col items-center gap-0.5 pt-0.5 opacity-0 group-hover/comment:opacity-100 transition-opacity"
+                    >
+                        <Icon
+                            :name="comment._liked ? 'mdi:heart' : 'mdi:heart-outline'"
+                            size="14"
+                            :class="comment._liked ? 'text-red-500' : 'text-gray-400 dark:text-neutral-500'"
+                        />
+                        <span v-if="(comment._likeCount ?? 0) > 0" class="text-[9px] text-gray-400">{{ comment._likeCount }}</span>
+                    </button>
                 </div>
 
                 <!-- Empty state -->
@@ -212,10 +231,20 @@
                 </p>
             </div>
 
+            <!-- Emoji picker panel -->
+            <div v-if="showEmojiPicker" class="px-4 py-2 border-t border-gray-100 dark:border-neutral-800 flex flex-wrap gap-1.5">
+                <button
+                    v-for="e in EMOJIS"
+                    :key="e"
+                    @click="commentText += e"
+                    class="text-lg hover:scale-125 transition-transform active:scale-95"
+                >{{ e }}</button>
+            </div>
+
             <!-- Comment input -->
             <form
                 @submit.prevent="addComment"
-                class="flex items-center gap-3 px-4 py-3 border-t border-gray-100 dark:border-neutral-800"
+                class="flex items-center gap-2 px-4 py-3 border-t border-gray-100 dark:border-neutral-800"
             >
                 <Avatar
                     :username="profileStore.me?.username ?? 'User'"
@@ -229,6 +258,15 @@
                     :placeholder="$t('post.addComment')"
                     class="flex-1 bg-transparent text-[13px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 focus:outline-none"
                 />
+                <!-- Emoji toggle -->
+                <button
+                    type="button"
+                    @click="showEmojiPicker = !showEmojiPicker"
+                    class="text-gray-400 hover:text-yellow-500 transition-colors shrink-0"
+                    aria-label="Emoji"
+                >
+                    <Icon :name="showEmojiPicker ? 'mdi:emoticon' : 'mdi:emoticon-outline'" size="20" />
+                </button>
                 <button
                     type="submit"
                     :disabled="!commentText.trim() || isPostingComment"
@@ -261,7 +299,7 @@ const props = defineProps<{ post: IFeedItem }>();
 const emit = defineEmits(['close']);
 
 const { likePost, unlikePost, savePost, unsavePost } = usePost();
-const { fetchPostComments, createComment } = useComment();
+const { fetchPostComments, createComment, likeComment, unlikeComment } = useComment();
 const postStore = usePostStore();
 const profileStore = useProfileStore();
 
@@ -273,6 +311,11 @@ const isPostingComment = ref(false);
 const likeCount = ref(props.post.likeCount ?? 0);
 const commentsContainer = ref<HTMLElement | null>(null);
 const commentInputRef = ref<HTMLInputElement | null>(null);
+const showEmojiPicker = ref(false);
+const showShareModal = ref(false);
+const shareUrl = computed(() => `${import.meta.client ? window.location.origin : ''}/post/${props.post.id}`);
+
+const EMOJIS = ['😂','❤️','🔥','😍','👏','😭','🙏','💯','✨','😎','🥰','😊','🤣','😅','💪','🤩','😩','🥺','😤','👀','💀','🫶','🤍','💕','🎉','👑','💃','🛍️','✅','🤯'];
 
 const isLiked = computed(() => postStore.isPostLiked(props.post.id));
 
@@ -389,18 +432,36 @@ const addComment = async () => {
     }
 };
 
-const focusCommentInput = () => commentInputRef.value?.focus();
+const focusCommentInput = () => {
+    commentInputRef.value?.focus()
+    showEmojiPicker.value = false
+};
 
-const sharePost = async () => {
-    const url = `${window.location.origin}/post/${props.post.id}`;
+const handleCommentLike = async (comment: any) => {
+    if (!profileStore.userId) {
+        notify({ type: 'warn', text: t('auth.loginToLike') });
+        return;
+    }
+    const wasLiked = comment._liked;
+    comment._liked = !wasLiked;
+    comment._likeCount = (comment._likeCount ?? 0) + (wasLiked ? -1 : 1);
     try {
-        if (navigator.share) {
-            await navigator.share({ url, title: props.post.caption || 'Check out this post' });
-        } else {
-            await navigator.clipboard.writeText(url);
-            notify({ type: 'success', text: t('post.linkCopied') });
-        }
-    } catch {}
+        if (wasLiked) await unlikeComment(props.post.id, comment.id)
+        else await likeComment(props.post.id, comment.id)
+    } catch {
+        comment._liked = wasLiked;
+        comment._likeCount = (comment._likeCount ?? 0) + (wasLiked ? 1 : -1);
+    }
+};
+
+const sharePost = () => {
+    if (navigator.share) {
+        navigator.share({ url: shareUrl.value, title: props.post.caption || 'Check out this post' }).catch(() => {
+            showShareModal.value = true
+        })
+    } else {
+        showShareModal.value = true
+    }
 };
 
 const timeAgo = (date: Date | string) => {
