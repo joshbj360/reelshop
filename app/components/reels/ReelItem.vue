@@ -35,13 +35,13 @@
                         class="w-11 h-11 rounded-full border-2 border-white object-cover bg-neutral-700"
                     />
                 </NuxtLink>
-                <button class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 bg-brand rounded-full flex items-center justify-center border-2 border-black">
+                <button aria-label="Follow user" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 bg-brand rounded-full flex items-center justify-center border-2 border-black">
                     <Icon name="mdi:plus" size="10" class="text-white" />
                 </button>
             </div>
 
             <!-- Like -->
-            <button @click.stop="handleLike" class="flex flex-col items-center gap-1">
+            <button :aria-label="isLiked ? `Unlike reel, ${localLikeCount} likes` : `Like reel, ${localLikeCount} likes`" @click.stop="handleLike" class="flex flex-col items-center gap-1">
                 <div class="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
                     <Icon
                         :name="isLiked ? 'mdi:heart' : 'mdi:heart-outline'"
@@ -49,27 +49,27 @@
                         :class="isLiked ? 'text-brand' : 'text-white'"
                     />
                 </div>
-                <span class="text-white text-[11px] font-semibold">{{ formatCount(localLikeCount) }}</span>
+                <span class="text-white text-[11px] font-semibold" aria-hidden="true">{{ formatCount(localLikeCount) }}</span>
             </button>
 
             <!-- Comment -->
-            <button @click.stop="$emit('open-comments', reel)" class="flex flex-col items-center gap-1">
+            <button :aria-label="`Open comments, ${reel.commentCount || 0} comments`" @click.stop="$emit('open-comments', reel)" class="flex flex-col items-center gap-1">
                 <div class="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
                     <Icon name="mdi:comment-outline" size="22" class="text-white" />
                 </div>
-                <span class="text-white text-[11px] font-semibold">{{ formatCount(reel.commentCount || 0) }}</span>
+                <span class="text-white text-[11px] font-semibold" aria-hidden="true">{{ formatCount(reel.commentCount || 0) }}</span>
             </button>
 
             <!-- Share -->
-            <button @click.stop="handleShare" class="flex flex-col items-center gap-1">
+            <button :aria-label="`Share reel, ${reel.shareCount || 0} shares`" @click.stop="handleShare" class="flex flex-col items-center gap-1">
                 <div class="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
                     <Icon name="mdi:share-outline" size="22" class="text-white" />
                 </div>
-                <span class="text-white text-[11px] font-semibold">{{ formatCount(reel.shareCount || 0) }}</span>
+                <span class="text-white text-[11px] font-semibold" aria-hidden="true">{{ formatCount(reel.shareCount || 0) }}</span>
             </button>
 
             <!-- Mute -->
-            <button @click.stop="isMuted = !isMuted" class="flex flex-col items-center gap-1">
+            <button :aria-label="isMuted ? 'Unmute video' : 'Mute video'" @click.stop="isMuted = !isMuted" class="flex flex-col items-center gap-1">
                 <div class="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
                     <Icon :name="isMuted ? 'mdi:volume-off' : 'mdi:volume-high'" size="22" class="text-white" />
                 </div>
