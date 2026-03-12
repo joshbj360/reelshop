@@ -1,4 +1,5 @@
 // POST /api/commerce/products/[id]/comments
+import { prisma } from '../../../../../utils/db'
 import { requireAuth } from '../../../../../layers/shared/middleware/requireAuth'
 
 export default defineEventHandler(async (event) => {

@@ -1,4 +1,6 @@
-// GET /api/search?q=...&type=all|users|products|posts&limit=10
+// GET /api/search?q=...&type=all|users|products|posts|stores&limit=10
+import { prisma } from '../utils/db'
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const q = String(query.q || '').trim()
@@ -6,11 +8,13 @@ export default defineEventHandler(async (event) => {
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 30)
 
   if (!q || q.length < 2) {
-    return { success: true, data: { users: [], products: [], posts: [] } }
+    return { success: true, data: { users: [], products: [], posts: [], stores: [] } }
   }
 
-  const [users, products, posts] = await Promise.all([
-    (type === 'all' || type === 'users')
+  const searchAll = type === 'all'
+
+  const [users, products, posts, stores] = await Promise.all([
+    searchAll || type === 'users'
       ? prisma.profile.findMany({
           where: {
             OR: [
@@ -18,19 +22,12 @@ export default defineEventHandler(async (event) => {
               { full_name: { contains: q, mode: 'insensitive' } },
             ],
           },
-          select: {
-            id: true,
-            username: true,
-            full_name: true,
-            avatar: true,
-            bio: true,
-            role: true,
-          },
+          select: { id: true, username: true, full_name: true, avatar: true, role: true },
           take: limit,
         })
-      : [],
+      : Promise.resolve([] as any[]),
 
-    (type === 'all' || type === 'products')
+    searchAll || type === 'products'
       ? prisma.products.findMany({
           where: {
             status: 'PUBLISHED',
@@ -49,9 +46,9 @@ export default defineEventHandler(async (event) => {
           },
           take: limit,
         })
-      : [],
+      : Promise.resolve([] as any[]),
 
-    (type === 'all' || type === 'posts')
+    searchAll || type === 'posts'
       ? prisma.post.findMany({
           where: {
             visibility: 'PUBLIC',
@@ -70,11 +67,33 @@ export default defineEventHandler(async (event) => {
           },
           take: limit,
         })
-      : [],
+      : Promise.resolve([] as any[]),
+
+    searchAll || type === 'stores'
+      ? prisma.sellerProfile.findMany({
+          where: {
+            is_active: true,
+            OR: [
+              { store_name: { contains: q, mode: 'insensitive' } },
+              { store_slug: { contains: q, mode: 'insensitive' } },
+              { store_description: { contains: q, mode: 'insensitive' } },
+            ],
+          },
+          select: {
+            id: true,
+            store_name: true,
+            store_slug: true,
+            store_logo: true,
+            store_description: true,
+            followers_count: true,
+          },
+          take: limit,
+        })
+      : Promise.resolve([] as any[]),
   ])
 
   return {
     success: true,
-    data: { users, products, posts },
+    data: { users, products, posts, stores },
   }
 })

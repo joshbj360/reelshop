@@ -12,7 +12,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search products, posts... or @username"
+              placeholder="Search products, stores, posts… or @username"
               autofocus
               class="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-neutral-800 rounded-lg text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 focus:outline-none"
             />
@@ -27,7 +27,7 @@
           <!-- Empty State -->
           <div v-if="!searchQuery" class="text-center text-gray-500 dark:text-neutral-400 py-20">
             <Icon name="mdi:magnify" size="48" class="mb-3 mx-auto" />
-            <p>Search for users, products, or posts</p>
+            <p>Search for users, stores, products, or posts</p>
           </div>
 
           <!-- Loading -->
@@ -46,7 +46,7 @@
             <!-- Users -->
             <div v-if="results.users.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">People</h3>
-              <div class="space-y-3">
+              <div class="space-y-1">
                 <button
                   v-for="user in results.users"
                   :key="user.id"
@@ -70,10 +70,37 @@
               </div>
             </div>
 
+            <!-- Stores -->
+            <div v-if="results.stores.length">
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">Stores</h3>
+              <div class="space-y-1">
+                <button
+                  v-for="store in results.stores"
+                  :key="store.id"
+                  @click="navigateToStore(store.store_slug)"
+                  class="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors text-left"
+                >
+                  <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-neutral-800 flex-shrink-0 flex items-center justify-center">
+                    <img
+                      v-if="store.store_logo"
+                      :src="store.store_logo"
+                      :alt="store.store_name"
+                      class="w-full h-full object-cover"
+                    />
+                    <Icon v-else name="mdi:store" size="20" class="text-gray-400" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 dark:text-neutral-100 truncate">{{ store.store_name }}</p>
+                    <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">{{ store.followers_count }} followers</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             <!-- Products -->
             <div v-if="results.products.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">Products</h3>
-              <div class="space-y-3">
+              <div class="space-y-1">
                 <button
                   v-for="product in results.products"
                   :key="product.id"
@@ -101,7 +128,7 @@
             <!-- Posts -->
             <div v-if="results.posts.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">Posts</h3>
-              <div class="space-y-3">
+              <div class="space-y-1">
                 <button
                   v-for="post in results.posts"
                   :key="post.id"
@@ -151,46 +178,52 @@ const searchApi = useSearchApi()
 
 const searchQuery = ref('')
 const isSearching = ref(false)
-const results = ref<{ users: any[]; products: any[]; posts: any[] }>({
+const results = ref<{ users: any[]; products: any[]; posts: any[]; stores: any[] }>({
   users: [],
   products: [],
   posts: [],
+  stores: [],
 })
 
 const hasResults = computed(
-  () => results.value.users.length > 0 || results.value.products.length > 0 || results.value.posts.length > 0
+  () => results.value.users.length > 0
+    || results.value.stores.length > 0
+    || results.value.products.length > 0
+    || results.value.posts.length > 0
 )
 
+const empty = { users: [], products: [], posts: [], stores: [] }
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(searchQuery, (val) => {
   if (debounceTimer) clearTimeout(debounceTimer)
-  if (!val.trim() || val.length < 2) {
-    results.value = { users: [], products: [], posts: [] }
+  const trimmed = val.trim()
+  const isAtSearch = trimmed.startsWith('@')
+  const cleanQuery = isAtSearch ? trimmed.slice(1) : trimmed
+  const minLen = isAtSearch ? 1 : 2
+
+  if (!cleanQuery || cleanQuery.length < minLen) {
+    results.value = { ...empty }
     isSearching.value = false
     return
   }
+
   isSearching.value = true
   debounceTimer = setTimeout(async () => {
     try {
-      const isUserSearch = val.trim().startsWith('@')
-      const cleanQuery = isUserSearch ? val.trim().slice(1) : val.trim()
-      const searchType = isUserSearch ? 'users' : 'all'
-      if (!cleanQuery || cleanQuery.length < 2) {
-        results.value = { users: [], products: [], posts: [] }
-        isSearching.value = false
-        return
-      }
+      const searchType = isAtSearch ? 'users' : 'all'
       const res = await searchApi.search(cleanQuery, searchType)
       if (res?.success && res.data) {
         results.value = {
-          users: res.data.users || [],
-          products: res.data.products || [],
-          posts: res.data.posts || [],
+          users: (res.data as any).users || [],
+          products: (res.data as any).products || [],
+          posts: (res.data as any).posts || [],
+          stores: (res.data as any).stores || [],
         }
       }
     } catch (e) {
       console.error('Search error:', e)
+      results.value = { ...empty }
     } finally {
       isSearching.value = false
     }
@@ -200,6 +233,11 @@ watch(searchQuery, (val) => {
 const navigateToUser = (username: string) => {
   emit('close')
   router.push(`/profile/${username}`)
+}
+
+const navigateToStore = (slug: string) => {
+  emit('close')
+  router.push(`/sellers/profile/${slug}`)
 }
 
 const navigateToProduct = (id: number) => {
