@@ -22,20 +22,21 @@ export default defineEventHandler(async (event) => {
       validatedData.username,
       validatedData.password,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     return {
       success: true,
-      message: 'Registration successful. Please check your email to verify your account.',
-      user: result
+      message:
+        'Registration successful. Please check your email to verify your account.',
+      user: result,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
@@ -43,13 +44,13 @@ export default defineEventHandler(async (event) => {
       const authError = error as any
       throw createError({
         statusCode: authError.statusCode || 400,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
     console.error('[Register API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

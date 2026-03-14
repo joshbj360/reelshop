@@ -1,24 +1,49 @@
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+    >
       <div class="absolute inset-0 bg-black/50" @click="$emit('close')" />
-      <div class="relative bg-white dark:bg-neutral-900 rounded-t-2xl sm:rounded-xl w-full max-w-lg flex flex-col max-h-[85vh]">
-
+      <div
+        class="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl bg-white sm:rounded-xl dark:bg-neutral-900"
+      >
         <!-- Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-neutral-800 shrink-0">
-          <h3 class="text-[15px] font-bold text-gray-900 dark:text-neutral-100">Comments</h3>
-          <button @click="$emit('close')" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors">
-            <Icon name="mdi:close" size="20" class="text-gray-500 dark:text-neutral-400" />
+        <div
+          class="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-neutral-800"
+        >
+          <h3 class="text-[15px] font-bold text-gray-900 dark:text-neutral-100">
+            Comments
+          </h3>
+          <button
+            @click="$emit('close')"
+            class="rounded-full p-1 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+          >
+            <Icon
+              name="mdi:close"
+              size="20"
+              class="text-gray-500 dark:text-neutral-400"
+            />
           </button>
         </div>
 
         <!-- Comment list -->
-        <div class="flex-1 overflow-y-auto px-5 py-3 space-y-4">
-          <div v-if="isLoading && !comments.length" class="flex justify-center py-8">
-            <Icon name="eos-icons:loading" size="28" class="text-brand animate-spin" />
+        <div class="flex-1 space-y-4 overflow-y-auto px-5 py-3">
+          <div
+            v-if="isLoading && !comments.length"
+            class="flex justify-center py-8"
+          >
+            <Icon
+              name="eos-icons:loading"
+              size="28"
+              class="animate-spin text-brand"
+            />
           </div>
 
-          <div v-else-if="!comments.length" class="flex flex-col items-center justify-center py-10 gap-2 text-gray-400 dark:text-neutral-500">
+          <div
+            v-else-if="!comments.length"
+            class="flex flex-col items-center justify-center gap-2 py-10 text-gray-400 dark:text-neutral-500"
+          >
             <Icon name="mdi:comment-outline" size="36" />
             <p class="text-sm">No comments yet. Be the first!</p>
           </div>
@@ -28,19 +53,35 @@
               <img
                 v-if="c.author?.avatar"
                 :src="c.author.avatar"
-                class="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5"
+                class="mt-0.5 h-8 w-8 shrink-0 rounded-full object-cover"
               />
-              <div v-else class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center shrink-0 mt-0.5">
+              <div
+                v-else
+                class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-neutral-800"
+              >
                 <Icon name="mdi:account" size="16" class="text-gray-400" />
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="bg-gray-50 dark:bg-neutral-800 rounded-2xl px-3 py-2">
-                  <span class="text-[12px] font-bold text-gray-900 dark:text-neutral-100 mr-1.5">{{ c.author?.username }}</span>
-                  <span class="text-[13px] text-gray-700 dark:text-neutral-300 leading-relaxed">{{ c.text }}</span>
+              <div class="min-w-0 flex-1">
+                <div
+                  class="rounded-2xl bg-gray-50 px-3 py-2 dark:bg-neutral-800"
+                >
+                  <span
+                    class="mr-1.5 text-[12px] font-bold text-gray-900 dark:text-neutral-100"
+                    >{{ c.author?.username }}</span
+                  >
+                  <span
+                    class="text-[13px] leading-relaxed text-gray-700 dark:text-neutral-300"
+                    >{{ c.text }}</span
+                  >
                 </div>
-                <div class="flex items-center gap-3 mt-1 pl-1">
-                  <span class="text-[11px] text-gray-400 dark:text-neutral-500">{{ timeAgo(c.created_at) }}</span>
-                  <span class="text-[11px] text-gray-400 dark:text-neutral-500">{{ c._count?.likes ?? 0 }} likes</span>
+                <div class="mt-1 flex items-center gap-3 pl-1">
+                  <span
+                    class="text-[11px] text-gray-400 dark:text-neutral-500"
+                    >{{ timeAgo(c.created_at) }}</span
+                  >
+                  <span class="text-[11px] text-gray-400 dark:text-neutral-500"
+                    >{{ c._count?.likes ?? 0 }} likes</span
+                  >
                 </div>
               </div>
             </div>
@@ -49,7 +90,10 @@
 
         <!-- Input -->
         <ClientOnly>
-          <div v-if="profileStore.isLoggedIn" class="px-4 py-3 border-t border-gray-100 dark:border-neutral-800 shrink-0">
+          <div
+            v-if="profileStore.isLoggedIn"
+            class="shrink-0 border-t border-gray-100 px-4 py-3 dark:border-neutral-800"
+          >
             <div class="flex items-center gap-2">
               <input
                 v-model="newComment"
@@ -57,20 +101,32 @@
                 placeholder="Add a comment…"
                 maxlength="500"
                 @keydown.enter.prevent="submitComment"
-                class="flex-1 bg-gray-100 dark:bg-neutral-800 rounded-full px-4 py-2 text-[13px] text-gray-900 dark:text-neutral-100 placeholder-gray-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                class="flex-1 rounded-full bg-gray-100 px-4 py-2 text-[13px] text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
               />
               <button
                 @click="submitComment"
                 :disabled="!newComment.trim() || isSubmitting"
-                class="w-9 h-9 rounded-full bg-brand text-white flex items-center justify-center transition-all disabled:opacity-40 hover:bg-[#d81b36]"
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white transition-all hover:bg-[#d81b36] disabled:opacity-40"
               >
-                <Icon v-if="isSubmitting" name="eos-icons:loading" size="16" class="animate-spin" />
+                <Icon
+                  v-if="isSubmitting"
+                  name="eos-icons:loading"
+                  size="16"
+                  class="animate-spin"
+                />
                 <Icon v-else name="mdi:send" size="16" />
               </button>
             </div>
           </div>
-          <div v-else class="px-5 py-3 border-t border-gray-100 dark:border-neutral-800 shrink-0 text-center">
-            <NuxtLink to="/login" @click="$emit('close')" class="text-[13px] text-brand font-semibold hover:underline">
+          <div
+            v-else
+            class="shrink-0 border-t border-gray-100 px-5 py-3 text-center dark:border-neutral-800"
+          >
+            <NuxtLink
+              to="/login"
+              @click="$emit('close')"
+              class="text-[13px] font-semibold text-brand hover:underline"
+            >
               Sign in to comment
             </NuxtLink>
           </div>
@@ -106,10 +162,14 @@ const loadComments = async () => {
 }
 
 const submitComment = async () => {
-  if (!newComment.value.trim() || isSubmitting.value || !props.product?.id) return
+  if (!newComment.value.trim() || isSubmitting.value || !props.product?.id)
+    return
   isSubmitting.value = true
   try {
-    const res: any = await api.createProductComment(props.product.id, newComment.value.trim())
+    const res: any = await api.createProductComment(
+      props.product.id,
+      newComment.value.trim(),
+    )
     if (res?.data) {
       comments.value.unshift(res.data)
       newComment.value = ''
@@ -131,8 +191,11 @@ const timeAgo = (date: string) => {
   return `${Math.floor(h / 24)}d`
 }
 
-watch(() => [props.isOpen, props.product?.id], ([open]) => {
-  if (open) loadComments()
-  else comments.value = []
-})
+watch(
+  () => [props.isOpen, props.product?.id],
+  ([open]) => {
+    if (open) loadComments()
+    else comments.value = []
+  },
+)
 </script>

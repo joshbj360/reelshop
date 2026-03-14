@@ -1,6 +1,6 @@
 // FILE PATH: server/plugins/validateEnv.ts
 
-import { validateEnvironment } from "../config/env"
+import { validateEnvironment } from '../config/env'
 
 /**
  * Server Plugin: Validate Environment
@@ -8,7 +8,6 @@ import { validateEnvironment } from "../config/env"
  */
 
 export default defineNitroPlugin(() => {
-  
   if (process.env.NODE_ENV !== 'test') {
     validateEnvironment()
   }

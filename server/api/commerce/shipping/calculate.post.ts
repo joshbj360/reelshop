@@ -16,12 +16,16 @@ export default defineEventHandler(async (event) => {
     orderBy: { sortOrder: 'asc' },
   })
 
-  const zone = zones.find(z => z.countries.includes(countryCode))
-    ?? zones.find(z => z.name === 'Rest of World')
-    ?? zones[zones.length - 1]
+  const zone =
+    zones.find((z) => z.countries.includes(countryCode)) ??
+    zones.find((z) => z.name === 'Rest of World') ??
+    zones[zones.length - 1]
 
   if (!zone) {
-    return { success: true, data: { cost: 0, zone: null, estimatedDays: 'Unknown' } }
+    return {
+      success: true,
+      data: { cost: 0, zone: null, estimatedDays: 'Unknown' },
+    }
   }
 
   const cost = zone.baseRate + Math.round(zone.perKgRate * weightKg)

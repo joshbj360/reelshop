@@ -1,13 +1,12 @@
 // FILE PATH: server/layers/user/services/user.service.ts
 
-import { profileRepository } from "../repositories/profile.repository"
-import { notificationService } from "./notification.service"
-import { UserError } from "../types/user.types"
-import { authRepository } from "../../auth/repositories/auth.repository"
-import { auditService } from "../../shared/audit/audit.service"
+import { profileRepository } from '../repositories/profile.repository'
+import { notificationService } from './notification.service'
+import { UserError } from '../types/user.types'
+import { authRepository } from '../../auth/repositories/auth.repository'
+import { auditService } from '../../shared/audit/audit.service'
 
 export const profileService = {
-
   // ==================== GET PROFILE ====================
 
   async getProfile(userId: string) {
@@ -26,7 +25,7 @@ export const profileService = {
       emailVerified: profile.email_verified,
       role: profile.role,
       createdAt: profile.created_at,
-      updatedAt: profile.updated_at
+      updatedAt: profile.updated_at,
     }
   },
 
@@ -38,7 +37,7 @@ export const profileService = {
     return profile
   },
 
-   /**
+  /**
    * Get complete profile stats
    */
   async getProfileStats(userId: string) {
@@ -57,10 +56,13 @@ export const profileService = {
       links?: any
     },
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     if (data.username) {
-      const exists = await profileRepository.checkUsernameExists(data.username, userId)
+      const exists = await profileRepository.checkUsernameExists(
+        data.username,
+        userId,
+      )
       if (exists) {
         throw new UserError('USERNAME_EXISTS', 'Username is already taken', 400)
       }
@@ -77,7 +79,7 @@ export const profileService = {
       reason: 'User updated profile details',
       changes: data,
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return updated
@@ -93,7 +95,7 @@ export const profileService = {
     userId: string,
     data: any,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const updated = await profileRepository.updateSettings(userId, data)
 
@@ -106,7 +108,7 @@ export const profileService = {
       reason: 'User updated account settings',
       changes: data,
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return updated
@@ -119,18 +121,29 @@ export const profileService = {
     newEmail: string,
     currentPassword: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const user = await profileRepository.findByIdFull(userId)
     if (!user) throw new UserError('USER_NOT_FOUND', 'User not found', 404)
 
-    const isPasswordValid = await verifyPassword(currentPassword, user.password_hash!)
+    const isPasswordValid = await verifyPassword(
+      currentPassword,
+      user.password_hash!,
+    )
     if (!isPasswordValid) {
-      throw new UserError('INVALID_PASSWORD', 'Current password is incorrect', 401)
+      throw new UserError(
+        'INVALID_PASSWORD',
+        'Current password is incorrect',
+        401,
+      )
     }
 
-    const emailExists = await profileRepository.checkEmailExists(newEmail, userId)
-    if (emailExists) throw new UserError('EMAIL_EXISTS', 'Email is already in use', 400)
+    const emailExists = await profileRepository.checkEmailExists(
+      newEmail,
+      userId,
+    )
+    if (emailExists)
+      throw new UserError('EMAIL_EXISTS', 'Email is already in use', 400)
 
     // 1. Update Email
     await profileRepository.updateEmail(userId, newEmail.toLowerCase())
@@ -147,7 +160,7 @@ export const profileService = {
       resourceId: userId,
       reason: `Email changed from ${user.email} to ${newEmail}`,
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     // 4. ALIGNED: Notification
@@ -155,7 +168,7 @@ export const profileService = {
       userId,
       type: 'MESSAGE',
       actorId: userId,
-      message: `Verification required: We've sent a link to ${newEmail} to confirm your change.`
+      message: `Verification required: We've sent a link to ${newEmail} to confirm your change.`,
     })
 
     return { message: 'Email updated. Please verify your new email address.' }
@@ -163,27 +176,34 @@ export const profileService = {
 
   // ==================== PASSWORD MANAGEMENT ====================
 
-async updatePassword(
+  async updatePassword(
     userId: string,
     currentPassword: string,
     newPassword: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const user = await profileRepository.findByIdFull(userId)
     if (!user) throw new UserError('USER_NOT_FOUND', 'User not found', 404)
 
     // 1. Verify current password
-    const isPasswordValid = await verifyPassword(currentPassword, user.password_hash!)
+    const isPasswordValid = await verifyPassword(
+      currentPassword,
+      user.password_hash!,
+    )
     if (!isPasswordValid) {
-      throw new UserError('INVALID_PASSWORD', 'Current password is incorrect', 401)
+      throw new UserError(
+        'INVALID_PASSWORD',
+        'Current password is incorrect',
+        401,
+      )
     }
 
     // 2. Hash and Update
     const hashedPassword = await hashPassword(newPassword)
     await profileRepository.updatePassword(userId, hashedPassword)
 
-    // 3. SECURITY: Revoke all existing sessions 
+    // 3. SECURITY: Revoke all existing sessions
     // This forces all other devices to log out immediately
     await authRepository.revokeAllSessions(userId)
 
@@ -195,7 +215,7 @@ async updatePassword(
       resourceId: userId,
       reason: 'User changed account password and revoked all sessions',
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     // 5. ALIGNED: Notification
@@ -203,7 +223,7 @@ async updatePassword(
       userId,
       type: 'MESSAGE',
       actorId: userId,
-      message: `Security Alert: Your password has been changed. All other sessions have been logged out.`
+      message: `Security Alert: Your password has been changed. All other sessions have been logged out.`,
     })
 
     return { message: 'Password changed successfully. Please log in again.' }
@@ -211,11 +231,11 @@ async updatePassword(
 
   // ==================== ACCOUNT DELETION ====================
 
-async deleteAccount(
+  async deleteAccount(
     userId: string,
     password: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const user = await profileRepository.findByIdFull(userId)
     if (!user) throw new UserError('USER_NOT_FOUND', 'User not found', 404)
@@ -233,7 +253,7 @@ async deleteAccount(
       resourceId: userId,
       reason: 'User permanently deleted their account',
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     // 2. SECURITY: Clear sessions and delete
@@ -241,5 +261,5 @@ async deleteAccount(
     await profileRepository.deleteAccount(userId)
 
     return { message: 'Account deleted successfully' }
-  }
+  },
 }

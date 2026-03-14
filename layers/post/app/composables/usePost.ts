@@ -19,10 +19,17 @@ export function normalizePost(post: IPost | any): IFeedItem {
       id: post.author?.id ?? post.authorId ?? '',
       username: post.author?.username ?? '',
       avatar: post.author?.avatar ?? null,
-      role: ((post.author?.role ?? 'USER') as string).toLowerCase() as 'user' | 'seller',
+      role: ((post.author?.role ?? 'USER') as string).toLowerCase() as
+        | 'user'
+        | 'seller',
     },
     media: rawMedia
-      ? { id: rawMedia.id, url: rawMedia.url, type: rawMedia.type, thumbnailUrl: rawMedia.thumbnailUrl }
+      ? {
+          id: rawMedia.id,
+          url: rawMedia.url,
+          type: rawMedia.type,
+          thumbnailUrl: rawMedia.thumbnailUrl,
+        }
       : undefined,
     caption: post.caption ?? '',
     content: post.content ?? null,
@@ -78,10 +85,10 @@ export const usePost = () => {
     try {
       // Use the specific endpoint for user profile posts
       const result = await postApi.getUserPosts(username, limit, offset)
-      
+
       // We pass username so the store knows which Map key to update
       postStore.addPosts(result.data, username)
-      
+
       return result
     } catch (e: any) {
       postStore.setError(e.message)
@@ -163,7 +170,11 @@ export const usePost = () => {
     }
   }
 
-  const fetchUserLikedPosts = async (username: string, limit = 20, offset = 0) => {
+  const fetchUserLikedPosts = async (
+    username: string,
+    limit = 20,
+    offset = 0,
+  ) => {
     postStore.setLoading(true)
     try {
       const result = await postApi.getUserLikedPosts(username, limit, offset)
@@ -188,7 +199,15 @@ export const usePost = () => {
     }
   }
 
-  const updatePost = async (id: string, data: { caption?: string; content?: string; contentType?: string; visibility?: string }) => {
+  const updatePost = async (
+    id: string,
+    data: {
+      caption?: string
+      content?: string
+      contentType?: string
+      visibility?: string
+    },
+  ) => {
     try {
       const updated = await postApi.updatePost(id, data)
       postStore.updatePost(id, updated)
@@ -200,12 +219,20 @@ export const usePost = () => {
   }
 
   return {
-    isLoading, error,
+    isLoading,
+    error,
     normalizePost,
-    createPost, fetchUserFeed, fetchUserPosts, getPostById,
-    likePost, unlikePost,
-    savePost, fetchSavedPosts, unsavePost,
+    createPost,
+    fetchUserFeed,
+    fetchUserPosts,
+    getPostById,
+    likePost,
+    unlikePost,
+    savePost,
+    fetchSavedPosts,
+    unsavePost,
     fetchUserLikedPosts,
-    deletePost, updatePost,
+    deletePost,
+    updatePost,
   }
 }

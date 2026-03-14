@@ -3,7 +3,6 @@
 import { IProfile } from '~~/layers/profile/app/types/profile.types'
 import { ISellerProfile } from '~~/layers/seller/app/types/seller.types'
 export const socialRepository = {
-
   // ==================== PROFILE LOOKUPS ====================
 
   async getUserByUsername(username: string) {
@@ -16,8 +15,8 @@ export const socialRepository = {
         bio: true,
         created_at: true,
         email: true,
-        role: true
-      }
+        role: true,
+      },
     })
   },
 
@@ -32,8 +31,8 @@ export const socialRepository = {
         store_description: true,
         profileId: true,
         created_at: true,
-        is_verified: true
-      }
+        is_verified: true,
+      },
     })
   },
 
@@ -42,36 +41,36 @@ export const socialRepository = {
   async createFollow(
     followerId: string,
     followingId: string,
-    followingType: 'USER' | 'SELLER' = 'USER'
+    followingType: 'USER' | 'SELLER' = 'USER',
   ) {
     return await prisma.follow.create({
-      data: { followerId, followingId, followingType }
+      data: { followerId, followingId, followingType },
     })
   },
 
   async getFollow(
     followerId: string,
     followingId: string,
-    followingType: 'USER' | 'SELLER' = 'USER'
+    followingType: 'USER' | 'SELLER' = 'USER',
   ) {
     return await prisma.follow.findUnique({
       where: {
         followerId_followingId_followingType: {
           followerId,
           followingId,
-          followingType
-        }
-      }
+          followingType,
+        },
+      },
     })
   },
 
   async deleteFollow(
     followerId: string,
     followingId: string,
-    followingType: 'USER' | 'SELLER' = 'USER'
+    followingType: 'USER' | 'SELLER' = 'USER',
   ) {
     return await prisma.follow.deleteMany({
-      where: { followerId, followingId, followingType }
+      where: { followerId, followingId, followingType },
     })
   },
 
@@ -99,21 +98,26 @@ export const socialRepository = {
             username: true,
             avatar: true,
             bio: true,
-            role: true
-          }
-        }
-      }
+            role: true,
+          },
+        },
+      },
     })
 
-    return follows.map((f: { follower: { id: any; username: any; avatar: any; bio: any; role: any }; created_at: any }) => ({
-      id: f.follower.id,
-      username: f.follower.username,
-      avatar: f.follower.avatar,
-      bio: f.follower.bio,
-      role: f.follower.role,
-      followedAt: f.created_at,
-      type: 'USER' as const // Followers are always Profiles/Users
-    }))
+    return follows.map(
+      (f: {
+        follower: { id: any; username: any; avatar: any; bio: any; role: any }
+        created_at: any
+      }) => ({
+        id: f.follower.id,
+        username: f.follower.username,
+        avatar: f.follower.avatar,
+        bio: f.follower.bio,
+        role: f.follower.role,
+        followedAt: f.created_at,
+        type: 'USER' as const, // Followers are always Profiles/Users
+      }),
+    )
   },
 
   /**
@@ -130,7 +134,7 @@ export const socialRepository = {
       where: { followerId: userId },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
 
     const userIds = follows
@@ -151,8 +155,8 @@ export const socialRepository = {
               username: true,
               avatar: true,
               bio: true,
-              role: true
-            }
+              role: true,
+            },
           })
         : [],
       sellerIds.length
@@ -164,58 +168,66 @@ export const socialRepository = {
               store_name: true,
               store_logo: true,
               store_description: true,
-              is_verified: true
-            }
+              is_verified: true,
+            },
           })
-        : []
+        : [],
     ])
 
     const userMap = new Map<string, IProfile>(users.map((u: any) => [u.id, u]))
-    const sellerMap = new Map<string, ISellerProfile>(sellers.map((s: any) => [s.id, s]))
+    const sellerMap = new Map<string, ISellerProfile>(
+      sellers.map((s: any) => [s.id, s]),
+    )
 
     // Map with proper type checking
     return follows
-      .map((f: { followingType: string; followingId: string; created_at: any }) => {
-        if (f.followingType === 'USER') {
-          const user = userMap.get(f.followingId)
-          if (!user) return null
+      .map(
+        (f: {
+          followingType: string
+          followingId: string
+          created_at: any
+        }) => {
+          if (f.followingType === 'USER') {
+            const user = userMap.get(f.followingId)
+            if (!user) return null
 
-          return {
-            id: user.id,
-            username: user.username,
-            avatar: user.avatar,
-            bio: user.bio,
-            role: user.role,
-            type: 'USER' as const,
-            followedAt: f.created_at
-          }
-        } else {
-          const seller = sellerMap.get(f.followingId)
-          if (!seller) return null
+            return {
+              id: user.id,
+              username: user.username,
+              avatar: user.avatar,
+              bio: user.bio,
+              role: user.role,
+              type: 'USER' as const,
+              followedAt: f.created_at,
+            }
+          } else {
+            const seller = sellerMap.get(f.followingId)
+            if (!seller) return null
 
-          return {
-            id: seller.id,
-            username: seller.store_slug,
-            name: seller.store_name,
-            avatar: seller.store_logo,
-            bio: seller.store_description,
-            isVerified: seller.is_verified,
-            type: 'SELLER' as const,
-            followedAt: f.created_at
+            return {
+              id: seller.id,
+              username: seller.store_slug,
+              name: seller.store_name,
+              avatar: seller.store_logo,
+              bio: seller.store_description,
+              isVerified: seller.is_verified,
+              type: 'SELLER' as const,
+              followedAt: f.created_at,
+            }
           }
-        }
-      })
+        },
+      )
       .filter(Boolean) as Array<{
-        id: string
-        username: string
-        avatar: string | null
-        bio: string | null
-        type: 'USER' | 'SELLER'
-        followedAt: Date
-        role?: string
-        name?: string | null
-        isVerified?: boolean
-      }>
+      id: string
+      username: string
+      avatar: string | null
+      bio: string | null
+      type: 'USER' | 'SELLER'
+      followedAt: Date
+      role?: string
+      name?: string | null
+      isVerified?: boolean
+    }>
   },
 
   // ==================== STATS & BATCH ====================
@@ -224,15 +236,19 @@ export const socialRepository = {
     const [followers, following, users, sellers] = await Promise.all([
       prisma.follow.count({ where: { followingId: userId } }),
       prisma.follow.count({ where: { followerId: userId } }),
-      prisma.follow.count({ where: { followerId: userId, followingType: 'USER' } }),
-      prisma.follow.count({ where: { followerId: userId, followingType: 'SELLER' } })
+      prisma.follow.count({
+        where: { followerId: userId, followingType: 'USER' },
+      }),
+      prisma.follow.count({
+        where: { followerId: userId, followingType: 'SELLER' },
+      }),
     ])
 
     return {
       followersCount: followers,
       followingCount: following,
       followingUsersCount: users,
-      followingSellersCount: sellers
+      followingSellersCount: sellers,
     }
   },
 
@@ -242,7 +258,7 @@ export const socialRepository = {
   async checkFollowingBatch(
     userId: string,
     targetIds: string[],
-    followingType: 'USER' | 'SELLER' = 'USER'
+    followingType: 'USER' | 'SELLER' = 'USER',
   ) {
     if (targetIds.length === 0) {
       return new Set<string>()
@@ -252,9 +268,9 @@ export const socialRepository = {
       where: {
         followerId: userId,
         followingId: { in: targetIds },
-        followingType
+        followingType,
       },
-      select: { followingId: true }
+      select: { followingId: true },
     })
 
     return new Set(follows.map((f: { followingId: any }) => f.followingId))
@@ -272,20 +288,22 @@ export const socialRepository = {
       by: ['followingId'],
       where: {
         followingType: 'USER',
-        followingId: { not: userId }
+        followingId: { not: userId },
       },
       _count: { followerId: true },
       orderBy: { _count: { followerId: 'desc' } },
-      take: limit * 2 // Fetch more to filter out already followed
+      take: limit * 2, // Fetch more to filter out already followed
     })
 
     // Get who I'm already following
     const alreadyFollowing = await prisma.follow.findMany({
       where: { followerId: userId, followingType: 'USER' },
-      select: { followingId: true }
+      select: { followingId: true },
     })
 
-    const followingSet = new Set(alreadyFollowing.map((f: { followingId: any }) => f.followingId))
+    const followingSet = new Set(
+      alreadyFollowing.map((f: { followingId: any }) => f.followingId),
+    )
 
     // Filter out already followed and limit
     const suggestedIds = popular
@@ -304,8 +322,8 @@ export const socialRepository = {
         username: true,
         avatar: true,
         bio: true,
-        role: true
-      }
+        role: true,
+      },
     })
   },
 
@@ -316,20 +334,22 @@ export const socialRepository = {
     const popularFollows = await prisma.follow.groupBy({
       by: ['followingId'],
       where: {
-        followingType: 'USER'
+        followingType: 'USER',
       },
       _count: {
-        followerId: true
+        followerId: true,
       },
       orderBy: {
         _count: {
-          followerId: 'desc'
-        }
+          followerId: 'desc',
+        },
       },
-      take: limit
+      take: limit,
     })
 
-    const popularIds = popularFollows.map((f: { followingId: any }) => f.followingId)
+    const popularIds = popularFollows.map(
+      (f: { followingId: any }) => f.followingId,
+    )
 
     if (popularIds.length === 0) {
       return []
@@ -343,21 +363,25 @@ export const socialRepository = {
         username: true,
         avatar: true,
         bio: true,
-        role: true
-      }
+        role: true,
+      },
     })
 
     // Optionally add follower counts
     // Map to maintain order and add counts
     const profileMap = new Map(profiles.map((p: { id: any }) => [p.id, p]))
-    
-    return popularFollows.map((pf: { followingId: unknown; _count: { followerId: any } }) => {
-      const profile = profileMap.get(pf.followingId)
-      return profile ? {
-        ...profile,
-        followersCount: pf._count.followerId
-      } : null
-    }).filter(Boolean) as Array<{
+
+    return popularFollows
+      .map((pf: { followingId: unknown; _count: { followerId: any } }) => {
+        const profile = profileMap.get(pf.followingId)
+        return profile
+          ? {
+              ...profile,
+              followersCount: pf._count.followerId,
+            }
+          : null
+      })
+      .filter(Boolean) as Array<{
       id: string
       username: string
       avatar: string | null
@@ -365,5 +389,5 @@ export const socialRepository = {
       role: string
       followersCount: number
     }>
-  }
+  },
 }

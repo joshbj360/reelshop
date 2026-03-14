@@ -67,17 +67,14 @@ export function validateCsrfToken(event: H3Event): boolean {
  */
 export function csrfProtectionMiddleware(event: H3Event) {
   const method = event.node.req.method
-  
+
   // Skip for GET, HEAD, OPTIONS
   if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
     return
   }
 
   // Skip for public endpoints (if needed)
-  const publicPaths = [
-    '/api/auth/register',
-    '/api/auth/forgot-password',
-  ]
+  const publicPaths = ['/api/auth/register', '/api/auth/forgot-password']
 
   if (publicPaths.some((path) => event.node.req.url?.startsWith(path))) {
     // For public endpoints, still set token for client to use

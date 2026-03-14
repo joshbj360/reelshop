@@ -1,9 +1,9 @@
 // layers/auth/app/plugins/auth-init.ts
 
-import { useProfileStore } from "~~/layers/profile/app/stores/profile.store"
-import { useAuthStore } from "../stores/auth.store"
-import { useSellerStore } from "~~/layers/seller/app/store/seller.store"
-import { useNotificationStore } from "~~/layers/profile/app/stores/notification.store"
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import { useAuthStore } from '../stores/auth.store'
+import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
+import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
 
 /**
  * Auth Initialization Plugin
@@ -14,11 +14,17 @@ import { useNotificationStore } from "~~/layers/profile/app/stores/notification.
  * re-hydrate profileStore.me so isLoggedIn stays true across refreshes.
  */
 
-const hydrateSellerStore = async (token: string, sellerStore: ReturnType<typeof useSellerStore>) => {
+const hydrateSellerStore = async (
+  token: string,
+  sellerStore: ReturnType<typeof useSellerStore>,
+) => {
   try {
-    const sellerRes = await $fetch<{ success: boolean; data: any[] }>('/api/seller/list', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const sellerRes = await $fetch<{ success: boolean; data: any[] }>(
+      '/api/seller/list',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    )
     if (sellerRes?.data) {
       sellerStore.setSellers(sellerRes.data)
     }
@@ -27,13 +33,21 @@ const hydrateSellerStore = async (token: string, sellerStore: ReturnType<typeof 
   }
 }
 
-const hydrateNotificationCount = async (token: string, notificationStore: ReturnType<typeof useNotificationStore>) => {
+const hydrateNotificationCount = async (
+  token: string,
+  notificationStore: ReturnType<typeof useNotificationStore>,
+) => {
   try {
-    const res = await $fetch<{ success: boolean; data: { count: number } }>('/api/shared/notifications/unread', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const res = await $fetch<{ success: boolean; data: { count: number } }>(
+      '/api/shared/notifications/unread',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    )
     if (res?.data) notificationStore.unreadCount = res.data.count
-  } catch { /* non-fatal */ }
+  } catch {
+    /* non-fatal */
+  }
 }
 
 export default defineNuxtPlugin(async () => {
@@ -48,11 +62,14 @@ export default defineNuxtPlugin(async () => {
   // Only attempt profile restoration on the client and when a token exists
   if (import.meta.client && authStore.accessToken) {
     try {
-      const response = await $fetch<{ success: boolean; data: any }>('/api/profile', {
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`
-        }
-      })
+      const response = await $fetch<{ success: boolean; data: any }>(
+        '/api/profile',
+        {
+          headers: {
+            Authorization: `Bearer ${authStore.accessToken}`,
+          },
+        },
+      )
 
       if (response?.data) {
         profileStore.setPrivateProfile(response.data)
@@ -73,13 +90,16 @@ export default defineNuxtPlugin(async () => {
 
   // Watch for token changes (login/logout mid-session) to keep seller store in sync
   if (import.meta.client) {
-    watch(() => authStore.accessToken, async (newToken) => {
-      if (newToken) {
-        await hydrateSellerStore(newToken, sellerStore)
-      } else {
-        sellerStore.setSellers([])
-      }
-    })
+    watch(
+      () => authStore.accessToken,
+      async (newToken) => {
+        if (newToken) {
+          await hydrateSellerStore(newToken, sellerStore)
+        } else {
+          sellerStore.setSellers([])
+        }
+      },
+    )
   }
 
   return {
@@ -87,7 +107,7 @@ export default defineNuxtPlugin(async () => {
       auth: {
         isLoggedIn: () => profileStore.isLoggedIn,
         user: () => profileStore.me,
-      }
-    }
+      },
+    },
   }
 })

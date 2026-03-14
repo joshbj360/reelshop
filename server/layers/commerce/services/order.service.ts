@@ -5,11 +5,21 @@ import { UserError } from '../../profile/types/user.types'
 import { prisma } from '../../../utils/db'
 
 export const orderService = {
-  async placeOrder(userId: string, data: any, ipAddress: string, userAgent: string) {
-    const { items, name, address, zipcode, county, country, paymentMethod } = data
+  async placeOrder(
+    userId: string,
+    data: any,
+    ipAddress: string,
+    userAgent: string,
+  ) {
+    const { items, name, address, zipcode, county, country, paymentMethod } =
+      data
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      throw new UserError('INVALID_ORDER', 'Order must have at least one item', 400)
+      throw new UserError(
+        'INVALID_ORDER',
+        'Order must have at least one item',
+        400,
+      )
     }
 
     // Validate stock for all items
@@ -17,30 +27,45 @@ export const orderService = {
     for (const item of items) {
       const variant = await prisma.productVariant.findUnique({
         where: { id: item.variantId },
-        include: { product: { select: { price: true, discount: true } } }
+        include: { product: { select: { price: true, discount: true } } },
       })
-      if (!variant) throw new UserError('VARIANT_NOT_FOUND', `Variant ${item.variantId} not found`, 404)
+      if (!variant)
+        throw new UserError(
+          'VARIANT_NOT_FOUND',
+          `Variant ${item.variantId} not found`,
+          404,
+        )
       if (variant.stock < item.quantity) {
-        throw new UserError('INSUFFICIENT_STOCK', `Not enough stock for variant ${item.variantId}`, 400)
+        throw new UserError(
+          'INSUFFICIENT_STOCK',
+          `Not enough stock for variant ${item.variantId}`,
+          400,
+        )
       }
       const price = variant.price ?? variant.product.price
       const discount = variant.product.discount ?? 0
-      totalAmount += Math.round(price * (1 - discount / 100) * item.quantity * 100) // in cents
+      totalAmount += Math.round(
+        price * (1 - discount / 100) * item.quantity * 100,
+      ) // in cents
     }
 
     // Create order
     const order = await orderRepository.createOrder(userId, {
-      name, address, zipcode, county: county || '', country,
+      name,
+      address,
+      zipcode,
+      county: county || '',
+      country,
       totalAmount,
       paymentMethod: paymentMethod || 'card',
-      items
+      items,
     })
 
     // Decrement stock
     for (const item of items) {
       await prisma.productVariant.update({
         where: { id: item.variantId },
-        data: { stock: { decrement: item.quantity } }
+        data: { stock: { decrement: item.quantity } },
       })
     }
 
@@ -55,7 +80,7 @@ export const orderService = {
       reason: 'Placed new order',
       changes: { totalAmount, itemCount: items.length },
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return order
@@ -64,7 +89,7 @@ export const orderService = {
   async getUserOrders(userId: string, limit = 20, offset = 0) {
     const [orders, total] = await Promise.all([
       orderRepository.getUserOrders(userId, limit, offset),
-      orderRepository.countUserOrders(userId)
+      orderRepository.countUserOrders(userId),
     ])
     return { orders, total, limit, offset }
   },
@@ -72,16 +97,27 @@ export const orderService = {
   async getOrderById(id: number, userId: string) {
     const order = await orderRepository.getOrderById(id)
     if (!order) throw new UserError('ORDER_NOT_FOUND', 'Order not found', 404)
-    if (order.userId !== userId) throw new UserError('FORBIDDEN', 'Access denied', 403)
+    if (order.userId !== userId)
+      throw new UserError('FORBIDDEN', 'Access denied', 403)
     return order
   },
 
-  async cancelOrder(id: number, userId: string, ipAddress: string, userAgent: string) {
+  async cancelOrder(
+    id: number,
+    userId: string,
+    ipAddress: string,
+    userAgent: string,
+  ) {
     const order = await orderRepository.getOrderById(id)
     if (!order) throw new UserError('ORDER_NOT_FOUND', 'Order not found', 404)
-    if (order.userId !== userId) throw new UserError('FORBIDDEN', 'Access denied', 403)
+    if (order.userId !== userId)
+      throw new UserError('FORBIDDEN', 'Access denied', 403)
     if (!['PENDING', 'CONFIRMED'].includes(order.status)) {
-      throw new UserError('CANNOT_CANCEL', 'Order cannot be cancelled at this stage', 400)
+      throw new UserError(
+        'CANNOT_CANCEL',
+        'Order cannot be cancelled at this stage',
+        400,
+      )
     }
 
     const updated = await orderRepository.updateOrderStatus(id, 'CANCELLED')
@@ -90,7 +126,7 @@ export const orderService = {
     for (const item of order.orderItem) {
       await prisma.productVariant.update({
         where: { id: item.variantId },
-        data: { stock: { increment: item.quantity } }
+        data: { stock: { increment: item.quantity } },
       })
     }
 
@@ -101,9 +137,9 @@ export const orderService = {
       resourceId: String(id),
       reason: 'Order cancelled by user',
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return updated
-  }
+  },
 }

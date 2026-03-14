@@ -7,7 +7,8 @@ import { getClientIP } from '../../../layers/shared/utils/security'
 export default defineEventHandler(async (event) => {
   try {
     const user = await requireAuth(event)
-    const ipAddress = getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
+    const ipAddress =
+      getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
     const userAgent = getHeader(event, 'user-agent') || 'unknown'
 
     // Affiliate enrollment is pending full model migration
@@ -19,18 +20,26 @@ export default defineEventHandler(async (event) => {
       resourceId: user.id,
       reason: 'User requested affiliate enrollment',
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return {
       success: true,
       data: {
         isEnrolled: false,
-        message: 'Affiliate enrollment is being processed. You will be notified when approved.'
-      }
+        message:
+          'Affiliate enrollment is being processed. You will be notified when approved.',
+      },
     }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

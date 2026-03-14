@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 30)
 
   if (!q || q.length < 2) {
-    return { success: true, data: { users: [], products: [], posts: [], stores: [] } }
+    return {
+      success: true,
+      data: { users: [], products: [], posts: [], stores: [] },
+    }
   }
 
   const searchAll = type === 'all'
@@ -22,7 +25,13 @@ export default defineEventHandler(async (event) => {
               { bio: { contains: q, mode: 'insensitive' } },
             ],
           },
-          select: { id: true, username: true, avatar: true, role: true, bio: true },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            role: true,
+            bio: true,
+          },
           take: limit,
         })
       : Promise.resolve([] as any[]),
@@ -41,7 +50,11 @@ export default defineEventHandler(async (event) => {
             title: true,
             price: true,
             discount: true,
-            media: { where: { isBgMusic: false }, select: { url: true, type: true }, take: 1 },
+            media: {
+              where: { isBgMusic: false },
+              select: { url: true, type: true },
+              take: 1,
+            },
             seller: { select: { store_name: true, store_slug: true } },
           },
           take: limit,
@@ -61,7 +74,11 @@ export default defineEventHandler(async (event) => {
             id: true,
             caption: true,
             content: true,
-            media: { where: { isBgMusic: false }, select: { url: true, type: true }, take: 1 },
+            media: {
+              where: { isBgMusic: false },
+              select: { url: true, type: true },
+              take: 1,
+            },
             author: { select: { username: true, avatar: true } },
             _count: { select: { likes: true } },
           },

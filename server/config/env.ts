@@ -18,19 +18,19 @@ const requiredVars: RequiredEnvVar[] = [
   {
     name: 'DATABASE_URL',
     required: true,
-    description: 'PostgreSQL connection string'
+    description: 'PostgreSQL connection string',
   },
 
   // JWT Secrets
   {
     name: 'JWT_SECRET',
     required: true,
-    description: 'Secret key for signing JWT access tokens (min 32 chars)'
+    description: 'Secret key for signing JWT access tokens (min 32 chars)',
   },
   {
     name: 'JWT_REFRESH_SECRET',
     required: true,
-    description: 'Secret key for signing JWT refresh tokens (min 32 chars)'
+    description: 'Secret key for signing JWT refresh tokens (min 32 chars)',
   },
 
   // Environment
@@ -38,7 +38,7 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'NODE_ENV',
     required: false,
     default: 'development',
-    description: 'Node environment (development, staging, production)'
+    description: 'Node environment (development, staging, production)',
   },
 
   // App URL
@@ -46,7 +46,7 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'APP_URL',
     required: false,
     default: 'http://localhost:3000',
-    description: 'Application base URL for email links'
+    description: 'Application base URL for email links',
   },
 
   // Rate Limiting - Register
@@ -54,13 +54,13 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'RATE_LIMIT_REGISTER_MAX',
     required: false,
     default: '3',
-    description: 'Max registration attempts'
+    description: 'Max registration attempts',
   },
   {
     name: 'RATE_LIMIT_REGISTER_WINDOW',
     required: false,
     default: '3600000',
-    description: 'Registration rate limit window (ms)'
+    description: 'Registration rate limit window (ms)',
   },
 
   // Rate Limiting - Login
@@ -68,13 +68,13 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'RATE_LIMIT_LOGIN_MAX',
     required: false,
     default: '5',
-    description: 'Max login attempts'
+    description: 'Max login attempts',
   },
   {
     name: 'RATE_LIMIT_LOGIN_WINDOW',
     required: false,
     default: '900000',
-    description: 'Login rate limit window (ms)'
+    description: 'Login rate limit window (ms)',
   },
 
   // Rate Limiting - Forgot Password
@@ -82,13 +82,13 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'RATE_LIMIT_FORGOT_PASSWORD_MAX',
     required: false,
     default: '3',
-    description: 'Max forgot password attempts'
+    description: 'Max forgot password attempts',
   },
   {
     name: 'RATE_LIMIT_FORGOT_PASSWORD_WINDOW',
     required: false,
     default: '3600000',
-    description: 'Forgot password rate limit window (ms)'
+    description: 'Forgot password rate limit window (ms)',
   },
 
   // Rate Limiting - Verify Email Send
@@ -96,13 +96,13 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'RATE_LIMIT_VERIFY_EMAIL_SEND_MAX',
     required: false,
     default: '5',
-    description: 'Max verify email send attempts'
+    description: 'Max verify email send attempts',
   },
   {
     name: 'RATE_LIMIT_VERIFY_EMAIL_SEND_WINDOW',
     required: false,
     default: '900000',
-    description: 'Verify email send rate limit window (ms)'
+    description: 'Verify email send rate limit window (ms)',
   },
 
   // Rate Limiting - Verify Email Token
@@ -110,13 +110,13 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'RATE_LIMIT_VERIFY_EMAIL_TOKEN_MAX',
     required: false,
     default: '5',
-    description: 'Max verify email token attempts'
+    description: 'Max verify email token attempts',
   },
   {
     name: 'RATE_LIMIT_VERIFY_EMAIL_TOKEN_WINDOW',
     required: false,
     default: '900000',
-    description: 'Verify email token rate limit window (ms)'
+    description: 'Verify email token rate limit window (ms)',
   },
 
   // Rate Limiting - Refresh Token
@@ -124,14 +124,14 @@ const requiredVars: RequiredEnvVar[] = [
     name: 'RATE_LIMIT_REFRESH_TOKEN_MAX',
     required: false,
     default: '10',
-    description: 'Max refresh token attempts'
+    description: 'Max refresh token attempts',
   },
   {
     name: 'RATE_LIMIT_REFRESH_TOKEN_WINDOW',
     required: false,
     default: '300000',
-    description: 'Refresh token rate limit window (ms)'
-  }
+    description: 'Refresh token rate limit window (ms)',
+  },
 ]
 
 /**
@@ -159,7 +159,7 @@ export function validateEnvironment(): void {
 
   if (missing.length > 0) {
     console.error('\n❌ Missing required environment variables:')
-    missing.forEach(m => console.error(m))
+    missing.forEach((m) => console.error(m))
     console.error('\n📝 See .env.example for the required format.')
     process.exit(1)
   }
@@ -169,26 +169,40 @@ export function validateEnvironment(): void {
   const refreshSecret = process.env.JWT_REFRESH_SECRET
 
   if (jwtSecret && jwtSecret.length < 32) {
-    warnings.push('JWT_SECRET is less than 32 characters. Consider using a stronger secret.')
+    warnings.push(
+      'JWT_SECRET is less than 32 characters. Consider using a stronger secret.',
+    )
   }
   if (refreshSecret && refreshSecret.length < 32) {
-    warnings.push('JWT_REFRESH_SECRET is less than 32 characters. Consider using a stronger secret.')
+    warnings.push(
+      'JWT_REFRESH_SECRET is less than 32 characters. Consider using a stronger secret.',
+    )
   }
 
   if (process.env.NODE_ENV === 'production') {
-    if (jwtSecret === 'your-super-secret-jwt-key-min-32-chars-change-in-production') {
-      console.error('❌ SECURITY ERROR: Using default JWT_SECRET in production!')
+    if (
+      jwtSecret ===
+      'your-super-secret-jwt-key-min-32-chars-change-in-production'
+    ) {
+      console.error(
+        '❌ SECURITY ERROR: Using default JWT_SECRET in production!',
+      )
       process.exit(1)
     }
-    if (refreshSecret === 'your-super-secret-refresh-key-min-32-chars-change-in-production') {
-      console.error('❌ SECURITY ERROR: Using default JWT_REFRESH_SECRET in production!')
+    if (
+      refreshSecret ===
+      'your-super-secret-refresh-key-min-32-chars-change-in-production'
+    ) {
+      console.error(
+        '❌ SECURITY ERROR: Using default JWT_REFRESH_SECRET in production!',
+      )
       process.exit(1)
     }
   }
 
   if (warnings.length > 0) {
     console.warn('\n⚠️  Warnings:')
-    warnings.forEach(w => console.warn(`  ${w}`))
+    warnings.forEach((w) => console.warn(`  ${w}`))
   }
 
   console.log('\n✅ Environment validation passed!\n')

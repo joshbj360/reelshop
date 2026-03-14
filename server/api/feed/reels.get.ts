@@ -11,11 +11,21 @@ export default defineEventHandler(async (event) => {
   const posts = await prisma.post.findMany({
     where: {
       visibility: 'PUBLIC',
-      media: { some: { type: 'VIDEO', isBgMusic: false } }
+      media: { some: { type: 'VIDEO', isBgMusic: false } },
     },
     include: {
-      author: { select: { id: true, username: true, avatar: true, role: true } },
-      media: { select: { id: true, url: true, type: true, isBgMusic: true, altText: true } },
+      author: {
+        select: { id: true, username: true, avatar: true, role: true },
+      },
+      media: {
+        select: {
+          id: true,
+          url: true,
+          type: true,
+          isBgMusic: true,
+          altText: true,
+        },
+      },
       _count: { select: { likes: true, comments: true, shares: true } },
     },
     orderBy: { created_at: 'desc' },
@@ -24,12 +34,15 @@ export default defineEventHandler(async (event) => {
   })
 
   const total = await prisma.post.count({
-    where: { visibility: 'PUBLIC', media: { some: { type: 'VIDEO', isBgMusic: false } } }
+    where: {
+      visibility: 'PUBLIC',
+      media: { some: { type: 'VIDEO', isBgMusic: false } },
+    },
   })
 
   return {
     success: true,
     data: posts.map(normalizePost),
-    meta: { total, limit, offset, hasMore: offset + limit < total }
+    meta: { total, limit, offset, hasMore: offset + limit < total },
   }
 })

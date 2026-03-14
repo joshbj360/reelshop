@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     // Check if user has affiliate_code field in profile (graceful fallback)
     const profile = await prisma.profile.findUnique({
       where: { id: user.id },
-      select: { id: true, username: true }
+      select: { id: true, username: true },
     })
 
     if (!profile) throw new UserError('NOT_FOUND', 'Profile not found', 404)
@@ -26,12 +26,19 @@ export default defineEventHandler(async (event) => {
           pendingEarnings: 0,
           totalClicks: 0,
           totalConversions: 0,
-          conversionRate: 0
-        }
-      }
+          conversionRate: 0,
+        },
+      },
     }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

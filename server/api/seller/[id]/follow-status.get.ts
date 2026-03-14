@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const status = await socialService.getFollowStatus(currentUser.id, storeSlug, 'SELLER')
+    const status = await socialService.getFollowStatus(
+      currentUser.id,
+      storeSlug,
+      'SELLER',
+    )
     return { success: true, data: status }
   } catch {
     return { success: true, data: { isFollowing: false } }

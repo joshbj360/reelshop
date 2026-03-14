@@ -1,11 +1,22 @@
 <template>
   <div class="avatar-container">
     <!-- Show user uploaded image if available -->
-    <img v-if="avatar" :src="avatar" class="avatar-image" :class="sizeClass" alt="User avatar"
-      @error="handleImageError" />
+    <img
+      v-if="avatar"
+      :src="avatar"
+      class="avatar-image"
+      :class="sizeClass"
+      alt="User avatar"
+      @error="handleImageError"
+    />
 
     <!-- Show initials placeholder if no avatar -->
-    <div v-else class="avatar-placeholder" :class="sizeClass" :style="{ backgroundColor: bgColor }">
+    <div
+      v-else
+      class="avatar-placeholder"
+      :class="sizeClass"
+      :style="{ backgroundColor: bgColor }"
+    >
       {{ initials }}
     </div>
   </div>
@@ -18,17 +29,17 @@ import { string } from 'zod'
 const props = defineProps({
   username: {
     type: String,
-    required: true
+    required: true,
   },
   avatar: {
     type: String,
-    default: `https://api.dicebear.com/7.x/initials/svg?seed=user`
+    default: `https://api.dicebear.com/7.x/initials/svg?seed=user`,
   },
   size: {
     type: String,
     default: 'md', // sm, md, lg
-    validator: (value) => ['sm', 'md', 'lg'].includes(value)
-  }
+    validator: (value) => ['sm', 'md', 'lg'].includes(value),
+  },
 })
 
 // Size classes mapping
@@ -36,7 +47,7 @@ const sizeClass = computed(() => {
   const sizes = {
     sm: 'w-8 h-8 text-sm',
     md: 'w-10 h-10 text-base',
-    lg: 'w-12 h-12 text-lg'
+    lg: 'w-12 h-12 text-lg',
   }
   return sizes[props.size] || sizes.md
 })
@@ -64,7 +75,7 @@ const bgColor = computed(() => {
     '#38bdf8', // light blue
     '#818cf8', // indigo
     '#c084fc', // purple
-    '#e879f9'  // fuchsia
+    '#e879f9', // fuchsia
   ]
 
   // Get consistent index based on username

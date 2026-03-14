@@ -6,20 +6,19 @@
  */
 
 export const profileRepository = {
-
   // ============================================
   // READ OPERATIONS
   // ============================================
 
   async findById(id: string) {
     return prisma.profile.findUnique({
-      where: { id }
+      where: { id },
     })
   },
 
   async findByEmail(email: string) {
     return prisma.profile.findUnique({
-      where: { email: email.toLowerCase() }
+      where: { email: email.toLowerCase() },
     })
   },
 
@@ -28,8 +27,8 @@ export const profileRepository = {
       where: { id },
       include: {
         sellerProfile: true,
-        user_settings: true // Added settings to full lookup
-      }
+        user_settings: true, // Added settings to full lookup
+      },
     })
   },
 
@@ -38,7 +37,7 @@ export const profileRepository = {
       where: { username: { equals: username, mode: 'insensitive' } },
       include: {
         sellerProfile: true,
-      }
+      },
     })
   },
 
@@ -56,82 +55,81 @@ export const profileRepository = {
             id: true,
             store_name: true,
             store_slug: true,
-            is_verified: true
-          }
+            is_verified: true,
+          },
         },
         _count: {
           select: {
             posts: true,
-            following: true
-          }
-        }
-      }
+            following: true,
+          },
+        },
+      },
     })
   },
 
+  /**
+   * Get complete profile stats (posts, likes, followers, following)
+   */
+  async getCompleteProfileStats(userId: string) {
+    const [
+      postsCount,
+      likesCount,
+      followersCount,
+      followingCount,
+      followingUsersCount,
+      followingSellersCount,
+    ] = await Promise.all([
+      // Posts count
+      prisma.post.count({
+        where: { authorId: userId },
+      }),
 
-/**
- * Get complete profile stats (posts, likes, followers, following)
- */
-async getCompleteProfileStats(userId: string) {
-  const [
-    postsCount,
-    likesCount,
-    followersCount,
-    followingCount,
-    followingUsersCount,
-    followingSellersCount
-  ] = await Promise.all([
-    // Posts count
-    prisma.post.count({
-      where: { authorId: userId }
-    }),
-    
-    // Likes received on posts
-    prisma.postLike.count({
-      where: {
-        post: {
-          authorId: userId
-        }
-      }
-    }),
-    
-    // Followers count
-    prisma.follow.count({
-      where: { followingId: userId }
-    }),
-    
-    // Following count (all)
-    prisma.follow.count({
-      where: { followerId: userId }
-    }),
-    
-    // Following users only
-    prisma.follow.count({
-      where: { 
-        followerId: userId,
-        followingType: 'USER'
-      }
-    }),
-    
-    // Following sellers only
-    prisma.follow.count({
-      where: { 
-        followerId: userId,
-        followingType: 'SELLER'
-      }
-    })
-  ])
+      // Likes received on posts
+      prisma.postLike.count({
+        where: {
+          post: {
+            authorId: userId,
+          },
+        },
+      }),
 
-  return {
-    postsCount,
-    likesCount,
-    followersCount,
-    followingCount,
-    followingUsersCount,
-    followingSellersCount
-  }
-},
+      // Followers count
+      prisma.follow.count({
+        where: { followingId: userId },
+      }),
+
+      // Following count (all)
+      prisma.follow.count({
+        where: { followerId: userId },
+      }),
+
+      // Following users only
+      prisma.follow.count({
+        where: {
+          followerId: userId,
+          followingType: 'USER',
+        },
+      }),
+
+      // Following sellers only
+      prisma.follow.count({
+        where: {
+          followerId: userId,
+          followingType: 'SELLER',
+        },
+      }),
+    ])
+
+    return {
+      postsCount,
+      likesCount,
+      followersCount,
+      followingCount,
+      followingUsersCount,
+      followingSellersCount,
+    }
+  },
 
   // ============================================
   // WRITE OPERATIONS (ACCOUNT SECURITY)
@@ -143,7 +141,7 @@ async getCompleteProfileStats(userId: string) {
   async updatePassword(userId: string, passwordHash: string) {
     return prisma.profile.update({
       where: { id: userId },
-      data: { password_hash: passwordHash }
+      data: { password_hash: passwordHash },
     })
   },
 
@@ -153,10 +151,10 @@ async getCompleteProfileStats(userId: string) {
   async updateEmail(userId: string, newEmail: string) {
     return prisma.profile.update({
       where: { id: userId },
-      data: { 
+      data: {
         email: newEmail.toLowerCase(),
-        email_verified: false // Security: Reset verification status
-      }
+        email_verified: false, // Security: Reset verification status
+      },
     })
   },
 
@@ -173,11 +171,13 @@ async getCompleteProfileStats(userId: string) {
         ...(data.location !== undefined && { location: data.location }),
         ...(data.website !== undefined && { website: data.website }),
         ...(data.phone !== undefined && { phone: data.phone }),
-        ...(data.dateOfBirth !== undefined && { date_of_birth: data.dateOfBirth }),
+        ...(data.dateOfBirth !== undefined && {
+          date_of_birth: data.dateOfBirth,
+        }),
       },
       include: {
-        sellerProfile: true
-      }
+        sellerProfile: true,
+      },
     })
   },
 
@@ -187,7 +187,7 @@ async getCompleteProfileStats(userId: string) {
 
   async getOrCreateSettings(userId: string) {
     const settings = await prisma.userSettings.findUnique({
-      where: { user_id: userId }
+      where: { user_id: userId },
     })
 
     if (settings) return settings
@@ -199,8 +199,8 @@ async getCompleteProfileStats(userId: string) {
         push_notifications: true,
         private_profile: false,
         two_factor_enabled: false,
-        language: 'en'
-      }
+        language: 'en',
+      },
     })
   },
 
@@ -211,12 +211,20 @@ async getCompleteProfileStats(userId: string) {
     return prisma.userSettings.update({
       where: { user_id: userId },
       data: {
-        ...(data.emailNotifications !== undefined && { email_notifications: data.emailNotifications }),
-        ...(data.pushNotifications !== undefined && { push_notifications: data.pushNotifications }),
-        ...(data.privateProfile !== undefined && { private_profile: data.privateProfile }),
-        ...(data.twoFactorEnabled !== undefined && { two_factor_enabled: data.twoFactorEnabled }),
+        ...(data.emailNotifications !== undefined && {
+          email_notifications: data.emailNotifications,
+        }),
+        ...(data.pushNotifications !== undefined && {
+          push_notifications: data.pushNotifications,
+        }),
+        ...(data.privateProfile !== undefined && {
+          private_profile: data.privateProfile,
+        }),
+        ...(data.twoFactorEnabled !== undefined && {
+          two_factor_enabled: data.twoFactorEnabled,
+        }),
         ...(data.language !== undefined && { language: data.language }),
-      }
+      },
     })
   },
 
@@ -224,7 +232,10 @@ async getCompleteProfileStats(userId: string) {
   // SEARCH & CHECKS
   // ============================================
 
-  async checkEmailExists(email: string, excludeUserId?: string): Promise<boolean> {
+  async checkEmailExists(
+    email: string,
+    excludeUserId?: string,
+  ): Promise<boolean> {
     const where: any = { email: email.toLowerCase() }
     if (excludeUserId) {
       where.id = { not: excludeUserId }
@@ -233,7 +244,10 @@ async getCompleteProfileStats(userId: string) {
     return count > 0
   },
 
-  async checkUsernameExists(username: string, excludeUserId?: string): Promise<boolean> {
+  async checkUsernameExists(
+    username: string,
+    excludeUserId?: string,
+  ): Promise<boolean> {
     const where: any = { username: { equals: username, mode: 'insensitive' } }
     if (excludeUserId) {
       where.id = { not: excludeUserId }
@@ -247,8 +261,8 @@ async getCompleteProfileStats(userId: string) {
       where: {
         OR: [
           { username: { contains: query, mode: 'insensitive' } },
-          { bio: { contains: query, mode: 'insensitive' } }
-        ]
+          { bio: { contains: query, mode: 'insensitive' } },
+        ],
       },
       select: {
         id: true,
@@ -256,7 +270,7 @@ async getCompleteProfileStats(userId: string) {
         bio: true,
         avatar: true,
       },
-      take: limit
+      take: limit,
     })
   },
 
@@ -272,15 +286,19 @@ async getCompleteProfileStats(userId: string) {
     await prisma.session.deleteMany({ where: { userId } })
 
     // 2. Delete settings
-    await prisma.userSettings.delete({ where: { user_id: userId } }).catch(() => null)
+    await prisma.userSettings
+      .delete({ where: { user_id: userId } })
+      .catch(() => null)
 
     // 3. Delete auth tokens
-    await prisma.emailVerificationToken.deleteMany({ where: { user_id: userId } })
+    await prisma.emailVerificationToken.deleteMany({
+      where: { user_id: userId },
+    })
     await prisma.passwordResetToken.deleteMany({ where: { user_id: userId } })
 
     // 4. Finally delete profile
     return prisma.profile.delete({
-      where: { id: userId }
+      where: { id: userId },
     })
-  }
+  },
 }

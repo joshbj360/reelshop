@@ -7,19 +7,22 @@ import { auditService } from '../../shared/audit/audit.service'
 import { sellerRepository } from '../../seller/repositories/seller.repository'
 
 export const socialService = {
-
   // ==================== FOLLOW USER ====================
 
   async followUser(
     userId: string,
     targetUsername: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const target = await socialRepository.getUserByUsername(targetUsername)
-    
+
     if (!target) {
-      throw new UserError('USER_NOT_FOUND', `User @${targetUsername} not found`, 404)
+      throw new UserError(
+        'USER_NOT_FOUND',
+        `User @${targetUsername} not found`,
+        404,
+      )
     }
 
     if (userId === target.id) {
@@ -28,11 +31,19 @@ export const socialService = {
 
     const existing = await socialRepository.getFollow(userId, target.id, 'USER')
     if (existing) {
-      throw new UserError('ALREADY_FOLLOWING', 'Already following this user', 400)
+      throw new UserError(
+        'ALREADY_FOLLOWING',
+        'Already following this user',
+        400,
+      )
     }
 
-    const follow = await socialRepository.createFollow(userId, target.id, 'USER')
-    
+    const follow = await socialRepository.createFollow(
+      userId,
+      target.id,
+      'USER',
+    )
+
     await auditService.logUserAction({
       userId,
       action: 'USER_FOLLOWED',
@@ -41,16 +52,16 @@ export const socialService = {
       reason: `Started following user @${targetUsername}`,
       changes: { targetUsername },
       ipAddress,
-      userAgent
+      userAgent,
     })
-    
+
     await notificationService.createNotification({
       userId: target.id,
       type: 'FOLLOW',
       actorId: userId,
-      message: `Someone started following you`
+      message: `Someone started following you`,
     })
-    
+
     return follow
   },
 
@@ -60,20 +71,36 @@ export const socialService = {
     userId: string,
     storeSlug: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const seller = await socialRepository.getSellerByUsername(storeSlug)
-    
+
     if (!seller) {
-      throw new UserError('SELLER_NOT_FOUND', `Store @${storeSlug} not found`, 404)
+      throw new UserError(
+        'SELLER_NOT_FOUND',
+        `Store @${storeSlug} not found`,
+        404,
+      )
     }
 
-    const existing = await socialRepository.getFollow(userId, seller.id, 'SELLER')
+    const existing = await socialRepository.getFollow(
+      userId,
+      seller.id,
+      'SELLER',
+    )
     if (existing) {
-      throw new UserError('ALREADY_FOLLOWING', 'Already following this store', 400)
+      throw new UserError(
+        'ALREADY_FOLLOWING',
+        'Already following this store',
+        400,
+      )
     }
 
-    const follow = await socialRepository.createFollow(userId, seller.id, 'SELLER')
+    const follow = await socialRepository.createFollow(
+      userId,
+      seller.id,
+      'SELLER',
+    )
 
     // Update denormalized counter (non-blocking)
     sellerRepository.incrementFollowers(seller.id).catch(() => {})
@@ -86,14 +113,14 @@ export const socialService = {
       reason: `Started following store @${storeSlug}`,
       changes: { storeSlug },
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     await notificationService.createNotification({
       userId: seller.profileId,
       type: 'FOLLOW',
       actorId: userId,
-      message: `Someone started following your store`
+      message: `Someone started following your store`,
     })
 
     return follow
@@ -105,15 +132,19 @@ export const socialService = {
     userId: string,
     targetUsername: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const target = await socialRepository.getUserByUsername(targetUsername)
     if (!target) {
-      throw new UserError('USER_NOT_FOUND', `User @${targetUsername} not found`, 404)
+      throw new UserError(
+        'USER_NOT_FOUND',
+        `User @${targetUsername} not found`,
+        404,
+      )
     }
 
     await socialRepository.deleteFollow(userId, target.id, 'USER')
-    
+
     await auditService.logUserAction({
       userId,
       action: 'USER_UNFOLLOWED',
@@ -121,9 +152,9 @@ export const socialService = {
       resourceId: target.id,
       reason: `Unfollowed user @${targetUsername}`,
       ipAddress,
-      userAgent
+      userAgent,
     })
-    
+
     return { message: 'Unfollowed successfully' }
   },
 
@@ -131,11 +162,15 @@ export const socialService = {
     userId: string,
     storeSlug: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     const seller = await socialRepository.getSellerByUsername(storeSlug)
     if (!seller) {
-      throw new UserError('SELLER_NOT_FOUND', `Store @${storeSlug} not found`, 404)
+      throw new UserError(
+        'SELLER_NOT_FOUND',
+        `Store @${storeSlug} not found`,
+        404,
+      )
     }
 
     await socialRepository.deleteFollow(userId, seller.id, 'SELLER')
@@ -150,7 +185,7 @@ export const socialService = {
       resourceId: seller.id,
       reason: `Unfollowed store @${storeSlug}`,
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return { message: 'Unfollowed store successfully' }
@@ -161,29 +196,41 @@ export const socialService = {
   async getFollowStatus(
     userId: string,
     targetUsername: string,
-    followingType: 'USER' | 'SELLER' = 'USER'
+    followingType: 'USER' | 'SELLER' = 'USER',
   ) {
     let targetId: string
-    
+
     if (followingType === 'USER') {
       const user = await socialRepository.getUserByUsername(targetUsername)
       if (!user) {
-        throw new UserError('USER_NOT_FOUND', `User @${targetUsername} not found`, 404)
+        throw new UserError(
+          'USER_NOT_FOUND',
+          `User @${targetUsername} not found`,
+          404,
+        )
       }
       targetId = user.id
     } else {
       const seller = await socialRepository.getSellerByUsername(targetUsername)
       if (!seller) {
-        throw new UserError('SELLER_NOT_FOUND', `Store @${targetUsername} not found`, 404)
+        throw new UserError(
+          'SELLER_NOT_FOUND',
+          `Store @${targetUsername} not found`,
+          404,
+        )
       }
       targetId = seller.id
     }
 
-    const follow = await socialRepository.getFollow(userId, targetId, followingType)
-    
+    const follow = await socialRepository.getFollow(
+      userId,
+      targetId,
+      followingType,
+    )
+
     return {
       isFollowing: !!follow,
-      followedAt: follow?.created_at || null
+      followedAt: follow?.created_at || null,
     }
   },
 
@@ -196,17 +243,17 @@ export const socialService = {
   async getMyFollowers(userId: string, limit = 20, offset = 0) {
     const [items, stats] = await Promise.all([
       socialRepository.getFollowers({ userId, limit, offset }),
-      socialRepository.getFollowStats(userId)
+      socialRepository.getFollowStats(userId),
     ])
 
     return {
       items,
       meta: {
-        total: stats.followersCount,  // ✅ From stats
+        total: stats.followersCount, // ✅ From stats
         limit,
         offset,
-        hasMore: offset + items.length < stats.followersCount
-      }
+        hasMore: offset + items.length < stats.followersCount,
+      },
     }
   },
 
@@ -217,17 +264,17 @@ export const socialService = {
   async getMyFollowing(userId: string, limit = 20, offset = 0) {
     const [items, stats] = await Promise.all([
       socialRepository.getFollowing({ userId, limit, offset }),
-      socialRepository.getFollowStats(userId)
+      socialRepository.getFollowStats(userId),
     ])
 
     return {
       items,
       meta: {
-        total: stats.followingCount,  // ✅ From stats
+        total: stats.followingCount, // ✅ From stats
         limit,
         offset,
-        hasMore: offset + items.length < stats.followingCount
-      }
+        hasMore: offset + items.length < stats.followingCount,
+      },
     }
   },
 
@@ -242,17 +289,17 @@ export const socialService = {
 
     const [items, stats] = await Promise.all([
       socialRepository.getFollowers({ userId: user.id, limit, offset }),
-      socialRepository.getFollowStats(user.id)
+      socialRepository.getFollowStats(user.id),
     ])
 
     return {
       items,
-      meta: { 
-        total: stats.followersCount,  // ✅ From stats
-        limit, 
-        offset, 
-        hasMore: offset + items.length < stats.followersCount
-      }
+      meta: {
+        total: stats.followersCount, // ✅ From stats
+        limit,
+        offset,
+        hasMore: offset + items.length < stats.followersCount,
+      },
     }
   },
 
@@ -267,17 +314,17 @@ export const socialService = {
 
     const [items, stats] = await Promise.all([
       socialRepository.getFollowing({ userId: user.id, limit, offset }),
-      socialRepository.getFollowStats(user.id)
+      socialRepository.getFollowStats(user.id),
     ])
 
     return {
       items,
-      meta: { 
-        total: stats.followingCount,  // ✅ From stats
-        limit, 
-        offset, 
-        hasMore: offset + items.length < stats.followingCount
-      }
+      meta: {
+        total: stats.followingCount, // ✅ From stats
+        limit,
+        offset,
+        hasMore: offset + items.length < stats.followingCount,
+      },
     }
   },
 
@@ -305,8 +352,12 @@ export const socialService = {
   async checkFollowingBatch(
     userId: string,
     targetIds: string[],
-    followingType: 'USER' | 'SELLER' = 'USER'
+    followingType: 'USER' | 'SELLER' = 'USER',
   ) {
-    return await socialRepository.checkFollowingBatch(userId, targetIds, followingType)
-  }
+    return await socialRepository.checkFollowingBatch(
+      userId,
+      targetIds,
+      followingType,
+    )
+  },
 }

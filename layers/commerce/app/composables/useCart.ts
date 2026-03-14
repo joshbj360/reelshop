@@ -68,5 +68,15 @@ export const useCart = () => {
     }
   }
 
-  return { isLoading, error, cartCount, cartTotal, items, fetchCart, addToCart, updateQuantity, removeFromCart }
+  return {
+    isLoading,
+    error,
+    cartCount,
+    cartTotal,
+    items,
+    fetchCart,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+  }
 }

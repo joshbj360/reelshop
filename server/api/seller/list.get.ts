@@ -18,27 +18,27 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'Seller profiles retrieved successfully',
       data: sellers,
-      total: sellers.length
+      total: sellers.length,
     }
   } catch (error) {
     if (error instanceof Error && error.message.includes('SellerError')) {
       const sellerError = error as any
       throw createError({
         statusCode: sellerError.statusCode || 404,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to retrieve seller profiles'
+      statusMessage: 'Failed to retrieve seller profiles',
     })
   }
 })

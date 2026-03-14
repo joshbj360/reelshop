@@ -21,17 +21,17 @@ export interface CreateNotificationArgs {
 
 // Map internal notification types to Prisma enum values
 const typeMap: Record<string, string> = {
-  'POST_CREATED': 'NEW_POST',
-  'POST_LIKE': 'POST_LIKE',
-  'POST_COMMENT': 'NEW_COMMENT',
-  'COMMENT_LIKE': 'COMMENT_LIKE',
-  'COMMENT_REPLY': 'REPLY',
-  'FOLLOW': 'NEW_FOLLOWER',
-  'MESSAGE': 'GENERAL',
-  'PRODUCT_SHARE': 'PRODUCT_SHARE',
-  'PRODUCT_REVIEW': 'REVIEW',
-  'PRODUCT_COMMENT': 'NEW_COMMENT',
-  'ORDER': 'ORDER'
+  POST_CREATED: 'NEW_POST',
+  POST_LIKE: 'POST_LIKE',
+  POST_COMMENT: 'NEW_COMMENT',
+  COMMENT_LIKE: 'COMMENT_LIKE',
+  COMMENT_REPLY: 'REPLY',
+  FOLLOW: 'NEW_FOLLOWER',
+  MESSAGE: 'GENERAL',
+  PRODUCT_SHARE: 'PRODUCT_SHARE',
+  PRODUCT_REVIEW: 'REVIEW',
+  PRODUCT_COMMENT: 'NEW_COMMENT',
+  ORDER: 'ORDER',
 }
 
 export const notificationService = {
@@ -39,8 +39,16 @@ export const notificationService = {
    * Creates a notification. Uses an object to avoid positional argument errors.
    */
   async createNotification(args: CreateNotificationArgs) {
-    const { userId, type, actorId, message, postId, commentId, conversationId } = args
-    
+    const {
+      userId,
+      type,
+      actorId,
+      message,
+      postId,
+      commentId,
+      conversationId,
+    } = args
+
     try {
       // Map service type to Prisma enum value
       const mappedType = typeMap[type] || 'GENERAL'
@@ -53,7 +61,7 @@ export const notificationService = {
         postId,
         commentId,
         conversationId,
-        read: false
+        read: false,
       })
     } catch (error: any) {
       // Notifications are non-blocking/non-critical. Log error but don't crash.
@@ -63,8 +71,13 @@ export const notificationService = {
   },
 
   async getNotifications(userId: string, limit = 20, offset = 0) {
-    const notifications = await notificationRepository.getNotificationsByUserId(userId, limit, offset)
-    const total = await notificationRepository.getNotificationsCountByUserId(userId)
+    const notifications = await notificationRepository.getNotificationsByUserId(
+      userId,
+      limit,
+      offset,
+    )
+    const total =
+      await notificationRepository.getNotificationsCountByUserId(userId)
     return { notifications, total, limit, offset }
   },
 
@@ -74,8 +87,14 @@ export const notificationService = {
   },
 
   async getNotificationById(notificationId: number, userId: string) {
-    const notification = await notificationRepository.getNotificationById(notificationId)
-    if (!notification) throw new UserError('NOTIFICATION_NOT_FOUND', 'Notification not found', 404)
+    const notification =
+      await notificationRepository.getNotificationById(notificationId)
+    if (!notification)
+      throw new UserError(
+        'NOTIFICATION_NOT_FOUND',
+        'Notification not found',
+        404,
+      )
 
     if (notification.userId !== userId) {
       throw new UserError('FORBIDDEN', 'Access denied', 403)
@@ -88,7 +107,10 @@ export const notificationService = {
     // First verify ownership
     await this.getNotificationById(notificationId, userId)
 
-    const updated = await notificationRepository.updateNotification(notificationId, { read: true })
+    const updated = await notificationRepository.updateNotification(
+      notificationId,
+      { read: true },
+    )
     return updated
   },
 
@@ -102,5 +124,5 @@ export const notificationService = {
 
     await notificationRepository.deleteNotification(notificationId)
     return { message: 'Notification deleted successfully' }
-  }
+  },
 }

@@ -46,5 +46,12 @@ export const useComment = () => {
     return commentApi.unlikeComment(postId, commentId)
   }
 
-  return { isLoading, error, fetchPostComments, createComment, likeComment, unlikeComment }
+  return {
+    isLoading,
+    error,
+    fetchPostComments,
+    createComment,
+    likeComment,
+    unlikeComment,
+  }
 }

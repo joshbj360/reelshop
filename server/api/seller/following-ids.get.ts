@@ -7,8 +7,11 @@ export default defineEventHandler(async (event) => {
 
   const follows = await prisma.follow.findMany({
     where: { followerId: currentUser.id, followingType: 'SELLER' },
-    select: { followingId: true }
+    select: { followingId: true },
   })
 
-  return { success: true, data: follows.map((f: { followingId: string }) => f.followingId) }
+  return {
+    success: true,
+    data: follows.map((f: { followingId: string }) => f.followingId),
+  }
 })

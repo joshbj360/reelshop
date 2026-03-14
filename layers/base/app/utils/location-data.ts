@@ -23,4 +23,4 @@
 // // A specific function for Nigerian LGAs
 // export const getLGAsOfState = (stateName: string) => {
 //     return nigerianStates[stateName]
-// };  
+// };

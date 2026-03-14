@@ -17,7 +17,9 @@ export const useNotifications = () => {
       notificationStore.setNotifications(result.data)
       return result
     } catch (error: any) {
-      notificationStore.setError(error.message || 'Failed to fetch notifications')
+      notificationStore.setError(
+        error.message || 'Failed to fetch notifications',
+      )
       throw error
     } finally {
       notificationStore.setLoading(false)

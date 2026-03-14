@@ -1,6 +1,5 @@
-import { contentService } from "~~/server/layers/posts/services/post.service"
-import { requireAuth } from "~~/server/layers/shared/middleware/requireAuth"
-
+import { contentService } from '~~/server/layers/posts/services/post.service'
+import { requireAuth } from '~~/server/layers/shared/middleware/requireAuth'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
     const offset = Math.max(Number(query.offset) || 0, 0)
-    
+
     const result = await contentService.getSavedPosts(user.id, limit, offset)
     // Repository returns SavedPost records with a nested .post field — extract the actual posts
     const posts = result.posts.map((sp: any) => sp.post).filter(Boolean)
@@ -23,6 +22,9 @@ export default defineEventHandler(async (event) => {
       },
     }
   } catch (error: any) {
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

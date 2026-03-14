@@ -76,5 +76,14 @@ export const useOrder = () => {
     }
   }
 
-  return { isLoading, error, orders, total, fetchMyOrders, getOrderById, placeOrder, cancelOrder }
+  return {
+    isLoading,
+    error,
+    orders,
+    total,
+    fetchMyOrders,
+    getOrderById,
+    placeOrder,
+    cancelOrder,
+  }
 }

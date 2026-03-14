@@ -8,7 +8,6 @@ import { UserError } from '../../../layers/profile/types/user.types'
 import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { getClientIP } from '../../../layers/shared/utils/security'
 
-
 export default defineEventHandler(async (event) => {
   try {
     // Verify authentication
@@ -29,32 +28,32 @@ export default defineEventHandler(async (event) => {
       user.id,
       validatedData,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     return {
       success: true,
-      data: updated
+      data: updated,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
     if (error instanceof UserError && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

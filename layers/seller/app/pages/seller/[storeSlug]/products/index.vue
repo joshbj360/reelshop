@@ -1,14 +1,18 @@
 <template>
   <div class="px-3 py-4 sm:p-6">
     <!-- Page header -->
-    <div class="flex flex-wrap items-center gap-2 justify-between mb-4 sm:mb-6">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-2 sm:mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">Products</h1>
-        <p class="text-[13px] text-gray-400 dark:text-neutral-500 mt-0.5">@{{ storeSlug }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">
+          Products
+        </h1>
+        <p class="mt-0.5 text-[13px] text-gray-400 dark:text-neutral-500">
+          @{{ storeSlug }}
+        </p>
       </div>
       <NuxtLink
         :to="`/seller/${storeSlug}/products/create`"
-        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-[#d81b36] transition-colors"
+        class="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#d81b36]"
       >
         <Icon name="mdi:plus" size="18" />
         Add Product
@@ -17,8 +21,10 @@
 
     <div>
       <!-- Filter Bar -->
-      <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
-        <div class="flex overflow-x-auto scrollbar-hide rounded-lg border border-gray-200 dark:border-neutral-700 shrink-0">
+      <div class="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row">
+        <div
+          class="scrollbar-hide flex shrink-0 overflow-x-auto rounded-lg border border-gray-200 dark:border-neutral-700"
+        >
           <button
             v-for="tab in statusTabs"
             :key="tab.value"
@@ -27,42 +33,66 @@
               'px-4 py-2 text-sm font-medium transition-colors',
               activeStatus === tab.value
                 ? 'bg-brand text-white'
-                : 'bg-white dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700'
+                : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700',
             ]"
           >
             {{ tab.label }}
           </button>
         </div>
-        <div class="flex-1 relative min-w-0">
-          <Icon name="mdi:magnify" size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div class="relative min-w-0 flex-1">
+          <Icon
+            name="mdi:magnify"
+            size="18"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
           <input
             v-model="search"
             type="text"
             placeholder="Search products..."
-            class="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand"
+            class="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-4 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
           />
         </div>
       </div>
 
       <!-- Loading -->
-      <div v-if="isLoading && !products.length" class="flex justify-center py-20">
-        <div class="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
+      <div
+        v-if="isLoading && !products.length"
+        class="flex justify-center py-20"
+      >
+        <div
+          class="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent"
+        />
       </div>
 
       <!-- Error -->
-      <div v-else-if="error" class="text-center py-20">
-        <p class="text-red-500 dark:text-red-400 mb-3">{{ error }}</p>
-        <button @click="load" class="px-4 py-2 bg-brand text-white rounded-lg text-sm hover:bg-[#d81b36] transition-colors">Retry</button>
+      <div v-else-if="error" class="py-20 text-center">
+        <p class="mb-3 text-red-500 dark:text-red-400">{{ error }}</p>
+        <button
+          @click="load"
+          class="rounded-lg bg-brand px-4 py-2 text-sm text-white transition-colors hover:bg-[#d81b36]"
+        >
+          Retry
+        </button>
       </div>
 
       <!-- Empty -->
-      <div v-else-if="!products.length" class="text-center py-20">
-        <Icon name="mdi:package-variant-closed" size="64" class="text-gray-300 dark:text-neutral-600 mb-4" />
-        <h3 class="text-lg font-semibold text-gray-700 dark:text-neutral-300 mb-2">No products yet</h3>
-        <p class="text-sm text-gray-500 dark:text-neutral-400 mb-6">Add your first product to start selling</p>
+      <div v-else-if="!products.length" class="py-20 text-center">
+        <Icon
+          name="mdi:package-variant-closed"
+          size="64"
+          class="mb-4 text-gray-300 dark:text-neutral-600"
+        />
+        <h3
+          class="mb-2 text-lg font-semibold text-gray-700 dark:text-neutral-300"
+        >
+          No products yet
+        </h3>
+        <p class="mb-6 text-sm text-gray-500 dark:text-neutral-400">
+          Add your first product to start selling
+        </p>
         <NuxtLink
           :to="`/seller/${storeSlug}/products/create`"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-lg font-semibold hover:bg-[#d81b36] transition-colors"
+          class="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white transition-colors hover:bg-[#d81b36]"
         >
           <Icon name="mdi:plus" size="18" />
           Add First Product
@@ -70,30 +100,39 @@
       </div>
 
       <!-- Products Grid -->
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div
+        v-else
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
         <div
           v-for="product in products"
           :key="product.id"
-          class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 overflow-hidden hover:shadow-md transition-shadow"
+          class="overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800"
         >
           <!-- Image -->
-          <div class="aspect-square bg-gray-100 dark:bg-neutral-700 relative">
+          <div class="relative aspect-square bg-gray-100 dark:bg-neutral-700">
             <img
               v-if="product.media?.[0]?.url"
               :src="product.media[0].url"
               :alt="product.title"
-              class="w-full h-full object-cover"
+              class="h-full w-full object-cover"
             />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <Icon name="mdi:image-off-outline" size="40" class="text-gray-300 dark:text-neutral-600" />
+            <div v-else class="flex h-full w-full items-center justify-center">
+              <Icon
+                name="mdi:image-off-outline"
+                size="40"
+                class="text-gray-300 dark:text-neutral-600"
+              />
             </div>
             <!-- Status badge -->
             <span
               :class="[
-                'absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full',
-                product.status === 'PUBLISHED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' :
-                product.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300' :
-                'bg-gray-100 text-gray-600 dark:bg-neutral-700 dark:text-neutral-400'
+                'absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-semibold',
+                product.status === 'PUBLISHED'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                  : product.status === 'DRAFT'
+                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
+                    : 'bg-gray-100 text-gray-600 dark:bg-neutral-700 dark:text-neutral-400',
               ]"
             >
               {{ product.status }}
@@ -102,28 +141,36 @@
 
           <!-- Info -->
           <div class="p-3">
-            <p class="font-semibold text-gray-900 dark:text-neutral-100 truncate text-sm">{{ product.title }}</p>
-            <p class="text-brand font-bold mt-1">₦{{ Number(product.price).toLocaleString() }}</p>
-            <p class="text-xs text-gray-500 dark:text-neutral-400 mt-1">{{ product._count?.variants ?? 0 }} variant(s)</p>
+            <p
+              class="truncate text-sm font-semibold text-gray-900 dark:text-neutral-100"
+            >
+              {{ product.title }}
+            </p>
+            <p class="mt-1 font-bold text-brand">
+              ₦{{ Number(product.price).toLocaleString() }}
+            </p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-neutral-400">
+              {{ product._count?.variants ?? 0 }} variant(s)
+            </p>
 
             <!-- Actions -->
-            <div class="flex gap-2 mt-3">
+            <div class="mt-3 flex gap-2">
               <NuxtLink
                 :to="`/seller/${storeSlug}/products/${product.id}/edit`"
-                class="flex-1 py-1.5 text-center text-xs font-medium rounded-lg border border-gray-200 dark:border-neutral-600 text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
+                class="flex-1 rounded-lg border border-gray-200 py-1.5 text-center text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-700"
               >
                 Edit
               </NuxtLink>
               <NuxtLink
                 :to="`/seller/${storeSlug}/products/${product.id}/edit?tab=promote`"
-                class="flex-1 py-1.5 text-center text-xs font-medium rounded-lg border border-brand/40 text-brand hover:bg-brand/5 transition-colors flex items-center justify-center gap-1"
+                class="flex flex-1 items-center justify-center gap-1 rounded-lg border border-brand/40 py-1.5 text-center text-xs font-medium text-brand transition-colors hover:bg-brand/5"
               >
                 <Icon name="mdi:rocket-launch-outline" size="12" />
                 Promote
               </NuxtLink>
               <button
                 @click="confirmDelete(product)"
-                class="py-1.5 px-2.5 text-center text-xs font-medium rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                class="rounded-lg border border-red-200 px-2.5 py-1.5 text-center text-xs font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
               >
                 <Icon name="mdi:archive-outline" size="14" />
               </button>
@@ -133,11 +180,11 @@
       </div>
 
       <!-- Load More -->
-      <div v-if="hasMore" class="flex justify-center mt-8">
+      <div v-if="hasMore" class="mt-8 flex justify-center">
         <button
           @click="loadMore"
           :disabled="isLoading"
-          class="px-6 py-2.5 border border-gray-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800 disabled:opacity-50 transition-colors"
+          class="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
         >
           {{ isLoading ? 'Loading...' : 'Load more' }}
         </button>
@@ -146,24 +193,37 @@
 
     <!-- Confirm Delete Modal -->
     <Teleport to="body">
-      <div v-if="productToDelete" class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/50" @click="productToDelete = null" />
-        <div class="relative bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-2">Archive Product?</h3>
-          <p class="text-sm text-gray-600 dark:text-neutral-400 mb-6">
-            "{{ productToDelete.title }}" will be archived and hidden from the marketplace.
+      <div
+        v-if="productToDelete"
+        class="fixed inset-0 z-50 flex items-center justify-center"
+      >
+        <div
+          class="absolute inset-0 bg-black/50"
+          @click="productToDelete = null"
+        />
+        <div
+          class="relative mx-4 w-full max-w-sm rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900"
+        >
+          <h3
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-neutral-100"
+          >
+            Archive Product?
+          </h3>
+          <p class="mb-6 text-sm text-gray-600 dark:text-neutral-400">
+            "{{ productToDelete.title }}" will be archived and hidden from the
+            marketplace.
           </p>
           <div class="flex gap-3">
             <button
               @click="productToDelete = null"
-              class="flex-1 py-2 border border-gray-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-gray-700 dark:text-neutral-300"
+              class="flex-1 rounded-lg border border-gray-200 py-2 text-sm font-medium text-gray-700 dark:border-neutral-700 dark:text-neutral-300"
             >
               Cancel
             </button>
             <button
               @click="handleDelete"
               :disabled="isDeleting"
-              class="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+              class="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
             >
               {{ isDeleting ? 'Archiving...' : 'Archive' }}
             </button>
@@ -232,14 +292,18 @@ watch(search, () => {
   debounce = setTimeout(() => load(), 350)
 })
 
-const confirmDelete = (product: any) => { productToDelete.value = product }
+const confirmDelete = (product: any) => {
+  productToDelete.value = product
+}
 
 const handleDelete = async () => {
   if (!productToDelete.value) return
   isDeleting.value = true
   try {
     await deleteProduct(productToDelete.value.id)
-    products.value = products.value.filter(p => p.id !== productToDelete.value!.id)
+    products.value = products.value.filter(
+      (p) => p.id !== productToDelete.value!.id,
+    )
     productToDelete.value = null
   } catch (e) {
     console.error('Delete failed:', e)

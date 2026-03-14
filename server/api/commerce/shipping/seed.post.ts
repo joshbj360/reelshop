@@ -5,16 +5,56 @@ import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 const ZONES = [
   {
     name: 'West Africa',
-    countries: ['NG', 'GH', 'SN', 'CI', 'CM', 'BJ', 'TG', 'ML', 'BF', 'NE', 'GN', 'SL', 'LR', 'GM', 'GW', 'CV', 'MR'],
-    baseRate: 150000,   // ₦1,500
-    perKgRate: 50000,   // ₦500/kg
+    countries: [
+      'NG',
+      'GH',
+      'SN',
+      'CI',
+      'CM',
+      'BJ',
+      'TG',
+      'ML',
+      'BF',
+      'NE',
+      'GN',
+      'SL',
+      'LR',
+      'GM',
+      'GW',
+      'CV',
+      'MR',
+    ],
+    baseRate: 150000, // ₦1,500
+    perKgRate: 50000, // ₦500/kg
     estimatedDays: '2-4 business days',
     sortOrder: 1,
   },
   {
     name: 'East & Central Africa',
-    countries: ['KE', 'TZ', 'UG', 'RW', 'ET', 'ZM', 'ZW', 'MW', 'MZ', 'AO', 'CD', 'CG', 'GA', 'CF', 'TD', 'BI', 'DJ', 'ER', 'SO', 'SD', 'SS'],
-    baseRate: 300000,   // ₦3,000
+    countries: [
+      'KE',
+      'TZ',
+      'UG',
+      'RW',
+      'ET',
+      'ZM',
+      'ZW',
+      'MW',
+      'MZ',
+      'AO',
+      'CD',
+      'CG',
+      'GA',
+      'CF',
+      'TD',
+      'BI',
+      'DJ',
+      'ER',
+      'SO',
+      'SD',
+      'SS',
+    ],
+    baseRate: 300000, // ₦3,000
     perKgRate: 80000,
     estimatedDays: '4-7 business days',
     sortOrder: 2,
@@ -22,23 +62,86 @@ const ZONES = [
   {
     name: 'Southern Africa',
     countries: ['ZA', 'NA', 'BW', 'LS', 'SZ', 'MG', 'MU', 'SC', 'RE', 'YT'],
-    baseRate: 350000,   // ₦3,500
+    baseRate: 350000, // ₦3,500
     perKgRate: 80000,
     estimatedDays: '4-7 business days',
     sortOrder: 3,
   },
   {
     name: 'North Africa & Middle East',
-    countries: ['EG', 'MA', 'DZ', 'TN', 'LY', 'AE', 'SA', 'QA', 'KW', 'BH', 'OM', 'JO', 'LB', 'IL', 'IQ', 'IR', 'SY', 'YE'],
-    baseRate: 450000,   // ₦4,500
+    countries: [
+      'EG',
+      'MA',
+      'DZ',
+      'TN',
+      'LY',
+      'AE',
+      'SA',
+      'QA',
+      'KW',
+      'BH',
+      'OM',
+      'JO',
+      'LB',
+      'IL',
+      'IQ',
+      'IR',
+      'SY',
+      'YE',
+    ],
+    baseRate: 450000, // ₦4,500
     perKgRate: 100000,
     estimatedDays: '5-8 business days',
     sortOrder: 4,
   },
   {
     name: 'Europe & UK',
-    countries: ['GB', 'FR', 'DE', 'IT', 'ES', 'NL', 'BE', 'PT', 'IE', 'SE', 'NO', 'DK', 'FI', 'PL', 'CZ', 'AT', 'CH', 'GR', 'RO', 'HU', 'SK', 'HR', 'BG', 'RS', 'SI', 'EE', 'LV', 'LT', 'CY', 'MT', 'LU', 'IS', 'AL', 'MK', 'ME', 'BA', 'MD', 'UA', 'BY', 'GE', 'AM', 'AZ', 'TR'],
-    baseRate: 550000,   // ₦5,500
+    countries: [
+      'GB',
+      'FR',
+      'DE',
+      'IT',
+      'ES',
+      'NL',
+      'BE',
+      'PT',
+      'IE',
+      'SE',
+      'NO',
+      'DK',
+      'FI',
+      'PL',
+      'CZ',
+      'AT',
+      'CH',
+      'GR',
+      'RO',
+      'HU',
+      'SK',
+      'HR',
+      'BG',
+      'RS',
+      'SI',
+      'EE',
+      'LV',
+      'LT',
+      'CY',
+      'MT',
+      'LU',
+      'IS',
+      'AL',
+      'MK',
+      'ME',
+      'BA',
+      'MD',
+      'UA',
+      'BY',
+      'GE',
+      'AM',
+      'AZ',
+      'TR',
+    ],
+    baseRate: 550000, // ₦5,500
     perKgRate: 120000,
     estimatedDays: '6-10 business days',
     sortOrder: 5,
@@ -46,14 +149,39 @@ const ZONES = [
   {
     name: 'North America',
     countries: ['US', 'CA', 'MX'],
-    baseRate: 600000,   // ₦6,000
+    baseRate: 600000, // ₦6,000
     perKgRate: 130000,
     estimatedDays: '7-12 business days',
     sortOrder: 6,
   },
   {
     name: 'Asia Pacific',
-    countries: ['CN', 'JP', 'KR', 'IN', 'AU', 'NZ', 'SG', 'MY', 'TH', 'ID', 'PH', 'VN', 'PK', 'BD', 'LK', 'NP', 'MM', 'KH', 'LA', 'BN', 'MN', 'TW', 'HK', 'MO'],
+    countries: [
+      'CN',
+      'JP',
+      'KR',
+      'IN',
+      'AU',
+      'NZ',
+      'SG',
+      'MY',
+      'TH',
+      'ID',
+      'PH',
+      'VN',
+      'PK',
+      'BD',
+      'LK',
+      'NP',
+      'MM',
+      'KH',
+      'LA',
+      'BN',
+      'MN',
+      'TW',
+      'HK',
+      'MO',
+    ],
     baseRate: 650000,
     perKgRate: 140000,
     estimatedDays: '8-14 business days',
@@ -61,7 +189,7 @@ const ZONES = [
   },
   {
     name: 'Rest of World',
-    countries: [],   // catch-all
+    countries: [], // catch-all
     baseRate: 700000,
     perKgRate: 150000,
     estimatedDays: '10-18 business days',
@@ -71,7 +199,8 @@ const ZONES = [
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuth(event)
-  if (user.role !== 'admin') throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+  if (user.role !== 'admin')
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
   let created = 0
   for (const zone of ZONES) {

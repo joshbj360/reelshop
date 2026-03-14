@@ -6,14 +6,20 @@ export default defineEventHandler(async (event) => {
   const apiKey = config.anthropicApiKey
 
   if (!apiKey) {
-    throw createError({ statusCode: 503, statusMessage: 'AI service not configured' })
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'AI service not configured',
+    })
   }
 
   const body = await readBody(event)
   const { imageBase64, mimeType, optionalHint } = body
 
   if (!imageBase64 || !mimeType) {
-    throw createError({ statusCode: 400, statusMessage: 'imageBase64 and mimeType are required' })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'imageBase64 and mimeType are required',
+    })
   }
 
   const systemPrompt = `You are an expert e-commerce copywriter and social media strategist for an African fashion & lifestyle marketplace.
@@ -35,45 +41,54 @@ Return ONLY this JSON structure:
 }`
 
   try {
-    const response: any = await $fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
+    const response: any = await $fetch(
+      'https://api.anthropic.com/v1/messages',
+      {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: {
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image',
+                  source: {
+                    type: 'base64',
+                    media_type: mimeType,
+                    data: imageBase64,
+                  },
+                },
+                { type: 'text', text: userPrompt },
+              ],
+            },
+          ],
+        },
       },
-      body: {
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: mimeType,
-                  data: imageBase64
-                }
-              },
-              { type: 'text', text: userPrompt }
-            ]
-          }
-        ]
-      }
-    })
+    )
 
     const rawText: string = response.content?.[0]?.text || ''
 
     // Strip any accidental markdown code fences
-    const jsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+    const jsonText = rawText
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim()
     const data = JSON.parse(jsonText)
 
     return { success: true, data }
   } catch (err: any) {
     console.error('[POST /api/ai/generate-listing]', err?.message || err)
-    throw createError({ statusCode: 500, statusMessage: 'AI generation failed' })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'AI generation failed',
+    })
   }
 })

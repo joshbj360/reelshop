@@ -1,6 +1,6 @@
 // PATCH /api/user/notifications/read-all - Mark all as read
-import { requireAuth } from "../../..//layers/shared/middleware/requireAuth"
-import { notificationService } from "../../../layers/profile/services/notification.service"
+import { requireAuth } from '../../..//layers/shared/middleware/requireAuth'
+import { notificationService } from '../../../layers/profile/services/notification.service'
 
 export default defineEventHandler(async (event) => {
   try {

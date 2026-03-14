@@ -9,9 +9,9 @@
 
 export class UserError extends Error {
   constructor(
-    public code: string ,
+    public code: string,
     public message: string,
-    public status: number = 400
+    public status: number = 400,
   ) {
     super(message)
     this.name = 'UserError'
@@ -181,7 +181,7 @@ export enum NotificationType {
   POST_SHARE = 'POST_SHARE',
   ORDER_RECEIVED = 'ORDER_RECEIVED',
   ORDER_SHIPPED = 'ORDER_SHIPPED',
-  PRODUCT_AVAILABLE = 'PRODUCT_AVAILABLE'
+  PRODUCT_AVAILABLE = 'PRODUCT_AVAILABLE',
 }
 
 // ==================== BLOCKS ====================
@@ -214,14 +214,14 @@ export enum ReportReason {
   SPAM = 'SPAM',
   INAPPROPRIATE_CONTENT = 'INAPPROPRIATE_CONTENT',
   COPYRIGHT = 'COPYRIGHT',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 export enum ReportStatus {
   PENDING = 'PENDING',
   UNDER_REVIEW = 'UNDER_REVIEW',
   RESOLVED = 'RESOLVED',
-  DISMISSED = 'DISMISSED'
+  DISMISSED = 'DISMISSED',
 }
 
 // ==================== API RESPONSES ====================

@@ -8,7 +8,7 @@ import { authService } from '../../layers/auth/services/auth.service'
 
 // Simple schema for requesting password reset email
 const requestPasswordResetSchema = z.object({
-  email: z.string().email('Invalid email address')
+  email: z.string().email('Invalid email address'),
 })
 
 export default defineEventHandler(async (event) => {
@@ -25,32 +25,35 @@ export default defineEventHandler(async (event) => {
     const result = await authService.requestPasswordReset(
       validatedData.email,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     return {
       success: true,
-      message: result.message
+      message: result.message,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
-    if (error instanceof Error && error.message.includes('RATE_LIMIT_EXCEEDED')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('RATE_LIMIT_EXCEEDED')
+    ) {
       throw createError({
         statusCode: 429,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to send password reset email'
+      statusMessage: 'Failed to send password reset email',
     })
   }
 })

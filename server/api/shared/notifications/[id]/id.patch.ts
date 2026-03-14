@@ -1,8 +1,8 @@
 // PATCH /api/user/notifications/[id] - Mark as read
 
-import { requireAuth } from "../../../../layers/shared/middleware/requireAuth"
-import { notificationService } from "../../../../layers/profile/services/notification.service"
-import { UserError } from "../../../../layers/profile/types/user.types"
+import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
+import { notificationService } from '../../../../layers/profile/services/notification.service'
+import { UserError } from '../../../../layers/profile/types/user.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) {
-      throw createError({ statusCode: error.status, statusMessage: error.message })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
     }
     throw createError({ statusCode: 500, statusMessage: 'Server error' })
   }

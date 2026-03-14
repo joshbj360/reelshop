@@ -25,20 +25,27 @@ export default defineEventHandler(async (event) => {
         orderItem: {
           include: {
             variant: {
-              include: { product: { include: { seller: { select: { profileId: true } } } } }
-            }
-          }
-        }
-      }
+              include: {
+                product: {
+                  include: { seller: { select: { profileId: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
     })
 
     if (!order) throw new UserError('NOT_FOUND', 'Order not found', 404)
 
     // Must be buyer OR a seller whose product is in the order
     const isBuyer = order.userId === user.id
-    const isSeller = order.orderItem.some(item => item.variant.product.seller?.profileId === user.id)
+    const isSeller = order.orderItem.some(
+      (item) => item.variant.product.seller?.profileId === user.id,
+    )
 
-    if (!isBuyer && !isSeller) throw new UserError('FORBIDDEN', 'Access denied', 403)
+    if (!isBuyer && !isSeller)
+      throw new UserError('FORBIDDEN', 'Access denied', 403)
 
     const updated = await prisma.orders.update({
       where: { id },
@@ -51,7 +58,14 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, data: updated }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

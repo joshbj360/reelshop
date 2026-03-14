@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
         store_description: true,
         is_verified: true,
         followers_count: true,
-        _count: { select: { products: true } }
+        _count: { select: { products: true } },
       },
       orderBy: { followers_count: 'desc' },
       take: limit,
@@ -46,13 +46,17 @@ export default defineEventHandler(async (event) => {
       })
     : []
 
-  const countMap = new Map(followCounts.map((f: any) => [f.followingId, f._count.followerId]))
+  const countMap = new Map(
+    followCounts.map((f: any) => [f.followingId, f._count.followerId]),
+  )
 
   const sellersWithRealCounts = sellers.map((s: any) => {
     const realCount = countMap.get(s.id) ?? 0
     // Sync stale counter non-blocking
     if (s.followers_count !== realCount) {
-      prisma.sellerProfile.update({ where: { id: s.id }, data: { followers_count: realCount } }).catch(() => {})
+      prisma.sellerProfile
+        .update({ where: { id: s.id }, data: { followers_count: realCount } })
+        .catch(() => {})
     }
     return { ...s, followers_count: realCount }
   })
@@ -60,6 +64,6 @@ export default defineEventHandler(async (event) => {
   return {
     success: true,
     data: sellersWithRealCounts,
-    meta: { total, limit, offset, hasMore: offset + sellers.length < total }
+    meta: { total, limit, offset, hasMore: offset + sellers.length < total },
   }
 })

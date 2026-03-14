@@ -8,15 +8,17 @@ export const useProductStore = defineStore('product', () => {
 
   const getProductsBySellerSlug = (storeSlug: string) => {
     const ids = sellerProducts.value.get(storeSlug) || []
-    return ids.map(id => products.value.get(id)).filter(Boolean)
+    return ids.map((id) => products.value.get(id)).filter(Boolean)
   }
 
   const addProducts = (newProducts: any[], storeSlug?: string) => {
-    newProducts.forEach(p => products.value.set(p.id, p))
+    newProducts.forEach((p) => products.value.set(p.id, p))
     if (storeSlug) {
       const existing = sellerProducts.value.get(storeSlug) || []
-      const newIds = newProducts.map(p => p.id)
-      sellerProducts.value.set(storeSlug, [...new Set([...existing, ...newIds])])
+      const newIds = newProducts.map((p) => p.id)
+      sellerProducts.value.set(storeSlug, [
+        ...new Set([...existing, ...newIds]),
+      ])
     }
   }
 
@@ -25,7 +27,10 @@ export const useProductStore = defineStore('product', () => {
   const removeProduct = (id: number) => {
     products.value.delete(id)
     sellerProducts.value.forEach((ids, slug) => {
-      sellerProducts.value.set(slug, ids.filter(i => i !== id))
+      sellerProducts.value.set(
+        slug,
+        ids.filter((i) => i !== id),
+      )
     })
   }
 
@@ -39,7 +44,11 @@ export const useProductStore = defineStore('product', () => {
     addProducts,
     setProduct,
     removeProduct,
-    setLoading: (val: boolean) => { isLoading.value = val },
-    setError: (val: string | null) => { error.value = val }
+    setLoading: (val: boolean) => {
+      isLoading.value = val
+    },
+    setError: (val: string | null) => {
+      error.value = val
+    },
   }
 })

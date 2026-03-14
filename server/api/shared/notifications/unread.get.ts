@@ -1,8 +1,7 @@
 // GET /api/user/notifications/unread - Get unread count
 
-import { notificationService } from "../../../layers/profile/services/notification.service"
-import { requireAuth } from "../../../layers/shared/middleware/requireAuth"
-
+import { notificationService } from '../../../layers/profile/services/notification.service'
+import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 
 export default defineEventHandler(async (event) => {
   try {

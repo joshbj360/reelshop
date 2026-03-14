@@ -1,4 +1,11 @@
-import { defineEventHandler, readBody, deleteCookie, createError, getRequestIP, getRequestHeader } from 'h3'
+import {
+  defineEventHandler,
+  readBody,
+  deleteCookie,
+  createError,
+  getRequestIP,
+  getRequestHeader,
+} from 'h3'
 import { authService } from '../../layers/auth/services/auth.service'
 import { resetPasswordSchema } from '../../layers/auth/schemas/auth.schemas'
 import { ZodError } from 'zod'
@@ -13,14 +20,15 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: validation.error.errors
+        data: validation.error.errors,
       })
     }
 
     const validatedData = validation.data
 
     // 2. Get client info safely
-    const ipAddress = getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
+    const ipAddress =
+      getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
     const userAgent = getRequestHeader(event, 'user-agent') || 'Unknown'
 
     // 3. Call Singleton Service
@@ -29,26 +37,25 @@ export default defineEventHandler(async (event) => {
       validatedData.token,
       validatedData.password,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
-    // 4. Clear cookies 
+    // 4. Clear cookies
     // Crucial Security Step: Forces the user to log in again with the new password
     deleteCookie(event, 'accessToken')
     deleteCookie(event, 'refreshToken')
 
     return {
       success: true,
-      message: result.message
+      message: result.message,
     }
-
   } catch (error: any) {
     // Handle Zod Errors
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
@@ -56,7 +63,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw createError({
         statusCode: error.statusCode,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
@@ -64,7 +71,7 @@ export default defineEventHandler(async (event) => {
     console.error('[Reset Password API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

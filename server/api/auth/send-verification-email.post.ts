@@ -12,41 +12,47 @@ export default defineEventHandler(async (event) => {
     // Get user email
     const profile = await prisma.profile.findUnique({
       where: { id: user.id },
-      select: { email: true }
+      select: { email: true },
     })
 
     if (!profile) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'User not found'
+        statusMessage: 'User not found',
       })
     }
 
     // Send verification email
-    const result = await authService.sendVerificationEmail(user.id, profile.email)
+    const result = await authService.sendVerificationEmail(
+      user.id,
+      profile.email,
+    )
 
     return {
       success: true,
-      message: result.message
+      message: result.message,
     }
   } catch (error) {
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
-    if (error instanceof Error && error.message.includes('RATE_LIMIT_EXCEEDED')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('RATE_LIMIT_EXCEEDED')
+    ) {
       throw createError({
         statusCode: 429,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to send verification email'
+      statusMessage: 'Failed to send verification email',
     })
   }
 })

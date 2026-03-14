@@ -1,8 +1,6 @@
 export default defineNuxtConfig({
-  components: [
-    { path: '~/components', pathPrefix: false }
-  ],
+  components: [{ path: '~/components', pathPrefix: false }],
   imports: {
-    dirs: ['composables', 'stores', 'utils']
-  }
+    dirs: ['composables', 'stores', 'utils'],
+  },
 })

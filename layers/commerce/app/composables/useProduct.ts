@@ -8,7 +8,15 @@ export const useProduct = () => {
   const isLoading = computed(() => store.isLoading)
   const error = computed(() => store.error)
 
-  const fetchProducts = async (params?: { status?: string; search?: string; sellerId?: string; limit?: number; offset?: number; isThrift?: boolean; categorySlug?: string }) => {
+  const fetchProducts = async (params?: {
+    status?: string
+    search?: string
+    sellerId?: string
+    limit?: number
+    offset?: number
+    isThrift?: boolean
+    categorySlug?: string
+  }) => {
     store.setLoading(true)
     store.setError(null)
     try {
@@ -23,7 +31,10 @@ export const useProduct = () => {
     }
   }
 
-  const fetchSellerProducts = async (storeSlug: string, params?: { status?: string; limit?: number; offset?: number }) => {
+  const fetchSellerProducts = async (
+    storeSlug: string,
+    params?: { status?: string; limit?: number; offset?: number },
+  ) => {
     store.setLoading(true)
     store.setError(null)
     try {
@@ -123,6 +134,6 @@ export const useProduct = () => {
     likeProduct,
     unlikeProduct,
     fetchCategories,
-    store
+    store,
   }
 }

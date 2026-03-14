@@ -1,4 +1,11 @@
-import { defineEventHandler, getCookie, setCookie, createError, getRequestIP, getRequestHeader } from 'h3'
+import {
+  defineEventHandler,
+  getCookie,
+  setCookie,
+  createError,
+  getRequestIP,
+  getRequestHeader,
+} from 'h3'
 import { ZodError } from 'zod'
 import { authService } from '../../layers/auth/services/auth.service'
 
@@ -10,12 +17,13 @@ export default defineEventHandler(async (event) => {
     if (!refreshToken) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'No refresh token provided'
+        statusMessage: 'No refresh token provided',
       })
     }
 
     // 2. Get Client Context
-    const ipAddress = getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
+    const ipAddress =
+      getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
     const userAgent = getRequestHeader(event, 'user-agent') || 'Unknown'
 
     // 3. Call Singleton Service
@@ -23,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const result = await authService.refreshAccessToken(
       refreshToken,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     // 4. Set New Access Token Cookie
@@ -32,20 +40,19 @@ export default defineEventHandler(async (event) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 // 15 minutes
+      maxAge: 15 * 60, // 15 minutes
     })
 
     return {
       success: true,
-      accessToken: result.accessToken
+      accessToken: result.accessToken,
     }
-
   } catch (error: any) {
     // Handle Service Errors (e.g. "Token Expired", "Invalid Token")
     if (error.statusCode) {
       throw createError({
         statusCode: error.statusCode,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
@@ -53,7 +60,7 @@ export default defineEventHandler(async (event) => {
     console.error('[Refresh Token API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

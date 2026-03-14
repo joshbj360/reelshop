@@ -15,10 +15,18 @@ export default defineEventHandler(async (event) => {
     const ipAddress = getRequestIP(event) || 'unknown'
     const userAgent = getRequestHeader(event, 'user-agent') || 'unknown'
 
-    const result = await socialService.unfollowSeller(currentUser.id, storeSlug, ipAddress, userAgent)
+    const result = await socialService.unfollowSeller(
+      currentUser.id,
+      storeSlug,
+      ipAddress,
+      userAgent,
+    )
 
     return { success: true, message: result.message }
   } catch (error: any) {
-    throw createError({ statusCode: error.statusCode || 500, message: error.message || 'Failed to unfollow store' })
+    throw createError({
+      statusCode: error.statusCode || 500,
+      message: error.message || 'Failed to unfollow store',
+    })
   }
 })

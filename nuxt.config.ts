@@ -5,10 +5,10 @@ export default defineNuxtConfig({
   app: {
     head: {
       viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
-    }
+    },
   },
   extends: [
-    './layers/AI',     // ← this makes auth server routes available
+    './layers/AI', // ← this makes auth server routes available
     './layers/base',
     './layers/feed',
     './layers/seller',
@@ -26,7 +26,7 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     'pinia-plugin-persistedstate/nuxt',
     '@nuxt/image',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
   ],
 
   i18n: {
@@ -35,50 +35,58 @@ export default defineNuxtConfig({
     langDir: 'locales/',
     strategy: 'no_prefix',
     locales: [
-      { code: 'en', name: 'English',   file: 'en.json' },
-      { code: 'fr', name: 'Français',  file: 'fr.json' },
-      { code: 'es', name: 'Español',   file: 'es.json' },
-      { code: 'de', name: 'Deutsch',   file: 'de.json' },
+      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'fr', name: 'Français', file: 'fr.json' },
+      { code: 'es', name: 'Español', file: 'es.json' },
+      { code: 'de', name: 'Deutsch', file: 'de.json' },
       { code: 'pt', name: 'Português', file: 'pt.json' },
-      { code: 'zh', name: '中文',       file: 'zh.json' },
-      { code: 'ar', name: 'العربية',   file: 'ar.json', dir: 'rtl' }
+      { code: 'zh', name: '中文', file: 'zh.json' },
+      { code: 'ar', name: 'العربية', file: 'ar.json', dir: 'rtl' },
     ],
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',
       redirectOn: 'root',
-      fallbackLocale: 'en'
-    }
+      fallbackLocale: 'en',
+    },
   },
 
   image: {
-      provider: 'cloudinary',
+    provider: 'cloudinary',
     cloudinary: {
-      baseURL: 'https://res.cloudinary.com/dcci05bzj'
-    }
+      baseURL: 'https://res.cloudinary.com/dcci05bzj',
+    },
   },
 
   nitro: {
-     plugins: [
-       'plugins/monitoring',
-     ],
-   },
+    plugins: ['plugins/monitoring'],
+  },
   colorMode: {
     preference: 'system', // default preference: 'system' | 'light' | 'dark'
-    fallback: 'light',    // fallback if no preference detected/stored
+    fallback: 'light', // fallback if no preference detected/stored
     globalName: '__NUXT_COLOR_MODE__',
     componentName: 'ColorScheme',
     classPrefix: 'theme-',
     classSuffix: '-mode',
-    storageKey: 'nuxt-color-mode'
+    storageKey: 'nuxt-color-mode',
   },
-   supabase: {
+  supabase: {
     redirect: false,
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/callback',
-      exclude: ['/', '/discover', '/thrift', '/category/*', '/sellers/profile/*', '/profile/*', '/stories/*', '/reels', '/search'],
-    }
+      exclude: [
+        '/',
+        '/discover',
+        '/thrift',
+        '/category/*',
+        '/sellers/profile/*',
+        '/profile/*',
+        '/stories/*',
+        '/reels',
+        '/search',
+      ],
+    },
   },
   runtimeConfig: {
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
@@ -101,8 +109,8 @@ export default defineNuxtConfig({
     },
     private: {
       cloudinary: {
-        apiSecret: process.env.CLOUDINARY_API_SECRET
-      }
-    }
-  }
+        apiSecret: process.env.CLOUDINARY_API_SECRET,
+      },
+    },
+  },
 })

@@ -1,15 +1,13 @@
-
 //Location:** `~/layers/profile/app/types/profile.types.ts`
 import type { Profile as ProfileModel } from '@prisma/client'
 import type { ISellerProfile } from '~~/layers/seller/app/types/seller.types'
 export interface IProfile extends ProfileModel {
   stateOfResidence?: string
-  fullAddress?: string,
+  fullAddress?: string
   profileUrl?: string
   profileStats?: IProfileStats
   sellerProfile?: ISellerProfile
 }
-
 
 export interface IProfileStats {
   followersCount: number | 0
@@ -17,11 +15,8 @@ export interface IProfileStats {
   postsCount: number | 0
   followingUsersCount?: number | 0
   followingSellersCount?: number | 0
-  likesCount: number| 0
+  likesCount: number | 0
 }
-
-
-
 
 export interface IComment {
   id: string
@@ -52,13 +47,28 @@ export interface IConversation {
   id: string
   participant1Id: string
   participant2Id: string | null
-  participant1?: { id: string; username: string; avatar?: string | null; name?: string | null }
-  participant2?: { id: string; username: string; avatar?: string | null; name?: string | null } | null
+  participant1?: {
+    id: string
+    username: string
+    avatar?: string | null
+    name?: string | null
+  }
+  participant2?: {
+    id: string
+    username: string
+    avatar?: string | null
+    name?: string | null
+  } | null
   sellerId?: string | null
   created_at: string
   updated_at?: string | null
   // Normalized by client:
-  otherUser?: { id: string; username: string; avatar?: string | null; name?: string | null }
+  otherUser?: {
+    id: string
+    username: string
+    avatar?: string | null
+    name?: string | null
+  }
 }
 
 export interface IMessage {
@@ -84,33 +94,33 @@ export interface IPaginatedResponse<T> {
 }
 
 export interface IFollowResponse {
-    items: {
-        id: string;
-        username: string;
-        avatar: string | null;
-        bio?: string | null;
-        type: "USER" | "SELLER";
-        followedAt: Date;
-        role?: string | undefined;
-        name?: string | null | undefined;
-        isVerified?: boolean | undefined;
-    }[];
-    meta: {
-        total: number;
-        limit: number;
-        offset: number;
-        hasMore: boolean;
-    };
+  items: {
+    id: string
+    username: string
+    avatar: string | null
+    bio?: string | null
+    type: 'USER' | 'SELLER'
+    followedAt: Date
+    role?: string | undefined
+    name?: string | null | undefined
+    isVerified?: boolean | undefined
+  }[]
+  meta: {
+    total: number
+    limit: number
+    offset: number
+    hasMore: boolean
+  }
 }
 
 export interface IFollowStatus {
-    isFollowing: boolean;
-    followedAt: Date | null;
+  isFollowing: boolean
+  followedAt: Date | null
 }
 
 export interface IFollowStat {
-    followersCount: number;
-    followingCount: number;
-    followingUsersCount: number;
-    followingSellersCount: number;
+  followersCount: number
+  followingCount: number
+  followingUsersCount: number
+  followingSellersCount: number
 }

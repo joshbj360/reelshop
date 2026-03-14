@@ -2,9 +2,9 @@
 
 /**
  * Custom JWT Authentication Middleware
- * 
+ *
  * Validates custom JWT tokens (NOT Supabase)
- * 
+ *
  * Flow:
  * 1. Extract Bearer token from Authorization header
  * 2. Verify with custom JWT_SECRET
@@ -24,11 +24,11 @@ export async function requireAuth(event: H3Event) {
   try {
     // 1. Get auth header
     const authHeader = getHeader(event, 'authorization')
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Unauthorized - No token provided'
+        statusMessage: 'Unauthorized - No token provided',
       })
     }
 
@@ -42,14 +42,14 @@ export async function requireAuth(event: H3Event) {
     } catch (error) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Unauthorized - Invalid or expired token'
+        statusMessage: 'Unauthorized - Invalid or expired token',
       })
     }
 
     if (!payload || !payload.userId) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Unauthorized - Invalid token'
+        statusMessage: 'Unauthorized - Invalid token',
       })
     }
 
@@ -59,15 +59,15 @@ export async function requireAuth(event: H3Event) {
       include: {
         sellerProfile: {
           where: { is_active: true },
-          take: 1
-        }
-      }
+          take: 1,
+        },
+      },
     })
 
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'User not found'
+        statusMessage: 'User not found',
       })
     }
 
@@ -95,7 +95,7 @@ export async function requireAuth(event: H3Event) {
     // Generic error (don't expose internal details)
     throw createError({
       statusCode: 401,
-      statusMessage: 'Authentication failed'
+      statusMessage: 'Authentication failed',
     })
   }
 }

@@ -8,13 +8,13 @@ const orderInclude = {
           product: {
             include: {
               seller: { select: { store_slug: true, store_name: true } },
-              media: { select: { id: true, url: true, type: true } }
-            }
-          }
-        }
-      }
-    }
-  }
+              media: { select: { id: true, url: true, type: true } },
+            },
+          },
+        },
+      },
+    },
+  },
 }
 
 export const orderRepository = {
@@ -33,11 +33,11 @@ export const orderRepository = {
         orderItem: {
           create: data.items.map((item: any) => ({
             variantId: item.variantId,
-            quantity: item.quantity
-          }))
-        }
+            quantity: item.quantity,
+          })),
+        },
       },
-      include: orderInclude
+      include: orderInclude,
     })
   },
 
@@ -47,7 +47,7 @@ export const orderRepository = {
       include: orderInclude,
       orderBy: { created_at: 'desc' },
       take: limit,
-      skip: offset
+      skip: offset,
     })
   },
 
@@ -56,10 +56,14 @@ export const orderRepository = {
   },
 
   async updateOrderStatus(id: number, status: string) {
-    return prisma.orders.update({ where: { id }, data: { status: status as any }, include: orderInclude })
+    return prisma.orders.update({
+      where: { id },
+      data: { status: status as any },
+      include: orderInclude,
+    })
   },
 
   async countUserOrders(userId: string) {
     return prisma.orders.count({ where: { userId } })
-  }
+  },
 }

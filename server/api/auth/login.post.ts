@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: validation.error.errors
+        data: validation.error.errors,
       })
     }
 
@@ -21,7 +21,8 @@ export default defineEventHandler(async (event) => {
 
     // 2. Get Client Info
     // Helper to get IP safely (handles proxies/local)
-    const ipAddress = getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
+    const ipAddress =
+      getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
     const userAgent = getRequestHeader(event, 'user-agent') || 'Unknown'
     const device = getRequestHeader(event, 'device') || 'Web'
 
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event) => {
       password,
       ipAddress,
       userAgent,
-      device
+      device,
     )
 
     // 4. Set Secure Cookies (Best Practice)
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 // 15 minutes
+      maxAge: 15 * 60, // 15 minutes
     })
 
     // Refresh Token (Long lived)
@@ -49,7 +50,7 @@ export default defineEventHandler(async (event) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 // 7 days
+      maxAge: 7 * 24 * 60 * 60, // 7 days
     })
 
     // 5. Return Public User Data (tokens are in HTTP-only cookies only)
@@ -57,15 +58,14 @@ export default defineEventHandler(async (event) => {
       success: true,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
-      user: result.user
+      user: result.user,
     }
-
   } catch (error: any) {
     // Handle Custom Auth Errors (like Locked Account)
     if (error.statusCode) {
       throw createError({
         statusCode: error.statusCode,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
     console.error('[Login API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

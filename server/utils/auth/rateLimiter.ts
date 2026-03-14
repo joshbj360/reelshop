@@ -3,7 +3,7 @@
 /**
  * Production-grade rate limiting for auth endpoints
  * Prevents brute force attacks and DoS
- * 
+ *
  * Returns allowed flag instead of throwing
  * Service layer decides what to do with it
  */
@@ -49,36 +49,36 @@ setInterval(() => {
  */
 export function checkRateLimit(
   identifier: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): RateLimitResult {
   const key = `${config.keyPrefix}:${identifier}`
   const now = Date.now()
   let record = attemptStore.get(key)
 
   // ==================== CHECK LOCKED ====================
-  
+
   if (record?.lockedUntil && record.lockedUntil > now) {
     const lockedUntilMs = record.lockedUntil - now
     const remaining = Math.ceil(lockedUntilMs / 1000)
-    
+
     return {
       allowed: false,
       remaining: 0,
       resetAt: record.lockedUntil,
       locked: true,
-      lockedUntilMs: remaining
+      lockedUntilMs: remaining,
     }
   }
 
   // ==================== CLEAR EXPIRED LOCK ====================
-  
+
   if (record?.lockedUntil && record.lockedUntil <= now) {
     record.lockedUntil = undefined
     record.count = 0
   }
 
   // ==================== INITIALIZE OR UPDATE ====================
-  
+
   if (!record) {
     // First attempt
     record = {
@@ -97,7 +97,7 @@ export function checkRateLimit(
   }
 
   // ==================== CHECK IF EXCEEDED ====================
-  
+
   if (record.count > config.maxAttempts) {
     // Lock the account
     record.lockedUntil = now + config.lockoutMs
@@ -111,12 +111,12 @@ export function checkRateLimit(
       remaining: 0,
       resetAt: now + config.lockoutMs,
       locked: true,
-      lockedUntilMs: remaining
+      lockedUntilMs: remaining,
     }
   }
 
   // ==================== ALLOWED ====================
-  
+
   attemptStore.set(key, record)
 
   const remaining = config.maxAttempts - record.count
@@ -126,7 +126,7 @@ export function checkRateLimit(
     allowed: true,
     remaining,
     resetAt,
-    locked: false
+    locked: false,
   }
 }
 
@@ -143,7 +143,7 @@ export function clearRateLimit(identifier: string, keyPrefix: string): void {
  */
 export function getRateLimitStatus(
   identifier: string,
-  keyPrefix: string
+  keyPrefix: string,
 ): AttemptRecord | undefined {
   const key = `${keyPrefix}:${identifier}`
   return attemptStore.get(key)
@@ -166,7 +166,10 @@ export function getAllRateLimitRecords(): Map<string, AttemptRecord> {
 /**
  * Delete specific rate limit record
  */
-export function deleteRateLimitRecord(identifier: string, keyPrefix: string): boolean {
+export function deleteRateLimitRecord(
+  identifier: string,
+  keyPrefix: string,
+): boolean {
   const key = `${keyPrefix}:${identifier}`
   return attemptStore.delete(key)
 }

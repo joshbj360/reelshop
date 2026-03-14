@@ -5,9 +5,10 @@ import type { IConversation, IMessage } from '../types/profile.types'
 
 // Normalize a raw server conversation into IConversation with `otherUser`
 function normalizeConversation(raw: any, currentUserId: string): IConversation {
-  const otherUser = raw.participant1Id === currentUserId
-    ? (raw.participant2 ?? null)
-    : (raw.participant1 ?? null)
+  const otherUser =
+    raw.participant1Id === currentUserId
+      ? raw.participant2 ?? null
+      : raw.participant1 ?? null
   return { ...raw, otherUser }
 }
 
@@ -28,7 +29,7 @@ export const useChat = () => {
       // Server returns { success: true, data: { conversations: [...], total, limit, offset } }
       const raw: any[] = res?.data?.conversations ?? []
       const userId = profileStore.userId ?? ''
-      const normalized = raw.map(c => normalizeConversation(c, userId))
+      const normalized = raw.map((c) => normalizeConversation(c, userId))
       chatStore.setConversations(normalized)
       return normalized
     } catch (err: any) {
@@ -87,5 +88,13 @@ export const useChat = () => {
     }
   }
 
-  return { isLoading, error, conversations, fetchConversations, fetchMessages, sendMessage, createConversation }
+  return {
+    isLoading,
+    error,
+    conversations,
+    fetchConversations,
+    fetchMessages,
+    sendMessage,
+    createConversation,
+  }
 }

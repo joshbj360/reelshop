@@ -13,8 +13,15 @@ export default defineEventHandler(async (event) => {
     const likeCount = await prisma.like.count({ where: { productId: id } })
     return { success: true, data: { liked: false, likeCount } }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-      console.error('[DELETE /api/commerce/products/:id]/like]', error)
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    console.error('[DELETE /api/commerce/products/:id]/like]', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

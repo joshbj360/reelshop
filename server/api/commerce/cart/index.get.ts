@@ -9,7 +9,14 @@ export default defineEventHandler(async (event) => {
     const result = await cartService.getCart(user.id)
     return { success: true, data: result }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

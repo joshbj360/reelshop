@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: validation.error.errors
+        data: validation.error.errors,
       })
     }
 
@@ -22,16 +22,15 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: result.message
+      message: result.message,
     }
-
   } catch (error: any) {
     // Handle Zod Errors
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
@@ -39,7 +38,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw createError({
         statusCode: error.statusCode,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
@@ -47,7 +46,7 @@ export default defineEventHandler(async (event) => {
     console.error('[Verify Email API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

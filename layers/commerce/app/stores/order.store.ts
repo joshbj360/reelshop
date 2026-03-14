@@ -4,7 +4,7 @@ export const useOrderStore = defineStore('order', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  const getOrderById = (id: number) => orders.value.find(o => o.id === id)
+  const getOrderById = (id: number) => orders.value.find((o) => o.id === id)
 
   const setOrders = (newOrders: any[], newTotal: number) => {
     orders.value = newOrders
@@ -12,12 +12,15 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   const addOrders = (newOrders: any[]) => {
-    const existingIds = new Set(orders.value.map(o => o.id))
-    orders.value = [...orders.value, ...newOrders.filter(o => !existingIds.has(o.id))]
+    const existingIds = new Set(orders.value.map((o) => o.id))
+    orders.value = [
+      ...orders.value,
+      ...newOrders.filter((o) => !existingIds.has(o.id)),
+    ]
   }
 
   const updateOrder = (order: any) => {
-    const idx = orders.value.findIndex(o => o.id === order.id)
+    const idx = orders.value.findIndex((o) => o.id === order.id)
     if (idx !== -1) orders.value[idx] = order
     else orders.value.unshift(order)
   }
@@ -31,7 +34,11 @@ export const useOrderStore = defineStore('order', () => {
     setOrders,
     addOrders,
     updateOrder,
-    setLoading: (val: boolean) => { isLoading.value = val },
-    setError: (val: string | null) => { error.value = val }
+    setLoading: (val: boolean) => {
+      isLoading.value = val
+    },
+    setError: (val: string | null) => {
+      error.value = val
+    },
   }
 })

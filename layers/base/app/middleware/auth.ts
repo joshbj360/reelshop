@@ -1,12 +1,11 @@
 // layers/base/middleware/auth.ts
 
-import { useProfileStore } from "~~/layers/profile/app/stores/profile.store"
-
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 
 /**
  * Auth Middleware
  * Protects routes that require authentication
- * 
+ *
  * Usage:
  * definePageMeta({
  *   middleware: 'auth'
@@ -25,7 +24,10 @@ export default defineNuxtRouteMiddleware((to, from) => {
   }
 
   // If email not verified and verification is required, redirect to verify
-  if (process.env.REQUIRE_EMAIL_VERIFICATION === 'true' && !profileStore.me?.email_verified) {
+  if (
+    process.env.REQUIRE_EMAIL_VERIFICATION === 'true' &&
+    !profileStore.me?.email_verified
+  ) {
     return navigateTo(`/resend-verification?email=${profileStore.me?.email}`)
   }
 })

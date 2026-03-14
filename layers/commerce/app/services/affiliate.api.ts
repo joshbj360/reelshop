@@ -8,8 +8,17 @@ export class AffiliateApiClient extends BaseApiClient {
     return this.request('/api/commerce/affiliate/enroll', { method: 'POST' })
   }
   async getReferrals(params?: { limit?: number; offset?: number }) {
-    const query = params ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)])).toString() : ''
-    return this.request(`/api/commerce/affiliate/referrals${query}`, { method: 'GET' })
+    const query = params
+      ? '?' +
+        new URLSearchParams(
+          Object.entries(params)
+            .filter(([, v]) => v != null)
+            .map(([k, v]) => [k, String(v)]),
+        ).toString()
+      : ''
+    return this.request(`/api/commerce/affiliate/referrals${query}`, {
+      method: 'GET',
+    })
   }
 }
 

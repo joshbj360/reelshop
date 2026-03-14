@@ -23,32 +23,51 @@ export const useShipping = () => {
     if (zones.value.length) return
     isLoading.value = true
     try {
-      const res = await $fetch<{ success: boolean; data: ShippingZone[] }>('/api/commerce/shipping/zones')
+      const res = await $fetch<{ success: boolean; data: ShippingZone[] }>(
+        '/api/commerce/shipping/zones',
+      )
       zones.value = res.data || []
-    } catch { /* non-fatal */ } finally {
+    } catch {
+      /* non-fatal */
+    } finally {
       isLoading.value = false
     }
   }
 
   const calculateShipping = async (countryCode: string, weightKg = 0.5) => {
-    if (!countryCode) { calculation.value = null; return }
+    if (!countryCode) {
+      calculation.value = null
+      return
+    }
     isLoading.value = true
     try {
       const res = await $fetch<{ success: boolean; data: ShippingCalculation }>(
         '/api/commerce/shipping/calculate',
-        { method: 'POST', body: { countryCode, weightKg } }
+        { method: 'POST', body: { countryCode, weightKg } },
       )
       calculation.value = res.data
       return res.data
-    } catch { calculation.value = null } finally {
+    } catch {
+      calculation.value = null
+    } finally {
       isLoading.value = false
     }
   }
 
   const formatShippingCost = (cents: number, currency = 'NGN') => {
     if (cents === 0) return 'Free'
-    return new Intl.NumberFormat('en-NG', { style: 'currency', currency }).format(cents / 100)
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency,
+    }).format(cents / 100)
   }
 
-  return { zones, calculation, isLoading, fetchZones, calculateShipping, formatShippingCost }
+  return {
+    zones,
+    calculation,
+    isLoading,
+    fetchZones,
+    calculateShipping,
+    formatShippingCost,
+  }
 }

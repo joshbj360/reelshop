@@ -7,7 +7,12 @@ export class StoryApiClient extends BaseApiClient {
   async getStoryById(id: string) {
     return this.request(`/api/stories/${id}`, { method: 'GET' })
   }
-  async createStory(data: { mediaUrl: string; mediaPublicId?: string; mediaType?: string; productId?: number }) {
+  async createStory(data: {
+    mediaUrl: string
+    mediaPublicId?: string
+    mediaType?: string
+    productId?: number
+  }) {
     return this.request('/api/stories', { method: 'POST', body: data })
   }
   async deleteStory(id: string) {

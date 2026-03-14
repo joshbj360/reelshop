@@ -3,20 +3,22 @@ import { z } from 'zod'
 const mediaItemSchema = z.object({
   url: z.string().url(),
   public_id: z.string(),
-  type: z.enum(['IMAGE', 'VIDEO', 'AUDIO']).default('IMAGE')
+  type: z.enum(['IMAGE', 'VIDEO', 'AUDIO']).default('IMAGE'),
 })
 
 // Accept "size" or "name" (form alias) — normalized to size internally
-export const productVariantSchema = z.object({
-  size: z.string().min(1).optional(),
-  name: z.string().min(1).optional(),
-  stock: z.number().int().min(0),
-  price: z.number().positive().optional()
-}).transform(v => ({
-  size: v.size || v.name || '',
-  stock: v.stock,
-  price: v.price
-}))
+export const productVariantSchema = z
+  .object({
+    size: z.string().min(1).optional(),
+    name: z.string().min(1).optional(),
+    stock: z.number().int().min(0),
+    price: z.number().positive().optional(),
+  })
+  .transform((v) => ({
+    size: v.size || v.name || '',
+    stock: v.stock,
+    price: v.price,
+  }))
 
 export const createProductSchema = z.object({
   title: z.string().min(2).max(100),
@@ -33,14 +35,18 @@ export const createProductSchema = z.object({
   variants: z.array(productVariantSchema).optional(),
   // Multi-image + background music
   mediaItems: z.array(mediaItemSchema).optional(),
-  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
+  bgMusic: z
+    .object({ url: z.string().url(), public_id: z.string() })
+    .optional(),
   affiliateCommission: z.number().min(0).optional(),
   categoryIds: z.array(z.number().int()).optional(),
-  socialCaptions: z.object({
-    instagram: z.string().optional(),
-    facebook: z.string().optional(),
-    pinterest: z.string().optional()
-  }).optional()
+  socialCaptions: z
+    .object({
+      instagram: z.string().optional(),
+      facebook: z.string().optional(),
+      pinterest: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const updateProductSchema = z.object({
@@ -57,14 +63,18 @@ export const updateProductSchema = z.object({
   mediaId: z.string().uuid().optional(),
   variants: z.array(productVariantSchema).optional(),
   mediaItems: z.array(mediaItemSchema).optional(),
-  bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
+  bgMusic: z
+    .object({ url: z.string().url(), public_id: z.string() })
+    .optional(),
   affiliateCommission: z.number().min(0).nullable().optional(),
   categoryIds: z.array(z.number().int()).optional(),
-  socialCaptions: z.object({
-    instagram: z.string().optional(),
-    facebook: z.string().optional(),
-    pinterest: z.string().optional()
-  }).optional()
+  socialCaptions: z
+    .object({
+      instagram: z.string().optional(),
+      facebook: z.string().optional(),
+      pinterest: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const listProductsSchema = z.object({
@@ -74,7 +84,7 @@ export const listProductsSchema = z.object({
   search: z.string().optional(),
   sellerId: z.string().uuid().optional(),
   isThrift: z.coerce.boolean().optional(),
-  categorySlug: z.string().optional()
+  categorySlug: z.string().optional(),
 })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>

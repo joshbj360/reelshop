@@ -10,7 +10,9 @@ export const useShareModal = () => {
     shareState.title = title
     shareState.isOpen = true
   }
-  const closeShare = () => { shareState.isOpen = false }
+  const closeShare = () => {
+    shareState.isOpen = false
+  }
 
   return { shareState, openShare, closeShare }
 }

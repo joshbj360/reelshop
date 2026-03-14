@@ -6,13 +6,16 @@ export default defineEventHandler(async (event) => {
   try {
     await optionalAuth(event)
     const query = getQuery(event)
-    const q = (query.q as string || '').trim()
+    const q = ((query.q as string) || '').trim()
     const type = (query.type as string) || 'all'
     const limit = Math.min(Number(query.limit) || 10, 50)
     const offset = Number(query.offset) || 0
 
     if (!q || q.length < 2) {
-      return { success: true, data: { users: [], products: [], posts: [], stores: [] } }
+      return {
+        success: true,
+        data: { users: [], products: [], posts: [], stores: [] },
+      }
     }
 
     const searchFilter = { contains: q, mode: 'insensitive' as const }
@@ -25,11 +28,17 @@ export default defineEventHandler(async (event) => {
                 { username: searchFilter },
                 { bio: searchFilter },
                 { email: searchFilter },
-              ]
+              ],
             },
-            select: { id: true, username: true, avatar: true, bio: true, email: true },
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              bio: true,
+              email: true,
+            },
             take: limit,
-            skip: offset
+            skip: offset,
           })
         : [],
 
@@ -38,12 +47,18 @@ export default defineEventHandler(async (event) => {
             where: {
               OR: [
                 { store_name: searchFilter },
-                { store_description: searchFilter }
-              ]
+                { store_description: searchFilter },
+              ],
             },
-            select: { id: true, store_name: true, store_slug: true, store_description: true, store_logo: true },
+            select: {
+              id: true,
+              store_name: true,
+              store_slug: true,
+              store_description: true,
+              store_logo: true,
+            },
             take: limit,
-            skip: offset
+            skip: offset,
           })
         : [],
 
@@ -51,47 +66,48 @@ export default defineEventHandler(async (event) => {
         ? prisma.products.findMany({
             where: {
               status: 'PUBLISHED',
-              OR: [
-                { title: searchFilter },
-                { description: searchFilter }
-              ]
+              OR: [{ title: searchFilter }, { description: searchFilter }],
             },
             include: {
               seller: { select: { store_slug: true, store_name: true } },
-              media: { select: { id: true, url: true, type: true }, take: 1 }
+              media: { select: { id: true, url: true, type: true }, take: 1 },
             },
             take: limit,
-            skip: offset
+            skip: offset,
           })
         : [],
 
       type === 'all' || type === 'posts'
         ? prisma.post.findMany({
             where: {
-              OR: [
-                { caption: searchFilter },
-                { content: searchFilter }
-              ]
+              OR: [{ caption: searchFilter }, { content: searchFilter }],
             },
             include: {
               author: { select: { id: true, username: true, avatar: true } },
               media: { select: { id: true, url: true, type: true }, take: 1 },
-              _count: { select: { likes: true, comments: true } }
+              _count: { select: { likes: true, comments: true } },
             },
             orderBy: { created_at: 'desc' },
             take: limit,
-            skip: offset
+            skip: offset,
           })
-        : []
+        : [],
     ])
 
     return {
       success: true,
       // FIXED: Added stores to the return object!
-      data: { users, products, posts, stores }
+      data: { users, products, posts, stores },
     }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

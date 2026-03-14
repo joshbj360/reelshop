@@ -14,38 +14,40 @@ export default defineEventHandler(async (event) => {
     if (!sellerId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Seller ID is required'
+        statusMessage: 'Seller ID is required',
       })
     }
 
-
     // Deactivate seller profile
-    const seller = await sellerService.deactivateSellerProfile(sellerId, user.id)
+    const seller = await sellerService.deactivateSellerProfile(
+      sellerId,
+      user.id,
+    )
 
     return {
       success: true,
       message: 'Seller profile deactivated successfully',
-      data: seller
+      data: seller,
     }
   } catch (error) {
     if (error instanceof Error && error.message.includes('SellerError')) {
       const sellerError = error as any
       throw createError({
         statusCode: sellerError.statusCode || 400,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 403,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to deactivate seller profile'
+      statusMessage: 'Failed to deactivate seller profile',
     })
   }
 })

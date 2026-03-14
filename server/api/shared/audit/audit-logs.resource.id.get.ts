@@ -1,7 +1,6 @@
 // GET /api/user/audit-logs/resource/[id] - Get resource audit logs
-import { UserError } from "../../../layers/profile/types/user.types"
-import { auditService } from "../../../layers/shared/audit/audit.service"
-
+import { UserError } from '../../../layers/profile/types/user.types'
+import { auditService } from '../../../layers/shared/audit/audit.service'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const limit = Math.min(Math.max(Number(query.limit) || 50, 1), 100)
     const offset = Math.max(Number(query.offset) || 0, 0)
-    
+
     const result = await auditService.getResourceAuditLogs(id, limit, offset)
     return { success: true, data: result }
   } catch (error: any) {

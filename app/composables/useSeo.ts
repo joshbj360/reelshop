@@ -10,7 +10,7 @@ export const useSeo = () => {
 
   const defaults = () => {
     useHead({
-      titleTemplate: (t) => t ? `${t} | ${siteName}` : siteName,
+      titleTemplate: (t) => (t ? `${t} | ${siteName}` : siteName),
       htmlAttrs: { lang: 'en' },
       link: [{ rel: 'canonical', href: baseURL }],
     })
@@ -24,7 +24,8 @@ export const useSeo = () => {
   }
 
   const setHomePage = () => {
-    const desc = 'Discover fashion, thrift, and lifestyle products from African creators on Styli.'
+    const desc =
+      'Discover fashion, thrift, and lifestyle products from African creators on Styli.'
     useSeoMeta({
       title: siteName,
       description: desc,
@@ -38,7 +39,8 @@ export const useSeo = () => {
   }
 
   const setDiscoverPage = () => {
-    const desc = 'Browse thousands of products from verified African sellers and independent creators.'
+    const desc =
+      'Browse thousands of products from verified African sellers and independent creators.'
     useSeoMeta({
       title: 'Discover',
       description: desc,
@@ -49,7 +51,8 @@ export const useSeo = () => {
   }
 
   const setThriftPage = () => {
-    const desc = 'Find pre-loved fashion and thrift items at unbeatable prices on Styli.'
+    const desc =
+      'Find pre-loved fashion and thrift items at unbeatable prices on Styli.'
     useSeoMeta({
       title: 'Thrift Store',
       description: desc,
@@ -70,9 +73,15 @@ export const useSeo = () => {
     })
   }
 
-  const setSellerProfilePage = (seller: { store_name?: string | null; store_description?: string | null; store_logo?: string | null; store_slug: string }) => {
+  const setSellerProfilePage = (seller: {
+    store_name?: string | null
+    store_description?: string | null
+    store_logo?: string | null
+    store_slug: string
+  }) => {
     const name = seller.store_name || seller.store_slug
-    const desc = seller.store_description || `Shop products from ${name} on ${siteName}.`
+    const desc =
+      seller.store_description || `Shop products from ${name} on ${siteName}.`
     useSeoMeta({
       title: name,
       description: desc,
@@ -83,7 +92,11 @@ export const useSeo = () => {
     })
   }
 
-  const setProfilePage = (profile: { username?: string | null; bio?: string | null; avatar?: string | null }) => {
+  const setProfilePage = (profile: {
+    username?: string | null
+    bio?: string | null
+    avatar?: string | null
+  }) => {
     const name = profile.username || 'Profile'
     const desc = profile.bio || `Follow ${name} on ${siteName}.`
     useSeoMeta({
@@ -96,7 +109,11 @@ export const useSeo = () => {
     })
   }
 
-  const setProductPage = (product: { title?: string; description?: string; imageUrl?: string }) => {
+  const setProductPage = (product: {
+    title?: string
+    description?: string
+    imageUrl?: string
+  }) => {
     const desc = product.description || `Buy ${product.title} on ${siteName}.`
     useSeoMeta({
       title: product.title || 'Product',
@@ -124,5 +141,16 @@ export const useSeo = () => {
     })
   }
 
-  return { defaults, setHomePage, setDiscoverPage, setThriftPage, setCategoryPage, setSellerProfilePage, setProfilePage, setProductPage, setCheckoutPage, setOrdersPage }
+  return {
+    defaults,
+    setHomePage,
+    setDiscoverPage,
+    setThriftPage,
+    setCategoryPage,
+    setSellerProfilePage,
+    setProfilePage,
+    setProductPage,
+    setCheckoutPage,
+    setOrdersPage,
+  }
 }

@@ -5,13 +5,24 @@ export class CartApiClient extends BaseApiClient {
     return this.request('/api/commerce/cart', { method: 'GET' })
   }
   async addToCart(variantId: number, quantity = 1) {
-    return this.request('/api/commerce/cart', { method: 'POST', body: { variantId, quantity }, silent: true })
+    return this.request('/api/commerce/cart', {
+      method: 'POST',
+      body: { variantId, quantity },
+      silent: true,
+    })
   }
   async updateQuantity(variantId: number, quantity: number) {
-    return this.request(`/api/commerce/cart/${variantId}`, { method: 'PATCH', body: { quantity }, silent: true })
+    return this.request(`/api/commerce/cart/${variantId}`, {
+      method: 'PATCH',
+      body: { quantity },
+      silent: true,
+    })
   }
   async removeFromCart(variantId: number) {
-    return this.request(`/api/commerce/cart/${variantId}`, { method: 'DELETE', silent: true })
+    return this.request(`/api/commerce/cart/${variantId}`, {
+      method: 'DELETE',
+      silent: true,
+    })
   }
 }
 

@@ -1,7 +1,7 @@
 // DELETE /api/user/notifications/[id] - Delete notification
-import { requireAuth } from "../../../../layers/shared/middleware/requireAuth"
-import { notificationService } from "../../../../layers/profile/services/notification.service"
-import { UserError } from "../../../../layers/profile/types/user.types"
+import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
+import { notificationService } from '../../../../layers/profile/services/notification.service'
+import { UserError } from '../../../../layers/profile/types/user.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -17,11 +17,17 @@ export default defineEventHandler(async (event) => {
       throw new UserError('INVALID_ID', 'ID must be a valid number', 400)
     }
 
-    const result = await notificationService.deleteNotification(notificationId, user.userId)
+    const result = await notificationService.deleteNotification(
+      notificationId,
+      user.userId,
+    )
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) {
-      throw createError({ statusCode: error.status, statusMessage: error.message })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
     }
     throw createError({ statusCode: 500, statusMessage: 'Server error' })
   }

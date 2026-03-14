@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const validatedData = checkSlugAvailabilitySchema.parse(body)
 
-
     // Check slug availability
     const result = await sellerService.checkSlugAvailability(validatedData.slug)
 
@@ -19,20 +18,20 @@ export default defineEventHandler(async (event) => {
       success: true,
       available: result.available,
       slug: validatedData.slug,
-      message: result.available ? 'Slug is available' : 'Slug is already taken'
+      message: result.available ? 'Slug is available' : 'Slug is already taken',
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to check slug availability'
+      statusMessage: 'Failed to check slug availability',
     })
   }
 })

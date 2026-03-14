@@ -9,7 +9,6 @@
 import { BaseApiClient } from './base.api'
 
 export class AuthApiClient extends BaseApiClient {
-
   // ==================== REGISTER ====================
 
   async register(data: {
@@ -26,10 +25,7 @@ export class AuthApiClient extends BaseApiClient {
 
   // ==================== LOGIN ====================
 
-  async login(data: {
-    email: string
-    password: string
-  }): Promise<any> {
+  async login(data: { email: string; password: string }): Promise<any> {
     return this.request('/api/auth/login', {
       method: 'POST',
       body: data,

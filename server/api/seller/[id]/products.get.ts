@@ -15,10 +15,21 @@ export default defineEventHandler(async (event) => {
     const isOwner = currentUser?.sellerProfile?.store_slug === storeSlug
     const status = isOwner ? (query.status as string | undefined) : 'PUBLISHED'
 
-    const result = await productService.getSellerProducts(storeSlug, { limit, offset }, status)
+    const result = await productService.getSellerProducts(
+      storeSlug,
+      { limit, offset },
+      status,
+    )
     return { success: true, data: result }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

@@ -1,10 +1,17 @@
 import { productRepository } from '../repositories/product.repository'
 import { auditService } from '../../shared/audit/audit.service'
-import { createProductSchema, updateProductSchema, listProductsSchema } from '../schemas/product.schema'
+import {
+  createProductSchema,
+  updateProductSchema,
+  listProductsSchema,
+} from '../schemas/product.schema'
 import { UserError } from '../../profile/types/user.types'
 
 async function generateUniqueSlug(title: string): Promise<string> {
-  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
   const existing = await productRepository.getProductBySlug(base)
   if (!existing) return base
   let counter = 1
@@ -17,10 +24,22 @@ async function generateUniqueSlug(title: string): Promise<string> {
 }
 
 export const productService = {
-  async createProduct(sellerId: string, storeSlug: string, data: any, ipAddress: string, userAgent: string, authorId?: string) {
+  async createProduct(
+    sellerId: string,
+    storeSlug: string,
+    data: any,
+    ipAddress: string,
+    userAgent: string,
+    authorId?: string,
+  ) {
     const validated = createProductSchema.parse(data)
     const slug = await generateUniqueSlug(validated.title)
-    const product = await productRepository.createProduct(sellerId, storeSlug, { ...validated, slug }, authorId)
+    const product = await productRepository.createProduct(
+      sellerId,
+      storeSlug,
+      { ...validated, slug },
+      authorId,
+    )
 
     if (authorId) {
       await auditService.logUserAction({
@@ -31,7 +50,7 @@ export const productService = {
         reason: 'Created new product',
         changes: { title: validated.title, status: validated.status },
         ipAddress,
-        userAgent
+        userAgent,
       })
     }
 
@@ -39,19 +58,29 @@ export const productService = {
   },
 
   async getProducts(filters: any, pagination: any) {
-    const { limit, offset, status, search, sellerId, isThrift, categorySlug } = listProductsSchema.parse({
-      limit: pagination?.limit,
-      offset: pagination?.offset,
-      status: filters?.status,
-      search: filters?.search,
-      sellerId: filters?.sellerId,
-      isThrift: filters?.isThrift,
-      categorySlug: filters?.categorySlug
-    })
+    const { limit, offset, status, search, sellerId, isThrift, categorySlug } =
+      listProductsSchema.parse({
+        limit: pagination?.limit,
+        offset: pagination?.offset,
+        status: filters?.status,
+        search: filters?.search,
+        sellerId: filters?.sellerId,
+        isThrift: filters?.isThrift,
+        categorySlug: filters?.categorySlug,
+      })
 
     const [products, total] = await Promise.all([
-      productRepository.getProducts({ status, search, sellerId, isThrift, categorySlug }, { limit, offset }),
-      productRepository.countProducts({ status, search, sellerId, isThrift, categorySlug })
+      productRepository.getProducts(
+        { status, search, sellerId, isThrift, categorySlug },
+        { limit, offset },
+      ),
+      productRepository.countProducts({
+        status,
+        search,
+        sellerId,
+        isThrift,
+        categorySlug,
+      }),
     ])
 
     return { products, total, limit, offset }
@@ -59,42 +88,75 @@ export const productService = {
 
   async getProductById(id: number) {
     const product = await productRepository.getProductById(id)
-    if (!product) throw new UserError('PRODUCT_NOT_FOUND', 'Product not found', 404)
+    if (!product)
+      throw new UserError('PRODUCT_NOT_FOUND', 'Product not found', 404)
     return product
   },
 
-  async getSellerProducts(storeSlug: string, pagination: { limit: number; offset: number }, status?: string) {
+  async getSellerProducts(
+    storeSlug: string,
+    pagination: { limit: number; offset: number },
+    status?: string,
+  ) {
     const [products, total] = await Promise.all([
       productRepository.getProductsBySellerSlug(storeSlug, pagination, status),
-      productRepository.countProducts({ storeSlug, status })
+      productRepository.countProducts({ storeSlug, status }),
     ])
-    return { products, total, limit: pagination.limit, offset: pagination.offset }
+    return {
+      products,
+      total,
+      limit: pagination.limit,
+      offset: pagination.offset,
+    }
   },
 
-  async updateProduct(id: number, sellerId: string, data: any, ipAddress: string, userAgent: string, authorId?: string) {
+  async updateProduct(
+    id: number,
+    sellerId: string,
+    data: any,
+    ipAddress: string,
+    userAgent: string,
+    authorId?: string,
+  ) {
     const isOwner = await productRepository.checkOwnership(id, sellerId)
-    if (!isOwner) throw new UserError('FORBIDDEN', 'You can only edit your own products', 403)
+    if (!isOwner)
+      throw new UserError(
+        'FORBIDDEN',
+        'You can only edit your own products',
+        403,
+      )
 
     const validated = updateProductSchema.parse(data)
     const updated = await productRepository.updateProduct(id, validated)
 
-    if (authorId) await auditService.logUserAction({
-      userId: authorId,
-      action: 'PRODUCT_UPDATED',
-      resource: 'Products',
-      resourceId: String(id),
-      reason: 'Updated product',
-      changes: validated,
-      ipAddress,
-      userAgent
-    })
+    if (authorId)
+      await auditService.logUserAction({
+        userId: authorId,
+        action: 'PRODUCT_UPDATED',
+        resource: 'Products',
+        resourceId: String(id),
+        reason: 'Updated product',
+        changes: validated,
+        ipAddress,
+        userAgent,
+      })
 
     return updated
   },
 
-  async archiveProduct(id: number, sellerId: string, ipAddress: string, userAgent: string) {
+  async archiveProduct(
+    id: number,
+    sellerId: string,
+    ipAddress: string,
+    userAgent: string,
+  ) {
     const isOwner = await productRepository.checkOwnership(id, sellerId)
-    if (!isOwner) throw new UserError('FORBIDDEN', 'You can only archive your own products', 403)
+    if (!isOwner)
+      throw new UserError(
+        'FORBIDDEN',
+        'You can only archive your own products',
+        403,
+      )
 
     const product = await productRepository.archiveProduct(id)
 
@@ -105,9 +167,9 @@ export const productService = {
       resourceId: String(id),
       reason: 'Archived product',
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return product
-  }
+  },
 }

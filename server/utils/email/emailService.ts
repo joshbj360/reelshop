@@ -37,7 +37,9 @@ export interface EmailOptions {
 /**
  * Send email via Resend
  */
-export async function sendEmail(options: EmailOptions): Promise<{ id: string }> {
+export async function sendEmail(
+  options: EmailOptions,
+): Promise<{ id: string }> {
   const resend = getResendClient()
   const config = useRuntimeConfig()
   const senderEmail = config.public.senderEmail as string
@@ -69,7 +71,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ id: string }> 
 export async function sendVerificationEmail(
   email: string,
   token: string,
-  appUrl: string = 'http://localhost:3000'
+  appUrl: string = 'http://localhost:3000',
 ): Promise<{ id: string }> {
   const verificationLink = `${appUrl}/verify-email?token=${token}`
 
@@ -131,7 +133,7 @@ export async function sendVerificationEmail(
 export async function sendPasswordResetEmail(
   email: string,
   token: string,
-  appUrl: string = 'http://localhost:3000'
+  appUrl: string = 'http://localhost:3000',
 ): Promise<{ id: string }> {
   const resetLink = `${appUrl}/reset-password?token=${token}`
 
@@ -193,7 +195,7 @@ export async function sendPasswordResetEmail(
  */
 export async function sendWelcomeEmail(
   email: string,
-  userName: string = 'User'
+  userName: string = 'User',
 ): Promise<{ id: string }> {
   const html = `
     <!DOCTYPE html>

@@ -3,8 +3,10 @@
 import { hash, verify } from 'argon2'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-change-in-production'
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+const JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-change-in-production'
 
 // ==================== PASSWORD HASHING ====================
 
@@ -13,11 +15,14 @@ export async function hashPassword(password: string): Promise<string> {
     type: 2, // argon2id
     memoryCost: 19456,
     timeCost: 2,
-    parallelism: 1
+    parallelism: 1,
   })
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
   try {
     return await verify(hash, password)
   } catch {
@@ -35,17 +40,21 @@ export interface TokenPayload {
   exp?: number
 }
 
-export function generateTokens(userId: string, email?: string, role: string = 'user') {
+export function generateTokens(
+  userId: string,
+  email?: string,
+  role: string = 'user',
+) {
   const accessToken = jwt.sign(
     { userId, email, role },
     JWT_SECRET,
-    { expiresIn: '15m' } // 15 minutes
+    { expiresIn: '15m' }, // 15 minutes
   )
 
   const refreshToken = jwt.sign(
     { userId },
     JWT_REFRESH_SECRET,
-    { expiresIn: '7d' } // 7 days
+    { expiresIn: '7d' }, // 7 days
   )
 
   return { accessToken, refreshToken }

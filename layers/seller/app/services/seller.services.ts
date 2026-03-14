@@ -1,7 +1,6 @@
 // FILE PATH: layers/seller/app/services/seller.api.ts
 
-import { BaseApiClient } from "~~/layers/base/app/services/base.api"
-
+import { BaseApiClient } from '~~/layers/base/app/services/base.api'
 
 /**
  * Seller API Client
@@ -10,7 +9,6 @@ import { BaseApiClient } from "~~/layers/base/app/services/base.api"
  */
 
 export class SellerApiClient extends BaseApiClient {
-  
   // ==================== CREATE SELLER ====================
 
   /**
@@ -72,7 +70,7 @@ export class SellerApiClient extends BaseApiClient {
       store_banner?: string
       store_socials?: Record<string, any>
       auto_answer_enabled?: boolean
-    }
+    },
   ): Promise<any> {
     return this.request(`/api/seller/${sellerId}`, {
       method: 'PATCH',
@@ -124,8 +122,13 @@ export class SellerApiClient extends BaseApiClient {
     })
   }
 
-  async getFollowStatus(storeSlug: string): Promise<{ success: boolean; data: { isFollowing: boolean } }> {
-    return this.request(`/api/seller/${storeSlug}/follow-status`, { method: 'GET', silent: true }) as Promise<{ success: boolean; data: { isFollowing: boolean } }>
+  async getFollowStatus(
+    storeSlug: string,
+  ): Promise<{ success: boolean; data: { isFollowing: boolean } }> {
+    return this.request(`/api/seller/${storeSlug}/follow-status`, {
+      method: 'GET',
+      silent: true,
+    }) as Promise<{ success: boolean; data: { isFollowing: boolean } }>
   }
 
   async followSeller(storeSlug: string): Promise<any> {
@@ -133,7 +136,9 @@ export class SellerApiClient extends BaseApiClient {
   }
 
   async unfollowSeller(storeSlug: string): Promise<any> {
-    return this.request(`/api/seller/${storeSlug}/unfollow`, { method: 'DELETE' })
+    return this.request(`/api/seller/${storeSlug}/unfollow`, {
+      method: 'DELETE',
+    })
   }
 }
 

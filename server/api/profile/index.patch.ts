@@ -9,7 +9,6 @@ import { UserError } from '../../layers/profile/types/user.types'
 import { requireAuth } from '../../layers/shared/middleware/requireAuth'
 import { getClientIP } from '../../layers/shared/utils/security'
 
-
 export default defineEventHandler(async (event) => {
   try {
     // Verify authentication
@@ -29,19 +28,19 @@ export default defineEventHandler(async (event) => {
       user.id,
       validatedData,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     return {
       success: true,
-      data: updated
+      data: updated,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Validation Error' + error , // TODO: remove in production
-        data: error.errors
+        statusMessage: 'Validation Error' + error, // TODO: remove in production
+        data: error.errors,
       })
     }
 
@@ -49,20 +48,20 @@ export default defineEventHandler(async (event) => {
       const userError = error as any
       throw createError({
         statusCode: userError.statusCode || 400,
-        statusMessage: error.message + error , // TODO: remove in production
+        statusMessage: error.message + error, // TODO: remove in production
       })
     }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message + error , // TODO: remove in production
+        statusMessage: error.message + error, // TODO: remove in production
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error' + error , // TODO: remove in production  
+      statusMessage: 'Internal server error' + error, // TODO: remove in production
     })
   }
 })

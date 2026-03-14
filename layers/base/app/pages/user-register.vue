@@ -1,16 +1,19 @@
 <!-- layers/auth/pages/user-register.vue -->
 <template>
-  <AuthLayout 
-    title="Create your account" 
-    subtitle="Join Styli today"
-  >
+  <AuthLayout title="Create your account" subtitle="Join Styli today">
     <!-- Error Message -->
-    <div v-if="error" class="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+    <div
+      v-if="error"
+      class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+    >
       <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
     </div>
 
     <!-- Success Message -->
-    <div v-if="message" class="mb-4 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+    <div
+      v-if="message"
+      class="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+    >
       <p class="text-sm text-green-600 dark:text-green-400">{{ message }}</p>
     </div>
 
@@ -24,13 +27,16 @@
           placeholder="Username"
           :disabled="isLoading"
           :class="[
-            'w-full px-4 py-3 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-brand/40 focus:border-transparent transition-all text-sm',
-            errors.username 
-              ? 'border-red-300 dark:border-red-700' 
-              : 'border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-white'
+            'w-full rounded-xl border bg-transparent px-4 py-3 text-sm placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-brand/40',
+            errors.username
+              ? 'border-red-300 dark:border-red-700'
+              : 'border-gray-200 text-gray-900 dark:border-neutral-700 dark:text-white',
           ]"
         />
-        <p v-if="errors.username" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
+        <p
+          v-if="errors.username"
+          class="mt-1.5 text-sm text-red-600 dark:text-red-400"
+        >
           {{ errors.username }}
         </p>
       </div>
@@ -43,13 +49,16 @@
           placeholder="Email address"
           :disabled="isLoading"
           :class="[
-            'w-full px-4 py-3 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-brand/40 focus:border-transparent transition-all text-sm',
-            errors.email 
-              ? 'border-red-300 dark:border-red-700' 
-              : 'border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-white'
+            'w-full rounded-xl border bg-transparent px-4 py-3 text-sm placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-brand/40',
+            errors.email
+              ? 'border-red-300 dark:border-red-700'
+              : 'border-gray-200 text-gray-900 dark:border-neutral-700 dark:text-white',
           ]"
         />
-        <p v-if="errors.email" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
+        <p
+          v-if="errors.email"
+          class="mt-1.5 text-sm text-red-600 dark:text-red-400"
+        >
           {{ errors.email }}
         </p>
       </div>
@@ -63,22 +72,28 @@
             placeholder="Password (min 12 characters)"
             :disabled="isLoading"
             :class="[
-              'w-full px-4 py-3 pr-12 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-brand/40 focus:border-transparent transition-all text-sm',
-              errors.password 
-                ? 'border-red-300 dark:border-red-700' 
-                : 'border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-white'
+              'w-full rounded-xl border bg-transparent px-4 py-3 pr-12 text-sm placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-brand/40',
+              errors.password
+                ? 'border-red-300 dark:border-red-700'
+                : 'border-gray-200 text-gray-900 dark:border-neutral-700 dark:text-white',
             ]"
           />
           <button
             type="button"
             :disabled="isLoading"
-            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300"
             @click="showPassword = !showPassword"
           >
-            <Icon :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'" class="w-5 h-5" />
+            <Icon
+              :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
+              class="h-5 w-5"
+            />
           </button>
         </div>
-        <p v-if="errors.password" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
+        <p
+          v-if="errors.password"
+          class="mt-1.5 text-sm text-red-600 dark:text-red-400"
+        >
           {{ errors.password }}
         </p>
       </div>
@@ -92,22 +107,28 @@
             placeholder="Confirm password"
             :disabled="isLoading"
             :class="[
-              'w-full px-4 py-3 pr-12 rounded-xl border bg-transparent placeholder-gray-400 focus:ring-2 focus:ring-brand/40 focus:border-transparent transition-all text-sm',
-              errors.confirmPassword 
-                ? 'border-red-300 dark:border-red-700' 
-                : 'border-gray-200 dark:border-neutral-700 text-gray-900 dark:text-white'
+              'w-full rounded-xl border bg-transparent px-4 py-3 pr-12 text-sm placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-brand/40',
+              errors.confirmPassword
+                ? 'border-red-300 dark:border-red-700'
+                : 'border-gray-200 text-gray-900 dark:border-neutral-700 dark:text-white',
             ]"
           />
           <button
             type="button"
             :disabled="isLoading"
-            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300"
             @click="showConfirmPassword = !showConfirmPassword"
           >
-            <Icon :name="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'" class="w-5 h-5" />
+            <Icon
+              :name="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'"
+              class="h-5 w-5"
+            />
           </button>
         </div>
-        <p v-if="errors.confirmPassword" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
+        <p
+          v-if="errors.confirmPassword"
+          class="mt-1.5 text-sm text-red-600 dark:text-red-400"
+        >
           {{ errors.confirmPassword }}
         </p>
       </div>
@@ -125,11 +146,17 @@
         />
         <label for="terms" class="text-xs text-gray-600 dark:text-gray-400">
           I agree to the
-          <a href="#" class="text-brand hover:text-[#d81b36] transition-colors font-medium">
+          <a
+            href="#"
+            class="font-medium text-brand transition-colors hover:text-[#d81b36]"
+          >
             Terms of Service
           </a>
           and
-          <a href="#" class="text-brand hover:text-[#d81b36] transition-colors font-medium">
+          <a
+            href="#"
+            class="font-medium text-brand transition-colors hover:text-[#d81b36]"
+          >
             Privacy Policy
           </a>
         </label>
@@ -139,10 +166,12 @@
       <button
         type="submit"
         :disabled="isLoading || !agreedToTerms"
-        class="w-full py-3 rounded-xl bg-brand hover:bg-[#d81b36] text-white font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        class="w-full rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#d81b36] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
       >
         <span v-if="isLoading" class="flex items-center justify-center gap-2">
-          <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <span
+            class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+          />
           Creating account...
         </span>
         <span v-else>Create Account</span>
@@ -150,7 +179,7 @@
     </form>
 
     <!-- Divider -->
-    <div class="flex items-center my-6">
+    <div class="my-6 flex items-center">
       <div class="flex-grow border-t border-gray-200 dark:border-neutral-700" />
       <span class="px-4 text-sm text-gray-400">or</span>
       <div class="flex-grow border-t border-gray-200 dark:border-neutral-700" />
@@ -161,31 +190,36 @@
       <button
         type="button"
         :disabled="isLoading"
-        class="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-neutral-700 rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all disabled:opacity-50 text-sm"
+        class="flex items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm transition-all hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
         @click="showComingSoon('Google')"
       >
-        <Icon name="mdi:google" class="w-4 h-4 text-gray-600 dark:text-gray-300" />
+        <Icon
+          name="mdi:google"
+          class="h-4 w-4 text-gray-600 dark:text-gray-300"
+        />
         <span class="font-medium text-gray-700 dark:text-gray-300">Google</span>
       </button>
 
       <button
         type="button"
         :disabled="isLoading"
-        class="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-neutral-700 rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all disabled:opacity-50 text-sm"
+        class="flex items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm transition-all hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
         @click="showComingSoon('Facebook')"
       >
-        <Icon name="mdi:facebook" class="w-4 h-4 text-[#1877F2]" />
-        <span class="font-medium text-gray-700 dark:text-gray-300">Facebook</span>
+        <Icon name="mdi:facebook" class="h-4 w-4 text-[#1877F2]" />
+        <span class="font-medium text-gray-700 dark:text-gray-300"
+          >Facebook</span
+        >
       </button>
     </div>
 
     <!-- Footer Slot -->
     <template #footer>
-      <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+      <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         Already have an account?
         <NuxtLink
           to="/user-login"
-          class="text-brand font-semibold hover:text-[#d81b36] transition-colors ml-1"
+          class="ml-1 font-semibold text-brand transition-colors hover:text-[#d81b36]"
         >
           Sign In
         </NuxtLink>
@@ -202,11 +236,16 @@ import PasswordStrengthMeter from '../components/PasswordStrengthMeter.vue'
 
 definePageMeta({
   layout: false,
- middleware: 'guest' // Redirect to dashboard if already logged in
+  middleware: 'guest', // Redirect to dashboard if already logged in
 })
 
 const router = useRouter()
-const { register: authRegister, isLoading: authLoading, error: authError, message: authMessage } = useAuth()
+const {
+  register: authRegister,
+  isLoading: authLoading,
+  error: authError,
+  message: authMessage,
+} = useAuth()
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -303,7 +342,7 @@ const handleSubmit = async () => {
       form.email,
       form.username,
       form.password,
-      form.confirmPassword
+      form.confirmPassword,
     )
     // authRegister handles navigation on success
   } catch (err: any) {

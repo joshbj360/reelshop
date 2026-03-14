@@ -17,7 +17,11 @@ export const useAffiliate = () => {
     store.setError(null)
     try {
       const result: any = await api.getAffiliateStatus()
-      store.setStatus(result.data?.isEnrolled, result.data?.affiliateCode, result.data?.stats || {})
+      store.setStatus(
+        result.data?.isEnrolled,
+        result.data?.affiliateCode,
+        result.data?.stats || {},
+      )
       return result.data
     } catch (e: any) {
       store.setError(e.message || 'Failed to fetch affiliate status')
@@ -57,5 +61,15 @@ export const useAffiliate = () => {
     }
   }
 
-  return { isLoading, error, isEnrolled, affiliateCode, stats, referrals, fetchAffiliateStatus, enroll, fetchReferrals }
+  return {
+    isLoading,
+    error,
+    isEnrolled,
+    affiliateCode,
+    stats,
+    referrals,
+    fetchAffiliateStatus,
+    enroll,
+    fetchReferrals,
+  }
 }

@@ -7,7 +7,9 @@ export function getClientIP(event: H3Event): string {
   // Check X-Forwarded-For header (for proxies)
   const forwarded = event.node.req.headers['x-forwarded-for']
   if (forwarded) {
-    return Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0].trim()
+    return Array.isArray(forwarded)
+      ? forwarded[0]
+      : forwarded.split(',')[0].trim()
   }
 
   // Check X-Real-IP header
@@ -37,6 +39,6 @@ export function parseUserAgent(userAgentString: string): ParsedUserAgent {
     browser: result.browser.name || 'Unknown',
     os: result.os.name || 'Unknown',
     device: result.device.type || 'desktop', // default to desktop if undefined
-    raw: userAgentString
+    raw: userAgentString,
   }
 }

@@ -6,26 +6,31 @@ const productInclude = {
       store_slug: true,
       store_logo: true,
       store_name: true,
-      default_currency: true
-    }
+      default_currency: true,
+    },
   },
   media: {
     select: { id: true, url: true, type: true, isBgMusic: true },
-    orderBy: { created_at: 'asc' as const }
+    orderBy: { created_at: 'asc' as const },
   },
   variants: true,
   _count: {
-    select: { likes: true, comments: true, shares: true }
+    select: { likes: true, comments: true, shares: true },
   },
   category: {
     include: {
-      category: { select: { id: true, name: true, slug: true } }
-    }
-  }
+      category: { select: { id: true, name: true, slug: true } },
+    },
+  },
 }
 
 export const productRepository = {
-  async createProduct(sellerId: string, storeSlug: string, data: any, authorId?: string) {
+  async createProduct(
+    sellerId: string,
+    storeSlug: string,
+    data: any,
+    authorId?: string,
+  ) {
     const productData: any = {
       title: data.title,
       slug: data.slug,
@@ -36,18 +41,22 @@ export const productRepository = {
       store_slug: storeSlug,
       isFeatured: data.isFeatured ?? false,
       isAccessory: data.isAccessory ?? false,
-      isThrift: data.isThrift ?? false
+      isThrift: data.isThrift ?? false,
     }
 
     if (data.discount !== undefined) productData.discount = data.discount
     if (data.SKU) productData.SKU = data.SKU
     if (data.bannerImageUrl) productData.bannerImageUrl = data.bannerImageUrl
-    if (data.affiliateCommission !== undefined) productData.affiliateCommission = data.affiliateCommission
-    if (data.socialCaptions !== undefined) productData.socialCaptions = data.socialCaptions
+    if (data.affiliateCommission !== undefined)
+      productData.affiliateCommission = data.affiliateCommission
+    if (data.socialCaptions !== undefined)
+      productData.socialCaptions = data.socialCaptions
 
     if (data.categoryIds?.length) {
       productData.category = {
-        create: data.categoryIds.map((catId: number) => ({ categoryId: catId }))
+        create: data.categoryIds.map((catId: number) => ({
+          categoryId: catId,
+        })),
       }
     }
 
@@ -60,8 +69,8 @@ export const productRepository = {
         create: data.variants.map((v: any) => ({
           size: v.size,
           stock: v.stock,
-          price: v.price
-        }))
+          price: v.price,
+        })),
       }
     }
 
@@ -69,11 +78,23 @@ export const productRepository = {
     const mediaToCreate: any[] = []
     if (authorId && data.mediaItems?.length) {
       for (const m of data.mediaItems) {
-        mediaToCreate.push({ url: m.url, public_id: m.public_id, type: m.type || 'IMAGE', isBgMusic: false, authorId })
+        mediaToCreate.push({
+          url: m.url,
+          public_id: m.public_id,
+          type: m.type || 'IMAGE',
+          isBgMusic: false,
+          authorId,
+        })
       }
     }
     if (authorId && data.bgMusic?.url) {
-      mediaToCreate.push({ url: data.bgMusic.url, public_id: data.bgMusic.public_id || '', type: 'AUDIO', isBgMusic: true, authorId })
+      mediaToCreate.push({
+        url: data.bgMusic.url,
+        public_id: data.bgMusic.public_id || '',
+        type: 'AUDIO',
+        isBgMusic: true,
+        authorId,
+      })
     }
     if (mediaToCreate.length) {
       productData.media = { create: mediaToCreate }
@@ -84,12 +105,22 @@ export const productRepository = {
       productData.bannerImageUrl = data.mediaItems[0].url
     }
 
-    return prisma.products.create({ data: productData, include: productInclude })
+    return prisma.products.create({
+      data: productData,
+      include: productInclude,
+    })
   },
 
   async getProducts(
-    filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean; categorySlug?: string },
-    pagination: { limit: number; offset: number }
+    filters: {
+      status?: string
+      sellerId?: string
+      search?: string
+      storeSlug?: string
+      isThrift?: boolean
+      categorySlug?: string
+    },
+    pagination: { limit: number; offset: number },
   ) {
     const where: any = {}
     if (filters.status) where.status = filters.status
@@ -102,7 +133,7 @@ export const productRepository = {
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } }
+        { description: { contains: filters.search, mode: 'insensitive' } },
       ]
     }
     return prisma.products.findMany({
@@ -110,22 +141,28 @@ export const productRepository = {
       include: productInclude,
       take: pagination.limit,
       skip: pagination.offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
   async getProductById(id: number) {
-    return prisma.products.findUnique({ where: { id }, include: productInclude })
+    return prisma.products.findUnique({
+      where: { id },
+      include: productInclude,
+    })
   },
 
   async getProductBySlug(slug: string) {
-    return prisma.products.findUnique({ where: { slug }, select: { id: true, slug: true } })
+    return prisma.products.findUnique({
+      where: { slug },
+      select: { id: true, slug: true },
+    })
   },
 
   async getProductsBySellerSlug(
     storeSlug: string,
     pagination: { limit: number; offset: number },
-    status?: string
+    status?: string,
   ) {
     const where: any = { store_slug: storeSlug }
     if (status) where.status = status
@@ -134,41 +171,63 @@ export const productRepository = {
       include: productInclude,
       take: pagination.limit,
       skip: pagination.offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
   async updateProduct(id: number, data: any) {
     const updateData: any = {}
     if (data.title !== undefined) updateData.title = data.title
-    if (data.description !== undefined) updateData.description = data.description
+    if (data.description !== undefined)
+      updateData.description = data.description
     if (data.price !== undefined) updateData.price = data.price
     if (data.discount !== undefined) updateData.discount = data.discount
     if (data.status !== undefined) updateData.status = data.status
     if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured
-    if (data.isAccessory !== undefined) updateData.isAccessory = data.isAccessory
+    if (data.isAccessory !== undefined)
+      updateData.isAccessory = data.isAccessory
     if (data.isThrift !== undefined) updateData.isThrift = data.isThrift
     if (data.SKU !== undefined) updateData.SKU = data.SKU
-    if (data.bannerImageUrl !== undefined) updateData.bannerImageUrl = data.bannerImageUrl
-    if (data.affiliateCommission !== undefined) updateData.affiliateCommission = data.affiliateCommission
-    if (data.socialCaptions !== undefined) updateData.socialCaptions = data.socialCaptions
+    if (data.bannerImageUrl !== undefined)
+      updateData.bannerImageUrl = data.bannerImageUrl
+    if (data.affiliateCommission !== undefined)
+      updateData.affiliateCommission = data.affiliateCommission
+    if (data.socialCaptions !== undefined)
+      updateData.socialCaptions = data.socialCaptions
     if (data.categoryIds !== undefined) {
       updateData.category = {
         deleteMany: {},
-        create: data.categoryIds.map((catId: number) => ({ categoryId: catId }))
+        create: data.categoryIds.map((catId: number) => ({
+          categoryId: catId,
+        })),
       }
     }
     if (data.mediaId) {
       updateData.media = { connect: [{ id: data.mediaId }] }
     }
-    return prisma.products.update({ where: { id }, data: updateData, include: productInclude })
+    return prisma.products.update({
+      where: { id },
+      data: updateData,
+      include: productInclude,
+    })
   },
 
   async archiveProduct(id: number) {
-    return prisma.products.update({ where: { id }, data: { status: 'ARCHIVED' }, include: productInclude })
+    return prisma.products.update({
+      where: { id },
+      data: { status: 'ARCHIVED' },
+      include: productInclude,
+    })
   },
 
-  async countProducts(filters: { status?: string; sellerId?: string; search?: string; storeSlug?: string; isThrift?: boolean; categorySlug?: string }) {
+  async countProducts(filters: {
+    status?: string
+    sellerId?: string
+    search?: string
+    storeSlug?: string
+    isThrift?: boolean
+    categorySlug?: string
+  }) {
     const where: any = {}
     if (filters.status) where.status = filters.status
     if (filters.sellerId) where.sellerId = filters.sellerId
@@ -180,14 +239,17 @@ export const productRepository = {
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } }
+        { description: { contains: filters.search, mode: 'insensitive' } },
       ]
     }
     return prisma.products.count({ where })
   },
 
   async checkOwnership(id: number, sellerId: string): Promise<boolean> {
-    const product = await prisma.products.findFirst({ where: { id, sellerId }, select: { id: true } })
+    const product = await prisma.products.findFirst({
+      where: { id, sellerId },
+      select: { id: true },
+    })
     return !!product
-  }
+  },
 }

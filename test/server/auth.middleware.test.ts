@@ -1,6 +1,10 @@
 // server/middleware/__tests__/auth.middleware.test.ts
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { requireAuth, optionalAuth, getCurrentUser } from '../../server/utils/auth/auth'
+import {
+  requireAuth,
+  optionalAuth,
+  getCurrentUser,
+} from '../../server/utils/auth/auth'
 import type { H3Event } from 'h3'
 
 describe('Auth Middleware', () => {
@@ -10,10 +14,10 @@ describe('Auth Middleware', () => {
     mockEvent = {
       node: {
         req: {
-          headers: {}
-        }
+          headers: {},
+        },
       },
-      context: {}
+      context: {},
     } as any
   })
 
@@ -76,12 +80,12 @@ describe('Auth Middleware', () => {
     it('should return user if in context', () => {
       mockEvent.context.user = {
         id: 'user-123',
-        email: 'test@example.com'
+        email: 'test@example.com',
       }
       const user = getCurrentUser(mockEvent)
       expect(user).toEqual({
         id: 'user-123',
-        email: 'test@example.com'
+        email: 'test@example.com',
       })
     })
   })

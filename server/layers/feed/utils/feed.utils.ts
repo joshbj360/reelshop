@@ -1,6 +1,5 @@
-import type { IPost, IProduct } from "~~/layers/post/app/types/post.types"
-import type { IFeedItem } from "../../../../layers/feed/app/types/feed.types"
-
+import type { IPost, IProduct } from '~~/layers/post/app/types/post.types'
+import type { IFeedItem } from '../../../../layers/feed/app/types/feed.types'
 
 /**
  * Normalize a post into feed item format
@@ -20,14 +19,16 @@ export const normalizePost = (post: IPost): IFeedItem => {
       id: post.authorId,
       username: post.author?.username || 'Unknown',
       avatar: post.author?.avatar,
-      role: 'user'
+      role: 'user',
     },
     // Primary media (first content item, for legacy consumers)
-    media: primaryMedia ? {
-      id: primaryMedia.id,
-      url: primaryMedia.url,
-      type: primaryMedia.type as 'IMAGE' | 'VIDEO' | 'AUDIO',
-    } : undefined,
+    media: primaryMedia
+      ? {
+          id: primaryMedia.id,
+          url: primaryMedia.url,
+          type: primaryMedia.type as 'IMAGE' | 'VIDEO' | 'AUDIO',
+        }
+      : undefined,
     // All content media items
     mediaItems: contentMedia.map((m) => ({
       id: m.id,
@@ -35,7 +36,13 @@ export const normalizePost = (post: IPost): IFeedItem => {
       type: m.type as 'IMAGE' | 'VIDEO' | 'AUDIO',
     })),
     // Background music (altText stores the display filename)
-    bgMusic: bgMusicItem ? { id: bgMusicItem.id, url: bgMusicItem.url, name: bgMusicItem.altText ?? undefined } : undefined,
+    bgMusic: bgMusicItem
+      ? {
+          id: bgMusicItem.id,
+          url: bgMusicItem.url,
+          name: bgMusicItem.altText ?? undefined,
+        }
+      : undefined,
     caption: post.caption || '',
     content: post.content || null,
     contentType: post.contentType || 'COMMERCE',
@@ -51,22 +58,25 @@ export const normalizePost = (post: IPost): IFeedItem => {
  */
 export const normalizeProduct = (product: IProduct): IFeedItem => {
   const primaryMedia = product.media?.[0]
-  
+
   return {
     id: `product-${product.id}`,
     type: 'PRODUCT',
     created_at: product.created_at,
     author: {
       id: product.sellerId,
-      username: product.seller?.store_name || product.seller?.store_slug || 'Unknown',
+      username:
+        product.seller?.store_name || product.seller?.store_slug || 'Unknown',
       avatar: product.seller?.store_logo || null || undefined,
-      role: 'seller'
+      role: 'seller',
     },
-    media: primaryMedia ? {
-      id: primaryMedia.id,
-      url: primaryMedia.url,
-      type: primaryMedia.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-    } : undefined,
+    media: primaryMedia
+      ? {
+          id: primaryMedia.id,
+          url: primaryMedia.url,
+          type: primaryMedia.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+        }
+      : undefined,
     caption: product.title,
     content: product.description,
     contentType: 'PRODUCT',
@@ -93,15 +103,18 @@ export const sortFeedItems = (items: IFeedItem[]): IFeedItem[] => {
 /**
  * Merge and deduplicate feed items
  */
-export const mergeFeedItems = (existing: IFeedItem[], incoming: IFeedItem[]): IFeedItem[] => {
+export const mergeFeedItems = (
+  existing: IFeedItem[],
+  incoming: IFeedItem[],
+): IFeedItem[] => {
   const itemMap = new Map<string, IFeedItem>()
-  
+
   // Add existing items
-  existing.forEach(item => itemMap.set(item.id, item))
-  
+  existing.forEach((item) => itemMap.set(item.id, item))
+
   // Add/overwrite with incoming items
-  incoming.forEach(item => itemMap.set(item.id, item))
-  
+  incoming.forEach((item) => itemMap.set(item.id, item))
+
   // Convert back to array and sort
   return sortFeedItems(Array.from(itemMap.values()))
 }

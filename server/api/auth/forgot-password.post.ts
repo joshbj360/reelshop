@@ -20,25 +20,25 @@ export default defineEventHandler(async (event) => {
     const result = await authService.requestPasswordReset(
       validatedData.email,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     return {
       success: true,
-      message: result.message
+      message: result.message,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

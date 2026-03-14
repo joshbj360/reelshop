@@ -7,14 +7,20 @@
  */
 
 import { AuthError, AuthResponse } from '../types/auth.types'
-import { hashPassword, verifyPassword, generateTokens } from '../../../utils/auth/auth'
+import {
+  hashPassword,
+  verifyPassword,
+  generateTokens,
+} from '../../../utils/auth/auth'
 import { checkRateLimit, clearRateLimit } from '../../../utils/auth/rateLimiter'
 import { RATE_LIMITS } from '../../../config/rateLimits'
 import { authRepository } from '../repositories/auth.repository'
-import { sendVerificationEmail as sendVerifyEmail, sendPasswordResetEmail as sendResetEmail } from '../../../utils/email/emailService'
+import {
+  sendVerificationEmail as sendVerifyEmail,
+  sendPasswordResetEmail as sendResetEmail,
+} from '../../../utils/email/emailService'
 
 export const authService = {
-
   // ==================== REGISTRATION ====================
 
   async register(
@@ -22,7 +28,7 @@ export const authService = {
     username: string,
     password: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     email = email.toLowerCase()
 
@@ -31,30 +37,28 @@ export const authService = {
       windowMs: RATE_LIMITS.REGISTER.windowMs,
       maxAttempts: RATE_LIMITS.REGISTER.maxAttempts,
       lockoutMs: RATE_LIMITS.REGISTER.lockoutMs,
-      keyPrefix: RATE_LIMITS.REGISTER.keyPrefix
+      keyPrefix: RATE_LIMITS.REGISTER.keyPrefix,
     })
-    
+
     if (!rateLimit.allowed) {
-      const secondsLeft = rateLimit.lockedUntilMs || 
-                         Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
-      
+      const secondsLeft =
+        rateLimit.lockedUntilMs ||
+        Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+
       throw new AuthError(
         rateLimit.locked ? 'ACCOUNT_LOCKED' : 'RATE_LIMIT_EXCEEDED',
-        rateLimit.locked 
+        rateLimit.locked
           ? `Account is locked. Try again in ${secondsLeft} seconds`
           : `Too many attempts. Try again in ${secondsLeft} seconds`,
-        429
+        429,
       )
     }
 
     // 2. Check duplicate user
     const existingUser = await prisma.profile.findFirst({
       where: {
-        OR: [
-          { email },
-          { username }
-        ]
-      }
+        OR: [{ email }, { username }],
+      },
     })
 
     if (existingUser) {
@@ -64,19 +68,21 @@ export const authService = {
 
     // 3. Hash password and create user
     const hashedPassword = await hashPassword(password)
-    
+
     const user = await prisma.profile.create({
       data: {
         id: crypto.randomUUID(),
         email,
         username,
         password_hash: hashedPassword,
-        role: 'user'
-      }
+        role: 'user',
+      },
     })
 
     // 4. Create email verification token, send email, and audit log
-    const verificationToken = await authRepository.createEmailVerificationToken(user.id)
+    const verificationToken = await authRepository.createEmailVerificationToken(
+      user.id,
+    )
     const config = useRuntimeConfig()
     const appUrl = (config.public.baseURL as string) || 'http://localhost:3000'
     await sendVerifyEmail(email, verificationToken, appUrl).catch((err) => {
@@ -90,14 +96,14 @@ export const authService = {
       reason: 'User account created',
       ipAddress,
       userAgent,
-      success: true
+      success: true,
     })
 
     return {
       id: user.id,
       email: user.email,
       username: user.username,
-      emailVerified: user.email_verified
+      emailVerified: user.email_verified,
     }
   },
 
@@ -108,7 +114,7 @@ export const authService = {
     password: string,
     ipAddress: string,
     userAgent: string,
-    device: string
+    device: string,
   ): Promise<AuthResponse> {
     const normalizedEmail = email.toLowerCase()
 
@@ -117,51 +123,67 @@ export const authService = {
       windowMs: RATE_LIMITS.LOGIN.windowMs,
       maxAttempts: RATE_LIMITS.LOGIN.maxAttempts,
       lockoutMs: RATE_LIMITS.LOGIN.lockoutMs,
-      keyPrefix: RATE_LIMITS.LOGIN.keyPrefix
+      keyPrefix: RATE_LIMITS.LOGIN.keyPrefix,
     })
 
     if (!rateLimit.allowed) {
-      const secondsLeft = rateLimit.lockedUntilMs || 
-                         Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
-      
+      const secondsLeft =
+        rateLimit.lockedUntilMs ||
+        Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+
       throw new AuthError(
         rateLimit.locked ? 'ACCOUNT_LOCKED' : 'RATE_LIMIT_EXCEEDED',
-        rateLimit.locked 
+        rateLimit.locked
           ? `Account is locked. Try again in ${secondsLeft} seconds`
           : `Too many attempts. Try again in ${secondsLeft} seconds`,
-        429
+        429,
       )
     }
 
     // 2. Find user by email
     const user = await prisma.profile.findUnique({
-      where: { email: normalizedEmail }
+      where: { email: normalizedEmail },
     })
 
     if (!user) {
-      throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password', 401)
+      throw new AuthError(
+        'INVALID_CREDENTIALS',
+        'Invalid email or password',
+        401,
+      )
     }
 
     // 3. Enforce email verification (if enabled)
-    if (process.env.REQUIRE_EMAIL_VERIFICATION === 'true' && !user.email_verified) {
+    if (
+      process.env.REQUIRE_EMAIL_VERIFICATION === 'true' &&
+      !user.email_verified
+    ) {
       throw new AuthError(
         'EMAIL_NOT_VERIFIED',
         'Please verify your email address before logging in.',
-        403
+        403,
       )
     }
 
     // 4. Verify password
     const isPasswordValid = await verifyPassword(password, user.password_hash!)
-    
+
     if (!isPasswordValid) {
-      throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password', 401)
+      throw new AuthError(
+        'INVALID_CREDENTIALS',
+        'Invalid email or password',
+        401,
+      )
     }
 
     // 5. Success: Clear rate limit and generate tokens
     clearRateLimit(`login:${normalizedEmail}`, RATE_LIMITS.LOGIN.keyPrefix)
 
-    const { accessToken, refreshToken } = generateTokens(user.id, user.email, user.role)
+    const { accessToken, refreshToken } = generateTokens(
+      user.id,
+      user.email,
+      user.role,
+    )
 
     // 6. Create session
     await authRepository.createSession({
@@ -170,7 +192,7 @@ export const authService = {
       ip: ipAddress,
       userAgent,
       device,
-      country: undefined
+      country: undefined,
     })
 
     // 7. Audit log
@@ -181,7 +203,7 @@ export const authService = {
       reason: 'User logged in',
       ipAddress,
       userAgent,
-      success: true
+      success: true,
     })
 
     return {
@@ -192,8 +214,8 @@ export const authService = {
         email: user.email,
         username: user.username ?? '',
         emailVerified: user.email_verified,
-        role: user.role
-      }
+        role: user.role,
+      },
     }
   },
 
@@ -202,13 +224,17 @@ export const authService = {
   async refreshAccessToken(
     refreshToken: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     // 1. Validate refresh token exists in session
     const session = await authRepository.getSessionByRefreshToken(refreshToken)
 
     if (!session || session.revokedAt) {
-      throw new AuthError('INVALID_TOKEN', 'Invalid or revoked refresh token', 401)
+      throw new AuthError(
+        'INVALID_TOKEN',
+        'Invalid or revoked refresh token',
+        401,
+      )
     }
 
     if (session.expiresAt < new Date()) {
@@ -220,25 +246,26 @@ export const authService = {
       windowMs: RATE_LIMITS.REFRESH_TOKEN.windowMs,
       maxAttempts: RATE_LIMITS.REFRESH_TOKEN.maxAttempts,
       keyPrefix: RATE_LIMITS.REFRESH_TOKEN.keyPrefix,
-      lockoutMs: RATE_LIMITS.REFRESH_TOKEN.lockoutMs
+      lockoutMs: RATE_LIMITS.REFRESH_TOKEN.lockoutMs,
     })
-    
+
     if (!rateLimit.allowed) {
-      const secondsLeft = rateLimit.lockedUntilMs || 
-                         Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
-      
+      const secondsLeft =
+        rateLimit.lockedUntilMs ||
+        Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+
       throw new AuthError(
         rateLimit.locked ? 'ACCOUNT_LOCKED' : 'RATE_LIMIT_EXCEEDED',
-        rateLimit.locked 
+        rateLimit.locked
           ? `Account is locked. Try again in ${secondsLeft} seconds`
           : `Too many attempts. Try again in ${secondsLeft} seconds`,
-        429
+        429,
       )
     }
 
     // 3. Get user for email in token
     const user = await prisma.profile.findUnique({
-      where: { id: session.userId }
+      where: { id: session.userId },
     })
 
     if (!user) {
@@ -246,7 +273,11 @@ export const authService = {
     }
 
     // 4. Generate new access token
-    const { accessToken } = generateTokens(session.userId, user.email, user.role)
+    const { accessToken } = generateTokens(
+      session.userId,
+      user.email,
+      user.role,
+    )
 
     // 5. Audit log
     await authRepository.createAuditLog({
@@ -256,7 +287,7 @@ export const authService = {
       reason: 'Access token refreshed',
       ipAddress,
       userAgent,
-      success: true
+      success: true,
     })
 
     return { accessToken }
@@ -270,19 +301,20 @@ export const authService = {
       windowMs: RATE_LIMITS.VERIFY_EMAIL_SEND.windowMs,
       maxAttempts: RATE_LIMITS.VERIFY_EMAIL_SEND.maxAttempts,
       keyPrefix: RATE_LIMITS.VERIFY_EMAIL_SEND.keyPrefix,
-      lockoutMs: RATE_LIMITS.VERIFY_EMAIL_SEND.lockoutMs
+      lockoutMs: RATE_LIMITS.VERIFY_EMAIL_SEND.lockoutMs,
     })
 
     if (!rateLimit.allowed) {
-      const secondsLeft = rateLimit.lockedUntilMs || 
-                         Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
-      
+      const secondsLeft =
+        rateLimit.lockedUntilMs ||
+        Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+
       throw new AuthError(
         rateLimit.locked ? 'ACCOUNT_LOCKED' : 'RATE_LIMIT_EXCEEDED',
-        rateLimit.locked 
+        rateLimit.locked
           ? `Account is locked. Try again in ${secondsLeft} seconds`
           : `Too many attempts. Try again in ${secondsLeft} seconds`,
-        429
+        429,
       )
     }
 
@@ -301,27 +333,32 @@ export const authService = {
       windowMs: RATE_LIMITS.VERIFY_EMAIL_TOKEN.windowMs,
       maxAttempts: RATE_LIMITS.VERIFY_EMAIL_TOKEN.maxAttempts,
       keyPrefix: RATE_LIMITS.VERIFY_EMAIL_TOKEN.keyPrefix,
-      lockoutMs: RATE_LIMITS.VERIFY_EMAIL_TOKEN.lockoutMs
+      lockoutMs: RATE_LIMITS.VERIFY_EMAIL_TOKEN.lockoutMs,
     })
 
     if (!rateLimit.allowed) {
-      const secondsLeft = rateLimit.lockedUntilMs || 
-                         Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
-      
+      const secondsLeft =
+        rateLimit.lockedUntilMs ||
+        Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+
       throw new AuthError(
         rateLimit.locked ? 'ACCOUNT_LOCKED' : 'RATE_LIMIT_EXCEEDED',
-        rateLimit.locked 
+        rateLimit.locked
           ? `Account is locked. Try again in ${secondsLeft} seconds`
           : `Too many attempts. Try again in ${secondsLeft} seconds`,
-        429
+        429,
       )
     }
 
     // Verify email token
     const userId = await authRepository.verifyEmailToken(token)
-    
+
     if (!userId) {
-      throw new AuthError('INVALID_TOKEN', 'Invalid or expired verification token', 400)
+      throw new AuthError(
+        'INVALID_TOKEN',
+        'Invalid or expired verification token',
+        400,
+      )
     }
 
     return { message: 'Email verified successfully' }
@@ -332,7 +369,7 @@ export const authService = {
   async requestPasswordReset(
     email: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     email = email.toLowerCase()
 
@@ -341,19 +378,20 @@ export const authService = {
       windowMs: RATE_LIMITS.FORGOT_PASSWORD.windowMs,
       maxAttempts: RATE_LIMITS.FORGOT_PASSWORD.maxAttempts,
       keyPrefix: RATE_LIMITS.FORGOT_PASSWORD.keyPrefix,
-      lockoutMs: RATE_LIMITS.FORGOT_PASSWORD.lockoutMs
+      lockoutMs: RATE_LIMITS.FORGOT_PASSWORD.lockoutMs,
     })
 
     if (!rateLimit.allowed) {
-      const secondsLeft = rateLimit.lockedUntilMs || 
-                         Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
-      
+      const secondsLeft =
+        rateLimit.lockedUntilMs ||
+        Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+
       throw new AuthError(
         rateLimit.locked ? 'ACCOUNT_LOCKED' : 'RATE_LIMIT_EXCEEDED',
-        rateLimit.locked 
+        rateLimit.locked
           ? `Account is locked. Try again in ${secondsLeft} seconds`
           : `Too many attempts. Try again in ${secondsLeft} seconds`,
-        429
+        429,
       )
     }
 
@@ -376,7 +414,7 @@ export const authService = {
       reason: 'Password reset requested',
       ipAddress,
       userAgent,
-      success: true
+      success: true,
     })
 
     // Send reset email
@@ -393,13 +431,17 @@ export const authService = {
     token: string,
     newPassword: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ) {
     // Validate and use password reset token
     const userId = await authRepository.usePasswordResetToken(token)
-    
+
     if (!userId) {
-      throw new AuthError('INVALID_TOKEN', 'Invalid or expired password reset token', 400)
+      throw new AuthError(
+        'INVALID_TOKEN',
+        'Invalid or expired password reset token',
+        400,
+      )
     }
 
     // Hash new password
@@ -408,7 +450,7 @@ export const authService = {
     // Update password
     const user = await prisma.profile.update({
       where: { id: userId },
-      data: { password_hash: hashedPassword }
+      data: { password_hash: hashedPassword },
     })
 
     // Revoke all sessions (force re-login on all devices)
@@ -422,7 +464,7 @@ export const authService = {
       reason: 'Password reset successfully',
       ipAddress,
       userAgent,
-      success: true
+      success: true,
     })
 
     return { message: 'Password reset successfully' }
@@ -430,14 +472,10 @@ export const authService = {
 
   // ==================== LOGOUT ====================
 
-  async logout(
-    sessionId: string,
-    ipAddress: string,
-    userAgent: string
-  ) {
+  async logout(sessionId: string, ipAddress: string, userAgent: string) {
     // Find session
     const session = await prisma.session.findUnique({
-      where: { id: sessionId }
+      where: { id: sessionId },
     })
 
     if (session) {
@@ -452,7 +490,7 @@ export const authService = {
         reason: 'User logged out',
         ipAddress,
         userAgent,
-        success: true
+        success: true,
       })
     }
 
@@ -464,5 +502,5 @@ export const authService = {
   async cleanupExpiredTokens() {
     await authRepository.cleanupExpiredTokens()
     return { message: 'Expired tokens cleaned up' }
-  }
+  },
 }

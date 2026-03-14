@@ -1,11 +1,19 @@
-import { defineEventHandler, deleteCookie, getCookie, getRequestIP, getRequestHeader, createError } from 'h3'
+import {
+  defineEventHandler,
+  deleteCookie,
+  getCookie,
+  getRequestIP,
+  getRequestHeader,
+  createError,
+} from 'h3'
 import { authService } from '../../layers/auth/services/auth.service'
 import { authRepository } from '../../layers/auth/repositories/auth.repository'
 
 export default defineEventHandler(async (event) => {
   try {
     // 1. Get Client Info
-    const ipAddress = getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
+    const ipAddress =
+      getRequestIP(event, { xForwardedFor: true }) || '127.0.0.1'
     const userAgent = getRequestHeader(event, 'user-agent') || 'Unknown'
 
     // 2. Get Refresh Token from Cookie
@@ -15,7 +23,8 @@ export default defineEventHandler(async (event) => {
     if (refreshToken) {
       // 3. Find the Session ID associated with this token
       // We use the repo helper here to bridge the gap
-      const session = await authRepository.getSessionByRefreshToken(refreshToken)
+      const session =
+        await authRepository.getSessionByRefreshToken(refreshToken)
 
       if (session) {
         // 4. Perform Logout (Revoke Session & Audit Log)
@@ -29,13 +38,13 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
     }
   } catch (error) {
     console.error('[Logout API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

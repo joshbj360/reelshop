@@ -13,20 +13,30 @@ export const walletService = {
     const wallet = await walletRepository.getOrCreateWallet(sellerId)
     const [transactions, total] = await Promise.all([
       walletRepository.getTransactions(wallet.id, limit, offset),
-      walletRepository.countTransactions(wallet.id)
+      walletRepository.countTransactions(wallet.id),
     ])
     return { transactions, total, limit, offset }
   },
 
-  async addFunds(sellerId: string, amount: number, ipAddress: string, userAgent: string) {
-    if (amount <= 0) throw new UserError('INVALID_AMOUNT', 'Amount must be greater than 0', 400)
+  async addFunds(
+    sellerId: string,
+    amount: number,
+    ipAddress: string,
+    userAgent: string,
+  ) {
+    if (amount <= 0)
+      throw new UserError(
+        'INVALID_AMOUNT',
+        'Amount must be greater than 0',
+        400,
+      )
 
     const wallet = await walletRepository.getOrCreateWallet(sellerId)
     await walletRepository.incrementBalance(wallet.id, amount)
     await walletRepository.createTransaction(wallet.id, {
       amount,
       type: 'CREDIT',
-      description: 'Funds added to wallet'
+      description: 'Funds added to wallet',
     })
 
     await auditService.logUserAction({
@@ -37,26 +47,44 @@ export const walletService = {
       reason: 'Added funds',
       changes: { amount },
       ipAddress,
-      userAgent
+      userAgent,
     })
 
     return walletRepository.getWalletBySellerId(sellerId)
   },
 
-  async withdraw(sellerId: string, amount: number, bankAccount: any, ipAddress: string, userAgent: string) {
-    if (amount <= 0) throw new UserError('INVALID_AMOUNT', 'Amount must be greater than 0', 400)
+  async withdraw(
+    sellerId: string,
+    amount: number,
+    bankAccount: any,
+    ipAddress: string,
+    userAgent: string,
+  ) {
+    if (amount <= 0)
+      throw new UserError(
+        'INVALID_AMOUNT',
+        'Amount must be greater than 0',
+        400,
+      )
 
     const wallet = await walletRepository.getOrCreateWallet(sellerId)
     if (wallet.balance < amount) {
-      throw new UserError('INSUFFICIENT_BALANCE', 'Insufficient wallet balance', 400)
+      throw new UserError(
+        'INSUFFICIENT_BALANCE',
+        'Insufficient wallet balance',
+        400,
+      )
     }
 
     await walletRepository.decrementBalance(wallet.id, amount)
-    const payout = await walletRepository.createPayout(wallet.id, { amount, bank_account: bankAccount })
+    const payout = await walletRepository.createPayout(wallet.id, {
+      amount,
+      bank_account: bankAccount,
+    })
     await walletRepository.createTransaction(wallet.id, {
       amount,
       type: 'DEBIT',
-      description: `Withdrawal request #${payout.id.slice(0, 8)}`
+      description: `Withdrawal request #${payout.id.slice(0, 8)}`,
     })
 
     await auditService.logUserAction({
@@ -67,9 +95,12 @@ export const walletService = {
       reason: 'Withdrawal requested',
       changes: { amount },
       ipAddress,
-      userAgent
+      userAgent,
     })
 
-    return { payout, wallet: await walletRepository.getWalletBySellerId(sellerId) }
-  }
+    return {
+      payout,
+      wallet: await walletRepository.getWalletBySellerId(sellerId),
+    }
+  },
 }

@@ -1,6 +1,5 @@
-import { BaseApiClient } from "~~/layers/base/app/services/base.api"
-import type { IFeedOptions, IFeedResponse } from "../types/feed.types"
-
+import { BaseApiClient } from '~~/layers/base/app/services/base.api'
+import type { IFeedOptions, IFeedResponse } from '../types/feed.types'
 
 /**
  * Feed API Client
@@ -12,59 +11,67 @@ export class FeedApiClient extends BaseApiClient {
    */
   async getHomeFeed(options: IFeedOptions = {}): Promise<IFeedResponse> {
     const { limit = 20, offset = 0, type = 'all' } = options
-    
+
     const params = new URLSearchParams({
       limit: limit.toString(),
       offset: offset.toString(),
     })
-    
+
     if (type !== 'all') {
       params.append('type', type)
     }
-    
-    return this.request(`/api/feed/home?${params}`, { 
-      method: 'GET' 
+
+    return this.request(`/api/feed/home?${params}`, {
+      method: 'GET',
     })
   }
-  
+
   /**
    * Fetch following feed (posts from followed users/sellers)
    */
   async getFollowingFeed(options: IFeedOptions = {}): Promise<IFeedResponse> {
     const { limit = 20, offset = 0 } = options
-    
+
     return this.request(`/api/feed/following?limit=${limit}&offset=${offset}`, {
-      method: 'GET'
+      method: 'GET',
     })
   }
-  
+
   /**
    * Fetch discover feed (algorithmic recommendations)
    */
   async getDiscoverFeed(options: IFeedOptions = {}): Promise<IFeedResponse> {
     const { limit = 20, offset = 0 } = options
-    
+
     return this.request(`/api/feed/discover?limit=${limit}&offset=${offset}`, {
-      method: 'GET'
+      method: 'GET',
     })
   }
-  
+
   /**
    * Fetch user-specific feed (profile page)
    */
-  async getUserFeed(userId: string, options: IFeedOptions = {}): Promise<IFeedResponse> {
+  async getUserFeed(
+    userId: string,
+    options: IFeedOptions = {},
+  ): Promise<IFeedResponse> {
     const { limit = 20, offset = 0 } = options
 
-    return this.request(`/api/feed/user/${userId}?limit=${limit}&offset=${offset}`, {
-      method: 'GET'
-    })
+    return this.request(
+      `/api/feed/user/${userId}?limit=${limit}&offset=${offset}`,
+      {
+        method: 'GET',
+      },
+    )
   }
 
   /**
    * Fetch reels (video posts)
    */
   async getReels(limit = 10, offset = 0): Promise<any> {
-    return this.request(`/api/feed/reels?limit=${limit}&offset=${offset}`, { method: 'GET' })
+    return this.request(`/api/feed/reels?limit=${limit}&offset=${offset}`, {
+      method: 'GET',
+    })
   }
 }
 

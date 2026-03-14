@@ -3,7 +3,8 @@ import { prisma } from '../../../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
-  if (!id) throw createError({ statusCode: 400, statusMessage: 'Invalid product ID' })
+  if (!id)
+    throw createError({ statusCode: 400, statusMessage: 'Invalid product ID' })
 
   const query = getQuery(event)
   const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)

@@ -16,7 +16,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     handlePath: {
       context: 'context',
       ns: ['zod', 'custom'], // You can namespace your custom errors
-    }
+    },
   })
 
   z.setErrorMap(errorMap)

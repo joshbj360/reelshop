@@ -17,20 +17,20 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       suggestions: suggestions,
-      message: 'Slug suggestions generated successfully'
+      message: 'Slug suggestions generated successfully',
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to generate slug suggestions'
+      statusMessage: 'Failed to generate slug suggestions',
     })
   }
 })

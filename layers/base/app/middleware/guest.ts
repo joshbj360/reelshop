@@ -1,12 +1,11 @@
 // layers/base/middleware/guest.ts
 
-import { useProfileStore } from "~~/layers/profile/app/stores/profile.store"
-
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 
 /**
  * Guest Middleware
  * Redirects logged-in users away from auth pages
- * 
+ *
  * Usage:
  * definePageMeta({
  *   middleware: 'guest'
@@ -14,7 +13,7 @@ import { useProfileStore } from "~~/layers/profile/app/stores/profile.store"
  */
 
 export default defineNuxtRouteMiddleware((to, from) => {
-const profileStore = useProfileStore()
+  const profileStore = useProfileStore()
 
   // If already logged in, redirect to dashboard
   if (profileStore.isLoggedIn) {

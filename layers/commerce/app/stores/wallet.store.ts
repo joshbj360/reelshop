@@ -18,10 +18,22 @@ export const useWalletStore = defineStore('wallet', () => {
     error,
     balance,
     pendingBalance,
-    setWallet: (w: any, s: any) => { wallet.value = w; stats.value = s },
-    setTransactions: (t: any[], total: number) => { transactions.value = t; transactionsTotal.value = total },
-    addTransactions: (t: any[]) => { transactions.value = [...transactions.value, ...t] },
-    setLoading: (val: boolean) => { isLoading.value = val },
-    setError: (val: string | null) => { error.value = val }
+    setWallet: (w: any, s: any) => {
+      wallet.value = w
+      stats.value = s
+    },
+    setTransactions: (t: any[], total: number) => {
+      transactions.value = t
+      transactionsTotal.value = total
+    },
+    addTransactions: (t: any[]) => {
+      transactions.value = [...transactions.value, ...t]
+    },
+    setLoading: (val: boolean) => {
+      isLoading.value = val
+    },
+    setError: (val: string | null) => {
+      error.value = val
+    },
   }
 })

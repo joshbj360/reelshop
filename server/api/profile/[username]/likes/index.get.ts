@@ -15,11 +15,14 @@ export default defineEventHandler(async (event) => {
 
     // Only allow authenticated user to see their own liked posts (privacy)
     if (me.username !== username) {
-      throw createError({ statusCode: 403, statusMessage: 'You can only view your own liked posts' })
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only view your own liked posts',
+      })
     }
 
     const query = getQuery(event)
-    const limit  = Math.min(Math.max(Number(query.limit)  || 20, 1), 50)
+    const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 50)
     const offset = Math.max(Number(query.offset) || 0, 0)
 
     const likes = await postRepository.getLikedPostsByUser(me.id, limit, offset)
@@ -40,7 +43,10 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: any) {
     if (error instanceof UserError) {
-      throw createError({ statusCode: error.status, statusMessage: error.message })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
     }
     throw error
   }

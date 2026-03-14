@@ -7,7 +7,6 @@
 import { randomBytes } from 'crypto'
 
 export const authRepository = {
-
   // ============================================
   // EMAIL VERIFICATION
   // ============================================
@@ -43,7 +42,9 @@ export const authRepository = {
     // Check if expired
     if (new Date() > record.expires_at) {
       // Clean up expired token
-      await prisma.emailVerificationToken.delete({ where: { token } }).catch(() => null)
+      await prisma.emailVerificationToken
+        .delete({ where: { token } })
+        .catch(() => null)
       return null
     }
 
@@ -59,7 +60,7 @@ export const authRepository = {
     // 2. Mark user profile as verified (Missing method restored)
     await prisma.profile.update({
       where: { id: record.user_id },
-      data: { email_verified: true }
+      data: { email_verified: true },
     })
 
     return record.user_id
@@ -201,13 +202,13 @@ export const authRepository = {
   /**
    * Create a new audit log entry (Missing method restored)
    */
-  async createAuditLog(data: { 
+  async createAuditLog(data: {
     userId: string
     email: string
     eventType: string
     reason?: string
     ipAddress?: string
-    userAgent?: string 
+    userAgent?: string
     success: boolean
   }) {
     return prisma.auditLog.create({
@@ -218,8 +219,8 @@ export const authRepository = {
         reason: data.reason,
         ip_address: data.ipAddress,
         user_agent: data.userAgent,
-        success: data.success
-      }
+        success: data.success,
+      },
     })
   },
 
@@ -246,8 +247,12 @@ export const authRepository = {
   async cleanupExpiredTokens() {
     const now = new Date()
     await Promise.all([
-      prisma.emailVerificationToken.deleteMany({ where: { expires_at: { lt: now } } }),
-      prisma.passwordResetToken.deleteMany({ where: { expires_at: { lt: now } } }),
+      prisma.emailVerificationToken.deleteMany({
+        where: { expires_at: { lt: now } },
+      }),
+      prisma.passwordResetToken.deleteMany({
+        where: { expires_at: { lt: now } },
+      }),
     ])
   },
 
@@ -274,8 +279,8 @@ export const authRepository = {
         device: data.device,
         country: data.country,
         expiresAt,
-        lastUsedAt: new Date()
-      }
+        lastUsedAt: new Date(),
+      },
     })
   },
 
@@ -286,13 +291,13 @@ export const authRepository = {
 
   async getSessionByRefreshToken(refreshToken: string) {
     return prisma.session.findUnique({
-      where: { refreshToken }
+      where: { refreshToken },
     })
   },
 
   async getSessionById(sessionId: string) {
     return prisma.session.findUnique({
-      where: { id: sessionId }
+      where: { id: sessionId },
     })
   },
 
@@ -300,24 +305,30 @@ export const authRepository = {
     return prisma.session.findMany({
       where: { userId, revokedAt: null },
       select: {
-        id: true, device: true, country: true, ip: true,
-        userAgent: true, createdAt: true, lastUsedAt: true, expiresAt: true
+        id: true,
+        device: true,
+        country: true,
+        ip: true,
+        userAgent: true,
+        createdAt: true,
+        lastUsedAt: true,
+        expiresAt: true,
       },
-      orderBy: { lastUsedAt: 'desc' }
+      orderBy: { lastUsedAt: 'desc' },
     })
   },
 
   async revokeSession(sessionId: string) {
     return prisma.session.update({
       where: { id: sessionId },
-      data: { revokedAt: new Date() }
+      data: { revokedAt: new Date() },
     })
   },
 
   async revokeAllSessions(userId: string) {
     const result = await prisma.session.updateMany({
       where: { userId, revokedAt: null },
-      data: { revokedAt: new Date() }
+      data: { revokedAt: new Date() },
     })
     return result.count
   },
@@ -325,13 +336,13 @@ export const authRepository = {
   async updateSessionLastUsed(sessionId: string) {
     return prisma.session.update({
       where: { id: sessionId },
-      data: { lastUsedAt: new Date() }
+      data: { lastUsedAt: new Date() },
     })
   },
 
   async deleteExpiredSessions() {
     const result = await prisma.session.deleteMany({
-      where: { expiresAt: { lt: new Date() } }
+      where: { expiresAt: { lt: new Date() } },
     })
     return result.count
   },
@@ -341,15 +352,15 @@ export const authRepository = {
       where: {
         userId,
         revokedAt: null,
-        expiresAt: { gt: new Date() }
-      }
+        expiresAt: { gt: new Date() },
+      },
     })
   },
 
   async getOldSessions(daysOld: number = 7) {
     const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000)
     return prisma.session.findMany({
-      where: { createdAt: { lt: cutoffDate } }
+      where: { createdAt: { lt: cutoffDate } },
     })
-  }
+  },
 }

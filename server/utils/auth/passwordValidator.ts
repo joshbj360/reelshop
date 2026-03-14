@@ -54,11 +54,11 @@ export const enhancedPasswordSchema = z
   .regex(/[0-9]/, 'Password must contain at least one number')
   .regex(
     /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
-    'Password must contain at least one special character'
+    'Password must contain at least one special character',
   )
   .refine(
     (password) => !isCommonPassword(password),
-    'Password is too common. Please use a more unique password.'
+    'Password is too common. Please use a more unique password.',
   )
 
 /**

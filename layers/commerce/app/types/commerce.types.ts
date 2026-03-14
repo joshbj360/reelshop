@@ -1,4 +1,10 @@
-import type { Products, ProductVariant, Orders, OrderItem, CartItem } from '@prisma/client'
+import type {
+  Products,
+  ProductVariant,
+  Orders,
+  OrderItem,
+  CartItem,
+} from '@prisma/client'
 
 export interface IProduct extends Products {
   seller?: {

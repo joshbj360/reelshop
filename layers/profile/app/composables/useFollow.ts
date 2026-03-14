@@ -12,8 +12,6 @@ export const useFollow = () => {
   const isLoading = computed(() => followStore.isLoading)
   const error = computed(() => followStore.error)
 
-
-
   // ==================== GET FOLLOWERS/FOLLOWING ====================
 
   /**
@@ -22,10 +20,10 @@ export const useFollow = () => {
   const fetchFollowers = async (username: string, limit = 20, offset = 0) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       const result = await followApi.getFollowers(username, limit, offset)
-      
+
       // Cache the followers list
       if (offset === 0) {
         followStore.setFollowers(username, result.data.items)
@@ -33,7 +31,7 @@ export const useFollow = () => {
         const existing = followStore.getFollowers(username)
         followStore.setFollowers(username, [...existing, ...result.data.items])
       }
-      
+
       return result.data
     } catch (e: any) {
       followStore.setError(e.message || 'Failed to fetch followers')
@@ -49,10 +47,10 @@ export const useFollow = () => {
   const fetchFollowing = async (username: string, limit = 20, offset = 0) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       const result = await followApi.getFollowing(username, limit, offset)
-      
+
       // Cache the following list
       if (offset === 0) {
         followStore.setFollowing(username, result.data.items)
@@ -60,7 +58,7 @@ export const useFollow = () => {
         const existing = followStore.getFollowing(username)
         followStore.setFollowing(username, [...existing, ...result.data.items])
       }
-      
+
       return result.data
     } catch (e: any) {
       followStore.setError(e.message || 'Failed to fetch following')
@@ -79,21 +77,21 @@ export const useFollow = () => {
   const followUser = async (username: string) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       await followApi.followUser(username)
-      
+
       // Update follow status cache
       followStore.setFollowStatus(username, true)
-      
+
       // ✅ Update stats in profileStore (single source of truth)
       profileStore.updateStat(username, 'followersCount', 1)
-      
+
       // Update my following count
       if (profileStore.me?.username) {
         profileStore.updateStat(profileStore.me.username, 'followingCount', 1)
       }
-      
+
       return true
     } catch (error: any) {
       followStore.setError(error.message || 'Failed to follow user')
@@ -110,21 +108,21 @@ export const useFollow = () => {
   const unfollowUser = async (username: string) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       await followApi.unfollowUser(username)
-      
+
       // Update follow status cache
       followStore.setFollowStatus(username, false)
-      
+
       // ✅ Update stats in profileStore (single source of truth)
       profileStore.updateStat(username, 'followersCount', -1)
-      
+
       // Update my following count
       if (profileStore.me?.username) {
         profileStore.updateStat(profileStore.me.username, 'followingCount', -1)
       }
-      
+
       return true
     } catch (error: any) {
       followStore.setError(error.message || 'Failed to unfollow user')
@@ -140,17 +138,17 @@ export const useFollow = () => {
   const followSeller = async (storeSlug: string) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       await followApi.followSeller(storeSlug)
-      
+
       followStore.setFollowStatus(storeSlug, true)
-      
+
       // Update my following count only
       if (profileStore.me?.username) {
         profileStore.updateStat(profileStore.me.username, 'followingCount', 1)
       }
-      
+
       return true
     } catch (error: any) {
       followStore.setError(error.message || 'Failed to follow store')
@@ -166,17 +164,17 @@ export const useFollow = () => {
   const unfollowSeller = async (storeSlug: string) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       await followApi.unfollowSeller(storeSlug)
-      
+
       followStore.setFollowStatus(storeSlug, false)
-      
+
       // Update my following count only
       if (profileStore.me?.username) {
         profileStore.updateStat(profileStore.me.username, 'followingCount', -1)
       }
-      
+
       return true
     } catch (error: any) {
       followStore.setError(error.message || 'Failed to unfollow store')
@@ -191,7 +189,10 @@ export const useFollow = () => {
   /**
    * Check if following a user
    */
-  const checkIfFollowing = async (username: string, type: 'USER' | 'SELLER' = 'USER') => {
+  const checkIfFollowing = async (
+    username: string,
+    type: 'USER' | 'SELLER' = 'USER',
+  ) => {
     try {
       const result = await followApi.checkFollowStatus(username, type)
       followStore.setFollowStatus(username, result.data.isFollowing)
@@ -205,15 +206,18 @@ export const useFollow = () => {
   /**
    * Batch check if following multiple users
    */
-  const checkFollowingBatch = async (targetIds: string[], type: 'USER' | 'SELLER' = 'USER') => {
+  const checkFollowingBatch = async (
+    targetIds: string[],
+    type: 'USER' | 'SELLER' = 'USER',
+  ) => {
     try {
       const result = await followApi.checkFollowingBatch(targetIds, type)
-      
+
       // Cache results
       Object.entries(result.data).forEach(([id, isFollowing]) => {
         followStore.setFollowStatus(id, isFollowing)
       })
-      
+
       return result.data
     } catch (e: any) {
       console.error('Failed to batch check following:', e)
@@ -229,7 +233,7 @@ export const useFollow = () => {
   const fetchSuggestedUsers = async (limit = 10) => {
     followStore.setLoading(true)
     followStore.setError(null)
-    
+
     try {
       const result = await followApi.getSuggestedUsers(limit)
       return result.data
@@ -247,23 +251,22 @@ export const useFollow = () => {
     // State
     isLoading,
     error,
-  
-    
+
     // Lists (stores in followStore)
     fetchFollowers,
     fetchFollowing,
-    
+
     // Actions (updates profileStore stats)
     followUser,
     unfollowUser,
     followSeller,
     unfollowSeller,
-    
+
     // Status (caches in followStore)
     checkIfFollowing,
     checkFollowingBatch,
-    
+
     // Suggestions
-    fetchSuggestedUsers
+    fetchSuggestedUsers,
   }
 }

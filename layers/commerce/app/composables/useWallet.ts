@@ -76,5 +76,16 @@ export const useWallet = () => {
     }
   }
 
-  return { isLoading, error, balance, pendingBalance, stats, transactions, fetchWallet, fetchTransactions, addFunds, withdraw }
+  return {
+    isLoading,
+    error,
+    balance,
+    pendingBalance,
+    stats,
+    transactions,
+    fetchWallet,
+    fetchTransactions,
+    addFunds,
+    withdraw,
+  }
 }

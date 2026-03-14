@@ -1,8 +1,7 @@
 // FILE PATH: server/layers/user/repositories/audit.repository.ts
 
 export const auditRepository = {
-
-  async createAuditLog(data: { 
+  async createAuditLog(data: {
     userId: string
     email: string
     eventType: string
@@ -12,8 +11,7 @@ export const auditRepository = {
     success: boolean
     meta?: any
   }) {
-    return await prisma.auditLog.create(
-      {
+    return await prisma.auditLog.create({
       data: {
         id: crypto.randomUUID(),
         email: data.email,
@@ -23,8 +21,8 @@ export const auditRepository = {
         ip_address: data.ipAddress,
         user_agent: data.userAgent,
         success: data.success,
-        metadata: data.meta || null
-      }
+        metadata: data.meta || null,
+      },
     })
   },
 
@@ -33,7 +31,7 @@ export const auditRepository = {
       where: { user_id },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -46,7 +44,7 @@ export const auditRepository = {
       where: { id },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -58,18 +56,17 @@ export const auditRepository = {
     return await prisma.auditLog.findMany({
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
   async getAuditLogsCount() {
     return await prisma.auditLog.count()
-  }
+  },
 }
 // FILE PATH: server/layers/user/repositories/notification.repository.ts
 
 export const notificationRepository = {
-
   async createNotification(data: any) {
     return await prisma.notification.create({ data })
   },
@@ -77,17 +74,21 @@ export const notificationRepository = {
   async getNotificationById(notificationId: any) {
     return await prisma.notification.findUnique({
       where: { id: notificationId },
-      include: { actor: true }
+      include: { actor: true },
     })
   },
 
-  async getNotificationsByUserId(userId: string, limit: number, offset: number) {
+  async getNotificationsByUserId(
+    userId: string,
+    limit: number,
+    offset: number,
+  ) {
     return await prisma.notification.findMany({
       where: { userId },
       include: { actor: true },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -103,18 +104,18 @@ export const notificationRepository = {
     return await prisma.notification.update({
       where: { id: notificationId },
       data,
-      include: { actor: true }
+      include: { actor: true },
     })
   },
 
   async markAllAsReadByUserId(userId: string) {
     return await prisma.notification.updateMany({
       where: { userId, read: false },
-      data: { read: true }
+      data: { read: true },
     })
   },
 
   async deleteNotification(notificationId: any) {
     return await prisma.notification.delete({ where: { id: notificationId } })
-  }
+  },
 }

@@ -12,7 +12,11 @@ export interface IAiListingResult {
 }
 
 export class AiApiClient extends BaseApiClient {
-  async generateListing(imageBase64: string, mimeType: string, optionalHint = ''): Promise<{ success: boolean; data: IAiListingResult }> {
+  async generateListing(
+    imageBase64: string,
+    mimeType: string,
+    optionalHint = '',
+  ): Promise<{ success: boolean; data: IAiListingResult }> {
     return this.request('/api/ai/generate-listing', {
       method: 'POST',
       body: { imageBase64, mimeType, optionalHint },

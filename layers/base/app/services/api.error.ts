@@ -1,4 +1,3 @@
-
 /**
  * Custom API Error Class
  */
@@ -6,7 +5,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public statusCode: number = 500,
-    public data?: any
+    public data?: any,
   ) {
     super(message)
     this.name = 'ApiError'

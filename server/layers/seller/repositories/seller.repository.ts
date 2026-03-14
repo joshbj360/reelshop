@@ -1,20 +1,18 @@
 // server/database/repositories/seller.repository.ts
 /**
  * Seller Repository
- * 
+ *
  * Handles all seller profile database operations:
  * - Create/update/deactivate/activate seller profiles
  * - Query seller profiles
  * - Slug management
  * - Seller-specific queries
- * 
+ *
  * Auth operations: auth.repository.ts
  * User profile operations: user.repository.ts
  */
 
-
 export const sellerRepository = {
-
   // ============================================
   // CREATE & RETRIEVE
   // ============================================
@@ -23,18 +21,21 @@ export const sellerRepository = {
    * Create seller profile
    * User can have multiple seller profiles
    */
-  async createSellerProfile(userId: string, data: {
-    store_name: string
-    store_slug: string
-    store_description?: string
-    store_logo?: string
-    store_banner?: string
-    store_location?: string
-    store_phone?: string
-    store_website?: string
-    store_socials?: Record<string, any>
-    default_currency?: string
-  }): Promise<any> {
+  async createSellerProfile(
+    userId: string,
+    data: {
+      store_name: string
+      store_slug: string
+      store_description?: string
+      store_logo?: string
+      store_banner?: string
+      store_location?: string
+      store_phone?: string
+      store_website?: string
+      store_socials?: Record<string, any>
+      default_currency?: string
+    },
+  ): Promise<any> {
     return prisma.sellerProfile.create({
       data: {
         profileId: userId,
@@ -49,7 +50,7 @@ export const sellerRepository = {
         store_socials: data.store_socials,
         default_currency: data.default_currency,
         is_active: true,
-      }
+      },
     })
   },
 
@@ -65,10 +66,10 @@ export const sellerRepository = {
             id: true,
             email: true,
             username: true,
-            avatar: true
-          }
-        }
-      }
+            avatar: true,
+          },
+        },
+      },
     })
   },
 
@@ -85,21 +86,26 @@ export const sellerRepository = {
             id: true,
             email: true,
             username: true,
-            avatar: true
-          }
-        }
-      }
+            avatar: true,
+          },
+        },
+      },
     })
 
     if (!seller) return null
 
     const realFollowerCount = await prisma.follow.count({
-      where: { followingId: seller.id, followingType: 'SELLER' }
+      where: { followingId: seller.id, followingType: 'SELLER' },
     })
 
     // Sync stale denormalized counter (non-blocking)
     if (seller.followers_count !== realFollowerCount) {
-      prisma.sellerProfile.update({ where: { id: seller.id }, data: { followers_count: realFollowerCount } }).catch(() => {})
+      prisma.sellerProfile
+        .update({
+          where: { id: seller.id },
+          data: { followers_count: realFollowerCount },
+        })
+        .catch(() => {})
     }
 
     return { ...seller, followers_count: realFollowerCount }
@@ -117,7 +123,7 @@ export const sellerRepository = {
         wallet: true,
         shippingZones: true,
         verificationDocuments: true,
-      } 
+      },
     })
   },
 
@@ -132,7 +138,7 @@ export const sellerRepository = {
   async getUserSellerProfiles(userId: string): Promise<any[]> {
     return prisma.sellerProfile.findMany({
       where: { profileId: userId },
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -145,7 +151,7 @@ export const sellerRepository = {
         profileId: userId,
         is_active: true,
       },
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -158,7 +164,7 @@ export const sellerRepository = {
         profileId: userId,
         is_active: false,
       },
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -183,30 +189,36 @@ export const sellerRepository = {
       store_website?: string
       store_socials?: Record<string, any>
       default_currency?: string
-    }
+    },
   ): Promise<any> {
     // Verify ownership
     const seller = await prisma.sellerProfile.findUnique({
-      where: { id: sellerProfileId }
+      where: { id: sellerProfileId },
     })
 
     if (!seller || seller.profileId !== userId) {
-      throw new Error('Unauthorized: Seller profile does not belong to this user')
+      throw new Error(
+        'Unauthorized: Seller profile does not belong to this user',
+      )
     }
 
     return prisma.sellerProfile.update({
       where: { id: sellerProfileId },
       data: {
         ...(data.store_name && { store_name: data.store_name }),
-        ...(data.store_description && { store_description: data.store_description }),
+        ...(data.store_description && {
+          store_description: data.store_description,
+        }),
         ...(data.store_logo && { store_logo: data.store_logo }),
         ...(data.store_banner && { store_banner: data.store_banner }),
         ...(data.store_location && { store_location: data.store_location }),
         ...(data.store_phone && { store_phone: data.store_phone }),
         ...(data.store_website && { store_website: data.store_website }),
         ...(data.store_socials && { store_socials: data.store_socials }),
-        ...(data.default_currency && { default_currency: data.default_currency }),
-      }
+        ...(data.default_currency && {
+          default_currency: data.default_currency,
+        }),
+      },
     })
   },
 
@@ -219,14 +231,19 @@ export const sellerRepository = {
    * Sets is_active = false
    * Profile data is preserved
    */
-  async deactivateSellerProfile(sellerProfileId: string, userId: string): Promise<any> {
+  async deactivateSellerProfile(
+    sellerProfileId: string,
+    userId: string,
+  ): Promise<any> {
     // Verify ownership
     const seller = await prisma.sellerProfile.findUnique({
-      where: { id: sellerProfileId }
+      where: { id: sellerProfileId },
     })
 
     if (!seller || seller.profileId !== userId) {
-      throw new Error('Unauthorized: Seller profile does not belong to this user')
+      throw new Error(
+        'Unauthorized: Seller profile does not belong to this user',
+      )
     }
 
     if (!seller.is_active) {
@@ -235,7 +252,7 @@ export const sellerRepository = {
 
     return prisma.sellerProfile.update({
       where: { id: sellerProfileId },
-      data: { is_active: false }
+      data: { is_active: false },
     })
   },
 
@@ -243,14 +260,19 @@ export const sellerRepository = {
    * Activate (reactivate) seller profile
    * Sets is_active = true
    */
-  async activateSellerProfile(sellerProfileId: string, userId: string): Promise<any> {
+  async activateSellerProfile(
+    sellerProfileId: string,
+    userId: string,
+  ): Promise<any> {
     // Verify ownership
     const seller = await prisma.sellerProfile.findUnique({
-      where: { id: sellerProfileId }
+      where: { id: sellerProfileId },
     })
 
     if (!seller || seller.profileId !== userId) {
-      throw new Error('Unauthorized: Seller profile does not belong to this user')
+      throw new Error(
+        'Unauthorized: Seller profile does not belong to this user',
+      )
     }
 
     if (seller.is_active) {
@@ -259,7 +281,7 @@ export const sellerRepository = {
 
     return prisma.sellerProfile.update({
       where: { id: sellerProfileId },
-      data: { is_active: true }
+      data: { is_active: true },
     })
   },
 
@@ -273,7 +295,7 @@ export const sellerRepository = {
    */
   async isStoreSlugTaken(slug: string): Promise<boolean> {
     const seller = await prisma.sellerProfile.findUnique({
-      where: { store_slug: slug }
+      where: { store_slug: slug },
     })
     return !!seller
   },
@@ -284,7 +306,7 @@ export const sellerRepository = {
    */
   async isStoreSlugTakenActive(slug: string): Promise<boolean> {
     const seller = await prisma.sellerProfile.findUnique({
-      where: { store_slug: slug }
+      where: { store_slug: slug },
     })
     return !!seller && seller.is_active
   },
@@ -296,8 +318,8 @@ export const sellerRepository = {
     const seller = await prisma.sellerProfile.findFirst({
       where: {
         profileId: userId,
-        store_slug: slug
-      }
+        store_slug: slug,
+      },
     })
     return !!seller
   },
@@ -312,7 +334,7 @@ export const sellerRepository = {
       if (!isTaken) {
         return baseSlug
       }
-      
+
       // Try with number suffix
       for (let i = 1; i <= 100; i++) {
         const suggestedSlug = `${baseSlug}-${i}`
@@ -337,14 +359,14 @@ export const sellerRepository = {
   async updateVerificationStatus(
     sellerProfileId: string,
     status: 'PENDING' | 'VERIFIED' | 'REJECTED',
-    reason?: string
+    reason?: string,
   ): Promise<any> {
     return prisma.sellerProfile.update({
       where: { id: sellerProfileId },
       data: {
         verification_status: status,
         verification_reason: reason || null,
-      }
+      },
     })
   },
 
@@ -357,7 +379,7 @@ export const sellerRepository = {
       data: {
         is_verified: true,
         verification_status: 'VERIFIED',
-      }
+      },
     })
   },
 
@@ -372,8 +394,8 @@ export const sellerRepository = {
     return prisma.sellerProfile.update({
       where: { id: sellerProfileId },
       data: {
-        followers_count: { increment: 1 }
-      }
+        followers_count: { increment: 1 },
+      },
     })
   },
 
@@ -384,8 +406,8 @@ export const sellerRepository = {
     return prisma.sellerProfile.update({
       where: { id: sellerProfileId },
       data: {
-        followers_count: { decrement: 1 }
-      }
+        followers_count: { decrement: 1 },
+      },
     })
   },
 
@@ -395,7 +417,7 @@ export const sellerRepository = {
   async getFollowerCount(sellerProfileId: string): Promise<number> {
     const seller = await prisma.sellerProfile.findUnique({
       where: { id: sellerProfileId },
-      select: { followers_count: true }
+      select: { followers_count: true },
     })
     return seller?.followers_count || 0
   },
@@ -414,7 +436,7 @@ export const sellerRepository = {
         profileId: userId,
         is_active: true,
       },
-      data: { is_active: false }
+      data: { is_active: false },
     })
     return result.count
   },
@@ -428,8 +450,8 @@ export const sellerRepository = {
         profileId: userId,
         is_active: false,
       },
-      data: { is_active: true }
+      data: { is_active: true },
     })
     return result.count
-  }
+  },
 }

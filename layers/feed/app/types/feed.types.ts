@@ -1,15 +1,17 @@
-import type { IPost, IProduct } from "../../../../layers/post/app/types/post.types"
-
+import type {
+  IPost,
+  IProduct,
+} from '../../../../layers/post/app/types/post.types'
 
 /**
  * Unified feed item interface
  * Normalizes posts and products into a single consumable format
  */
 export interface IFeedItem {
-  id: string                    // Unique identifier (raw UUID for posts; "product-{id}" for products)
-  type: 'POST' | 'PRODUCT'      // Discriminator for rendering
-  created_at: Date            // ISO timestamp for sorting
-  
+  id: string // Unique identifier (raw UUID for posts; "product-{id}" for products)
+  type: 'POST' | 'PRODUCT' // Discriminator for rendering
+  created_at: Date // ISO timestamp for sorting
+
   // Normalized author (works for both users and sellers)
   author: {
     id: string
@@ -17,7 +19,7 @@ export interface IFeedItem {
     avatar?: string | null | undefined
     role: 'user' | 'seller'
   }
-  
+
   // Media (primary display — first non-music item, kept for backward compat)
   media?: {
     id: string
@@ -38,23 +40,23 @@ export interface IFeedItem {
   bgMusic?: {
     id: string
     url: string
-    name?: string   // original filename / display title
+    name?: string // original filename / display title
   }
-  
+
   // Content
   caption: string
-  content?: string | null   // For posts: text content; For products: description
-  contentType: string         // For posts: EXPERIENCE, INSPIRATION, etc.
-  
+  content?: string | null // For posts: text content; For products: description
+  contentType: string // For posts: EXPERIENCE, INSPIRATION, etc.
+
   // Engagement metrics
   likeCount: number
   commentCount: number
   shareCount?: number
-  
+
   // Product references
-  taggedProducts?: Partial<IProduct>[]  // Products tagged in post
-  product?: IProduct                     // For PRODUCT type, the actual product
-  
+  taggedProducts?: Partial<IProduct>[] // Products tagged in post
+  product?: IProduct // For PRODUCT type, the actual product
+
   // Original data (for type-specific operations)
   //_raw: IPost | IProduct        // Preserve original object
 }
@@ -79,5 +81,5 @@ export interface IFeedOptions {
   limit?: number
   offset?: number
   type?: 'all' | 'posts' | 'products'
-  userId?: string               // Filter by specific user/seller
+  userId?: string // Filter by specific user/seller
 }

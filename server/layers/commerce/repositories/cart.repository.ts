@@ -6,11 +6,11 @@ const cartInclude = {
       product: {
         include: {
           seller: { select: { store_slug: true, store_name: true } },
-          media: { select: { id: true, url: true, type: true } }
-        }
-      }
-    }
-  }
+          media: { select: { id: true, url: true, type: true } },
+        },
+      },
+    },
+  },
 }
 
 export const cartRepository = {
@@ -18,7 +18,7 @@ export const cartRepository = {
     return prisma.cartItem.findMany({
       where: { userId },
       include: cartInclude,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -27,7 +27,7 @@ export const cartRepository = {
       where: { userId_variantId: { userId, variantId } },
       update: { quantity: { increment: quantity } },
       create: { userId, variantId, quantity },
-      include: cartInclude
+      include: cartInclude,
     })
   },
 
@@ -35,13 +35,13 @@ export const cartRepository = {
     return prisma.cartItem.update({
       where: { userId_variantId: { userId, variantId } },
       data: { quantity },
-      include: cartInclude
+      include: cartInclude,
     })
   },
 
   async removeFromCart(userId: string, variantId: number) {
     return prisma.cartItem.delete({
-      where: { userId_variantId: { userId, variantId } }
+      where: { userId_variantId: { userId, variantId } },
     })
   },
 
@@ -52,7 +52,7 @@ export const cartRepository = {
   async getCartItem(userId: string, variantId: number) {
     return prisma.cartItem.findUnique({
       where: { userId_variantId: { userId, variantId } },
-      include: cartInclude
+      include: cartInclude,
     })
-  }
+  },
 }

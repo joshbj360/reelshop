@@ -1,40 +1,66 @@
 <template>
   <div class="px-3 py-4 sm:px-6">
-    <div class="flex items-center gap-3 mb-6">
-      <NuxtLink :to="`/seller/${storeSlug}/products`" class="text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200">
+    <div class="mb-6 flex items-center gap-3">
+      <NuxtLink
+        :to="`/seller/${storeSlug}/products`"
+        class="text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+      >
         <Icon name="mdi:arrow-left" size="20" />
       </NuxtLink>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">New Product</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">
+        New Product
+      </h1>
     </div>
 
     <div class="max-w-3xl">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Error -->
-        <div v-if="error" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div
+          v-if="error"
+          class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+        >
           <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
         </div>
 
         <!-- Media Upload -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6 space-y-4">
-          <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Product Images</h2>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">Upload up to 5 images. First image becomes the cover.</p>
+        <div
+          class="space-y-4 rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
+          <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+            Product Images
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">
+            Upload up to 5 images. First image becomes the cover.
+          </p>
 
           <!-- Image previews grid -->
-          <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+          <div class="grid grid-cols-3 gap-3 sm:grid-cols-5">
             <div
               v-for="(img, i) in mediaItems"
               :key="i"
-              class="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700"
+              class="relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-neutral-700 dark:bg-neutral-900"
             >
-              <img :src="img.preview" class="w-full h-full object-cover" />
-              <div v-if="img.uploading" class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Icon name="mdi:loading" size="20" class="text-white animate-spin" />
+              <img :src="img.preview" class="h-full w-full object-cover" />
+              <div
+                v-if="img.uploading"
+                class="absolute inset-0 flex items-center justify-center bg-black/50"
+              >
+                <Icon
+                  name="mdi:loading"
+                  size="20"
+                  class="animate-spin text-white"
+                />
               </div>
-              <div v-if="i === 0" class="absolute top-1 left-1 bg-brand text-white text-[10px] px-1.5 py-0.5 rounded font-medium">Cover</div>
+              <div
+                v-if="i === 0"
+                class="absolute left-1 top-1 rounded bg-brand px-1.5 py-0.5 text-[10px] font-medium text-white"
+              >
+                Cover
+              </div>
               <button
                 type="button"
                 @click="removeMediaItem(i)"
-                class="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80"
+                class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
               >
                 <Icon name="mdi:close" size="12" />
               </button>
@@ -43,88 +69,162 @@
             <!-- Add image button -->
             <label
               v-if="mediaItems.length < 5"
-              class="aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-neutral-600 flex flex-col items-center justify-center cursor-pointer hover:border-brand hover:bg-brand/5 transition-colors"
+              class="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors hover:border-brand hover:bg-brand/5 dark:border-neutral-600"
             >
-              <Icon name="mdi:image-plus" size="24" class="text-gray-400 dark:text-neutral-500 mb-1" />
-              <span class="text-xs text-gray-400 dark:text-neutral-500">Add</span>
-              <input type="file" accept="image/*,video/*" multiple class="hidden" @change="onImagesSelected" />
+              <Icon
+                name="mdi:image-plus"
+                size="24"
+                class="mb-1 text-gray-400 dark:text-neutral-500"
+              />
+              <span class="text-xs text-gray-400 dark:text-neutral-500"
+                >Add</span
+              >
+              <input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                class="hidden"
+                @change="onImagesSelected"
+              />
             </label>
           </div>
 
           <!-- ✨ AI Magic Lister Banner (Shows after image upload) -->
-          <div v-if="mediaItems.length > 0" class="mt-6 p-5 bg-gradient-to-r from-brand/10 to-purple-600/10 dark:from-brand/20 dark:to-purple-600/20 rounded-xl border border-brand/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div
+            v-if="mediaItems.length > 0"
+            class="mt-6 flex flex-col items-start justify-between gap-4 rounded-xl border border-brand/20 bg-gradient-to-r from-brand/10 to-purple-600/10 p-5 shadow-sm sm:flex-row sm:items-center dark:from-brand/20 dark:to-purple-600/20"
+          >
             <div>
-              <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+              <h3
+                class="flex items-center gap-1.5 text-sm font-bold text-gray-900 dark:text-white"
+              >
                 <Icon name="mdi:magic-staff" class="text-brand" size="18" />
                 AI Magic Lister
               </h3>
-              <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 max-w-sm">
-                Save time! Let our AI analyze your cover image to auto-write your title, description, price, and social media captions.
+              <p class="mt-1 max-w-sm text-xs text-gray-600 dark:text-gray-300">
+                Save time! Let our AI analyze your cover image to auto-write
+                your title, description, price, and social media captions.
               </p>
             </div>
-            <button 
-              type="button" 
-              @click="autoFillWithAI" 
-              :disabled="isGeneratingAI || mediaItems[0]?.uploading" 
-              class="w-full sm:w-auto px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-bold shadow-md hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 shrink-0"
+            <button
+              type="button"
+              @click="autoFillWithAI"
+              :disabled="isGeneratingAI || mediaItems[0]?.uploading"
+              class="flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 sm:w-auto dark:bg-white dark:text-gray-900"
             >
-              <Icon v-if="isGeneratingAI" name="eos-icons:loading" class="animate-spin" size="18" />
+              <Icon
+                v-if="isGeneratingAI"
+                name="eos-icons:loading"
+                class="animate-spin"
+                size="18"
+              />
               <Icon v-else name="mdi:creation" size="18" />
               {{ isGeneratingAI ? 'Generating...' : 'Auto-Fill Form' }}
             </button>
           </div>
 
           <!-- Background Music -->
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-neutral-700">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Background Music (optional)</h3>
-            <div v-if="bgMusic" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-neutral-900 rounded-lg">
-              <Icon name="mdi:music-note" size="20" class="text-brand flex-shrink-0" />
-              <span class="text-sm text-gray-700 dark:text-neutral-300 truncate flex-1">{{ bgMusic.name }}</span>
+          <div
+            class="mt-4 border-t border-gray-100 pt-4 dark:border-neutral-700"
+          >
+            <h3
+              class="mb-2 text-sm font-medium text-gray-700 dark:text-neutral-300"
+            >
+              Background Music (optional)
+            </h3>
+            <div
+              v-if="bgMusic"
+              class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-neutral-900"
+            >
+              <Icon
+                name="mdi:music-note"
+                size="20"
+                class="flex-shrink-0 text-brand"
+              />
+              <span
+                class="flex-1 truncate text-sm text-gray-700 dark:text-neutral-300"
+                >{{ bgMusic.name }}</span
+              >
               <div v-if="bgMusicUploading" class="flex-shrink-0">
-                <Icon name="mdi:loading" size="16" class="animate-spin text-brand" />
+                <Icon
+                  name="mdi:loading"
+                  size="16"
+                  class="animate-spin text-brand"
+                />
               </div>
-              <button type="button" @click="removeBgMusic" class="text-gray-400 hover:text-red-500 flex-shrink-0">
+              <button
+                type="button"
+                @click="removeBgMusic"
+                class="flex-shrink-0 text-gray-400 hover:text-red-500"
+              >
                 <Icon name="mdi:close" size="16" />
               </button>
             </div>
-            <label v-else class="flex items-center gap-2 px-4 py-2.5 border border-dashed border-gray-300 dark:border-neutral-600 rounded-lg cursor-pointer hover:border-brand hover:bg-brand/5 transition-colors w-fit">
-              <Icon name="mdi:music-plus" size="18" class="text-gray-400 dark:text-neutral-500" />
-              <span class="text-sm text-gray-500 dark:text-neutral-400">Add background music</span>
-              <input type="file" accept="audio/*" class="hidden" @change="onBgMusicSelected" />
+            <label
+              v-else
+              class="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2.5 transition-colors hover:border-brand hover:bg-brand/5 dark:border-neutral-600"
+            >
+              <Icon
+                name="mdi:music-plus"
+                size="18"
+                class="text-gray-400 dark:text-neutral-500"
+              />
+              <span class="text-sm text-gray-500 dark:text-neutral-400"
+                >Add background music</span
+              >
+              <input
+                type="file"
+                accept="audio/*"
+                class="hidden"
+                @change="onBgMusicSelected"
+              />
             </label>
           </div>
         </div>
 
         <!-- Basic Info -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6 space-y-4">
-          <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Basic Information</h2>
+        <div
+          class="space-y-4 rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
+          <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+            Basic Information
+          </h2>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Product Title *</label>
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+              >Product Title *</label
+            >
             <input
               v-model="form.title"
               type="text"
               required
               placeholder="e.g. Vintage Denim Jacket"
-              class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+              class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Description *</label>
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+              >Description *</label
+            >
             <textarea
               v-model="form.description"
               required
               rows="4"
               minlength="10"
               placeholder="Describe your product..."
-              class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm resize-none"
+              class="w-full resize-none rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
             />
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Price (₦) *</label>
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+                >Price (₦) *</label
+              >
               <input
                 v-model.number="form.price"
                 type="number"
@@ -132,27 +232,38 @@
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+                class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Discount (%)</label>
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+                >Discount (%)</label
+              >
               <input
                 v-model.number="form.discount"
                 type="number"
                 min="0"
                 max="100"
                 placeholder="0"
-                class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+                class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               />
             </div>
           </div>
 
           <!-- Affiliate Commission -->
-          <div class="p-4 bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 rounded-lg">
-            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
+          <div
+            class="rounded-lg border border-purple-100 bg-purple-50 p-4 dark:border-purple-800/30 dark:bg-purple-900/10"
+          >
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+            >
               Affiliate Commission (₦)
-              <span class="ml-1 text-xs font-normal text-gray-400 dark:text-neutral-500">— optional. Set this to let others earn by marketing your product.</span>
+              <span
+                class="ml-1 text-xs font-normal text-gray-400 dark:text-neutral-500"
+                >— optional. Set this to let others earn by marketing your
+                product.</span
+              >
             </label>
             <input
               v-model.number="form.affiliateCommission"
@@ -160,28 +271,40 @@
               min="0"
               step="0.01"
               placeholder="e.g. 500"
-              class="w-full sm:w-1/2 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+              class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand sm:w-1/2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
             />
-            <p v-if="form.affiliateCommission && form.affiliateCommission > 0" class="mt-1.5 text-xs text-purple-600 dark:text-purple-400">
-              Marketers will see: "Earn ₦{{ Number(form.affiliateCommission).toLocaleString() }} by selling this product"
+            <p
+              v-if="form.affiliateCommission && form.affiliateCommission > 0"
+              class="mt-1.5 text-xs text-purple-600 dark:text-purple-400"
+            >
+              Marketers will see: "Earn ₦{{
+                Number(form.affiliateCommission).toLocaleString()
+              }}
+              by selling this product"
             </p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">SKU</label>
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+                >SKU</label
+              >
               <input
                 v-model="form.SKU"
                 type="text"
                 placeholder="Optional"
-                class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+                class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Status</label>
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+                >Status</label
+              >
               <select
                 v-model="form.status"
-                class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+                class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               >
                 <option value="DRAFT">Draft</option>
                 <option value="PUBLISHED">Published</option>
@@ -191,95 +314,195 @@
         </div>
 
         <!-- ✨ AI Generated Social Posts (Only shows if AI was used) -->
-        <div v-if="hasAiCaptions" class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6 space-y-4 shadow-[0_0_15px_rgba(240,44,86,0.05)]">
-          <div class="flex items-center gap-2 mb-2">
+        <div
+          v-if="hasAiCaptions"
+          class="space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-[0_0_15px_rgba(240,44,86,0.05)] sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
+          <div class="mb-2 flex items-center gap-2">
             <Icon name="mdi:share-all-outline" size="24" class="text-brand" />
             <div>
-              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Social Media Posts</h2>
-              <p class="text-xs text-gray-500 dark:text-neutral-400">These will automatically publish to your linked accounts when you create the product.</p>
+              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+                Social Media Posts
+              </h2>
+              <p class="text-xs text-gray-500 dark:text-neutral-400">
+                These will automatically publish to your linked accounts when
+                you create the product.
+              </p>
             </div>
           </div>
 
           <div class="space-y-4">
-             <!-- IG -->
-             <div class="bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg border border-gray-100 dark:border-neutral-700">
-               <label class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300 mb-2">
-                 <Icon name="mdi:instagram" class="text-pink-600" size="16" /> Instagram
-               </label>
-               <textarea v-model="form.socialCaptions.instagram" rows="4" class="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand resize-none"></textarea>
-             </div>
-             
-             <!-- Facebook -->
-             <div class="bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg border border-gray-100 dark:border-neutral-700">
-               <label class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300 mb-2">
-                 <Icon name="mdi:facebook" class="text-blue-600" size="16" /> Facebook
-               </label>
-               <textarea v-model="form.socialCaptions.facebook" rows="3" class="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand resize-none"></textarea>
-             </div>
+            <!-- IG -->
+            <div
+              class="rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-neutral-700 dark:bg-neutral-900"
+            >
+              <label
+                class="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300"
+              >
+                <Icon name="mdi:instagram" class="text-pink-600" size="16" />
+                Instagram
+              </label>
+              <textarea
+                v-model="form.socialCaptions.instagram"
+                rows="4"
+                class="w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+              ></textarea>
+            </div>
 
-             <!-- Pinterest -->
-             <div class="bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg border border-gray-100 dark:border-neutral-700">
-               <label class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300 mb-2">
-                 <Icon name="mdi:pinterest" class="text-red-600" size="16" /> Pinterest
-               </label>
-               <textarea v-model="form.socialCaptions.pinterest" rows="2" class="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand resize-none"></textarea>
-             </div>
+            <!-- Facebook -->
+            <div
+              class="rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-neutral-700 dark:bg-neutral-900"
+            >
+              <label
+                class="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300"
+              >
+                <Icon name="mdi:facebook" class="text-blue-600" size="16" />
+                Facebook
+              </label>
+              <textarea
+                v-model="form.socialCaptions.facebook"
+                rows="3"
+                class="w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+              ></textarea>
+            </div>
+
+            <!-- Pinterest -->
+            <div
+              class="rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-neutral-700 dark:bg-neutral-900"
+            >
+              <label
+                class="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300"
+              >
+                <Icon name="mdi:pinterest" class="text-red-600" size="16" />
+                Pinterest
+              </label>
+              <textarea
+                v-model="form.socialCaptions.pinterest"
+                rows="2"
+                class="w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+              ></textarea>
+            </div>
           </div>
         </div>
 
         <!-- Variants -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6 space-y-4">
+        <div
+          class="space-y-4 rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
           <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Variants</h2>
-            <button type="button" @click="addVariant" class="text-sm text-brand hover:underline flex items-center gap-1">
+            <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+              Variants
+            </h2>
+            <button
+              type="button"
+              @click="addVariant"
+              class="flex items-center gap-1 text-sm text-brand hover:underline"
+            >
               <Icon name="mdi:plus" size="16" /> Add Variant
             </button>
           </div>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">Add size, color, or other options.</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">
+            Add size, color, or other options.
+          </p>
 
-          <div v-for="(variant, i) in form.variants" :key="i" class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-neutral-900 rounded-lg">
-            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div
+            v-for="(variant, i) in form.variants"
+            :key="i"
+            class="flex items-start gap-3 rounded-lg bg-gray-50 p-3 dark:bg-neutral-900"
+          >
+            <div
+              class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3"
+            >
               <div>
-                <label class="block text-xs text-gray-500 dark:text-neutral-400 mb-1">Size / Name</label>
-                <input v-model="variant.size" placeholder="e.g. M, Red, 42" class="w-full px-3 py-1.5 text-sm rounded border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 focus:outline-none" />
+                <label
+                  class="mb-1 block text-xs text-gray-500 dark:text-neutral-400"
+                  >Size / Name</label
+                >
+                <input
+                  v-model="variant.size"
+                  placeholder="e.g. M, Red, 42"
+                  class="w-full rounded border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                />
               </div>
               <div>
-                <label class="block text-xs text-gray-500 dark:text-neutral-400 mb-1">Price (₦)</label>
-                <input v-model.number="variant.price" type="number" min="0" placeholder="Same as base" class="w-full px-3 py-1.5 text-sm rounded border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 focus:outline-none" />
+                <label
+                  class="mb-1 block text-xs text-gray-500 dark:text-neutral-400"
+                  >Price (₦)</label
+                >
+                <input
+                  v-model.number="variant.price"
+                  type="number"
+                  min="0"
+                  placeholder="Same as base"
+                  class="w-full rounded border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                />
               </div>
               <div>
-                <label class="block text-xs text-gray-500 dark:text-neutral-400 mb-1">Stock</label>
-                <input v-model.number="variant.stock" type="number" min="0" placeholder="0" class="w-full px-3 py-1.5 text-sm rounded border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 focus:outline-none" />
+                <label
+                  class="mb-1 block text-xs text-gray-500 dark:text-neutral-400"
+                  >Stock</label
+                >
+                <input
+                  v-model.number="variant.stock"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  class="w-full rounded border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                />
               </div>
             </div>
-            <button type="button" @click="removeVariant(i)" class="text-red-400 hover:text-red-600 mt-5 flex-shrink-0">
+            <button
+              type="button"
+              @click="removeVariant(i)"
+              class="mt-5 flex-shrink-0 text-red-400 hover:text-red-600"
+            >
               <Icon name="mdi:close" size="18" />
             </button>
           </div>
 
-          <p v-if="!form.variants.length" class="text-sm text-gray-400 dark:text-neutral-500 text-center py-2">
+          <p
+            v-if="!form.variants.length"
+            class="py-2 text-center text-sm text-gray-400 dark:text-neutral-500"
+          >
             No variants added. Product will have a single default option.
           </p>
         </div>
 
         <!-- Categories -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6">
-          <h2 class="font-semibold text-gray-900 dark:text-neutral-100 mb-1">Categories</h2>
-          <p class="text-xs text-gray-500 dark:text-neutral-400 mb-3">Select all that apply.</p>
-          <div v-if="categoriesLoading" class="flex items-center gap-2 text-sm text-gray-400 dark:text-neutral-500">
-            <Icon name="mdi:loading" size="16" class="animate-spin" /> Loading categories…
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
+          <h2 class="mb-1 font-semibold text-gray-900 dark:text-neutral-100">
+            Categories
+          </h2>
+          <p class="mb-3 text-xs text-gray-500 dark:text-neutral-400">
+            Select all that apply.
+          </p>
+          <div
+            v-if="categoriesLoading"
+            class="flex items-center gap-2 text-sm text-gray-400 dark:text-neutral-500"
+          >
+            <Icon name="mdi:loading" size="16" class="animate-spin" /> Loading
+            categories…
           </div>
-          <div v-else-if="categories.length === 0" class="text-sm text-gray-400 dark:text-neutral-500">No categories available.</div>
+          <div
+            v-else-if="categories.length === 0"
+            class="text-sm text-gray-400 dark:text-neutral-500"
+          >
+            No categories available.
+          </div>
           <div v-else class="flex flex-wrap gap-2">
             <button
               v-for="cat in categories"
               :key="cat.id"
               type="button"
               @click="toggleCategory(cat.id)"
-              class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
-              :class="form.categoryIds.includes(cat.id)
-                ? 'bg-brand text-white border-brand'
-                : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 border-gray-200 dark:border-neutral-600 hover:border-brand'"
+              class="rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
+              :class="
+                form.categoryIds.includes(cat.id)
+                  ? 'border-brand bg-brand text-white'
+                  : 'border-gray-200 bg-gray-100 text-gray-700 hover:border-brand dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-300'
+              "
             >
               {{ cat.name }}
             </button>
@@ -287,38 +510,68 @@
         </div>
 
         <!-- Flags -->
-        <div class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6">
-          <h2 class="font-semibold text-gray-900 dark:text-neutral-100 mb-4">Product Flags</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.isFeatured" type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
-              <span class="text-sm text-gray-700 dark:text-neutral-300">Featured</span>
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
+          <h2 class="mb-4 font-semibold text-gray-900 dark:text-neutral-100">
+            Product Flags
+          </h2>
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <label class="flex cursor-pointer items-center gap-2">
+              <input
+                v-model="form.isFeatured"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+              />
+              <span class="text-sm text-gray-700 dark:text-neutral-300"
+                >Featured</span
+              >
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.isThrift" type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
-              <span class="text-sm text-gray-700 dark:text-neutral-300">Thrift</span>
+            <label class="flex cursor-pointer items-center gap-2">
+              <input
+                v-model="form.isThrift"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+              />
+              <span class="text-sm text-gray-700 dark:text-neutral-300"
+                >Thrift</span
+              >
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.isAccessory" type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
-              <span class="text-sm text-gray-700 dark:text-neutral-300">Accessory</span>
+            <label class="flex cursor-pointer items-center gap-2">
+              <input
+                v-model="form.isAccessory"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+              />
+              <span class="text-sm text-gray-700 dark:text-neutral-300"
+                >Accessory</span
+              >
             </label>
           </div>
         </div>
 
         <!-- Submit -->
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col gap-3 sm:flex-row">
           <NuxtLink
             :to="`/seller/${storeSlug}/products`"
-            class="flex-1 py-3 text-center border border-gray-200 dark:border-neutral-700 rounded-xl text-gray-700 dark:text-neutral-300 font-semibold hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+            class="flex-1 rounded-xl border border-gray-200 py-3 text-center font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
           >
             Cancel
           </NuxtLink>
           <button
             type="submit"
             :disabled="isLoading || isAnyUploading || isGeneratingAI"
-            class="flex-1 py-3 bg-brand text-white rounded-xl font-semibold hover:bg-[#d81b36] disabled:opacity-50 transition-colors"
+            class="flex-1 rounded-xl bg-brand py-3 font-semibold text-white transition-colors hover:bg-[#d81b36] disabled:opacity-50"
           >
-            {{ isAnyUploading ? 'Uploading Media...' : isGeneratingAI ? 'AI Processing...' : isLoading ? 'Creating...' : 'Create Product' }}
+            {{
+              isAnyUploading
+                ? 'Uploading Media...'
+                : isGeneratingAI
+                  ? 'AI Processing...'
+                  : isLoading
+                    ? 'Creating...'
+                    : 'Create Product'
+            }}
           </button>
         </div>
       </form>
@@ -338,7 +591,10 @@ definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
 const route = useRoute()
 const router = useRouter()
-const storeSlug = computed(() => route.params.storeSlug as string || route.params.store_slug as string)
+const storeSlug = computed(
+  () =>
+    (route.params.storeSlug as string) || (route.params.store_slug as string),
+)
 
 const { createProduct, fetchCategories, isLoading, error } = useProduct()
 const { uploadMedia } = useMediaUpload()
@@ -353,16 +609,23 @@ interface MediaItem {
 }
 
 const mediaItems = ref<MediaItem[]>([])
-const bgMusic = ref<{ name: string; file: File; result: { url: string; public_id: string } | null } | null>(null)
+const bgMusic = ref<{
+  name: string
+  file: File
+  result: { url: string; public_id: string } | null
+} | null>(null)
 const bgMusicUploading = ref(false)
 
-const isAnyUploading = computed(() =>
-  mediaItems.value.some(m => m.uploading) || bgMusicUploading.value
+const isAnyUploading = computed(
+  () => mediaItems.value.some((m) => m.uploading) || bgMusicUploading.value,
 )
 
 const onImagesSelected = async (e: Event) => {
   const input = e.target as HTMLInputElement
-  const files = Array.from(input.files || []).slice(0, 5 - mediaItems.value.length)
+  const files = Array.from(input.files || []).slice(
+    0,
+    5 - mediaItems.value.length,
+  )
   input.value = ''
 
   for (const file of files) {
@@ -370,7 +633,7 @@ const onImagesSelected = async (e: Event) => {
       preview: URL.createObjectURL(file),
       file,
       uploading: true,
-      result: null
+      result: null,
     }
     mediaItems.value.push(item)
     const idx = mediaItems.value.length - 1
@@ -412,7 +675,9 @@ const onBgMusicSelected = async (e: Event) => {
   }
 }
 
-const removeBgMusic = () => { bgMusic.value = null }
+const removeBgMusic = () => {
+  bgMusic.value = null
+}
 
 // ── Form state ───────────────────────────────────────────────────────────────
 const form = reactive({
@@ -432,13 +697,20 @@ const form = reactive({
   socialCaptions: {
     instagram: '',
     facebook: '',
-    pinterest: ''
-  }
+    pinterest: '',
+  },
 })
 
 // ── AI Magic Lister Integration ───────────────────────────────────────────────
 const isGeneratingAI = ref(false)
-const hasAiCaptions = computed(() => !!(form.socialCaptions.instagram || form.socialCaptions.facebook || form.socialCaptions.pinterest))
+const hasAiCaptions = computed(
+  () =>
+    !!(
+      form.socialCaptions.instagram ||
+      form.socialCaptions.facebook ||
+      form.socialCaptions.pinterest
+    ),
+)
 
 // Helper to convert File to Base64 for the Gemini API
 const fileToBase64 = (file: File): Promise<string> => {
@@ -448,7 +720,7 @@ const fileToBase64 = (file: File): Promise<string> => {
     reader.onload = () => {
       const result = reader.result as string
       // The API expects pure base64 without the data:image prefix
-      const base64Data = result.split(',')[1] 
+      const base64Data = result.split(',')[1]
       resolve(base64Data)
     }
     reader.onerror = (error) => reject(error)
@@ -457,7 +729,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 
 const autoFillWithAI = async () => {
   if (!mediaItems.value.length) return
-  
+
   isGeneratingAI.value = true
   try {
     // 1. Get the first image (cover image)
@@ -465,21 +737,25 @@ const autoFillWithAI = async () => {
     const base64Image = await fileToBase64(coverFile)
 
     // 2. Call AI service
-    const response = await aiApi.generateListing(base64Image, coverFile.type, form.isThrift ? 'This is a thrift/vintage item.' : '')
+    const response = await aiApi.generateListing(
+      base64Image,
+      coverFile.type,
+      form.isThrift ? 'This is a thrift/vintage item.' : '',
+    )
 
     // 3. Populate the reactive form fields
     if (response.success && response.data) {
       const aiData = response.data
-      
+
       // Only overwrite fields if they are empty, or fully overwrite if you prefer
       form.title = aiData.title || form.title
       form.description = aiData.description || form.description
-      
+
       // Don't overwrite price if they already typed one
       if (!form.price && aiData.suggestedPrice) {
         // Convert suggested USD price to NGN (Rough mock conversion, adjust as needed)
         // Assuming 1 USD = ~1500 NGN for placeholder logic
-        form.price = Math.round((aiData.suggestedPrice * 1500) / 100) * 100 
+        form.price = Math.round((aiData.suggestedPrice * 1500) / 100) * 100
       }
 
       form.socialCaptions.instagram = aiData.socialCaptions?.instagram || ''
@@ -490,7 +766,10 @@ const autoFillWithAI = async () => {
     }
   } catch (err: any) {
     console.error('AI Generation Failed:', err)
-    notify({ type: 'error', text: 'Failed to generate listing with AI. Please try again.' })
+    notify({
+      type: 'error',
+      text: 'Failed to generate listing with AI. Please try again.',
+    })
   } finally {
     isGeneratingAI.value = false
   }
@@ -538,17 +817,18 @@ const handleSubmit = async () => {
       isThrift: form.isThrift,
       isAccessory: form.isAccessory,
       // Include the social captions in the payload to save them to the DB
-      socialCaptions: form.socialCaptions
+      socialCaptions: form.socialCaptions,
     }
 
-    if (form.affiliateCommission && form.affiliateCommission > 0) payload.affiliateCommission = form.affiliateCommission
+    if (form.affiliateCommission && form.affiliateCommission > 0)
+      payload.affiliateCommission = form.affiliateCommission
     if (form.SKU) payload.SKU = form.SKU
     if (form.categoryIds.length) payload.categoryIds = form.categoryIds
 
     if (form.variants.length) {
       payload.variants = form.variants
-        .filter(v => v.size)
-        .map(v => ({
+        .filter((v) => v.size)
+        .map((v) => ({
           size: v.size,
           price: v.price ?? undefined,
           stock: v.stock,
@@ -556,9 +836,9 @@ const handleSubmit = async () => {
     }
 
     // Attach uploaded media
-    const uploaded = mediaItems.value.filter(m => m.result)
+    const uploaded = mediaItems.value.filter((m) => m.result)
     if (uploaded.length) {
-      payload.mediaItems = uploaded.map(m => ({
+      payload.mediaItems = uploaded.map((m) => ({
         url: m.result!.url,
         public_id: m.result!.public_id,
         type: m.result!.type || 'IMAGE',

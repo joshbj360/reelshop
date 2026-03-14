@@ -14,15 +14,14 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: settings
+      data: settings,
     }
-
   } catch (error: any) {
     // Handle Service Errors
     if (error.statusCode) {
       throw createError({
         statusCode: error.statusCode,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
@@ -30,7 +29,7 @@ export default defineEventHandler(async (event) => {
     console.error('[Get Settings API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

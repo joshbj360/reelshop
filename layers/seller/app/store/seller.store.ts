@@ -16,11 +16,9 @@ export const useSellerStore = defineStore('seller', () => {
   // Getters
   const hasSellers = computed(() => sellers.value.length > 0)
   const sellerCount = computed(() => sellers.value.length)
-  const activeSellers = computed(() => 
-    sellers.value.filter(s => s.is_active)
-  )
-  const inactiveSellers = computed(() => 
-    sellers.value.filter(s => !s.is_active)
+  const activeSellers = computed(() => sellers.value.filter((s) => s.is_active))
+  const inactiveSellers = computed(() =>
+    sellers.value.filter((s) => !s.is_active),
   )
 
   // Actions - State Management
@@ -33,14 +31,14 @@ export const useSellerStore = defineStore('seller', () => {
   }
 
   const updateSeller = (sellerId: string, updates: any) => {
-    const index = sellers.value.findIndex(s => s.id === sellerId)
+    const index = sellers.value.findIndex((s) => s.id === sellerId)
     if (index !== -1) {
       sellers.value[index] = { ...sellers.value[index], ...updates }
     }
   }
 
   const removeSeller = (sellerId: string) => {
-    sellers.value = sellers.value.filter(s => s.id !== sellerId)
+    sellers.value = sellers.value.filter((s) => s.id !== sellerId)
   }
 
   const setCurrentSeller = (seller: any) => {
@@ -98,6 +96,6 @@ export const useSellerStore = defineStore('seller', () => {
     setLoading,
     setError,
     setMessage,
-    clearAllSellers
+    clearAllSellers,
   }
 })

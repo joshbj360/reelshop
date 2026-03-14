@@ -1,15 +1,15 @@
 // FILE PATH: layers/seller/app/composables/useSellerManagement.ts
 
-import { useSellerApi } from "../services/seller.services"
-import { useSellerStore } from "../store/seller.store"
-import { useProfile } from "~~/layers/profile/app/composables/useProfile"
-import { useAuthStore } from "~~/layers/base/app/stores/auth.store"
+import { useSellerApi } from '../services/seller.services'
+import { useSellerStore } from '../store/seller.store'
+import { useProfile } from '~~/layers/profile/app/composables/useProfile'
+import { useAuthStore } from '~~/layers/base/app/stores/auth.store'
 
 /**
  * Seller Management Composable
  * Provides seller functionality to components
  * Uses seller store and API service
- * 
+ *
  * Pattern matches: useAuth composable
  */
 
@@ -38,7 +38,7 @@ export function useSellerManagement() {
 
     try {
       const result = await sellerApi.createSellerProfile(data)
-      
+
       sellerStore.addSeller(result.data)
       sellerStore.setMessage('Seller profile created successfully!')
 
@@ -47,10 +47,13 @@ export function useSellerManagement() {
 
       // Navigate to seller dashboard
       await router.push('/sellers/dashboard')
-      
+
       return result
     } catch (error: any) {
-      const message = error.response?.data?.statusMessage || error.message || 'Failed to create seller'
+      const message =
+        error.response?.data?.statusMessage ||
+        error.message ||
+        'Failed to create seller'
       sellerStore.setError(message)
       throw error
     } finally {
@@ -73,7 +76,10 @@ export function useSellerManagement() {
       sellerStore.setSellers(result.data)
       return result
     } catch (error: any) {
-      const message = error.response?.data?.statusMessage || error.message || 'Failed to load sellers'
+      const message =
+        error.response?.data?.statusMessage ||
+        error.message ||
+        'Failed to load sellers'
       sellerStore.setError(message)
       throw error
     } finally {
@@ -90,7 +96,10 @@ export function useSellerManagement() {
       sellerStore.setCurrentSeller(result.data)
       return result
     } catch (error: any) {
-      const message = error.response?.data?.statusMessage || error.message || 'Seller not found'
+      const message =
+        error.response?.data?.statusMessage ||
+        error.message ||
+        'Seller not found'
       sellerStore.setError(message)
       throw error
     } finally {
@@ -112,21 +121,24 @@ export function useSellerManagement() {
       store_banner?: string
       store_socials?: Record<string, any>
       auto_answer_enabled?: boolean
-    }
+    },
   ) => {
     sellerStore.setLoading(true)
     sellerStore.setError(null)
 
     try {
       const result = await sellerApi.updateSellerProfile(sellerId, data)
-      
+
       sellerStore.updateSeller(sellerId, result.data)
       sellerStore.setCurrentSeller(result.data)
       sellerStore.setMessage('Seller profile updated successfully!')
-      
+
       return result
     } catch (error: any) {
-      const message = error.response?.data?.statusMessage || error.message || 'Failed to update seller'
+      const message =
+        error.response?.data?.statusMessage ||
+        error.message ||
+        'Failed to update seller'
       sellerStore.setError(message)
       throw error
     } finally {
@@ -142,13 +154,16 @@ export function useSellerManagement() {
 
     try {
       const result = await sellerApi.activateSellerProfile(sellerId)
-      
+
       sellerStore.updateSeller(sellerId, { is_active: true })
       sellerStore.setMessage('Seller profile activated successfully!')
-      
+
       return result
     } catch (error: any) {
-      const message = error.response?.data?.statusMessage || error.message || 'Failed to activate seller'
+      const message =
+        error.response?.data?.statusMessage ||
+        error.message ||
+        'Failed to activate seller'
       sellerStore.setError(message)
       throw error
     } finally {
@@ -162,13 +177,16 @@ export function useSellerManagement() {
 
     try {
       const result = await sellerApi.deactivateSellerProfile(sellerId)
-      
+
       sellerStore.updateSeller(sellerId, { is_active: false })
       sellerStore.setMessage('Seller profile deactivated successfully!')
-      
+
       return result
     } catch (error: any) {
-      const message = error.response?.data?.statusMessage || error.message || 'Failed to deactivate seller'
+      const message =
+        error.response?.data?.statusMessage ||
+        error.message ||
+        'Failed to deactivate seller'
       sellerStore.setError(message)
       throw error
     } finally {
@@ -242,6 +260,6 @@ export function useSellerManagement() {
     suggestSlugs,
     getFollowStatus,
     followSeller,
-    unfollowSeller
+    unfollowSeller,
   }
 }

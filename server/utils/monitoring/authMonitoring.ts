@@ -94,7 +94,7 @@ export async function getAuthMetrics(): Promise<AuthMetrics> {
  * Check if metrics exceed thresholds and trigger alerts
  */
 export async function checkAlerts(
-  thresholds: AlertThreshold = defaultThresholds
+  thresholds: AlertThreshold = defaultThresholds,
 ): Promise<string[]> {
   const alerts: string[] = []
   const metrics = await getAuthMetrics()
@@ -104,28 +104,28 @@ export async function checkAlerts(
   const failedLoginsPerHour = Math.ceil(metrics.failedLogins24h / 24)
   if (failedLoginsPerHour > thresholds.failedLoginsPerHour) {
     alerts.push(
-      `🚨 HIGH FAILED LOGINS: ${failedLoginsPerHour}/hour (threshold: ${thresholds.failedLoginsPerHour})`
+      `🚨 HIGH FAILED LOGINS: ${failedLoginsPerHour}/hour (threshold: ${thresholds.failedLoginsPerHour})`,
     )
   }
 
   // Check account lockouts
   if (metrics.accountLockouts24h > thresholds.accountLockoutsPerDay) {
     alerts.push(
-      `🚨 EXCESSIVE LOCKOUTS: ${metrics.accountLockouts24h}/day (threshold: ${thresholds.accountLockoutsPerDay})`
+      `🚨 EXCESSIVE LOCKOUTS: ${metrics.accountLockouts24h}/day (threshold: ${thresholds.accountLockoutsPerDay})`,
     )
   }
 
   // Check suspicious activities
   if (metrics.suspiciousActivities24h > thresholds.suspiciousActivitiesPerDay) {
     alerts.push(
-      `🔴 SUSPICIOUS ACTIVITY: ${metrics.suspiciousActivities24h}/day (threshold: ${thresholds.suspiciousActivitiesPerDay})`
+      `🔴 SUSPICIOUS ACTIVITY: ${metrics.suspiciousActivities24h}/day (threshold: ${thresholds.suspiciousActivitiesPerDay})`,
     )
   }
 
   // Check login latency
   if (metrics.averageLoginTime > thresholds.loginLatencyMs) {
     alerts.push(
-      `⚠️ HIGH LATENCY: ${metrics.averageLoginTime}ms (threshold: ${thresholds.loginLatencyMs}ms)`
+      `⚠️ HIGH LATENCY: ${metrics.averageLoginTime}ms (threshold: ${thresholds.loginLatencyMs}ms)`,
     )
   }
 
@@ -135,13 +135,11 @@ export async function checkAlerts(
 /**
  * Get detailed suspicious activity report
  */
-export async function getSuspiciousActivityReport(
-  hours: number = 24
-) {
+export async function getSuspiciousActivityReport(hours: number = 24) {
   const since = new Date(Date.now() - hours * 60 * 60 * 1000)
 
   // Multiple failed logins from same IP
-  const suspiciousIPs = await prisma.$queryRaw`
+  const suspiciousIPs = (await prisma.$queryRaw`
     SELECT 
       ip_address,
       COUNT(*) as attempt_count,
@@ -156,10 +154,10 @@ export async function getSuspiciousActivityReport(
     HAVING COUNT(*) > 10
     ORDER BY attempt_count DESC
     LIMIT 20
-  ` as any[]
+  `) as any[]
 
   // Multiple account lockouts
-  const frequentLockouts = await prisma.$queryRaw`
+  const frequentLockouts = (await prisma.$queryRaw`
     SELECT 
       email,
       COUNT(*) as lockout_count,
@@ -172,10 +170,10 @@ export async function getSuspiciousActivityReport(
     HAVING COUNT(*) > 2
     ORDER BY lockout_count DESC
     LIMIT 10
-  ` as any[]
+  `) as any[]
 
   // Multiple emails from same IP
-  const emailSpamming = await prisma.$queryRaw`
+  const emailSpamming = (await prisma.$queryRaw`
     SELECT 
       ip_address,
       COUNT(DISTINCT email) as unique_emails,
@@ -190,7 +188,7 @@ export async function getSuspiciousActivityReport(
     HAVING COUNT(DISTINCT email) > 5
     ORDER BY unique_emails DESC
     LIMIT 10
-  ` as any[]
+  `) as any[]
 
   return {
     reportTime: new Date(),
@@ -205,7 +203,10 @@ export async function getSuspiciousActivityReport(
  * Send alert to monitoring service
  * Integrate with: DataDog, Splunk, PagerDuty, Slack, etc.
  */
-export async function sendAlert(message: string, severity: 'info' | 'warning' | 'critical') {
+export async function sendAlert(
+  message: string,
+  severity: 'info' | 'warning' | 'critical',
+) {
   // Integration examples below
 
   // Slack
@@ -294,14 +295,21 @@ export async function runMonitoringChecks() {
 
     // Send alerts
     for (const alert of alerts) {
-      const severity = alert.includes('🔴') ? 'critical' : alert.includes('🚨') ? 'warning' : 'info'
+      const severity = alert.includes('🔴')
+        ? 'critical'
+        : alert.includes('🚨')
+          ? 'warning'
+          : 'info'
       await sendAlert(alert, severity as any)
     }
 
     // Get suspicious activity report if there are critical alerts
     if (alerts.some((a) => a.includes('🔴'))) {
       const report = await getSuspiciousActivityReport(1) // Last hour
-      console.log('Suspicious Activity Report:', JSON.stringify(report, null, 2))
+      console.log(
+        'Suspicious Activity Report:',
+        JSON.stringify(report, null, 2),
+      )
     }
   } catch (error) {
     console.error('Monitoring check failed:', error)
@@ -319,5 +327,7 @@ export function startMonitoring(intervalMinutes: number = 5) {
   // Run periodically
   setInterval(runMonitoringChecks, intervalMinutes * 60 * 1000)
 
-  console.log(`✅ Auth monitoring started (checks every ${intervalMinutes} min)`)
+  console.log(
+    `✅ Auth monitoring started (checks every ${intervalMinutes} min)`,
+  )
 }

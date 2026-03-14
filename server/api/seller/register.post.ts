@@ -15,19 +15,22 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const validatedData = createSellerProfileSchema.parse(body)
     // Create seller profile
-    const seller = await sellerService.createSellerProfile(user.id, validatedData)
+    const seller = await sellerService.createSellerProfile(
+      user.id,
+      validatedData,
+    )
 
     return {
       success: true,
       message: 'Seller profile created successfully',
-      data: seller
+      data: seller,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
@@ -35,20 +38,20 @@ export default defineEventHandler(async (event) => {
       const sellerError = error as any
       throw createError({
         statusCode: sellerError.statusCode || 400,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     if (error instanceof Error && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to create seller profile'
+      statusMessage: 'Failed to create seller profile',
     })
   }
 })

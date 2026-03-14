@@ -7,12 +7,24 @@ export default defineEventHandler(async (event) => {
   try {
     await optionalAuth(event)
     const id = parseInt(getRouterParam(event, 'id') || '')
-    if (isNaN(id)) throw new UserError('INVALID_ID', 'Product ID must be a valid number', 400)
+    if (isNaN(id))
+      throw new UserError(
+        'INVALID_ID',
+        'Product ID must be a valid number',
+        400,
+      )
     const product = await productService.getProductById(id)
     return { success: true, data: product }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-      console.error('[GET /api/commerce/products/:id]', error)
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    console.error('[GET /api/commerce/products/:id]', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

@@ -10,7 +10,7 @@
 export enum VerificationStatus {
   PENDING = 'PENDING',
   VERIFIED = 'VERIFIED',
-  REJECTED = 'REJECTED'
+  REJECTED = 'REJECTED',
 }
 
 // ==================== SELLER PROFILE ====================
@@ -154,7 +154,7 @@ export class SellerError extends Error {
   constructor(
     public message: string,
     public statusCode: number = 400,
-    public data?: any
+    public data?: any,
   ) {
     super(message)
     this.name = 'SellerError'

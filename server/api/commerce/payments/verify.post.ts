@@ -14,13 +14,24 @@ export default defineEventHandler(async (event) => {
     const { reference } = schema.parse(await readBody(event))
 
     // 1. Find the order by payment reference
-    const order = await prisma.orders.findUnique({ where: { paymentRef: reference } })
-    if (!order) throw new UserError('NOT_FOUND', 'Order not found for this reference', 404)
-    if (order.userId !== user.id) throw new UserError('FORBIDDEN', 'Access denied', 403)
+    const order = await prisma.orders.findUnique({
+      where: { paymentRef: reference },
+    })
+    if (!order)
+      throw new UserError(
+        'NOT_FOUND',
+        'Order not found for this reference',
+        404,
+      )
+    if (order.userId !== user.id)
+      throw new UserError('FORBIDDEN', 'Access denied', 403)
 
     // 2. Already confirmed — idempotent
     if (order.paymentStatus === 'PAID') {
-      return { success: true, data: { status: 'already_paid', orderId: order.id } }
+      return {
+        success: true,
+        data: { status: 'already_paid', orderId: order.id },
+      }
     }
 
     // 3. Verify with Paystack
@@ -42,9 +53,19 @@ export default defineEventHandler(async (event) => {
       where: { id: order.id },
       data: { paymentStatus: 'FAILED' },
     })
-    return { success: true, data: { status: result.data.status, orderId: order.id } }
+    return {
+      success: true,
+      data: { status: result.data.status, orderId: order.id },
+    }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: error.message || 'Payment verification failed' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message || 'Payment verification failed',
+    })
   }
 })

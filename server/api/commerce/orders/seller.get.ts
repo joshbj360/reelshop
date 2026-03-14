@@ -15,14 +15,17 @@ export default defineEventHandler(async (event) => {
     if (!storeSlug) throw new UserError('INVALID', 'storeSlug is required', 400)
 
     // Verify ownership
-    const seller = await prisma.sellerProfile.findUnique({ where: { store_slug: storeSlug } })
+    const seller = await prisma.sellerProfile.findUnique({
+      where: { store_slug: storeSlug },
+    })
     if (!seller) throw new UserError('NOT_FOUND', 'Store not found', 404)
-    if (seller.profileId !== user.id) throw new UserError('FORBIDDEN', 'Access denied', 403)
+    if (seller.profileId !== user.id)
+      throw new UserError('FORBIDDEN', 'Access denied', 403)
 
     const where: any = {
       orderItem: {
-        some: { variant: { product: { sellerId: seller.id } } }
-      }
+        some: { variant: { product: { sellerId: seller.id } } },
+      },
     }
     if (status) where.status = status
 
@@ -36,15 +39,22 @@ export default defineEventHandler(async (event) => {
                 include: {
                   product: {
                     include: {
-                      seller: { select: { store_name: true, store_slug: true } },
-                      media: { select: { id: true, url: true, type: true }, take: 1 }
-                    }
-                  }
-                }
-              }
-            }
+                      seller: {
+                        select: { store_name: true, store_slug: true },
+                      },
+                      media: {
+                        select: { id: true, url: true, type: true },
+                        take: 1,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
-          user: { select: { id: true, username: true, avatar: true, email: true } }
+          user: {
+            select: { id: true, username: true, avatar: true, email: true },
+          },
         },
         orderBy: { created_at: 'desc' },
         take: limit,
@@ -55,7 +65,14 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, data: { orders, total, limit, offset } }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

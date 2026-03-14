@@ -4,9 +4,8 @@
  * Extends BaseApiClient to inherit auth headers and error handling.
  */
 
-import type { IUploadedMedia } from "../types/media.types"
-import { BaseApiClient } from "./base.api"
-
+import type { IUploadedMedia } from '../types/media.types'
+import { BaseApiClient } from './base.api'
 
 export class MediaApiClient extends BaseApiClient {
   /**
@@ -18,13 +17,13 @@ export class MediaApiClient extends BaseApiClient {
     if (!media.file) {
       throw new Error('File is required for upload')
     }
-    
+
     formData.append('file', media.file, media.file.name)
 
     return this.request('/api/media/upload', {
       method: 'POST',
       body: formData,
-      // Note: We don't set 'Content-Type': 'multipart/form-data'. 
+      // Note: We don't set 'Content-Type': 'multipart/form-data'.
       // Fetch automatically sets this with the correct boundary when passing FormData.
     })
   }

@@ -6,15 +6,21 @@ import { prisma } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const secret = process.env.PAYSTACK_SECRET_KEY
-  if (!secret) throw createError({ statusCode: 500, statusMessage: 'Server misconfigured' })
+  if (!secret)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Server misconfigured',
+    })
 
   // 1. Validate Paystack signature
   const signature = getHeader(event, 'x-paystack-signature')
   const rawBody = await readRawBody(event)
-  if (!rawBody || !signature) throw createError({ statusCode: 400, statusMessage: 'Bad request' })
+  if (!rawBody || !signature)
+    throw createError({ statusCode: 400, statusMessage: 'Bad request' })
 
   const hash = crypto.createHmac('sha512', secret).update(rawBody).digest('hex')
-  if (hash !== signature) throw createError({ statusCode: 401, statusMessage: 'Invalid signature' })
+  if (hash !== signature)
+    throw createError({ statusCode: 401, statusMessage: 'Invalid signature' })
 
   // 2. Parse event
   const payload = JSON.parse(rawBody)
@@ -24,7 +30,9 @@ export default defineEventHandler(async (event) => {
     const reference: string = data?.reference
     if (!reference) return { success: true }
 
-    const order = await prisma.orders.findUnique({ where: { paymentRef: reference } })
+    const order = await prisma.orders.findUnique({
+      where: { paymentRef: reference },
+    })
     if (order && order.paymentStatus !== 'PAID') {
       await prisma.orders.update({
         where: { id: order.id },

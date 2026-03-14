@@ -1,10 +1,10 @@
 // server/utils/security/parseUserAgent.ts
 /**
  * Parse User Agent
- * 
+ *
  * Extracts device name from user agent string
  * Used for device identification and tracking
- * 
+ *
  * Example outputs:
  * - "Chrome on Windows"
  * - "Safari on iOS"
@@ -30,7 +30,11 @@ export function parseUserAgent(userAgent: string): string {
   let os = 'Unknown OS'
 
   // Detect Browser
-  if (ua.includes('chrome') && !ua.includes('chromium') && !ua.includes('edg')) {
+  if (
+    ua.includes('chrome') &&
+    !ua.includes('chromium') &&
+    !ua.includes('edg')
+  ) {
     browser = 'Chrome'
   } else if (ua.includes('safari') && !ua.includes('chrome')) {
     browser = 'Safari'
@@ -87,7 +91,9 @@ export function isTabletDevice(userAgent: string): boolean {
 /**
  * Get device type: 'mobile', 'tablet', or 'desktop'
  */
-export function getDeviceType(userAgent: string): 'mobile' | 'tablet' | 'desktop' {
+export function getDeviceType(
+  userAgent: string,
+): 'mobile' | 'tablet' | 'desktop' {
   if (isTabletDevice(userAgent)) return 'tablet'
   if (isMobileDevice(userAgent)) return 'mobile'
   return 'desktop'
@@ -98,25 +104,25 @@ export function getDeviceType(userAgent: string): 'mobile' | 'tablet' | 'desktop
  */
 export function getBrowserVersion(userAgent: string): string {
   const ua = userAgent.toLowerCase()
-  
+
   // Chrome
   if (ua.includes('chrome')) {
     const match = ua.match(/chrome\/(\d+)/)
     if (match) return match[1]
   }
-  
+
   // Firefox
   if (ua.includes('firefox')) {
     const match = ua.match(/firefox\/(\d+)/)
     if (match) return match[1]
   }
-  
+
   // Safari
   if (ua.includes('safari')) {
     const match = ua.match(/version\/(\d+)/)
     if (match) return match[1]
   }
-  
+
   // Edge
   if (ua.includes('edg')) {
     const match = ua.match(/edg\/(\d+)/)
@@ -133,6 +139,6 @@ export function getDeviceInfo(userAgent: string): UserAgentInfo {
   return {
     browser: parseUserAgent(userAgent).split(' on ')[0],
     os: parseUserAgent(userAgent).split(' on ')[1],
-    device: parseUserAgent(userAgent)
+    device: parseUserAgent(userAgent),
   }
 }

@@ -10,33 +10,39 @@ import type { IProfile, IProfileStats } from '../types/profile.types'
 
 export class ProfileApiClient extends BaseApiClient {
   // ==================== GET PROFILE ====================
-  async getPrivateProfile(): Promise<{success: true,  data: IProfile}> {
+  async getPrivateProfile(): Promise<{ success: true; data: IProfile }> {
     return this.request('/api/profile', {
       method: 'GET',
     })
   }
 
   async getPublicProfile(username: string): Promise<IProfile> {
-    const response = await this.request<{ success: boolean; data: IProfile }>(`/api/profile/${username}`, {
-      method: 'GET',
-    })
+    const response = await this.request<{ success: boolean; data: IProfile }>(
+      `/api/profile/${username}`,
+      {
+        method: 'GET',
+      },
+    )
     return response.data
   }
 
-  async getProfileStats(username: string): Promise<{success: boolean, data: IProfileStats}> {
+  async getProfileStats(
+    username: string,
+  ): Promise<{ success: boolean; data: IProfileStats }> {
     return this.request(`/api/profile/${username}/stats`, {
       method: 'GET',
     })
   }
 
   // ==================== UPDATE PROFILE ====================
-  async updateProfile(data: Partial<IProfile>): Promise<{success: boolean, data: IProfile}> {
+  async updateProfile(
+    data: Partial<IProfile>,
+  ): Promise<{ success: boolean; data: IProfile }> {
     return this.request('/api/profile', {
       method: 'PATCH',
       body: data,
     })
   }
-
 
   // ==================== SETTINGS MANAGEMENT ====================
 
@@ -64,7 +70,11 @@ export class ProfileApiClient extends BaseApiClient {
   /**
    * Change password
    */
-  async changePassword(currentPassword: string, newPassword: string, confirmPassword: string): Promise<any> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ): Promise<any> {
     return this.request('/api/password', {
       method: 'PATCH',
       body: { currentPassword, newPassword, confirmPassword },
@@ -91,8 +101,6 @@ export class ProfileApiClient extends BaseApiClient {
     })
   }
 }
-
-
 
 /**
  * Composable to use ProfileApiClient

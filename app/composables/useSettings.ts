@@ -24,7 +24,9 @@ const load = () => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) Object.assign(settings.value, JSON.parse(stored))
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 const save = () => {
@@ -34,8 +36,12 @@ const save = () => {
 
 const applyTextSize = (size: AppSettings['textSize']) => {
   if (!import.meta.client) return
-  document.documentElement.classList.remove('text-size-small', 'text-size-large')
-  if (size !== 'medium') document.documentElement.classList.add(`text-size-${size}`)
+  document.documentElement.classList.remove(
+    'text-size-small',
+    'text-size-large',
+  )
+  if (size !== 'medium')
+    document.documentElement.classList.add(`text-size-${size}`)
 }
 
 export const useSettings = () => {
@@ -45,7 +51,10 @@ export const useSettings = () => {
     applyTextSize(settings.value.textSize)
   }
 
-  const update = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+  const update = <K extends keyof AppSettings>(
+    key: K,
+    value: AppSettings[K],
+  ) => {
     settings.value[key] = value
     save()
     if (key === 'textSize') applyTextSize(value as AppSettings['textSize'])

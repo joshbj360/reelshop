@@ -1,6 +1,6 @@
 // GET /api/posts/[id]/comments - Get post comments
-import { contentService } from "../../../../layers/posts/services/post.service"
-import { UserError } from "../../../../layers/profile/types/user.types"
+import { contentService } from '../../../../layers/posts/services/post.service'
+import { UserError } from '../../../../layers/profile/types/user.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,7 +10,11 @@ export default defineEventHandler(async (event) => {
     const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100)
     const offset = Math.max(Number(query.offset) || 0, 0)
 
-    const { comments, total } = await contentService.getPostComments(id, limit, offset)
+    const { comments, total } = await contentService.getPostComments(
+      id,
+      limit,
+      offset,
+    )
 
     return {
       success: true,
@@ -24,7 +28,10 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: any) {
     if (error instanceof UserError) {
-      throw createError({ statusCode: error.status, statusMessage: error.message })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
     }
     throw createError({ statusCode: 500, statusMessage: 'Server error' })
   }

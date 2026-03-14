@@ -17,8 +17,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ==================== GETTERS ====================
 
-
-
   // ==================== ACTIONS: SET STATE ====================
 
   const setAccessToken = (token: string) => {
@@ -68,7 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
     refreshToken.value = null
     error.value = null
     message.value = null
-    
+
     // Clear from localStorage
     if (import.meta.client) {
       localStorage.removeItem('accessToken')
@@ -76,11 +74,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-
   const clearTokens = () => {
     accessToken.value = null
     refreshToken.value = null
-    
+
     if (import.meta.client) {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
@@ -138,7 +135,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     // State
-    
+
     accessToken,
     refreshToken,
     isLoading,
@@ -158,6 +155,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Actions: Initialize
     initializeAuth,
-    restoreUser
+    restoreUser,
   }
 })

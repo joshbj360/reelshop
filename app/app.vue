@@ -1,9 +1,16 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+  <div
+    class="min-h-screen bg-white text-neutral-900 transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100"
+  >
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <NuxtNotifications position="top right" :speed="400" :duration="4000" :max="4" />
+    <NuxtNotifications
+      position="top right"
+      :speed="400"
+      :duration="4000"
+      :max="4"
+    />
   </div>
 </template>
 
@@ -17,10 +24,18 @@ defaults()
 // Re-apply text size on app load
 if (import.meta.client) {
   const { settings } = useSettings()
-  watch(() => settings.value.textSize, (size) => {
-    document.documentElement.classList.remove('text-size-small', 'text-size-large')
-    if (size !== 'medium') document.documentElement.classList.add(`text-size-${size}`)
-  }, { immediate: true })
+  watch(
+    () => settings.value.textSize,
+    (size) => {
+      document.documentElement.classList.remove(
+        'text-size-small',
+        'text-size-large',
+      )
+      if (size !== 'medium')
+        document.documentElement.classList.add(`text-size-${size}`)
+    },
+    { immediate: true },
+  )
 }
 </script>
 
@@ -65,10 +80,14 @@ html:not(.dark) {
   font-size: 13px !important;
   padding: 10px 14px !important;
   border-left-width: 4px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Text size scaling */
-html.text-size-small { font-size: 14px; }
-html.text-size-large { font-size: 18px; }
+html.text-size-small {
+  font-size: 14px;
+}
+html.text-size-large {
+  font-size: 18px;
+}
 </style>

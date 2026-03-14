@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { mediaUrl, mediaPublicId, mediaType, productId } = body
 
-    if (!mediaUrl) throw new UserError('INVALID_INPUT', 'mediaUrl is required', 400)
+    if (!mediaUrl)
+      throw new UserError('INVALID_INPUT', 'mediaUrl is required', 400)
 
     // Create the Media record first, then attach to story
     const media = await prisma.media.create({
@@ -20,15 +21,29 @@ export default defineEventHandler(async (event) => {
         public_id: mediaPublicId || null,
         type: mediaType || 'IMAGE',
         authorId: user.id,
-      }
+      },
     })
 
-    const ipAddress = getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
+    const ipAddress =
+      getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
     const userAgent = getHeader(event, 'user-agent') || 'unknown'
-    const story = await storyService.createStory(user.id, media.id, productId ? Number(productId) : undefined, ipAddress, userAgent)
+    const story = await storyService.createStory(
+      user.id,
+      media.id,
+      productId ? Number(productId) : undefined,
+      ipAddress,
+      userAgent,
+    )
     return { success: true, data: story }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

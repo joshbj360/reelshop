@@ -16,10 +16,15 @@ export const useProfile = () => {
     profileStore.error = null
     try {
       const result = await profileApi.getPrivateProfile()
-      const profileStats = await profileApi.getProfileStats(result.data.username as string)
-      profileStore.setProfileStats(result.data.username as string, profileStats.data)
-      profileStore.setPrivateProfile(result.data) 
-      
+      const profileStats = await profileApi.getProfileStats(
+        result.data.username as string,
+      )
+      profileStore.setProfileStats(
+        result.data.username as string,
+        profileStats.data,
+      )
+      profileStore.setPrivateProfile(result.data)
+
       return result
     } catch (err: any) {
       profileStore.error = err.message || 'Failed to fetch profile'
@@ -61,7 +66,7 @@ export const useProfile = () => {
     }
   }
 
-    // ==================== GET STATS ====================
+  // ==================== GET STATS ====================
 
   /**
    * Fetch user's follow stats
@@ -70,10 +75,10 @@ export const useProfile = () => {
   const fetchUserStats = async (username: string) => {
     profileStore.setLoading(true)
     profileStore.setError(null)
-    
+
     try {
       const result = await profileApi.getProfileStats(username)
-      
+
       // ✅ Store in profileStore ONLY
       profileStore.setProfileStats(username, {
         followersCount: result.data.followersCount,
@@ -81,9 +86,9 @@ export const useProfile = () => {
         followingUsersCount: result.data.followingUsersCount,
         followingSellersCount: result.data.followingSellersCount,
         postsCount: result.data.postsCount, // Keep existing
-        likesCount: result.data.likesCount // Keep existing
+        likesCount: result.data.likesCount, // Keep existing
       })
-      
+
       return result
     } catch (e: any) {
       profileStore.setError(e.message || 'Failed to fetch stats')
@@ -93,5 +98,12 @@ export const useProfile = () => {
     }
   }
 
-  return { isLoading, error,fetchUserStats, fetchMyProfile, fetchPublicProfile, updateMyProfile }
+  return {
+    isLoading,
+    error,
+    fetchUserStats,
+    fetchMyProfile,
+    fetchPublicProfile,
+    updateMyProfile,
+  }
 }

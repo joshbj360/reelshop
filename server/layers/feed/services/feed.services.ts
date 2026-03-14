@@ -26,24 +26,28 @@ export const feedService = {
       postRepository.getPosts({
         take: limit,
         skip: offset,
-        orderBy: { created_at: 'desc' }
+        orderBy: { created_at: 'desc' },
       }),
       productRepository.getProducts(
-        { status: 'PUBLISHED' }, { // Corrected method name
-        limit,
-        offset,
-      })
+        { status: 'PUBLISHED' },
+        {
+          // Corrected method name
+          limit,
+          offset,
+        },
+      ),
     ])
 
     // Normalize and merge
     const feedItems = [
       ...posts.map(normalizePost),
-      ...products.map(normalizeProduct)
+      ...products.map(normalizeProduct),
     ]
 
     // Sort by date (Business Logic)
-    const sorted = feedItems.sort((a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    const sorted = feedItems.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
 
     const items = sorted.slice(0, limit)
@@ -54,8 +58,8 @@ export const feedService = {
         total: await this.getTotalCount(),
         limit,
         offset,
-        hasMore: items.length === limit
-      }
+        hasMore: items.length === limit,
+      },
     }
   },
 
@@ -69,7 +73,7 @@ export const feedService = {
     const follows = await socialRepository.getFollowing({
       userId,
       limit: 1000,
-      offset: 0
+      offset: 0,
     })
 
     if (!follows || follows.length === 0) {
@@ -77,14 +81,14 @@ export const feedService = {
     }
 
     // 2. Extract strictly the IDs for the query
-    const followingIds = follows.map(f => f.id)
+    const followingIds = follows.map((f) => f.id)
 
     // 3. Fetch posts from those specific IDs
     // Note: We prioritize Posts for the following feed to keep it social
-    const posts = await postRepository.getPostsByAuthorIds(
-      followingIds,
-      { take: limit, skip: offset }
-    )
+    const posts = await postRepository.getPostsByAuthorIds(followingIds, {
+      take: limit,
+      skip: offset,
+    })
     const items = posts.map(normalizePost)
 
     return {
@@ -93,8 +97,8 @@ export const feedService = {
         total: posts.length,
         limit,
         offset,
-        hasMore: items.length === limit
-      }
+        hasMore: items.length === limit,
+      },
     }
   },
 
@@ -105,11 +109,11 @@ export const feedService = {
     try {
       const [postsCount, productsCount] = await Promise.all([
         postRepository.count(),
-        productRepository.countProducts({ status: 'PUBLISHED' }) // Only count published products for feed
+        productRepository.countProducts({ status: 'PUBLISHED' }), // Only count published products for feed
       ])
       return postsCount + productsCount
     } catch (e) {
       return 0 // Fallback for meta stats
     }
-  }
+  },
 }

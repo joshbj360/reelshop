@@ -11,14 +11,21 @@ export default defineEventHandler(async (event) => {
     await prisma.like.upsert({
       where: { userId_productId: { userId: user.id, productId: id } },
       create: { userId: user.id, productId: id },
-      update: {}
+      update: {},
     })
 
     const likeCount = await prisma.like.count({ where: { productId: id } })
     return { success: true, data: { liked: true, likeCount } }
   } catch (error: any) {
-    if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })
-      console.error('[POST /api/commerce/products/:id]/like]', error)
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+    if (error instanceof UserError)
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    console.error('[POST /api/commerce/products/:id]/like]', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

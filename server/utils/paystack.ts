@@ -35,7 +35,7 @@ export interface PaystackVerifyResponse {
   data: {
     status: 'success' | 'failed' | 'abandoned'
     reference: string
-    amount: number   // in kobo
+    amount: number // in kobo
     currency: string
     customer: { email: string }
     metadata: Record<string, any>
@@ -49,25 +49,29 @@ export const paystack = {
    */
   async initializeTransaction(params: {
     email: string
-    amount: number       // in cents
+    amount: number // in cents
     reference: string
     currency?: string
     metadata?: Record<string, any>
     callback_url?: string
   }): Promise<PaystackInitResponse> {
-    const res = await $fetch<PaystackInitResponse>(`${PAYSTACK_BASE}/transaction/initialize`, {
-      method: 'POST',
-      headers: paystackHeaders(),
-      body: {
-        email: params.email,
-        amount: params.amount,
-        reference: params.reference,
-        currency: params.currency || 'NGN',
-        metadata: params.metadata || {},
-        callback_url: params.callback_url,
+    const res = await $fetch<PaystackInitResponse>(
+      `${PAYSTACK_BASE}/transaction/initialize`,
+      {
+        method: 'POST',
+        headers: paystackHeaders(),
+        body: {
+          email: params.email,
+          amount: params.amount,
+          reference: params.reference,
+          currency: params.currency || 'NGN',
+          metadata: params.metadata || {},
+          callback_url: params.callback_url,
+        },
       },
-    })
-    if (!res.status) throw new Error(res.message || 'Paystack initialization failed')
+    )
+    if (!res.status)
+      throw new Error(res.message || 'Paystack initialization failed')
     return res
   },
 
@@ -77,9 +81,10 @@ export const paystack = {
   async verifyTransaction(reference: string): Promise<PaystackVerifyResponse> {
     const res = await $fetch<PaystackVerifyResponse>(
       `${PAYSTACK_BASE}/transaction/verify/${encodeURIComponent(reference)}`,
-      { method: 'GET', headers: paystackHeaders() }
+      { method: 'GET', headers: paystackHeaders() },
     )
-    if (!res.status) throw new Error(res.message || 'Paystack verification failed')
+    if (!res.status)
+      throw new Error(res.message || 'Paystack verification failed')
     return res
   },
 }

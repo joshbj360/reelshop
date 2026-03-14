@@ -37,7 +37,7 @@ export const useAuth = () => {
     email: string,
     username: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
   ) => {
     authStore.setLoading(true)
     authStore.setError(null)
@@ -47,10 +47,12 @@ export const useAuth = () => {
         email,
         username,
         password,
-        confirmPassword
+        confirmPassword,
       })
 
-      authStore.setMessage('Registration successful! Please check your email to verify your account.')
+      authStore.setMessage(
+        'Registration successful! Please check your email to verify your account.',
+      )
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
@@ -59,11 +61,11 @@ export const useAuth = () => {
 
       return result
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.statusMessage || 
-        error.message || 
+      const errorMessage =
+        error.response?.data?.statusMessage ||
+        error.message ||
         'Registration failed'
-      
+
       authStore.setError(errorMessage)
       throw error
     } finally {
@@ -80,7 +82,7 @@ export const useAuth = () => {
     try {
       const result = await authApi.login({
         email,
-        password
+        password,
       })
 
       if (!result) {
@@ -102,11 +104,9 @@ export const useAuth = () => {
 
       return result
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.statusMessage || 
-        error.message || 
-        'Login failed'
-      
+      const errorMessage =
+        error.response?.data?.statusMessage || error.message || 'Login failed'
+
       authStore.setError(errorMessage)
       throw error
     } finally {
@@ -136,36 +136,44 @@ export const useAuth = () => {
     }
   }
 
-   /**
+  /**
    * Sync authenticated user to profile store
    * Fetches full profile data from user API
    */
   const syncUserToProfile = async (user: any) => {
     try {
       const profileData = await profileApi.getPrivateProfile()
-      const profileStats = await profileApi.getProfileStats(profileData.data.username as string)
+      const profileStats = await profileApi.getProfileStats(
+        profileData.data.username as string,
+      )
 
       // 4. Update the store
       profileStore.setPrivateProfile(profileData.data)
 
-
       if (profileStats) {
-        profileStore.setProfileStats(profileData.data.username as string, profileStats.data)
+        profileStore.setProfileStats(
+          profileData.data.username as string,
+          profileStats.data,
+        )
       }
 
-      console.log('✅ User synced via Profile Service:', profileData.data.username)
+      console.log(
+        '✅ User synced via Profile Service:',
+        profileData.data.username,
+      )
     } catch (error) {
       console.error('Failed to sync user:', error)
-      
+
       // Fallback: Use minimal user data from auth
       profileStore.setPrivateProfile({
         id: user.id,
         username: user.username,
         email: user.email,
         role: user.role,
-        avatar: user.avatar || 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        avatar:
+          user.avatar || 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
         bio: user.bio || null,
-        created_at: user.createdAt || new Date().toISOString()
+        created_at: user.createdAt || new Date().toISOString(),
       } as IProfile)
     }
   }
@@ -176,14 +184,14 @@ export const useAuth = () => {
    * Initialize user profile on app startup
    * Called from plugin or middleware
    */
- const initializeUser = async () => {
-  // Only run if we have a token but no user
+  const initializeUser = async () => {
+    // Only run if we have a token but no user
     if (!authStore.accessToken) return
 
     try {
       // Fetch current user from API
-      const userData = await  profileApi.getPrivateProfile()
-      
+      const userData = await profileApi.getPrivateProfile()
+
       await syncUserToProfile(userData)
 
       console.log('✅ User initialized via API Service')
@@ -210,11 +218,11 @@ export const useAuth = () => {
 
       return result
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.statusMessage || 
-        error.message || 
+      const errorMessage =
+        error.response?.data?.statusMessage ||
+        error.message ||
         'Email verification failed'
-      
+
       authStore.setError(errorMessage)
       throw error
     } finally {
@@ -235,11 +243,11 @@ export const useAuth = () => {
 
       return result
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.statusMessage || 
-        error.message || 
+      const errorMessage =
+        error.response?.data?.statusMessage ||
+        error.message ||
         'Failed to send verification email'
-      
+
       authStore.setError(errorMessage)
       throw error
     } finally {
@@ -256,15 +264,17 @@ export const useAuth = () => {
     try {
       const result = await authApi.requestPasswordReset(email)
 
-      authStore.setMessage('If an account exists with this email, you will receive a password reset link.')
+      authStore.setMessage(
+        'If an account exists with this email, you will receive a password reset link.',
+      )
 
       return result
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.statusMessage || 
-        error.message || 
+      const errorMessage =
+        error.response?.data?.statusMessage ||
+        error.message ||
         'Failed to request password reset'
-      
+
       authStore.setError(errorMessage)
       throw error
     } finally {
@@ -272,7 +282,11 @@ export const useAuth = () => {
     }
   }
 
-  const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
+  const resetPassword = async (
+    token: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => {
     authStore.setLoading(true)
     authStore.setError(null)
 
@@ -284,7 +298,9 @@ export const useAuth = () => {
 
       const result = await authApi.resetPassword(token, newPassword)
 
-      authStore.setMessage('Password reset successfully! You can now log in with your new password.')
+      authStore.setMessage(
+        'Password reset successfully! You can now log in with your new password.',
+      )
 
       setTimeout(() => {
         router.push('/user-login')
@@ -292,11 +308,11 @@ export const useAuth = () => {
 
       return result
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.statusMessage || 
-        error.message || 
+      const errorMessage =
+        error.response?.data?.statusMessage ||
+        error.message ||
         'Password reset failed'
-      
+
       authStore.setError(errorMessage)
       throw error
     } finally {
@@ -340,6 +356,6 @@ export const useAuth = () => {
     resetPassword,
     refreshAccessToken,
     initializeUser,
-    syncUserToProfile
+    syncUserToProfile,
   }
 }

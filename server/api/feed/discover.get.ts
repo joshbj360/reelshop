@@ -1,5 +1,8 @@
-import { normalizePost, normalizeProduct } from "~~/server/layers/feed/utils/feed.utils"
-import type { IFeedResponse } from "~~/layers/feed/app/types/feed.types"
+import {
+  normalizePost,
+  normalizeProduct,
+} from '~~/server/layers/feed/utils/feed.utils'
+import type { IFeedResponse } from '~~/layers/feed/app/types/feed.types'
 
 export default defineEventHandler(async (event): Promise<IFeedResponse> => {
   const query = getQuery(event)
@@ -19,10 +22,10 @@ export default defineEventHandler(async (event): Promise<IFeedResponse> => {
           select: {
             likes: true,
             comments: true,
-            shares: true
-          }
-        }
-      }
+            shares: true,
+          },
+        },
+      },
     })
 
     // Fetch popular products
@@ -38,25 +41,27 @@ export default defineEventHandler(async (event): Promise<IFeedResponse> => {
           select: {
             likes: true,
             comments: true,
-            shares: true
-          }
-        }
-      }
+            shares: true,
+          },
+        },
+      },
     })
 
     const items = [
       ...posts.map(normalizePost),
-      ...products.map(normalizeProduct)
-    ].sort((a, b) => {
-      // Sort by engagement (likes + comments)
-      const engA = a.likeCount + a.commentCount
-      const engB = b.likeCount + b.commentCount
-      return engB - engA
-    }).slice(0, limit)
+      ...products.map(normalizeProduct),
+    ]
+      .sort((a, b) => {
+        // Sort by engagement (likes + comments)
+        const engA = a.likeCount + a.commentCount
+        const engB = b.likeCount + b.commentCount
+        return engB - engA
+      })
+      .slice(0, limit)
 
     const [postsCount, productsCount] = await Promise.all([
       prisma.post.count(),
-      prisma.products.count({ where: { status: 'PUBLISHED' } })
+      prisma.products.count({ where: { status: 'PUBLISHED' } }),
     ])
 
     return {
@@ -65,13 +70,13 @@ export default defineEventHandler(async (event): Promise<IFeedResponse> => {
         total: postsCount + productsCount,
         limit,
         offset,
-        hasMore: items.length === limit
-      }
+        hasMore: items.length === limit,
+      },
     }
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message: 'Failed to fetch discover feed'
+      message: 'Failed to fetch discover feed',
     })
   }
 })

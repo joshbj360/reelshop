@@ -7,16 +7,22 @@ import { auditService } from '../../../../../layers/shared/audit/audit.service'
 export default defineEventHandler(async (event) => {
   const user = await requireAuth(event)
   const id = Number(getRouterParam(event, 'id'))
-  if (!id) throw createError({ statusCode: 400, statusMessage: 'Invalid product ID' })
+  if (!id)
+    throw createError({ statusCode: 400, statusMessage: 'Invalid product ID' })
 
   const body = await readBody(event)
-  if (!body?.text?.trim()) throw createError({ statusCode: 400, statusMessage: 'Comment text is required' })
+  if (!body?.text?.trim())
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Comment text is required',
+    })
 
   const product = await prisma.products.findUnique({
     where: { id },
-    select: { id: true, title: true, seller: { select: { userId: true } } }
+    select: { id: true, title: true, seller: { select: { userId: true } } },
   })
-  if (!product) throw createError({ statusCode: 404, statusMessage: 'Product not found' })
+  if (!product)
+    throw createError({ statusCode: 404, statusMessage: 'Product not found' })
 
   const comment = await prisma.comment.create({
     data: {
@@ -35,23 +41,27 @@ export default defineEventHandler(async (event) => {
   // Notify product owner (non-blocking, skip self-notifications)
   const ownerId = product.seller?.userId
   if (ownerId && ownerId !== user.id) {
-    notificationService.createNotification({
-      userId: ownerId,
-      type: 'PRODUCT_COMMENT',
-      actorId: user.id,
-      message: `${user.username} commented on your product "${product.title}"`,
-      commentId: comment.id,
-    }).catch(() => {})
+    notificationService
+      .createNotification({
+        userId: ownerId,
+        type: 'PRODUCT_COMMENT',
+        actorId: user.id,
+        message: `${user.username} commented on your product "${product.title}"`,
+        commentId: comment.id,
+      })
+      .catch(() => {})
   }
 
   // Audit log (non-blocking)
-  auditService.logUserAction({
-    userId: user.id,
-    action: 'PRODUCT_COMMENT_CREATED',
-    resource: 'ProductComment',
-    resourceId: comment.id,
-    reason: `Comment on product ${id}`,
-  }).catch(() => {})
+  auditService
+    .logUserAction({
+      userId: user.id,
+      action: 'PRODUCT_COMMENT_CREATED',
+      resource: 'ProductComment',
+      resourceId: comment.id,
+      reason: `Comment on product ${id}`,
+    })
+    .catch(() => {})
 
   return { success: true, data: comment }
 })

@@ -9,7 +9,6 @@ import { UserError } from '../../layers/profile/types/user.types'
 import { requireAuth } from '../../layers/shared/middleware/requireAuth'
 import { getClientIP } from '../../layers/shared/utils/security'
 
-
 export default defineEventHandler(async (event) => {
   try {
     // Verify authentication
@@ -28,7 +27,7 @@ export default defineEventHandler(async (event) => {
       user.id,
       validatedData.password,
       ipAddress,
-      userAgent
+      userAgent,
     )
 
     // Clear cookies
@@ -37,14 +36,14 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: result.message
+      message: result.message,
     }
   } catch (error) {
     if (error instanceof ZodError) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation Error',
-        data: error.errors
+        data: error.errors,
       })
     }
 
@@ -52,20 +51,20 @@ export default defineEventHandler(async (event) => {
       const userError = error as any
       throw createError({
         statusCode: userError.statusCode || 400,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     if (error instanceof UserError && error.message.includes('Unauthorized')) {
       throw createError({
         statusCode: 401,
-        statusMessage: error.message
+        statusMessage: error.message,
       })
     }
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error'
+      statusMessage: 'Internal server error',
     })
   }
 })

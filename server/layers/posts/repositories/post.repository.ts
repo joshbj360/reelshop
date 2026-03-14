@@ -14,16 +14,15 @@ const taggedProductsInclude = {
           media: {
             take: 1,
             where: { isBgMusic: false },
-            select: { url: true, type: true }
-          }
-        }
-      }
-    }
-  }
+            select: { url: true, type: true },
+          },
+        },
+      },
+    },
+  },
 }
 
 export const postRepository = {
-
   async getUserByUsername(username: string) {
     return await prisma.profile.findFirst({ where: { username } })
   },
@@ -36,7 +35,7 @@ export const postRepository = {
       caption: data.caption,
       content: data.content,
       visibility: data.visibility || 'PUBLIC',
-      contentType: data.contentType || 'COMMERCE'
+      contentType: data.contentType || 'COMMERCE',
     }
 
     if (data.allowComments !== undefined) {
@@ -45,7 +44,9 @@ export const postRepository = {
 
     if (data.taggedProducts && data.taggedProducts.length > 0) {
       postData.taggedProducts = {
-        create: data.taggedProducts.map((id: number) => ({ productId: Number(id) }))
+        create: data.taggedProducts.map((id: number) => ({
+          productId: Number(id),
+        })),
       }
     }
 
@@ -84,42 +85,57 @@ export const postRepository = {
       include: {
         author: true,
         media: true,
-        ...taggedProductsInclude
-      }
+        ...taggedProductsInclude,
+      },
     })
   },
 
   async getPostById(postId: string) {
     return await prisma.post.findUnique({
       where: { id: postId },
-      include: { author: true, likes: true, comments: true, media: true, ...taggedProductsInclude }
+      include: {
+        author: true,
+        likes: true,
+        comments: true,
+        media: true,
+        ...taggedProductsInclude,
+      },
     })
   },
 
-  async getPostsByUserId(userId: string, limit: number, offset: number, visibilityFilter?: any) {
+  async getPostsByUserId(
+    userId: string,
+    limit: number,
+    offset: number,
+    visibilityFilter?: any,
+  ) {
     return await prisma.post.findMany({
       where: { authorId: userId, ...visibilityFilter },
       include: {
-        author: { select: { id: true, username: true, avatar: true, role: true } },
+        author: {
+          select: { id: true, username: true, avatar: true, role: true },
+        },
         media: { select: { id: true, url: true, type: true, isBgMusic: true } },
         _count: { select: { likes: true, comments: true, shares: true } },
-        ...taggedProductsInclude
+        ...taggedProductsInclude,
       },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
   async getPostCountByUserId(userId: string, visibilityFilter?: any) {
-    return await prisma.post.count({ where: { authorId: userId, ...visibilityFilter } })
+    return await prisma.post.count({
+      where: { authorId: userId, ...visibilityFilter },
+    })
   },
 
   async updatePost(postId: string, data: any) {
     return await prisma.post.update({
       where: { id: postId },
       data,
-      include: { author: true }
+      include: { author: true },
     })
   },
 
@@ -138,25 +154,31 @@ export const postRepository = {
       include: {
         author: true,
         media: {
-          select: { id: true, url: true, type: true, isBgMusic: true, altText: true }
+          select: {
+            id: true,
+            url: true,
+            type: true,
+            isBgMusic: true,
+            altText: true,
+          },
         },
         _count: {
           select: {
             likes: true,
             comments: true,
-            shares: true
-          }
+            shares: true,
+          },
         },
         ...taggedProductsInclude,
-        ...options.include
-      }
+        ...options.include,
+      },
     })
   },
 
   async getPostsByAuthorIds(authorIds: string[], options: any) {
     return await prisma.post.findMany({
       where: {
-        authorId: { in: authorIds }
+        authorId: { in: authorIds },
       },
       take: options.limit,
       skip: options.offset,
@@ -164,17 +186,23 @@ export const postRepository = {
       include: {
         author: true,
         media: {
-          select: { id: true, url: true, type: true, isBgMusic: true, altText: true }
+          select: {
+            id: true,
+            url: true,
+            type: true,
+            isBgMusic: true,
+            altText: true,
+          },
         },
         _count: {
           select: {
             likes: true,
             comments: true,
-            shares: true
-          }
+            shares: true,
+          },
         },
-        ...taggedProductsInclude
-      }
+        ...taggedProductsInclude,
+      },
     })
   },
 
@@ -190,14 +218,14 @@ export const postRepository = {
   async createComment(userId: string, postId: string, data: any) {
     return await prisma.comment.create({
       data: { id: crypto.randomUUID(), authorId: userId, postId, ...data },
-      include: { author: true }
+      include: { author: true },
     })
   },
 
   async getCommentById(commentId: string) {
     return await prisma.comment.findUnique({
       where: { id: commentId },
-      include: { author: true }
+      include: { author: true },
     })
   },
 
@@ -207,7 +235,7 @@ export const postRepository = {
       include: { author: true, replies: { include: { author: true } } },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -219,7 +247,7 @@ export const postRepository = {
     return await prisma.comment.update({
       where: { id: commentId },
       data,
-      include: { author: true }
+      include: { author: true },
     })
   },
 
@@ -229,11 +257,11 @@ export const postRepository = {
 
   async getCommentReplies(commentId: string, limit: number, offset: number) {
     return await prisma.comment.findMany({
-      where: { parentId: commentId },  // ← Filters by parent comment
+      where: { parentId: commentId }, // ← Filters by parent comment
       include: { author: true },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -248,7 +276,7 @@ export const postRepository = {
 
   async getPostLike(userId: string, postId: string) {
     return await prisma.postLike.findUnique({
-      where: { userId_postId: { userId, postId } }
+      where: { userId_postId: { userId, postId } },
     })
   },
 
@@ -262,7 +290,7 @@ export const postRepository = {
       include: { user: true },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -276,7 +304,7 @@ export const postRepository = {
       include: { post: { include: { author: true } } },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -291,7 +319,7 @@ export const postRepository = {
 
   async getCommentLike(userId: string, commentId: string) {
     return await prisma.commentLike.findUnique({
-      where: { userId_commentId: { userId, commentId } }
+      where: { userId_commentId: { userId, commentId } },
     })
   },
 
@@ -300,14 +328,19 @@ export const postRepository = {
   },
 
   // ========== SHARES ==========
-  async createShare(userId: string, targetId: string, type: 'POST' | 'PRODUCT', platform?: string) {
+  async createShare(
+    userId: string,
+    targetId: string,
+    type: 'POST' | 'PRODUCT',
+    platform?: string,
+  ) {
     return await prisma.share.create({
       data: {
         userId,
         postId: type === 'POST' ? targetId : null,
         productId: type === 'PRODUCT' ? parseInt(targetId) : null,
-        platform: platform || 'internal'
-      }
+        platform: platform || 'internal',
+      },
     })
   },
 
@@ -317,7 +350,7 @@ export const postRepository = {
       include: { profile: true },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -330,7 +363,7 @@ export const postRepository = {
       where: { userId },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
     })
   },
 
@@ -339,7 +372,9 @@ export const postRepository = {
   },
 
   async savePost(userId: string, postId: string) {
-    const existing = await prisma.savedPost.findFirst({ where: { userId, postId } })
+    const existing = await prisma.savedPost.findFirst({
+      where: { userId, postId },
+    })
     if (existing) return existing
     return await prisma.savedPost.create({ data: { userId, postId } })
   },
@@ -356,9 +391,9 @@ export const postRepository = {
           include: {
             media: true,
             author: { select: { username: true, avatar: true } },
-            _count: { select: { likes: true, comments: true } }
-          }
-        }
+            _count: { select: { likes: true, comments: true } },
+          },
+        },
       },
     })
   },
@@ -370,13 +405,13 @@ export const postRepository = {
           include: {
             media: true,
             author: { select: { username: true, avatar: true } },
-            _count: { select: { likes: true, comments: true } }
-          }
-        }
+            _count: { select: { likes: true, comments: true } },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      skip: offset
+      skip: offset,
     })
-  }
+  },
 }

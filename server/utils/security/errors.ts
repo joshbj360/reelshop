@@ -40,7 +40,7 @@ export class AuthError extends Error {
     public code: AuthErrorCode,
     public statusCode: number,
     message: string,
-    public internalDetails?: Record<string, any>
+    public internalDetails?: Record<string, any>,
   ) {
     super(message)
     this.name = 'AuthError'
@@ -60,7 +60,7 @@ export async function throwAuthError(
     ipAddress?: string
     userAgent?: string
     internalDetails?: Record<string, any>
-  } = {}
+  } = {},
 ) {
   const safeMessage = SAFE_ERROR_MESSAGES[code] || SAFE_ERROR_MESSAGES.GENERIC
   const statusCode = options.statusCode || 400
@@ -119,7 +119,10 @@ function mapCodeToAuditEvent(code: AuthErrorCode): AuditEventType {
  */
 export function maskEmail(email: string): string {
   const [local, domain] = email.split('@')
-  const masked = local.substring(0, 2) + '*'.repeat(Math.max(1, local.length - 4)) + local.substring(local.length - 2)
+  const masked =
+    local.substring(0, 2) +
+    '*'.repeat(Math.max(1, local.length - 4)) +
+    local.substring(local.length - 2)
   return `${masked}@${domain}`
 }
 

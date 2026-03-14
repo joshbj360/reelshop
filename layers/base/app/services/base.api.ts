@@ -32,19 +32,21 @@ export class BaseApiClient {
     if (import.meta.server) {
       try {
         const config = useRuntimeConfig()
-        return config.public.baseURL as string || ''
+        return (config.public.baseURL as string) || ''
       } catch {
         console.warn('Could not get baseURL from runtime config')
         return ''
       }
     } else {
-      return typeof window !== 'undefined' && window.location.origin ? window.location.origin : ''
+      return typeof window !== 'undefined' && window.location.origin
+        ? window.location.origin
+        : ''
     }
   }
 
   protected async request<T>(
     endpoint: string,
-    options: ApiServiceOptions = {}
+    options: ApiServiceOptions = {},
   ): Promise<T> {
     const headers: Record<string, string> = { ...options.headers }
 
@@ -54,7 +56,11 @@ export class BaseApiClient {
       typeof options.body === 'object' &&
       !(options.body instanceof FormData)
     ) {
-      if (['POST', 'PATCH', 'PUT'].includes(options.method?.toUpperCase() || 'POST')) {
+      if (
+        ['POST', 'PATCH', 'PUT'].includes(
+          options.method?.toUpperCase() || 'POST',
+        )
+      ) {
         headers['Content-Type'] = 'application/json'
       }
     }
@@ -89,10 +95,10 @@ export class BaseApiClient {
     try {
       const url = `${this.baseURL}${endpoint}`
 
-      return await $fetch<T>(url, {
+      return (await $fetch<T>(url, {
         ...options,
         headers,
-      }) as T
+      })) as T
     } catch (error: any) {
       this.handleError(error, endpoint, options.skipAuth, options.silent)
     }
@@ -157,7 +163,12 @@ export class BaseApiClient {
     return null
   }
 
-  private handleError(error: any, endpoint: string, skipAuth?: boolean, silent?: boolean): never {
+  private handleError(
+    error: any,
+    endpoint: string,
+    skipAuth?: boolean,
+    silent?: boolean,
+  ): never {
     const isClient = import.meta.client
 
     // Network error (no response)
@@ -170,19 +181,26 @@ export class BaseApiClient {
     // HTTP error
     const statusCode = error.status || error.statusCode || 500
     const data = error.data || error.response?.data || {}
-    const serverMessage = data.message || data.statusMessage || error.message || 'An unexpected error occurred.'
+    const serverMessage =
+      data.message ||
+      data.statusMessage ||
+      error.message ||
+      'An unexpected error occurred.'
     const safeMessage = this.getSafeErrorMessage(statusCode, serverMessage)
 
     if (isClient) {
       if ((statusCode === 401 || statusCode === 403) && !skipAuth) {
         // Auth errors always clear session and redirect — regardless of silent flag
-        try { useAuthStore().clearAuth() } catch {}
+        try {
+          useAuthStore().clearAuth()
+        } catch {}
         notify({
           type: 'error',
           title: statusCode === 401 ? 'Session expired' : 'Access denied',
-          text: statusCode === 401
-            ? 'Please log in to continue.'
-            : 'You do not have permission to perform this action.',
+          text:
+            statusCode === 401
+              ? 'Please log in to continue.'
+              : 'You do not have permission to perform this action.',
           duration: 6000,
         })
         navigateTo('/user-login')
@@ -195,7 +213,10 @@ export class BaseApiClient {
     throw new ApiError(safeMessage, statusCode, data)
   }
 
-  private getSafeErrorMessage(statusCode: number, originalMessage: string): string {
+  private getSafeErrorMessage(
+    statusCode: number,
+    originalMessage: string,
+  ): string {
     const errorMap: Record<number, string> = {
       0: 'Network error. Please check your connection.',
       400: 'Bad request. Please check your input.',

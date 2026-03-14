@@ -3,7 +3,6 @@
  * Tracks all auth-related activities for compliance and incident response
  */
 
-
 export enum AuditEventType {
   LOGIN_SUCCESS = 'LOGIN_SUCCESS',
   LOGIN_FAILED = 'LOGIN_FAILED',
@@ -30,7 +29,7 @@ export enum AuditEventType {
   SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
   ROLE_CHANGED = 'ROLE_CHANGED',
   INVALID_TOKEN = 'INVALID_TOKEN',
-  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED'
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
 }
 
 // Backward compatibility for existing code using the object style
@@ -51,7 +50,7 @@ export const AUDIT_EVENTS = {
   ACCOUNT_DELETED: AuditEventType.ACCOUNT_DELETED,
   SUSPICIOUS_ACTIVITY: AuditEventType.SUSPICIOUS_ACTIVITY,
   RATE_LIMIT_EXCEEDED: AuditEventType.RATE_LIMIT_EXCEEDED,
-  INVALID_TOKEN: AuditEventType.INVALID_TOKEN
+  INVALID_TOKEN: AuditEventType.INVALID_TOKEN,
 }
 
 export interface AuditLogEntry {
@@ -82,7 +81,8 @@ export async function logAuditEvent(entry: AuditLogEntry) {
     if (entry.email) data.email = entry.email
     if (entry.ipAddress) data.ip_address = entry.ipAddress
     if (entry.userAgent) data.user_agent = entry.userAgent
-    if (entry.reason || entry.description) data.reason = entry.reason || entry.description
+    if (entry.reason || entry.description)
+      data.reason = entry.reason || entry.description
     if (entry.metadata) data.metadata = JSON.stringify(entry.metadata)
 
     await prisma.auditLog.create({ data })
@@ -93,7 +93,10 @@ export async function logAuditEvent(entry: AuditLogEntry) {
     }
 
     // 3. Alert if suspicious activity (e.g. brute force)
-    if (entry.success === false && entry.eventType === AuditEventType.LOGIN_FAILED) {
+    if (
+      entry.success === false &&
+      entry.eventType === AuditEventType.LOGIN_FAILED
+    ) {
       await checkForSuspiciousActivity(entry)
     }
   } catch (error) {
@@ -110,7 +113,7 @@ export const createAuditLog = async (
   description: string,
   ipAddress: string,
   userAgent: string,
-  metadata?: any
+  metadata?: any,
 ) => {
   return logAuditEvent({
     userId,
@@ -118,7 +121,7 @@ export const createAuditLog = async (
     description,
     ipAddress,
     userAgent,
-    metadata
+    metadata,
   })
 }
 
@@ -144,8 +147,10 @@ async function checkForSuspiciousActivity(entry: AuditLogEntry) {
     })
 
     // Alert if many failures from different IPs (possible botnet/proxy attack)
-    const uniqueIps = new Set(recentFailures.map((f) => f.ip_address).filter(Boolean))
-    
+    const uniqueIps = new Set(
+      recentFailures.map((f) => f.ip_address).filter(Boolean),
+    )
+
     if (uniqueIps.size >= 3) {
       await logAuditEvent({
         eventType: AuditEventType.SUSPICIOUS_ACTIVITY,
@@ -173,7 +178,7 @@ async function logToExternalService(entry: AuditLogEntry) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.LOG_SERVICE_TOKEN}`,
+        Authorization: `Bearer ${process.env.LOG_SERVICE_TOKEN}`,
       },
       body: JSON.stringify({
         timestamp: new Date().toISOString(),
@@ -189,10 +194,7 @@ async function logToExternalService(entry: AuditLogEntry) {
 /**
  * Get audit logs for a user
  */
-export async function getUserAuditLogs(
-  userId: string,
-  limit: number = 50
-) {
+export async function getUserAuditLogs(userId: string, limit: number = 50) {
   return prisma.auditLog.findMany({
     where: { user_id: userId },
     orderBy: { created_at: 'desc' },
@@ -204,7 +206,7 @@ export async function getUserAuditLogs(
  * Get suspicious activity logs
  */
 export async function getSuspiciousActivityLogs(
-  since: Date = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  since: Date = new Date(Date.now() - 24 * 60 * 60 * 1000),
 ) {
   return prisma.auditLog.findMany({
     where: {
