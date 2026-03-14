@@ -33,6 +33,7 @@ export const sellerRepository = {
     store_phone?: string
     store_website?: string
     store_socials?: Record<string, any>
+    default_currency?: string
   }): Promise<any> {
     return prisma.sellerProfile.create({
       data: {
@@ -46,6 +47,7 @@ export const sellerRepository = {
         store_phone: data.store_phone,
         store_website: data.store_website,
         store_socials: data.store_socials,
+        default_currency: data.default_currency,
         is_active: true,
       }
     })
@@ -75,7 +77,7 @@ export const sellerRepository = {
    * Useful for public seller pages
    */
   async getSellerBySlug(slug: string): Promise<any | null> {
-    return prisma.sellerProfile.findUnique({
+    const seller = await prisma.sellerProfile.findUnique({
       where: { store_slug: slug },
       include: {
         profile: {
@@ -88,6 +90,19 @@ export const sellerRepository = {
         }
       }
     })
+
+    if (!seller) return null
+
+    const realFollowerCount = await prisma.follow.count({
+      where: { followingId: seller.id, followingType: 'SELLER' }
+    })
+
+    // Sync stale denormalized counter (non-blocking)
+    if (seller.followers_count !== realFollowerCount) {
+      prisma.sellerProfile.update({ where: { id: seller.id }, data: { followers_count: realFollowerCount } }).catch(() => {})
+    }
+
+    return { ...seller, followers_count: realFollowerCount }
   },
 
   /**
@@ -167,6 +182,7 @@ export const sellerRepository = {
       store_phone?: string
       store_website?: string
       store_socials?: Record<string, any>
+      default_currency?: string
     }
   ): Promise<any> {
     // Verify ownership
@@ -189,6 +205,7 @@ export const sellerRepository = {
         ...(data.store_phone && { store_phone: data.store_phone }),
         ...(data.store_website && { store_website: data.store_website }),
         ...(data.store_socials && { store_socials: data.store_socials }),
+        ...(data.default_currency && { default_currency: data.default_currency }),
       }
     })
   },

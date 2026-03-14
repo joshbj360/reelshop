@@ -8,6 +8,13 @@
             @close="showShareModal = false"
         />
 
+        <!-- Product detail modal (opened when a tagged product is tapped) -->
+        <ProductDetailModal
+            v-if="selectedProduct"
+            :product="selectedProduct"
+            @close="selectedProduct = null"
+        />
+
         <!-- ── Author header ──────────────────────────────────────────── -->
         <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-neutral-800 shrink-0">
             <NuxtLink :to="`/profile/${post.author?.username}`" class="shrink-0">
@@ -114,6 +121,7 @@
                     <TaggedProductsDisplay
                         :products="taggedProducts"
                         :content-type="post.contentType"
+                        @select-product="openTaggedProduct"
                     />
                 </div>
 
@@ -290,8 +298,10 @@ import FollowButton from '~~/layers/profile/app/components/FollowButton.vue';
 import TaggedProductsDisplay from './TaggedProductsDisplay.vue';
 import Avatar from '~~/layers/profile/app/components/Avatar.vue';
 import AudioPlayer from './AudioPlayer.vue';
+import ProductDetailModal from '~~/app/components/modals/ProductDetailModal.vue';
 import { notify } from '@kyvg/vue3-notification';
 import type { IFeedItem } from '~~/layers/feed/app/types/feed.types';
+import { useProductApi } from '~~/layers/commerce/app/services/product.api';
 
 const { t } = useI18n();
 
@@ -355,8 +365,29 @@ const cleanCaption = computed(() => {
 const hashtags = computed(() => props.post.caption?.match(/#\w+/g) || []);
 
 // ── Tagged products ───────────────────────────────────────────────────────────
-const taggedProducts = computed(() => props.post.taggedProducts || []);
+const taggedProducts = computed(() =>
+  (props.post.taggedProducts || []).map((t: any) => ({
+    id: t.productId ?? t.id,
+    title: t.product?.title ?? t.title,
+    price: t.product?.price ?? t.price,
+    slug: t.product?.slug ?? t.slug,
+    image: t.product?.media?.[0]?.url ?? t.image ?? null,
+  }))
+)
 const hasTaggedProducts = computed(() => taggedProducts.value.length > 0);
+
+// ── Tagged product modal ──────────────────────────────────────────────────────
+const selectedProduct = ref<any>(null);
+const productApi = useProductApi();
+
+const openTaggedProduct = async (id: number) => {
+    try {
+        const res = await productApi.getProductById(id);
+        selectedProduct.value = res?.data ?? res;
+    } catch {
+        // BaseApiClient already shows toast
+    }
+};
 
 // ── Load comments ─────────────────────────────────────────────────────────────
 onMounted(async () => {

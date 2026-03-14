@@ -1,5 +1,5 @@
 <template>
-    <HomeLayout :narrow-feed="true" :hide-right-sidebar="true">
+    <HomeLayout :narrow-feed="false" :hide-right-sidebar="false">
         <div class="max-w-2xl mx-auto py-6 px-2 sm:px-0">
 
             <!-- Header -->
@@ -107,11 +107,16 @@
                 <NuxtLink to="/discover" class="mt-3 text-sm text-brand font-semibold hover:underline">Start shopping</NuxtLink>
             </div>
         </div>
+
+        <template #right-sidebar>
+            <RightSideNavBuyerOrders />
+        </template>
     </HomeLayout>
 </template>
 
 <script setup lang="ts">
 import HomeLayout from '~/layouts/HomeLayout.vue'
+import RightSideNavBuyerOrders from '~/layouts/children/RightSideNavBuyerOrders.vue'
 import { useOrder } from '~~/layers/commerce/app/composables/useOrder'
 import { useOrderApi } from '~~/layers/commerce/app/services/order.api'
 import { notify } from '@kyvg/vue3-notification'

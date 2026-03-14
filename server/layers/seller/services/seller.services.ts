@@ -64,7 +64,8 @@ export const sellerService = {
         store_location: data.store_location,
         store_phone: data.store_phone,
         store_website: data.store_website,
-        store_socials: data.store_socials
+        store_socials: data.store_socials,
+        default_currency: data.default_currency
       })
 
       // Promote user role to 'seller' so UI hides "Become a Seller" prompts

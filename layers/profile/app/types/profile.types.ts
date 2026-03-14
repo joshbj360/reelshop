@@ -50,18 +50,25 @@ export interface INotification {
 
 export interface IConversation {
   id: string
-  userId: string
-  otherUserId: string
-  otherUser?: IProfile
-  createdAt: string
+  participant1Id: string
+  participant2Id: string | null
+  participant1?: { id: string; username: string; avatar?: string | null; name?: string | null }
+  participant2?: { id: string; username: string; avatar?: string | null; name?: string | null } | null
+  sellerId?: string | null
+  created_at: string
+  updated_at?: string | null
+  // Normalized by client:
+  otherUser?: { id: string; username: string; avatar?: string | null; name?: string | null }
 }
 
 export interface IMessage {
   id: string
   conversationId: string
   senderId: string
-  text: string
-  createdAt: string
+  content: string
+  read: boolean
+  sentAt: string
+  sender?: { id: string; username: string; avatar?: string | null }
 }
 
 export interface IPaginationMeta {

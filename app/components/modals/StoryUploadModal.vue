@@ -86,7 +86,7 @@ import { useStory } from '~~/layers/feed/app/composables/useStory'
 const props = defineProps<{ isOpen: boolean; initialProductId?: number | null }>()
 const emit = defineEmits(['close', 'posted'])
 
-const { uploadMedia, isUploading, uploadProgress, uploadError, resetUpload } = useMediaUpload()
+const { uploadMedia, isUploading, uploadError, resetUpload } = useMediaUpload()
 const { createStory } = useStory()
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -94,6 +94,7 @@ const selectedFile = ref<File | null>(null)
 const mediaPreview = ref<string | null>(null)
 const mediaType = ref<'image' | 'video'>('image')
 const error = ref<string | null>(null)
+const uploadProgress = ref<number>(0)
 
 const handleFileSelect = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
@@ -115,7 +116,7 @@ const handlePost = async () => {
   if (!selectedFile.value) return
   error.value = null
   try {
-    const uploaded = await uploadMedia(selectedFile.value)
+    const uploaded = await uploadMedia({ file: selectedFile.value })
     await createStory({ mediaUrl: uploaded.url, mediaPublicId: uploaded.public_id, mediaType: uploaded.type, productId: props.initialProductId ?? undefined })
     emit('posted')
     emit('close')
@@ -124,4 +125,12 @@ const handlePost = async () => {
     error.value = e.message || uploadError.value || 'Failed to share story'
   }
 }
+
+watch(() => props.isOpen, (open) => {
+  if (!open) {
+    clearMedia()
+    error.value = null
+    uploadProgress.value = 0
+  }
+})
 </script>

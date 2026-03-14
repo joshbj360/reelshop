@@ -26,6 +26,7 @@ export class SellerApiClient extends BaseApiClient {
     store_logo?: string
     store_banner?: string
     store_socials?: Record<string, any>
+    default_currency?: string
   }): Promise<any> {
     return this.request('/api/seller/register', {
       method: 'POST',
@@ -121,6 +122,10 @@ export class SellerApiClient extends BaseApiClient {
       body: { baseName },
       skipAuth: true, // Public endpoint
     })
+  }
+
+  async getFollowStatus(storeSlug: string): Promise<{ success: boolean; data: { isFollowing: boolean } }> {
+    return this.request(`/api/seller/${storeSlug}/follow-status`, { method: 'GET', silent: true }) as Promise<{ success: boolean; data: { isFollowing: boolean } }>
   }
 
   async followSeller(storeSlug: string): Promise<any> {

@@ -114,11 +114,18 @@
               >
                 Edit
               </NuxtLink>
+              <NuxtLink
+                :to="`/seller/${storeSlug}/products/${product.id}/edit?tab=promote`"
+                class="flex-1 py-1.5 text-center text-xs font-medium rounded-lg border border-brand/40 text-brand hover:bg-brand/5 transition-colors flex items-center justify-center gap-1"
+              >
+                <Icon name="mdi:rocket-launch-outline" size="12" />
+                Promote
+              </NuxtLink>
               <button
                 @click="confirmDelete(product)"
-                class="flex-1 py-1.5 text-center text-xs font-medium rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                class="py-1.5 px-2.5 text-center text-xs font-medium rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               >
-                Archive
+                <Icon name="mdi:archive-outline" size="14" />
               </button>
             </div>
           </div>
@@ -170,7 +177,7 @@
 <script setup lang="ts">
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 
-definePageMeta({ middleware: 'auth', layout: 'seller' })
+definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
 const route = useRoute()
 const storeSlug = computed(() => route.params.storeSlug as string)

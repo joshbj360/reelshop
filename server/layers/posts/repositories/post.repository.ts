@@ -1,5 +1,27 @@
 // FILE PATH: server/layers/user/repositories/content.repository.ts
 
+// Shared include for tagged products with full product details
+const taggedProductsInclude = {
+  taggedProducts: {
+    include: {
+      product: {
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          discount: true,
+          slug: true,
+          media: {
+            take: 1,
+            where: { isBgMusic: false },
+            select: { url: true, type: true }
+          }
+        }
+      }
+    }
+  }
+}
+
 export const postRepository = {
 
   async getUserByUsername(username: string) {
@@ -62,7 +84,7 @@ export const postRepository = {
       include: {
         author: true,
         media: true,
-        taggedProducts: true
+        ...taggedProductsInclude
       }
     })
   },
@@ -70,7 +92,7 @@ export const postRepository = {
   async getPostById(postId: string) {
     return await prisma.post.findUnique({
       where: { id: postId },
-      include: { author: true, likes: true, comments: true, media: true }
+      include: { author: true, likes: true, comments: true, media: true, ...taggedProductsInclude }
     })
   },
 
@@ -81,6 +103,7 @@ export const postRepository = {
         author: { select: { id: true, username: true, avatar: true, role: true } },
         media: { select: { id: true, url: true, type: true, isBgMusic: true } },
         _count: { select: { likes: true, comments: true, shares: true } },
+        ...taggedProductsInclude
       },
       take: limit,
       skip: offset,
@@ -124,6 +147,7 @@ export const postRepository = {
             shares: true
           }
         },
+        ...taggedProductsInclude,
         ...options.include
       }
     })
@@ -148,7 +172,8 @@ export const postRepository = {
             comments: true,
             shares: true
           }
-        }
+        },
+        ...taggedProductsInclude
       }
     })
   },

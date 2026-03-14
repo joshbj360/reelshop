@@ -19,10 +19,10 @@ export default defineEventHandler(async (event) => {
           where: {
             OR: [
               { username: { contains: q, mode: 'insensitive' } },
-              { full_name: { contains: q, mode: 'insensitive' } },
+              { bio: { contains: q, mode: 'insensitive' } },
             ],
           },
-          select: { id: true, username: true, full_name: true, avatar: true, role: true },
+          select: { id: true, username: true, avatar: true, role: true, bio: true },
           take: limit,
         })
       : Promise.resolve([] as any[]),

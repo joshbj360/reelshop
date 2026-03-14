@@ -110,8 +110,7 @@ export const chatService = {
     const message = await chatRepository.createMessage({
       conversationId,
       senderId: userId,
-      text,
-      type: messageType
+      content: text,
     })
 
     // 2. Update conversation timestamp (Brings chat to top of list)

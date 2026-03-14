@@ -1,6 +1,8 @@
 // POST /api/commerce/products/[id]/comments
 import { prisma } from '../../../../../utils/db'
 import { requireAuth } from '../../../../../layers/shared/middleware/requireAuth'
+import { notificationService } from '../../../../../layers/profile/services/notification.service'
+import { auditService } from '../../../../../layers/shared/audit/audit.service'
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuth(event)
@@ -10,7 +12,10 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   if (!body?.text?.trim()) throw createError({ statusCode: 400, statusMessage: 'Comment text is required' })
 
-  const product = await prisma.products.findUnique({ where: { id }, select: { id: true } })
+  const product = await prisma.products.findUnique({
+    where: { id },
+    select: { id: true, title: true, seller: { select: { userId: true } } }
+  })
   if (!product) throw createError({ statusCode: 404, statusMessage: 'Product not found' })
 
   const comment = await prisma.comment.create({
@@ -26,6 +31,27 @@ export default defineEventHandler(async (event) => {
       _count: { select: { likes: true, replies: true } },
     },
   })
+
+  // Notify product owner (non-blocking, skip self-notifications)
+  const ownerId = product.seller?.userId
+  if (ownerId && ownerId !== user.id) {
+    notificationService.createNotification({
+      userId: ownerId,
+      type: 'PRODUCT_COMMENT',
+      actorId: user.id,
+      message: `${user.username} commented on your product "${product.title}"`,
+      commentId: comment.id,
+    }).catch(() => {})
+  }
+
+  // Audit log (non-blocking)
+  auditService.logUserAction({
+    userId: user.id,
+    action: 'PRODUCT_COMMENT_CREATED',
+    resource: 'ProductComment',
+    resourceId: comment.id,
+    reason: `Comment on product ${id}`,
+  }).catch(() => {})
 
   return { success: true, data: comment }
 })

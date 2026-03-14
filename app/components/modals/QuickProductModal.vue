@@ -134,6 +134,26 @@
                             <input ref="musicInputRef" type="file" accept="audio/*" class="hidden" @change="onMusicPicked" />
                         </div>
 
+                        <!-- AI Magic Lister (shown after cover upload) -->
+                        <div v-if="coverResult && !uploadingCover" class="p-3 bg-gradient-to-r from-brand/10 to-purple-600/10 dark:from-brand/20 dark:to-purple-600/20 rounded-xl border border-brand/20 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                                    <Icon name="mdi:magic-staff" class="text-brand shrink-0" size="14" />
+                                    AI Magic Lister
+                                </p>
+                                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">Auto-fill title, price & social captions</p>
+                            </div>
+                            <button
+                                type="button"
+                                @click="autoFillWithAI"
+                                :disabled="isGeneratingAI"
+                                class="shrink-0 px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-xs font-bold hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center gap-1.5"
+                            >
+                                <Icon :name="isGeneratingAI ? 'eos-icons:loading' : 'mdi:creation'" :class="{ 'animate-spin': isGeneratingAI }" size="14" />
+                                {{ isGeneratingAI ? 'Working...' : 'Auto-Fill' }}
+                            </button>
+                        </div>
+
                         <!-- Title -->
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 dark:text-neutral-400 mb-1.5">Product Title *</label>
@@ -249,6 +269,8 @@
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
 import { useMediaUpload } from '~~/layers/base/app/composables/useMediaUpload'
+import { useProductApi } from '~~/layers/commerce/app/services/product.api'
+import { useAiApi } from '~~/layers/base/app/services/ai.api'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'posted'])
@@ -256,6 +278,8 @@ const emit = defineEmits(['close', 'posted'])
 const { createProduct } = useProduct()
 const { sellers, loadUserSellers } = useSellerManagement()
 const { uploadMedia } = useMediaUpload()
+const productApi = useProductApi()
+const aiApi = useAiApi()
 
 // Store selector
 const storeDropdownOpen = ref(false)
@@ -268,6 +292,7 @@ const selectStore = (seller: any) => {
 
 // Cover image
 const imageInputRef = ref<HTMLInputElement | null>(null)
+const coverFile = ref<File | null>(null)
 const coverPreview = ref<string | null>(null)
 const coverResult = ref<{ url: string; public_id: string; type: string } | null>(null)
 const uploadingCover = ref(false)
@@ -277,12 +302,14 @@ const triggerImagePick = () => imageInputRef.value?.click()
 const onImagePicked = async (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0]
     if (!file) return
+    coverFile.value = file
     coverPreview.value = URL.createObjectURL(file)
     uploadingCover.value = true
     try {
         const res = await uploadMedia({ file })
         coverResult.value = { url: res.url, public_id: res.public_id, type: res.type }
     } catch {
+        coverFile.value = null
         coverPreview.value = null
         coverResult.value = null
     } finally {
@@ -292,8 +319,47 @@ const onImagePicked = async (e: Event) => {
 }
 
 const removeCover = () => {
+    coverFile.value = null
     coverPreview.value = null
     coverResult.value = null
+    aiCaptions.instagram = ''
+    aiCaptions.facebook = ''
+    aiCaptions.pinterest = ''
+}
+
+// ── AI Auto-Fill ──────────────────────────────────────────────────────────────
+const isGeneratingAI = ref(false)
+const aiCaptions = reactive({ instagram: '', facebook: '', pinterest: '' })
+const hasAiCaptions = computed(() => !!(aiCaptions.instagram || aiCaptions.facebook || aiCaptions.pinterest))
+
+const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+    })
+
+const autoFillWithAI = async () => {
+    if (!coverFile.value) return
+    isGeneratingAI.value = true
+    try {
+        const base64 = await fileToBase64(coverFile.value)
+        const response = await aiApi.generateListing(base64, coverFile.value.type)
+        if (response.success && response.data) {
+            const d = response.data
+            if (d.title && !form.title) form.title = d.title
+            if (d.description && !form.description) form.description = d.description
+            if (d.suggestedPrice && !form.price) form.price = String(Math.round(d.suggestedPrice * 1500 / 100) * 100)
+            if (d.socialCaptions) {
+                aiCaptions.instagram = d.socialCaptions.instagram || ''
+                aiCaptions.facebook = d.socialCaptions.facebook || ''
+                aiCaptions.pinterest = d.socialCaptions.pinterest || ''
+            }
+        }
+    } catch { /* silent */ } finally {
+        isGeneratingAI.value = false
+    }
 }
 
 // Background music
@@ -376,6 +442,7 @@ const submit = async () => {
         if (selectedCategoryIds.value.length) payload.categoryIds = selectedCategoryIds.value
         if (coverResult.value) payload.mediaItems = [coverResult.value]
         if (bgMusicResult.value) payload.bgMusic = bgMusicResult.value
+        if (hasAiCaptions.value) payload.socialCaptions = { ...aiCaptions }
 
         await createProduct(payload)
         submitted.value = true
@@ -402,8 +469,12 @@ watch(() => props.isOpen, (open) => {
         form.status = 'DRAFT'
         form.description = ''
         form.affiliateCommission = ''
+        coverFile.value = null
         coverPreview.value = null
         coverResult.value = null
+        aiCaptions.instagram = ''
+        aiCaptions.facebook = ''
+        aiCaptions.pinterest = ''
         bgMusicName.value = null
         bgMusicResult.value = null
         selectedCategoryIds.value = []
@@ -416,8 +487,8 @@ watch(() => props.isOpen, (open) => {
         // Load categories if not loaded
         if (categories.value.length === 0) {
             categoriesLoading.value = true
-            $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
-                .then(res => { categories.value = res.data || [] })
+            productApi.getCategories()
+                .then((res: any) => { categories.value = res?.data || [] })
                 .catch(() => {})
                 .finally(() => { categoriesLoading.value = false })
         }

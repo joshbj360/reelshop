@@ -5,7 +5,8 @@
  */
 
 import { type H3Event, getHeader } from 'h3'
-import { useRequestEvent, useRuntimeConfig } from 'nuxt/app'
+import { useRequestEvent, useRuntimeConfig, navigateTo } from 'nuxt/app'
+import { notify } from '@kyvg/vue3-notification'
 import { ApiError } from './api.error'
 import { useAuthStore } from '../stores/auth.store'
 
@@ -16,6 +17,8 @@ export interface ApiServiceOptions {
   headers?: Record<string, string>
   skipAuth?: boolean
   skipCsrf?: boolean
+  /** Suppress auto-notification for this call (use for background/fire-and-forget requests) */
+  silent?: boolean
 }
 
 export class BaseApiClient {
@@ -91,7 +94,7 @@ export class BaseApiClient {
         headers,
       }) as T
     } catch (error: any) {
-      throw this.handleError(error, endpoint)
+      this.handleError(error, endpoint, options.skipAuth, options.silent)
     }
   }
 
@@ -154,29 +157,40 @@ export class BaseApiClient {
     return null
   }
 
-  private handleError(error: any, endpoint: string): Error {
-    // Network error
-    if (!error.response && error.message) {
-      console.error(`Network error on ${endpoint}:`, error.message)
-      throw new ApiError(
-        'Network error. Please check your connection.',
-        0,
-        { originalError: error }
-      )
+  private handleError(error: any, endpoint: string, skipAuth?: boolean, silent?: boolean): never {
+    const isClient = import.meta.client
+
+    // Network error (no response)
+    if (!error.status && !error.statusCode && error.message) {
+      const msg = 'Network error. Please check your connection.'
+      if (isClient && !silent) notify({ type: 'error', text: msg })
+      throw new ApiError(msg, 0, { originalError: error })
     }
 
     // HTTP error
     const statusCode = error.status || error.statusCode || 500
     const data = error.data || error.response?.data || {}
-    const message = data.message || error.message || 'An unexpected error occurred.'
+    const serverMessage = data.message || data.statusMessage || error.message || 'An unexpected error occurred.'
+    const safeMessage = this.getSafeErrorMessage(statusCode, serverMessage)
 
-    console.error(`API Error [${statusCode}] on ${endpoint}:`, {
-      message,
-      data,
-      error: error.message,
-    })
-
-    const safeMessage = this.getSafeErrorMessage(statusCode, message)
+    if (isClient) {
+      if ((statusCode === 401 || statusCode === 403) && !skipAuth) {
+        // Auth errors always clear session and redirect — regardless of silent flag
+        try { useAuthStore().clearAuth() } catch {}
+        notify({
+          type: 'error',
+          title: statusCode === 401 ? 'Session expired' : 'Access denied',
+          text: statusCode === 401
+            ? 'Please log in to continue.'
+            : 'You do not have permission to perform this action.',
+          duration: 6000,
+        })
+        navigateTo('/user-login')
+      } else if (!silent) {
+        // Other errors only show if not a background/silent call
+        notify({ type: 'error', text: safeMessage })
+      }
+    }
 
     throw new ApiError(safeMessage, statusCode, data)
   }

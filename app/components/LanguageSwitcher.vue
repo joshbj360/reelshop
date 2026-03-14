@@ -53,7 +53,7 @@ const FLAGS: Record<string, string> = {
 const flagEmoji = (code: string) => FLAGS[code] ?? '🌐';
 
 const switchLocale = async (code: string) => {
-    await setLocale(code);
+    await setLocale(code as 'en' | 'fr' | 'es' | 'de' | 'pt' | 'zh' | 'ar');
     isOpen.value = false;
 };
 

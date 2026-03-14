@@ -126,7 +126,7 @@
                         @change="setLocale(($event.target as HTMLSelectElement).value as any)"
                         class="text-sm bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border-0 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
                     >
-                        <option v-for="l in availableLocales" :key="l.code" :value="l.code">{{ l.name }}</option>
+                        <option v-for="l in locales" :key="(l as any).code" :value="(l as any).code">{{ (l as any).name }}</option>
                     </select>
                 </div>
             </section>
@@ -181,7 +181,7 @@ definePageMeta({ middleware: undefined })
 const { settings, update, reset } = useSettings()
 const colorMode = useColorMode()
 const profileStore = useProfileStore()
-const { locale, availableLocales, setLocale } = useI18n()
+const { locale, locales, setLocale } = useI18n()
 
 const COLOR_MODES = [
     { value: 'light', label: 'Light' },

@@ -30,6 +30,7 @@ const typeMap: Record<string, string> = {
   'MESSAGE': 'GENERAL',
   'PRODUCT_SHARE': 'PRODUCT_SHARE',
   'PRODUCT_REVIEW': 'REVIEW',
+  'PRODUCT_COMMENT': 'NEW_COMMENT',
   'ORDER': 'ORDER'
 }
 

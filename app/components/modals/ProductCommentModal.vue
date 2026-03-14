@@ -82,11 +82,13 @@
 
 <script setup lang="ts">
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import { useProductApi } from '~~/layers/commerce/app/services/product.api'
 
 const props = defineProps<{ isOpen: boolean; product: any }>()
 defineEmits(['close'])
 
 const profileStore = useProfileStore()
+const api = useProductApi()
 const comments = ref<any[]>([])
 const newComment = ref('')
 const isLoading = ref(false)
@@ -96,8 +98,8 @@ const loadComments = async () => {
   if (!props.product?.id) return
   isLoading.value = true
   try {
-    const res = await $fetch<any>(`/api/commerce/products/${props.product.id}/comments`)
-    if (res?.success) comments.value = res.data || []
+    const res: any = await api.getProductComments(props.product.id)
+    comments.value = res?.data || []
   } finally {
     isLoading.value = false
   }
@@ -107,11 +109,8 @@ const submitComment = async () => {
   if (!newComment.value.trim() || isSubmitting.value || !props.product?.id) return
   isSubmitting.value = true
   try {
-    const res = await $fetch<any>(`/api/commerce/products/${props.product.id}/comments`, {
-      method: 'POST',
-      body: { text: newComment.value.trim() },
-    })
-    if (res?.success && res.data) {
+    const res: any = await api.createProductComment(props.product.id, newComment.value.trim())
+    if (res?.data) {
       comments.value.unshift(res.data)
       newComment.value = ''
     }

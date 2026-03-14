@@ -383,6 +383,7 @@
                 <TaggedProductsDisplay
                     :products="taggedProducts"
                     :content-type="post.contentType"
+                    @select-product="(id) => emit('open-product', id)"
                 />
             </div>
 
@@ -419,7 +420,7 @@ import Avatar from '~~/layers/profile/app/components/Avatar.vue';
 const { t } = useI18n();
 
 const props = defineProps<{ post: IFeedItem }>();
-const emit = defineEmits(['open-comments', 'open-details', 'deleted']);
+const emit = defineEmits(['open-comments', 'open-details', 'deleted', 'open-product']);
 
 const profileStore = useProfileStore();
 const postStore = usePostStore();
@@ -565,7 +566,15 @@ const isCaptionLong = computed(() => ((props.post.caption?.length ?? 0) + (props
 const isTextLong = computed(() => (props.post.content?.length ?? 0) > 200);
 
 // ─── Tagged products ──────────────────────────────────────────────────────────
-const taggedProducts = computed(() => props.post.taggedProducts || []);
+const taggedProducts = computed(() =>
+  (props.post.taggedProducts || []).map((t: any) => ({
+    id: t.productId ?? t.id,
+    title: t.product?.title ?? t.title,
+    price: t.product?.price ?? t.price,
+    slug: t.product?.slug ?? t.slug,
+    image: t.product?.media?.[0]?.url ?? t.image ?? null,
+  }))
+)
 const hasTaggedProducts = computed(() => taggedProducts.value.length > 0);
 
 // ─── Actions ──────────────────────────────────────────────────────────────────

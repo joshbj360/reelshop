@@ -51,8 +51,31 @@
             </label>
           </div>
 
+          <!-- ✨ AI Magic Lister Banner (Shows after image upload) -->
+          <div v-if="mediaItems.length > 0" class="mt-6 p-5 bg-gradient-to-r from-brand/10 to-purple-600/10 dark:from-brand/20 dark:to-purple-600/20 rounded-xl border border-brand/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div>
+              <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <Icon name="mdi:magic-staff" class="text-brand" size="18" />
+                AI Magic Lister
+              </h3>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 max-w-sm">
+                Save time! Let our AI analyze your cover image to auto-write your title, description, price, and social media captions.
+              </p>
+            </div>
+            <button 
+              type="button" 
+              @click="autoFillWithAI" 
+              :disabled="isGeneratingAI || mediaItems[0]?.uploading" 
+              class="w-full sm:w-auto px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-bold shadow-md hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 shrink-0"
+            >
+              <Icon v-if="isGeneratingAI" name="eos-icons:loading" class="animate-spin" size="18" />
+              <Icon v-else name="mdi:creation" size="18" />
+              {{ isGeneratingAI ? 'Generating...' : 'Auto-Fill Form' }}
+            </button>
+          </div>
+
           <!-- Background Music -->
-          <div class="mt-4">
+          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-neutral-700">
             <h3 class="text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Background Music (optional)</h3>
             <div v-if="bgMusic" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-neutral-900 rounded-lg">
               <Icon name="mdi:music-note" size="20" class="text-brand flex-shrink-0" />
@@ -93,6 +116,7 @@
               v-model="form.description"
               required
               rows="4"
+              minlength="10"
               placeholder="Describe your product..."
               class="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand text-sm resize-none"
             />
@@ -163,6 +187,43 @@
                 <option value="PUBLISHED">Published</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        <!-- ✨ AI Generated Social Posts (Only shows if AI was used) -->
+        <div v-if="hasAiCaptions" class="bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 p-4 sm:p-6 space-y-4 shadow-[0_0_15px_rgba(240,44,86,0.05)]">
+          <div class="flex items-center gap-2 mb-2">
+            <Icon name="mdi:share-all-outline" size="24" class="text-brand" />
+            <div>
+              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Social Media Posts</h2>
+              <p class="text-xs text-gray-500 dark:text-neutral-400">These will automatically publish to your linked accounts when you create the product.</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+             <!-- IG -->
+             <div class="bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg border border-gray-100 dark:border-neutral-700">
+               <label class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300 mb-2">
+                 <Icon name="mdi:instagram" class="text-pink-600" size="16" /> Instagram
+               </label>
+               <textarea v-model="form.socialCaptions.instagram" rows="4" class="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand resize-none"></textarea>
+             </div>
+             
+             <!-- Facebook -->
+             <div class="bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg border border-gray-100 dark:border-neutral-700">
+               <label class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300 mb-2">
+                 <Icon name="mdi:facebook" class="text-blue-600" size="16" /> Facebook
+               </label>
+               <textarea v-model="form.socialCaptions.facebook" rows="3" class="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand resize-none"></textarea>
+             </div>
+
+             <!-- Pinterest -->
+             <div class="bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg border border-gray-100 dark:border-neutral-700">
+               <label class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-neutral-300 mb-2">
+                 <Icon name="mdi:pinterest" class="text-red-600" size="16" /> Pinterest
+               </label>
+               <textarea v-model="form.socialCaptions.pinterest" rows="2" class="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand resize-none"></textarea>
+             </div>
           </div>
         </div>
 
@@ -254,10 +315,10 @@
           </NuxtLink>
           <button
             type="submit"
-            :disabled="isLoading || isAnyUploading"
+            :disabled="isLoading || isAnyUploading || isGeneratingAI"
             class="flex-1 py-3 bg-brand text-white rounded-xl font-semibold hover:bg-[#d81b36] disabled:opacity-50 transition-colors"
           >
-            {{ isAnyUploading ? 'Uploading...' : isLoading ? 'Creating...' : 'Create Product' }}
+            {{ isAnyUploading ? 'Uploading Media...' : isGeneratingAI ? 'AI Processing...' : isLoading ? 'Creating...' : 'Create Product' }}
           </button>
         </div>
       </form>
@@ -266,17 +327,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
 import { useMediaUpload } from '~~/layers/base/app/composables/useMediaUpload'
+import { useAiApi } from '~~/layers/base/app/services/ai.api'
+import { notify } from '@kyvg/vue3-notification'
 
-definePageMeta({ middleware: 'auth', layout: 'seller' })
+definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
 const route = useRoute()
 const router = useRouter()
-const storeSlug = computed(() => route.params.storeSlug as string)
+const storeSlug = computed(() => route.params.storeSlug as string || route.params.store_slug as string)
 
 const { createProduct, fetchCategories, isLoading, error } = useProduct()
 const { uploadMedia } = useMediaUpload()
+const aiApi = useAiApi()
 
 // ── Media state ──────────────────────────────────────────────────────────────
 interface MediaItem {
@@ -311,13 +377,12 @@ const onImagesSelected = async (e: Event) => {
 
     try {
       const res = await uploadMedia({ file })
-      if (mediaItems.value[idx]) mediaItems.value[idx]!.result = res
-    } catch {
-      mediaItems.value.splice(idx, 1)
-    } finally {
       if (mediaItems.value[idx]) {
+        mediaItems.value[idx].result = res
         mediaItems.value[idx].uploading = false
       }
+    } catch {
+      mediaItems.value.splice(idx, 1)
     }
   }
 }
@@ -363,7 +428,73 @@ const form = reactive({
   isAccessory: false,
   variants: [] as Array<{ size: string; price: number | null; stock: number }>,
   categoryIds: [] as number[],
+  // Added social captions to hold AI outputs
+  socialCaptions: {
+    instagram: '',
+    facebook: '',
+    pinterest: ''
+  }
 })
+
+// ── AI Magic Lister Integration ───────────────────────────────────────────────
+const isGeneratingAI = ref(false)
+const hasAiCaptions = computed(() => !!(form.socialCaptions.instagram || form.socialCaptions.facebook || form.socialCaptions.pinterest))
+
+// Helper to convert File to Base64 for the Gemini API
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      const result = reader.result as string
+      // The API expects pure base64 without the data:image prefix
+      const base64Data = result.split(',')[1] 
+      resolve(base64Data)
+    }
+    reader.onerror = (error) => reject(error)
+  })
+}
+
+const autoFillWithAI = async () => {
+  if (!mediaItems.value.length) return
+  
+  isGeneratingAI.value = true
+  try {
+    // 1. Get the first image (cover image)
+    const coverFile = mediaItems.value[0]?.file
+    const base64Image = await fileToBase64(coverFile)
+
+    // 2. Call AI service
+    const response = await aiApi.generateListing(base64Image, coverFile.type, form.isThrift ? 'This is a thrift/vintage item.' : '')
+
+    // 3. Populate the reactive form fields
+    if (response.success && response.data) {
+      const aiData = response.data
+      
+      // Only overwrite fields if they are empty, or fully overwrite if you prefer
+      form.title = aiData.title || form.title
+      form.description = aiData.description || form.description
+      
+      // Don't overwrite price if they already typed one
+      if (!form.price && aiData.suggestedPrice) {
+        // Convert suggested USD price to NGN (Rough mock conversion, adjust as needed)
+        // Assuming 1 USD = ~1500 NGN for placeholder logic
+        form.price = Math.round((aiData.suggestedPrice * 1500) / 100) * 100 
+      }
+
+      form.socialCaptions.instagram = aiData.socialCaptions?.instagram || ''
+      form.socialCaptions.facebook = aiData.socialCaptions?.facebook || ''
+      form.socialCaptions.pinterest = aiData.socialCaptions?.pinterest || ''
+
+      notify({ type: 'success', text: '✨ AI has filled out your listing!' })
+    }
+  } catch (err: any) {
+    console.error('AI Generation Failed:', err)
+    notify({ type: 'error', text: 'Failed to generate listing with AI. Please try again.' })
+  } finally {
+    isGeneratingAI.value = false
+  }
+}
 
 // ── Categories ────────────────────────────────────────────────────────────────
 const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
@@ -406,6 +537,8 @@ const handleSubmit = async () => {
       isFeatured: form.isFeatured,
       isThrift: form.isThrift,
       isAccessory: form.isAccessory,
+      // Include the social captions in the payload to save them to the DB
+      socialCaptions: form.socialCaptions
     }
 
     if (form.affiliateCommission && form.affiliateCommission > 0) payload.affiliateCommission = form.affiliateCommission
@@ -440,9 +573,11 @@ const handleSubmit = async () => {
     }
 
     await createProduct(payload)
+    notify({ type: 'success', text: 'Product created successfully!' })
     await router.push(`/seller/${storeSlug.value}/products`)
   } catch {
     // error is reactive from composable
+    notify({ type: 'error', text: 'Failed to create product' })
   }
 }
 </script>

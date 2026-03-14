@@ -1,4 +1,3 @@
-// GET /api/search?q=&type=all|users|products|posts&limit=&offset=
 import { optionalAuth } from '../../layers/shared/middleware/requireAuth'
 import { UserError } from '../../layers/profile/types/user.types'
 import { prisma } from '../../utils/db'
@@ -13,22 +12,36 @@ export default defineEventHandler(async (event) => {
     const offset = Number(query.offset) || 0
 
     if (!q || q.length < 2) {
-      return { success: true, data: { users: [], products: [], posts: [] } }
+      return { success: true, data: { users: [], products: [], posts: [], stores: [] } }
     }
 
     const searchFilter = { contains: q, mode: 'insensitive' as const }
 
-    const [users, products, posts] = await Promise.all([
+    const [users, products, posts, stores] = await Promise.all([
       type === 'all' || type === 'users'
         ? prisma.profile.findMany({
             where: {
               OR: [
                 { username: searchFilter },
                 { bio: searchFilter },
-                { full_name: searchFilter }
+                { email: searchFilter },
               ]
             },
-            select: { id: true, username: true, avatar: true, bio: true, full_name: true },
+            select: { id: true, username: true, avatar: true, bio: true, email: true },
+            take: limit,
+            skip: offset
+          })
+        : [],
+
+      type === 'all' || type === 'stores'
+        ? prisma.sellerProfile.findMany({
+            where: {
+              OR: [
+                { store_name: searchFilter },
+                { store_description: searchFilter }
+              ]
+            },
+            select: { id: true, store_name: true, store_slug: true, store_description: true, store_logo: true },
             take: limit,
             skip: offset
           })
@@ -74,7 +87,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: { users, products, posts }
+      // FIXED: Added stores to the return object!
+      data: { users, products, posts, stores }
     }
   } catch (error: any) {
     if (error instanceof UserError) throw createError({ statusCode: error.status, statusMessage: error.message })

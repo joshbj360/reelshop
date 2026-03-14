@@ -32,14 +32,17 @@
 </template>
 
 <script setup lang="ts">
+import { useProductApi } from '~~/layers/commerce/app/services/product.api'
+
 const route = useRoute()
+const api = useProductApi()
 
 const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
 
 onMounted(async () => {
     try {
-        const res = await $fetch<{ success: boolean; data: any[] }>('/api/commerce/categories')
-        categories.value = res.data || []
+        const res: any = await api.getCategories()
+        categories.value = res?.data || []
     } catch { /* non-fatal */ }
 })
 </script>

@@ -1,6 +1,7 @@
 import { cartRepository } from '../repositories/cart.repository'
 import { UserError } from '../../profile/types/user.types'
 import { prisma } from '../../../utils/db'
+import { auditService } from '../../shared/audit/audit.service'
 
 export const cartService = {
   async getCart(userId: string) {
@@ -18,7 +19,9 @@ export const cartService = {
     if (!variant) throw new UserError('VARIANT_NOT_FOUND', 'Product variant not found', 404)
     if (variant.stock < quantity) throw new UserError('INSUFFICIENT_STOCK', 'Not enough stock available', 400)
 
-    return cartRepository.addToCart(userId, variantId, quantity)
+    const item = await cartRepository.addToCart(userId, variantId, quantity)
+    auditService.logUserAction({ userId, action: 'CART_ITEM_ADDED', resource: 'CartItem', resourceId: String(variantId), reason: `Added variant ${variantId} x${quantity}` }).catch(() => {})
+    return item
   },
 
   async updateQuantity(userId: string, variantId: number, quantity: number) {
@@ -35,16 +38,22 @@ export const cartService = {
       throw new UserError('INSUFFICIENT_STOCK', 'Not enough stock available', 400)
     }
 
-    return cartRepository.updateCartItem(userId, variantId, quantity)
+    const item = await cartRepository.updateCartItem(userId, variantId, quantity)
+    auditService.logUserAction({ userId, action: 'CART_ITEM_UPDATED', resource: 'CartItem', resourceId: String(variantId), reason: `Updated variant ${variantId} to qty ${quantity}` }).catch(() => {})
+    return item
   },
 
   async removeFromCart(userId: string, variantId: number) {
     const existing = await cartRepository.getCartItem(userId, variantId)
     if (!existing) throw new UserError('ITEM_NOT_FOUND', 'Cart item not found', 404)
-    return cartRepository.removeFromCart(userId, variantId)
+    const result = await cartRepository.removeFromCart(userId, variantId)
+    auditService.logUserAction({ userId, action: 'CART_ITEM_REMOVED', resource: 'CartItem', resourceId: String(variantId), reason: `Removed variant ${variantId}` }).catch(() => {})
+    return result
   },
 
   async clearCart(userId: string) {
-    return cartRepository.clearCart(userId)
+    const result = await cartRepository.clearCart(userId)
+    auditService.logUserAction({ userId, action: 'CART_CLEARED', resource: 'Cart', resourceId: userId, reason: 'Cart cleared' }).catch(() => {})
+    return result
   }
 }

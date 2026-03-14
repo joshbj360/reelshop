@@ -87,6 +87,7 @@
                             v-if="item.type === 'PRODUCT' && item.product"
                             :product="item.product"
                             @open-detail="openProductModal"
+                            @open-comments="commentProduct = $event"
                             @market="marketProduct = $event"
                         />
                         <PostCard
@@ -95,6 +96,7 @@
                             @open-comments="openPostCommentsModal"
                             @open-details="openPostModal"
                             @deleted="removeFromFeed"
+                            @open-product="openProductById"
                         />
                     </template>
                 </section>
@@ -113,8 +115,6 @@
         <!-- Right Sidebar -->
         <template #right-sidebar>
             <RightSideNav 
-               
-
             />
         </template>
 
@@ -135,6 +135,7 @@
             v-if="selectedProduct"
             :product="selectedProduct"
             @close="selectedProduct = null"
+            @open-comments="commentProduct = $event; selectedProduct = null"
         />
 
         <ProductMarketModal
@@ -170,7 +171,7 @@ import { useStory } from '~~/layers/feed/app/composables/useStory';
 
 // Layouts & Components
 import HomeLayout from '~/layouts/HomeLayout.vue';
-import HomepageSkeleton from '~/components/home/HomePageSkeleton.vue';
+import HomepageSkeleton from '~/components/skeletons/HomePageSkeleton.vue';
 import StoryUploadModal from '~/components/modals/StoryUploadModal.vue';
 import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue';
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue';
@@ -182,6 +183,7 @@ import ShopProductCard from '~/components/shop/ShopProductCard.vue';
 import PostCard from '../../layers/post/app/components/PostCard.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue';
 import { useFeedApi } from '../../layers/feed/app/services/feed.api';
+import { useProductApi } from '../../layers/commerce/app/services/product.api';
 import { getMediaThumbnailUrl } from '../../layers/base/app/utils/formatters';
 import type { IFeedItem } from '../../layers/feed/app/types/feed.types';
 import type { IProduct } from '../../layers/post/app/types/post.types';
@@ -305,6 +307,16 @@ const openPostCommentsModal = (post: IFeedItem) => {
 
 const openProductModal = (product: IProduct) => {
     selectedProduct.value = product;
+};
+
+const productApi = useProductApi();
+const openProductById = async (id: number) => {
+    try {
+        const res = await productApi.getProductById(id);
+        selectedProduct.value = res?.data ?? res;
+    } catch {
+        // BaseApiClient already shows toast
+    }
 };
 
 const openPostModal = (post: IFeedItem) => {

@@ -64,13 +64,12 @@
 
             <!-- Product grid -->
             <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-                <ShopProductCard
+                <ProductCardMini
                     v-for="product in products"
                     :key="product.id"
                     :product="product"
                     @open-detail="openDetail"
                     @quick-add="quickAdd"
-                    @market="marketProduct = $event"
                 />
             </div>
 
@@ -103,9 +102,9 @@
 </template>
 
 <script setup lang="ts">
-import type { IProduct } from '~~/layers/commerce/types/commerce.types'
+import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
 import HomeLayout from '~/layouts/HomeLayout.vue'
-import ShopProductCard from '~/components/shop/ShopProductCard.vue'
+import ProductCardMini from '~/components/shop/ProductCardMini.vue'
 import CartSidebar from '~/components/shop/CartSidebar.vue'
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
 import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'

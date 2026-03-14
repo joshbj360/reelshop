@@ -35,7 +35,12 @@ export const createProductSchema = z.object({
   mediaItems: z.array(mediaItemSchema).optional(),
   bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
   affiliateCommission: z.number().min(0).optional(),
-  categoryIds: z.array(z.number().int()).optional()
+  categoryIds: z.array(z.number().int()).optional(),
+  socialCaptions: z.object({
+    instagram: z.string().optional(),
+    facebook: z.string().optional(),
+    pinterest: z.string().optional()
+  }).optional()
 })
 
 export const updateProductSchema = z.object({
@@ -54,7 +59,12 @@ export const updateProductSchema = z.object({
   mediaItems: z.array(mediaItemSchema).optional(),
   bgMusic: z.object({ url: z.string().url(), public_id: z.string() }).optional(),
   affiliateCommission: z.number().min(0).nullable().optional(),
-  categoryIds: z.array(z.number().int()).optional()
+  categoryIds: z.array(z.number().int()).optional(),
+  socialCaptions: z.object({
+    instagram: z.string().optional(),
+    facebook: z.string().optional(),
+    pinterest: z.string().optional()
+  }).optional()
 })
 
 export const listProductsSchema = z.object({

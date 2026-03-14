@@ -4,6 +4,7 @@ import { UserError } from '../types/user.types'
 import { socialRepository } from '../repositories/social.repository'
 import { notificationService } from './notification.service'
 import { auditService } from '../../shared/audit/audit.service'
+import { sellerRepository } from '../../seller/repositories/seller.repository'
 
 export const socialService = {
 
@@ -73,7 +74,10 @@ export const socialService = {
     }
 
     const follow = await socialRepository.createFollow(userId, seller.id, 'SELLER')
-    
+
+    // Update denormalized counter (non-blocking)
+    sellerRepository.incrementFollowers(seller.id).catch(() => {})
+
     await auditService.logUserAction({
       userId,
       action: 'SELLER_FOLLOWED',
@@ -84,14 +88,14 @@ export const socialService = {
       ipAddress,
       userAgent
     })
-    
+
     await notificationService.createNotification({
       userId: seller.profileId,
       type: 'FOLLOW',
       actorId: userId,
       message: `Someone started following your store`
     })
-    
+
     return follow
   },
 
@@ -135,7 +139,10 @@ export const socialService = {
     }
 
     await socialRepository.deleteFollow(userId, seller.id, 'SELLER')
-    
+
+    // Update denormalized counter (non-blocking)
+    sellerRepository.decrementFollowers(seller.id).catch(() => {})
+
     await auditService.logUserAction({
       userId,
       action: 'SELLER_UNFOLLOWED',
@@ -145,7 +152,7 @@ export const socialService = {
       ipAddress,
       userAgent
     })
-    
+
     return { message: 'Unfollowed store successfully' }
   },
 

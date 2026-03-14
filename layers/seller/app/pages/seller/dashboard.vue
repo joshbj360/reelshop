@@ -152,7 +152,7 @@
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement';
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct';
 
-definePageMeta({ middleware: 'auth', layout: 'seller' });
+definePageMeta({ middleware: 'auth', layout: 'store-layout' });
 
 const router = useRouter();
 const { sellers, isLoading, error, message, hasSellers, loadUserSellers, activateSeller, deactivateSeller } = useSellerManagement();

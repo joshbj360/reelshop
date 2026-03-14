@@ -42,6 +42,7 @@ export const useCartStore = defineStore('cart', () => {
     removeItem,
     addItem,
     setLoading: (val: boolean) => { isLoading.value = val },
-    setError: (val: string | null) => { error.value = val }
+    setError: (val: string | null) => { error.value = val },
+    clearStore: () => { items.value = []; isLoading.value = false; error.value = null }
   }
 }, { persist: true })

@@ -7,10 +7,14 @@
  */
 
 import { computed } from 'vue'
+import { notify } from '@kyvg/vue3-notification'
 import { useAuthApi } from '../services/auth.api'
 import { useAuthStore } from '../stores/auth.store'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useProfileApi } from '~~/layers/profile/app/services/profile.api'
+import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
+import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
+import { useCartStore } from '~~/layers/commerce/app/stores/cart.store'
 import type { IProduct } from '~~/layers/post/app/types/post.types'
 import type { IProfile } from '~~/layers/profile/app/types/profile.types'
 export const useAuth = () => {
@@ -112,29 +116,23 @@ export const useAuth = () => {
 
   // ==================== LOGOUT ====================
 
-  const logout = async () => {
-    authStore.setLoading(true)
-    authStore.setError(null)
+  const clearAllStores = () => {
+    authStore.clearAuth()
+    profileStore.clearStore()
+    useNotificationStore().clearNotifications()
+    useSellerStore().clearAllSellers()
+    useCartStore().clearStore()
+  }
 
+  const logout = async () => {
     try {
       await authApi.logout()
-      
-      // Clear state
-      authStore.clearAuth()
-      
-      authStore.setMessage('Logged out successfully')
-
-      // Redirect to login
-      setTimeout(() => {
-        router.push('/user-login')
-      }, 500)
-    } catch (error: any) {
-      console.error('Logout error:', error)
-      // Still clear auth even if API call fails
-      authStore.clearAuth()
-      router.push('/user-login')
+    } catch {
+      // Ignore API errors on logout — always clear state
     } finally {
-      authStore.setLoading(false)
+      clearAllStores()
+      notify({ type: 'success', text: 'You have been logged out.' })
+      await navigateTo('/user-login')
     }
   }
 

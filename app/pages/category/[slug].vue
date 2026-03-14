@@ -28,7 +28,7 @@
 
             <!-- Grid -->
             <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-                <ShopProductCard
+                <ProductCardMini
                     v-for="product in products"
                     :key="product.id"
                     :product="product"
@@ -53,9 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import type { IProduct } from '~~/layers/commerce/types/commerce.types'
+import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
 import HomeLayout from '~/layouts/HomeLayout.vue'
-import ShopProductCard from '~/components/shop/ShopProductCard.vue'
+import ProductCardMini from '~/components/shop/ProductCardMini'
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
 import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
 
@@ -107,7 +107,7 @@ watch(slug, () => load(true))
 onMounted(() => {
     load()
     observer = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting && hasMore.value && !isLoading.value) load()
+        if (entry?.isIntersecting && hasMore.value && !isLoading.value) load()
     }, { threshold: 0.1 })
     if (trigger.value) observer.observe(trigger.value)
 })

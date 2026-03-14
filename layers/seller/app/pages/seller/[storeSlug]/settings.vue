@@ -183,7 +183,7 @@ import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerM
 import { useMediaUpload } from '~~/layers/base/app/composables/useMediaUpload';
 import { SUPPORTED_CURRENCIES } from '~/utils/currency';
 
-definePageMeta({ middleware: 'auth', layout: 'seller' });
+definePageMeta({ middleware: 'auth', layout: 'store-layout' });
 
 const route = useRoute();
 const storeSlug = computed(() => route.params.storeSlug as string);

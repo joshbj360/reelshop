@@ -7,11 +7,11 @@ export class NotificationApiClient extends BaseApiClient {
   }
   
   async markAsRead(id: string): Promise<any> {
-    return this.request(`/api/shared/notifications/${id}`, { method: 'PATCH' })
+    return this.request(`/api/shared/notifications/${id}`, { method: 'PATCH', silent: true })
   }
-  
+
   async markAllAsRead(): Promise<any> {
-    return this.request('/api/shared/notifications/read-all', { method: 'PATCH' })
+    return this.request('/api/shared/notifications/read-all', { method: 'PATCH', silent: true })
   }
 }
 

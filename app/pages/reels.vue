@@ -1,34 +1,52 @@
 <template>
-    <HomeLayout :narrow-feed="false" :hide-right-sidebar="true" :custom-padding="true">
-        <!-- Full-screen snap scroll container -->
+    <!-- Set hide-right-sidebar to false so HomeLayout automatically injects RightSideNav -->
+    <HomeLayout :narrow-feed="true" :hide-right-sidebar="false" :custom-padding="true">
+        
+        <!-- ─── FULL-SCREEN IMMERSIVE CONTAINER ──────────────────────────── -->
+        <!-- Fixed to cover the screen, but perfectly avoids the desktop RightSideNav -->
         <div
-            ref="container"
-            class="fixed inset-0 md:left-20 xl:left-72 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
-            @scroll.passive="onScroll"
+            ref="containerRef"
+            class="fixed inset-0 md:left-20 xl:left-72 lg:right-[420px] min-[1500px]:right-[calc(50vw-330px)] bg-black overflow-y-auto snap-y snap-mandatory scrollbar-hide z-0 transition-all duration-300"
         >
-            <!-- Loading -->
-            <div v-if="pending && !reels.length" class="h-[100dvh] flex items-center justify-center bg-black">
-                <Icon name="eos-icons:loading" size="48" class="text-brand animate-spin" />
+            
+            <!-- ─── INITIAL LOADING STATE ────────────────────────────────── -->
+            <div v-if="pending && !reels.length" class="h-[100dvh] w-full flex flex-col items-center justify-center gap-4">
+                <div class="relative flex items-center justify-center w-16 h-16">
+                    <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-brand rounded-full border-t-transparent animate-spin"></div>
+                </div>
+                <p class="text-white/60 text-sm font-medium animate-pulse">Loading Reels...</p>
             </div>
 
-            <!-- Error -->
-            <div v-else-if="error && !reels.length" class="h-[100dvh] flex flex-col items-center justify-center bg-black gap-4">
-                <p class="text-white/60">Could not load Reels.</p>
-                <button @click="refresh()" class="px-6 py-2 bg-brand text-white rounded-full text-sm font-medium">Retry</button>
+            <!-- ─── ERROR STATE ──────────────────────────────────────────── -->
+            <div v-else-if="error && !reels.length" class="h-[100dvh] w-full flex flex-col items-center justify-center gap-5 px-6 text-center">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center">
+                    <Icon name="mdi:wifi-off" size="40" class="text-white/50" />
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-1">Connection Error</h3>
+                    <p class="text-white/60 text-sm max-w-[250px]">We couldn't load the reels feed. Please check your internet.</p>
+                </div>
+                <button @click="refresh(true)" class="px-8 py-3 bg-white text-black rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-transform">
+                    Try Again
+                </button>
             </div>
 
-            <!-- Empty -->
-            <div v-else-if="!reels.length" class="h-[100dvh] flex flex-col items-center justify-center bg-black gap-3">
-                <Icon name="mdi:video-off-outline" size="48" class="text-white/30" />
-                <p class="text-white/50 text-sm">No reels yet</p>
+            <!-- ─── EMPTY STATE ──────────────────────────────────────────── -->
+            <div v-else-if="!reels.length" class="h-[100dvh] w-full flex flex-col items-center justify-center gap-4">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center">
+                    <Icon name="mdi:video-off-outline" size="40" class="text-white/30" />
+                </div>
+                <h3 class="text-white font-bold text-lg">No Reels Yet</h3>
+                <p class="text-white/50 text-sm">Check back later for new content!</p>
             </div>
 
-            <!-- Reels -->
+            <!-- ─── REELS FEED ───────────────────────────────────────────── -->
             <template v-else>
                 <div
                     v-for="(reel, index) in reels"
                     :key="reel.id"
-                    class="snap-start snap-always reel-slide"
+                    class="reel-slide snap-start snap-always relative w-full h-[100dvh] max-w-[560px] mx-auto flex justify-center bg-black"
                     :data-index="index"
                 >
                     <ReelItem
@@ -39,55 +57,83 @@
                     />
                 </div>
 
-                <!-- Load more sentinel -->
-                <div ref="sentinel" class="h-px bg-transparent" />
+                <!-- Infinite Scroll Sentinel -->
+                <div ref="sentinelRef" class="h-20 w-full bg-transparent flex items-center justify-center snap-start">
+                    <Icon v-if="isFetching && hasMore" name="eos-icons:loading" size="24" class="text-white/50 animate-spin" />
+                </div>
             </template>
         </div>
 
-        <!-- Comments modal -->
+        <!-- ─── MODALS ─────────────────────────────────────────────────── -->
         <PostDetailModal
             v-if="activeCommentReel"
             :post="activeCommentReel"
             @close="activeCommentReel = null"
         />
+        
     </HomeLayout>
 </template>
 
 <script setup lang="ts">
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import ReelItem from '~/components/reels/ReelItem.vue'
 import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue'
 import type { IFeedItem } from '~~/layers/feed/app/types/feed.types'
 import { useFeed } from '~~/layers/feed/app/composables/useFeed'
 
+// ─── SEO ──────────────────────────────────────────────────────────────
+useSeoMeta({ 
+    title: 'Reels · Styli', 
+    description: 'Watch immersive, full-screen fashion reels from creators and sellers.' 
+})
+
+// ─── STATE & COMPOSABLES ──────────────────────────────────────────────
 const { fetchReels: fetchReelsApi } = useFeed()
-
-useSeoMeta({ title: 'Reels · Styli', description: 'Watch fashion reels from creators and sellers.' })
-
 const LIMIT = 10
 
 const reels = ref<IFeedItem[]>([])
 const activeIndex = ref(0)
 const activeCommentReel = ref<IFeedItem | null>(null)
-const container = ref<HTMLElement | null>(null)
-const sentinel = ref<HTMLElement | null>(null)
+
+// DOM Refs
+const containerRef = ref<HTMLElement | null>(null)
+const sentinelRef = ref<HTMLElement | null>(null)
+
+// Pagination & Status
 const offset = ref(0)
 const hasMore = ref(true)
 const isFetching = ref(false)
 const pending = ref(true)
 const error = ref(false)
 
+// ─── DATA FETCHING ────────────────────────────────────────────────────
 const fetchReels = async (reset = false) => {
-    if (isFetching.value) return
+    if (isFetching.value || (!hasMore.value && !reset)) return
+    
     isFetching.value = true
     try {
-        const res = await fetchReelsApi(LIMIT, reset ? 0 : offset.value)
-        const incoming: IFeedItem[] = res?.data ?? []
-        reels.value = reset ? incoming : [...reels.value, ...incoming]
-        offset.value = reset ? LIMIT : offset.value + LIMIT
-        hasMore.value = res?.meta?.hasMore ?? false
+        const targetOffset = reset ? 0 : offset.value
+        const res = await fetchReelsApi(LIMIT, targetOffset)
+        
+        // Adapt to whatever your API specifically returns
+        const incoming: IFeedItem[] = res?.data ?? res?.items ?? []
+        
+        if (reset) {
+            reels.value = incoming
+            offset.value = LIMIT
+        } else {
+            // Deduplicate to be safe
+            const existingIds = new Set(reels.value.map(r => r.id))
+            const newItems = incoming.filter(r => !existingIds.has(r.id))
+            reels.value.push(...newItems)
+            offset.value += newItems.length
+        }
+        
+        hasMore.value = res?.meta?.hasMore ?? incoming.length === LIMIT
         error.value = false
-    } catch {
+    } catch (err) {
+        console.error('[Reels] Failed to fetch:', err)
         error.value = true
     } finally {
         isFetching.value = false
@@ -95,48 +141,88 @@ const fetchReels = async (reset = false) => {
     }
 }
 
-const refresh = () => fetchReels(true)
-
-// Snap scroll → derive active index
-const onScroll = () => {
-    if (!container.value) return
-    const slideHeight = container.value.clientHeight
-    activeIndex.value = Math.round(container.value.scrollTop / slideHeight)
+const refresh = () => {
+    pending.value = true
+    fetchReels(true)
 }
 
-// Infinite scroll via sentinel
-// root must be the fixed scroll container, not the viewport (root: null)
-let sentinelObserver: IntersectionObserver | null = null
-const setupSentinel = () => {
-    sentinelObserver?.disconnect()
-    if (!sentinel.value || !container.value) return
-    sentinelObserver = new IntersectionObserver(([entry]) => {
-        if (entry?.isIntersecting && hasMore.value && !isFetching.value) fetchReels()
-    }, { root: container.value, threshold: 0 })
-    sentinelObserver.observe(sentinel.value)
+const openComments = (reel: IFeedItem) => {
+    activeCommentReel.value = reel
 }
 
-// Re-setup when either ref changes
-watch([sentinel, container], setupSentinel)
-onUnmounted(() => sentinelObserver?.disconnect())
+// ─── OBSERVERS (Auto-play & Infinite Scroll) ──────────────────────────
+let feedObserver: IntersectionObserver | null = null
 
+const setupObservers = () => {
+    if (feedObserver) feedObserver.disconnect()
+    if (!containerRef.value) return
+
+    feedObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // 1. Infinite Scroll: If Sentinel comes into view
+                if (entry.target === sentinelRef.value) {
+                    if (hasMore.value && !isFetching.value) {
+                        fetchReels()
+                    }
+                } 
+                // 2. Active Reel: If a video slide comes into view (60% visible)
+                else {
+                    const idx = entry.target.getAttribute('data-index')
+                    if (idx !== null) {
+                        activeIndex.value = parseInt(idx, 10)
+                    }
+                }
+            }
+        })
+    }, { 
+        root: containerRef.value, // Must be the scroll container!
+        threshold: 0.6 // 60% of the video must be visible to trigger auto-play
+    })
+
+    // Observe Sentinel
+    if (sentinelRef.value) {
+        feedObserver.observe(sentinelRef.value)
+    }
+
+    // Observe Video Slides
+    const slides = containerRef.value.querySelectorAll('.reel-slide')
+    slides.forEach(slide => feedObserver?.observe(slide))
+}
+
+// ─── LIFECYCLE ────────────────────────────────────────────────────────
 onMounted(async () => {
     await fetchReels(true)
-    // Setup after initial load so container is ready and sentinel is in the DOM
-    nextTick(setupSentinel)
+    nextTick(() => setupObservers())
+})
+
+watch(reels, async () => {
+    // Re-setup observers when new items are added to the DOM
+    await nextTick()
+    setupObservers()
+}, { deep: true })
+
+onUnmounted(() => {
+    if (feedObserver) feedObserver.disconnect()
 })
 </script>
 
 <style scoped>
+/* Ensures exact screen height for snap scrolling.
+  Uses `dvh` (Dynamic Viewport Height) so it works perfectly on mobile 
+  browsers where the URL bar collapses and changes screen height.
+*/
 .reel-slide {
     height: 100dvh;
     width: 100%;
 }
+
+/* Hide Scrollbar but keep functionality */
 .scrollbar-hide {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
 }
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome, Safari and Opera */
 }
 </style>

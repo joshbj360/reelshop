@@ -120,8 +120,8 @@
 </template>
 
 <script setup lang="ts">
-import type { IProduct } from '~~/layers/commerce/types/commerce.types'
-import { useAuthStore } from '~~/layers/base/app/stores/auth.store'
+import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
 
 const props = defineProps<{
     isOpen: boolean
@@ -130,8 +130,7 @@ const props = defineProps<{
 
 defineEmits(['close'])
 
-const authStore = useAuthStore()
-
+const profileStore = useProfileStore()
 const coverImage = computed(() => {
     if (!props.product) return null
     return props.product.media?.find(m => !m.isBgMusic)?.url ?? null
@@ -146,7 +145,7 @@ const formatPrice = (amount: number) =>
 const referralUrl = computed(() => {
     if (!props.product || typeof window === 'undefined') return ''
     const base = `${window.location.origin}/discover?product=${props.product.id}`
-    const userId = authStore.user?.id
+    const userId = profileStore.me?.username
     return userId ? `${base}&ref=${userId}` : base
 })
 

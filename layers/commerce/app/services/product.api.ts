@@ -38,6 +38,14 @@ export class ProductApiClient extends BaseApiClient {
   async getCategories() {
     return this.request('/api/commerce/categories', { method: 'GET', skipAuth: true })
   }
+
+  async getProductComments(productId: number) {
+    return this.request(`/api/commerce/products/${productId}/comments`, { method: 'GET', skipAuth: true })
+  }
+
+  async createProductComment(productId: number, text: string, parentId?: string) {
+    return this.request(`/api/commerce/products/${productId}/comments`, { method: 'POST', body: { text, parentId } })
+  }
 }
 
 let instance: ProductApiClient | null = null

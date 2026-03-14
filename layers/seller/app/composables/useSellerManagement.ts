@@ -31,6 +31,7 @@ export function useSellerManagement() {
     store_logo?: string
     store_banner?: string
     store_socials?: Record<string, any>
+    default_currency?: string
   }) => {
     sellerStore.setLoading(true)
     sellerStore.setError(null)
@@ -199,6 +200,15 @@ export function useSellerManagement() {
 
   // ==================== FOLLOW / UNFOLLOW ====================
 
+  const getFollowStatus = async (storeSlug: string): Promise<boolean> => {
+    try {
+      const res = await sellerApi.getFollowStatus(storeSlug)
+      return res?.data?.isFollowing ?? false
+    } catch {
+      return false
+    }
+  }
+
   const followSeller = async (storeSlug: string) => {
     return sellerApi.followSeller(storeSlug)
   }
@@ -230,6 +240,7 @@ export function useSellerManagement() {
     deactivateSeller,
     checkSlugAvailability,
     suggestSlugs,
+    getFollowStatus,
     followSeller,
     unfollowSeller
   }

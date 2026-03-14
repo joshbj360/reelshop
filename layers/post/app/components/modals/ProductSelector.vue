@@ -66,7 +66,7 @@
                                 {{ product.title }}
                             </p>
                             <p class="text-xs text-gray-600 dark:text-neutral-400">
-                                ${{ product.price.toFixed(2) }}
+                                {{ formatPrice(product.price) }}
                             </p>
                         </div>
                         <div
@@ -84,13 +84,13 @@
 
 <script setup lang="ts">
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
-import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
 
 const props = defineProps<{ selected: any[] }>()
 const emit = defineEmits(['select', 'close'])
 
 const { fetchSellerProducts, isLoading } = useProduct()
-const profileStore = useProfileStore()
+const sellerStore = useSellerStore()
 
 const searchQuery = ref('')
 const selectedProducts = ref([...props.selected])
@@ -104,10 +104,12 @@ const filteredProducts = computed(() => {
 })
 
 const getProductImage = (product: any) => {
-    if (product.bannerImageUrl) return product.bannerImageUrl
-    if (product.media && product.media.length > 0) return product.media[0].url
+    if (product.media?.length) return product.media[0].url
     return null
 }
+
+const formatPrice = (cents: number) =>
+    new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(cents / 100)
 
 const isSelected = (productId: number) => selectedProducts.value.some(p => p.id === productId)
 
@@ -115,18 +117,18 @@ const toggleProduct = (product: any) => {
     if (isSelected(product.id)) {
         selectedProducts.value = selectedProducts.value.filter(p => p.id !== product.id)
     } else {
-        selectedProducts.value.push(product)
+        selectedProducts.value.push({ id: product.id, name: product.title })
     }
 }
 
 onMounted(async () => {
-    const storeSlug = (profileStore.myProfile as any)?.sellerProfile?.store_slug
+    const storeSlug = sellerStore.sellers?.[0]?.store_slug
     if (!storeSlug) return
     try {
-        const result: any = await fetchSellerProducts(storeSlug, { status: 'PUBLISHED' })
+        const result: any = await fetchSellerProducts(storeSlug, { status: 'PUBLISHED', limit: 100 })
         products.value = result?.products || []
     } catch {
-        // No seller profile or no products
+        // Not a seller or no products
     }
 })
 </script>

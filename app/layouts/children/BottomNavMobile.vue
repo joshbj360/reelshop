@@ -29,21 +29,47 @@
                 <Icon name="mdi:play-box-outline" size="26" />
             </NuxtLink>
 
-            
-
+            <!-- Profile / Login -->
             <ClientOnly>
-                <NuxtLink
-                    v-if="profileStore.isLoggedIn"
-                    :to="profileStore.me?.role === 'buyer' ? '/buyer/profile' : profileStore.me?.role === 'seller' ? '/sellers/dashboard' : '/profile/' + profileStore.me?.username"
-                    class="nav-item"
-                    active-class="active"
-                >
-                    <img
-                        :src="profileStore.me?.avatar || ''"
-                        class="w-7 h-7 rounded-full ring-2 transition-all"
-                        :class="isProfileActive ? 'ring-brand' : 'ring-transparent'"
-                    />
-                </NuxtLink>
+                <div v-if="profileStore.isLoggedIn" class="relative" ref="menuRef">
+                    <!-- Avatar button — tap to open popup -->
+                    <button @click="menuOpen = !menuOpen" class="nav-item">
+                        <img
+                            :src="profileStore.me?.avatar || ''"
+                            class="w-7 h-7 rounded-full ring-2 transition-all"
+                            :class="isProfileActive ? 'ring-brand' : 'ring-transparent'"
+                        />
+                    </button>
+
+                    <!-- Popup menu — slides up from bottom -->
+                    <Transition name="menu-pop">
+                        <div
+                            v-if="menuOpen"
+                            class="absolute bottom-full mb-3 right-0 w-52 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-2xl shadow-xl overflow-hidden z-50"
+                        >
+                            <NuxtLink :to="'/profile/' + profileStore.me?.username" @click="menuOpen = false"
+                                class="menu-item">
+                                <Icon name="mdi:account-circle-outline" size="18" />
+                                <span>View Profile</span>
+                            </NuxtLink>
+                            <NuxtLink to="/buyer/orders" @click="menuOpen = false" class="menu-item">
+                                <Icon name="mdi:package-variant-closed" size="18" />
+                                <span>My Orders</span>
+                            </NuxtLink>
+                            <NuxtLink to="/settings" @click="menuOpen = false" class="menu-item">
+                                <Icon name="mdi:cog-outline" size="18" />
+                                <span>Settings</span>
+                            </NuxtLink>
+                            <div class="h-px bg-gray-100 dark:bg-neutral-800 mx-3" />
+                            <button @click="handleLogout"
+                                class="menu-item w-full text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                <Icon name="mdi:logout-variant" size="18" />
+                                <span>Log Out</span>
+                            </button>
+                        </div>
+                    </Transition>
+                </div>
+
                 <NuxtLink v-else to="/user-login" class="nav-item">
                     <Icon name="mdi:account-circle-outline" size="26" />
                 </NuxtLink>
@@ -51,10 +77,15 @@
 
         </div>
     </nav>
+
+    <!-- Backdrop to close menu -->
+    <Teleport to="body">
+        <div v-if="menuOpen" @click="menuOpen = false" class="fixed inset-0 z-20" />
+    </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store';
 
@@ -62,12 +93,30 @@ defineEmits(['create']);
 
 const route = useRoute();
 const profileStore = useProfileStore();
+const { logout } = useAuth();
+
+const menuOpen = ref(false);
+const menuRef = ref<HTMLElement | null>(null);
 
 const isProfileActive = computed(() =>
     route.path.includes('/profile') ||
     route.path.includes('/sellers/dashboard') ||
     route.path.includes('/buyer/profile')
 );
+
+const handleLogout = async () => {
+    menuOpen.value = false;
+    await logout();
+};
+
+// Close on outside click
+const onClickOutside = (e: MouseEvent) => {
+    if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
+        menuOpen.value = false;
+    }
+};
+onMounted(() => document.addEventListener('click', onClickOutside, true));
+onUnmounted(() => document.removeEventListener('click', onClickOutside, true));
 </script>
 
 <style scoped>
@@ -91,5 +140,19 @@ const isProfileActive = computed(() =>
 
 .nav-item.active {
     @apply text-gray-900 dark:text-neutral-100;
+}
+
+.menu-item {
+    @apply flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer;
+}
+
+.menu-pop-enter-active,
+.menu-pop-leave-active {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.menu-pop-enter-from,
+.menu-pop-leave-to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
 }
 </style>

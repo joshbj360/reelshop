@@ -43,6 +43,7 @@ export const productRepository = {
     if (data.SKU) productData.SKU = data.SKU
     if (data.bannerImageUrl) productData.bannerImageUrl = data.bannerImageUrl
     if (data.affiliateCommission !== undefined) productData.affiliateCommission = data.affiliateCommission
+    if (data.socialCaptions !== undefined) productData.socialCaptions = data.socialCaptions
 
     if (data.categoryIds?.length) {
       productData.category = {
@@ -150,6 +151,7 @@ export const productRepository = {
     if (data.SKU !== undefined) updateData.SKU = data.SKU
     if (data.bannerImageUrl !== undefined) updateData.bannerImageUrl = data.bannerImageUrl
     if (data.affiliateCommission !== undefined) updateData.affiliateCommission = data.affiliateCommission
+    if (data.socialCaptions !== undefined) updateData.socialCaptions = data.socialCaptions
     if (data.categoryIds !== undefined) {
       updateData.category = {
         deleteMany: {},

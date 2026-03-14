@@ -44,11 +44,11 @@
           <!-- Results Sections -->
           <div v-else class="p-4 space-y-6">
             <!-- Users -->
-            <div v-if="results.users.length">
+            <div v-if="results.data.users.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">People</h3>
               <div class="space-y-1">
                 <button
-                  v-for="user in results.users"
+                  v-for="user in results.data.users"
                   :key="user.id"
                   @click="navigateToUser(user.username)"
                   class="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors text-left"
@@ -71,11 +71,11 @@
             </div>
 
             <!-- Stores -->
-            <div v-if="results.stores.length">
+            <div v-if="results.data.stores.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">Stores</h3>
               <div class="space-y-1">
                 <button
-                  v-for="store in results.stores"
+                  v-for="store in results.data.stores"
                   :key="store.id"
                   @click="navigateToStore(store.store_slug)"
                   class="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors text-left"
@@ -98,11 +98,11 @@
             </div>
 
             <!-- Products -->
-            <div v-if="results.products.length">
+            <div v-if="results.data.products.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">Products</h3>
               <div class="space-y-1">
                 <button
-                  v-for="product in results.products"
+                  v-for="product in results.data.products"
                   :key="product.id"
                   @click="navigateToProduct(product.id)"
                   class="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors text-left"
@@ -126,11 +126,11 @@
             </div>
 
             <!-- Posts -->
-            <div v-if="results.posts.length">
+            <div v-if="results.data.posts.length">
               <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400 mb-3">Posts</h3>
               <div class="space-y-1">
                 <button
-                  v-for="post in results.posts"
+                  v-for="post in results.data.posts"
                   :key="post.id"
                   @click="navigateToPost(post.id)"
                   class="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors text-left"
@@ -178,18 +178,16 @@ const searchApi = useSearchApi()
 
 const searchQuery = ref('')
 const isSearching = ref(false)
-const results = ref<{ users: any[]; products: any[]; posts: any[]; stores: any[] }>({
-  users: [],
-  products: [],
-  posts: [],
-  stores: [],
+const results = ref<{success: boolean; data: { users: any[]; products: any[]; posts: any[]; stores: any[] }}>({
+  success: false,
+  data: { users: [], products: [], posts: [], stores: [] },
 })
 
 const hasResults = computed(
-  () => results.value.users.length > 0
-    || results.value.stores.length > 0
-    || results.value.products.length > 0
-    || results.value.posts.length > 0
+  () => results.value.data.users.length > 0
+    || results.value.data.stores.length > 0
+    || results.value.data.products.length > 0
+    || results.value.data.posts.length > 0
 )
 
 const empty = { users: [], products: [], posts: [], stores: [] }
@@ -203,7 +201,7 @@ watch(searchQuery, (val) => {
   const minLen = isAtSearch ? 1 : 2
 
   if (!cleanQuery || cleanQuery.length < minLen) {
-    results.value = { ...empty }
+    results.value.data = { ...empty }
     isSearching.value = false
     return
   }
@@ -214,7 +212,7 @@ watch(searchQuery, (val) => {
       const searchType = isAtSearch ? 'users' : 'all'
       const res = await searchApi.search(cleanQuery, searchType)
       if (res?.success && res.data) {
-        results.value = {
+        results.value.data = {
           users: (res.data as any).users || [],
           products: (res.data as any).products || [],
           posts: (res.data as any).posts || [],
@@ -223,7 +221,7 @@ watch(searchQuery, (val) => {
       }
     } catch (e) {
       console.error('Search error:', e)
-      results.value = { ...empty }
+      results.value.data = { ...empty }
     } finally {
       isSearching.value = false
     }

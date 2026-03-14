@@ -14,6 +14,9 @@ import { useProfileStore } from "~~/layers/profile/app/stores/profile.store"
  */
 
 export default defineNuxtRouteMiddleware((to, from) => {
+  // Skip auth check on server — profile store is always empty during SSR
+  if (import.meta.server) return
+
   const profileStore = useProfileStore()
 
   // If not logged in, redirect to login

@@ -191,7 +191,7 @@ const handleCheckout = async () => {
         window.location.href = result.data.authorizationUrl
     } catch (e: any) {
         checkoutError.value = e.message || 'Failed to initialize payment. Please try again.'
-        notify({ type: 'error', text: checkoutError.value })
+        // BaseApiClient handles the error toast; checkoutError shows inline in the form
     } finally {
         isSubmitting.value = false
     }

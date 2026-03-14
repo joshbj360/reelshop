@@ -251,7 +251,16 @@ const contentType = ref<'EXPERIENCE' | 'INSPIRATION' | 'EDUCATIONAL' | 'ENTERTAI
 const visibility = ref<'PUBLIC' | 'FOLLOWERS' | 'PRIVATE'>('PUBLIC')
 const allowComments = ref(true)
 const hashtags = ref<string[]>([])
-const taggedProducts = ref<any[]>([])
+const taggedProducts = ref<any[]>(
+    props.initialTaggedProduct ? [props.initialTaggedProduct] : []
+)
+
+// Keep in sync if the modal is reused with a different product
+watch(() => props.initialTaggedProduct, (p) => {
+    if (p && !taggedProducts.value.find(t => t.id === p.id)) {
+        taggedProducts.value = [p, ...taggedProducts.value]
+    }
+})
 
 // ── Media items ──────────────────────────────────────────────────────────────
 interface MediaItem {

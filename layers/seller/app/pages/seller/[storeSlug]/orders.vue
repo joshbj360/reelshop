@@ -143,7 +143,7 @@
 import { useOrderApi } from '~~/layers/commerce/app/services/order.api'
 import { notify } from '@kyvg/vue3-notification'
 
-definePageMeta({ middleware: 'auth', layout: 'seller' })
+definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
 const route = useRoute()
 const orderApi = useOrderApi()
@@ -172,8 +172,8 @@ const loadOrders = async () => {
         const res: any = await orderApi.getSellerOrders(storeSlug.value, params)
         orders.value = res?.data?.orders || []
         total.value = res?.data?.total || 0
-    } catch (e: any) {
-        notify({ type: 'error', text: e.message || 'Failed to load orders' })
+    } catch {
+        // BaseApiClient handles the error toast
     } finally {
         isLoading.value = false
     }
@@ -186,8 +186,8 @@ const updateStatus = async (orderId: number, status: string) => {
         const o = orders.value.find(o => o.id === orderId)
         if (o) o.status = status
         notify({ type: 'success', text: `Order #${orderId} marked as ${status}` })
-    } catch (e: any) {
-        notify({ type: 'error', text: e.message || 'Failed to update status' })
+    } catch {
+        // BaseApiClient handles the error toast
     }
 }
 
@@ -205,8 +205,8 @@ const saveTracking = async () => {
         if (o) Object.assign(o, { ...trackingForm, status: 'SHIPPED' })
         trackingModal.value = null
         notify({ type: 'success', text: 'Tracking info saved' })
-    } catch (e: any) {
-        notify({ type: 'error', text: e.message || 'Failed to save tracking' })
+    } catch {
+        // BaseApiClient handles the error toast
     }
 }
 
