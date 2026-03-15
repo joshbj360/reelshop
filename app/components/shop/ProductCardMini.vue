@@ -161,13 +161,9 @@ const coverImage = computed(() => {
 })
 
 // ── Pricing ──────────────────────────────────────────────────────────────────
-const formatPrice = (price: number, cur: string) => {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: cur,
-    minimumFractionDigits: 0,
-  }).format(price)
-}
+import { formatProductPrice } from '~/utils/currency'
+const formatPrice = (price: number, cur: string) =>
+  formatProductPrice(price, cur as any)
 
 const currency = computed(() => props.product.seller?.default_currency ?? 'NGN')
 const discountPercent = computed(() => props.product.discount ?? 0)

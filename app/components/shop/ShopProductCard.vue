@@ -270,13 +270,9 @@ const hasBgMusic = computed(() =>
 )
 
 // ── Pricing ──────────────────────────────────────────────────────────────────
-// Utility function for formatting price (assuming it's globally imported or provided by a composable)
-const formatPrice = (price: number, cur: string) => {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: cur,
-  }).format(price)
-}
+import { formatProductPrice } from '~/utils/currency'
+const formatPrice = (price: number, cur: string) =>
+  formatProductPrice(price, cur as any)
 
 const currency = computed(() => props.product.seller?.default_currency ?? 'NGN')
 const discountPercent = computed(() => props.product.discount ?? 0)
@@ -329,7 +325,7 @@ const handleLike = async () => {
 
 // ── Share ────────────────────────────────────────────────────────────────────
 const handleShare = () => {
-  const url = `${import.meta.client ? window.location.origin : ''}/discover?product=${props.product.id}`
+  const url = `${import.meta.client ? window.location.origin : ''}/product/${props.product.slug}`
   if (navigator.share) {
     navigator
       .share({ title: props.product.title, url })

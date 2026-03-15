@@ -104,79 +104,13 @@
         v-else
         class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
-        <div
+        <SellerProductCard
           v-for="product in products"
           :key="product.id"
-          class="overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800"
-        >
-          <!-- Image -->
-          <div class="relative aspect-square bg-gray-100 dark:bg-neutral-700">
-            <img
-              v-if="product.media?.[0]?.url"
-              :src="product.media[0].url"
-              :alt="product.title"
-              class="h-full w-full object-cover"
-            />
-            <div v-else class="flex h-full w-full items-center justify-center">
-              <Icon
-                name="mdi:image-off-outline"
-                size="40"
-                class="text-gray-300 dark:text-neutral-600"
-              />
-            </div>
-            <!-- Status badge -->
-            <span
-              :class="[
-                'absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-semibold',
-                product.status === 'PUBLISHED'
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
-                  : product.status === 'DRAFT'
-                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
-                    : 'bg-gray-100 text-gray-600 dark:bg-neutral-700 dark:text-neutral-400',
-              ]"
-            >
-              {{ product.status }}
-            </span>
-          </div>
-
-          <!-- Info -->
-          <div class="p-3">
-            <p
-              class="truncate text-sm font-semibold text-gray-900 dark:text-neutral-100"
-            >
-              {{ product.title }}
-            </p>
-            <p class="mt-1 font-bold text-brand">
-              ₦{{ Number(product.price).toLocaleString() }}
-            </p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-neutral-400">
-              {{ product._count?.variants ?? 0 }} variant(s)
-            </p>
-
-            <!-- Actions -->
-            <div class="mt-3 flex gap-2">
-              <NuxtLink
-                :to="`/seller/${storeSlug}/products/${product.id}/edit`"
-                class="flex-1 rounded-lg border border-gray-200 py-1.5 text-center text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-700"
-              >
-                Edit
-              </NuxtLink>
-              <NuxtLink
-                :to="`/seller/${storeSlug}/products/${product.id}/edit?tab=promote`"
-                class="flex flex-1 items-center justify-center gap-1 rounded-lg border border-brand/40 py-1.5 text-center text-xs font-medium text-brand transition-colors hover:bg-brand/5"
-              >
-                <Icon name="mdi:rocket-launch-outline" size="12" />
-                Promote
-              </NuxtLink>
-              <button
-                @click="confirmDelete(product)"
-                class="rounded-lg border border-red-200 px-2.5 py-1.5 text-center text-xs font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
-              >
-                <Icon name="mdi:archive-outline" size="14" />
-              </button>
-            </div>
-          </div>
-        </div>
+          :product="product"
+          :store-slug="storeSlug"
+          @archive="confirmDelete"
+        />
       </div>
 
       <!-- Load More -->

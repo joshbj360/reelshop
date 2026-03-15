@@ -14,13 +14,13 @@ export default defineEventHandler(async (event) => {
     if (!q || q.length < 2) {
       return {
         success: true,
-        data: { users: [], products: [], posts: [], stores: [] },
+        data: { users: [], products: [], posts: [], stores: [], tags: [] },
       }
     }
 
     const searchFilter = { contains: q, mode: 'insensitive' as const }
 
-    const [users, products, posts, stores] = await Promise.all([
+    const [users, products, posts, stores, tags] = await Promise.all([
       type === 'all' || type === 'users'
         ? prisma.profile.findMany({
             where: {
@@ -92,12 +92,28 @@ export default defineEventHandler(async (event) => {
             skip: offset,
           })
         : [],
+
+      type === 'all' || type === 'tags'
+        ? prisma.tag.findMany({
+            where: {
+              name: { contains: q, mode: 'insensitive' },
+              products: { some: {} },
+            },
+            select: {
+              id: true,
+              name: true,
+              _count: { select: { products: true } },
+            },
+            take: limit,
+            skip: offset,
+          })
+        : [],
     ])
 
     return {
       success: true,
-      // FIXED: Added stores to the return object!
-      data: { users, products, posts, stores },
+      // FIXED: Added stores and tags to the return object!
+      data: { users, products, posts, stores, tags },
     }
   } catch (error: any) {
     if (error instanceof UserError)

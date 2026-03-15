@@ -40,6 +40,7 @@ export const createProductSchema = z.object({
     .optional(),
   affiliateCommission: z.number().min(0).optional(),
   categoryIds: z.array(z.number().int()).optional(),
+  tagNames: z.array(z.string().max(50)).max(10).optional(),
   socialCaptions: z
     .object({
       instagram: z.string().optional(),
@@ -68,6 +69,7 @@ export const updateProductSchema = z.object({
     .optional(),
   affiliateCommission: z.number().min(0).nullable().optional(),
   categoryIds: z.array(z.number().int()).optional(),
+  tagNames: z.array(z.string().max(50)).max(10).optional(),
   socialCaptions: z
     .object({
       instagram: z.string().optional(),

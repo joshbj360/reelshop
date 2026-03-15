@@ -154,10 +154,11 @@
             type="text"
             placeholder="e.g. Lagos Streetwear Co."
             maxlength="100"
-            required
-            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-[14px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+            class="w-full rounded-xl border bg-gray-50 px-4 py-2.5 text-[14px] text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-neutral-100"
+            :class="fieldErrors.store_name ? 'border-red-400 focus:ring-red-400/20' : 'border-gray-200 focus:border-brand focus:ring-brand/20 dark:border-neutral-700'"
             @input="onNameChange"
           />
+          <p v-if="fieldErrors.store_name" class="mt-1 text-[11px] text-red-500">{{ fieldErrors.store_name }}</p>
         </div>
 
         <!-- Slug -->
@@ -208,18 +209,8 @@
               />
             </div>
           </div>
-          <p
-            v-if="slugStatus === 'taken'"
-            class="mt-1 text-[11px] text-red-500"
-          >
-            This slug is already taken
-          </p>
-          <p
-            v-else-if="slugStatus === 'available'"
-            class="mt-1 text-[11px] text-emerald-600"
-          >
-            Available!
-          </p>
+          <p v-if="fieldErrors.store_slug" class="mt-1 text-[11px] text-red-500">{{ fieldErrors.store_slug }}</p>
+          <p v-else-if="slugStatus === 'available'" class="mt-1 text-[11px] text-emerald-600">Available!</p>
 
           <!-- Suggestions -->
           <div
@@ -309,8 +300,12 @@
               v-model="form.store_phone"
               type="tel"
               placeholder="+2348012345678"
-              class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              class="w-full rounded-xl border bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-neutral-100"
+              :class="fieldErrors.store_phone ? 'border-red-400 focus:ring-red-400/20' : 'border-gray-200 focus:border-brand focus:ring-brand/20 dark:border-neutral-700'"
+              @input="clearFieldError('store_phone')"
+              @blur="() => { const e = validatePhone(form.store_phone); if (e) fieldErrors.store_phone = e }"
             />
+            <p v-if="fieldErrors.store_phone" class="mt-1 text-[11px] text-red-500">{{ fieldErrors.store_phone }}</p>
           </div>
         </div>
 
@@ -325,14 +320,18 @@
             v-model="form.store_website"
             type="url"
             placeholder="https://yourstore.com"
-            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-[14px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+            class="w-full rounded-xl border bg-gray-50 px-4 py-2.5 text-[14px] text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-neutral-100"
+            :class="fieldErrors.store_website ? 'border-red-400 focus:ring-red-400/20' : 'border-gray-200 focus:border-brand focus:ring-brand/20 dark:border-neutral-700'"
+            @input="clearFieldError('store_website')"
+            @blur="() => { const e = validateWebsite(form.store_website); if (e) fieldErrors.store_website = e }"
           />
+          <p v-if="fieldErrors.store_website" class="mt-1 text-[11px] text-red-500">{{ fieldErrors.store_website }}</p>
         </div>
 
         <!-- Submit -->
         <button
           type="submit"
-          :disabled="isSubmitting || slugStatus === 'taken' || slugChecking"
+          :disabled="isSubmitting || slugStatus === 'taken' || slugChecking || Object.values(fieldErrors).some(Boolean)"
           class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f02c56] to-purple-600 py-3.5 text-[14px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon
@@ -358,7 +357,7 @@ definePageMeta({ middleware: 'auth' })
 
 const { createSeller, checkSlugAvailability, suggestSlugs, error } =
   useSellerManagement()
-const { uploadMedia, isUploading: isUploadingMedia } = useMediaUpload()
+const { uploadMedia } = useMediaUpload()
 
 const logoInput = ref<HTMLInputElement | null>(null)
 const bannerInput = ref<HTMLInputElement | null>(null)
@@ -380,13 +379,61 @@ const form = reactive({
   default_currency: 'NGN' as string,
 })
 
-// Slug checker
+// Per-field inline errors
+const fieldErrors = reactive<Record<string, string>>({})
+const clearFieldError = (field: string) => { fieldErrors[field] = '' }
+
+// ── Client-side validation ──────────────────────────────────────────────────
+
+const PHONE_RE = /^\+?[1-9]\d{6,14}$/
+
+const validatePhone = (raw: string): string | null => {
+  if (!raw.trim()) return null // optional
+  const stripped = raw.replace(/[\s\-().]/g, '')
+  if (!PHONE_RE.test(stripped))
+    return 'Phone must be in international format, e.g. +2348012345678'
+  return null
+}
+
+const validateWebsite = (raw: string): string | null => {
+  if (!raw.trim()) return null
+  try { new URL(raw.trim()); return null }
+  catch { return 'Website must be a valid URL, e.g. https://yourstore.com' }
+}
+
+const validateForm = (): boolean => {
+  let valid = true
+
+  if (!form.store_name.trim() || form.store_name.trim().length < 3) {
+    fieldErrors.store_name = 'Store name must be at least 3 characters'
+    valid = false
+  }
+  if (!form.store_slug.trim() || form.store_slug.trim().length < 3) {
+    fieldErrors.store_slug = 'Store URL must be at least 3 characters'
+    valid = false
+  } else if (slugStatus.value === 'taken') {
+    fieldErrors.store_slug = 'This URL is already taken — choose another'
+    valid = false
+  }
+
+  const phoneErr = validatePhone(form.store_phone)
+  if (phoneErr) { fieldErrors.store_phone = phoneErr; valid = false }
+
+  const webErr = validateWebsite(form.store_website)
+  if (webErr) { fieldErrors.store_website = webErr; valid = false }
+
+  return valid
+}
+
+// ── Slug checker ────────────────────────────────────────────────────────────
+
 const slugStatus = ref<'idle' | 'available' | 'taken'>('idle')
 const slugChecking = ref(false)
 const slugSuggestions = ref<string[]>([])
 let slugTimer: ReturnType<typeof setTimeout> | null = null
 
 const onNameChange = () => {
+  clearFieldError('store_name')
   const base = form.store_name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -398,6 +445,7 @@ const onNameChange = () => {
 }
 
 const onSlugInput = () => {
+  clearFieldError('store_slug')
   slugStatus.value = 'idle'
   slugSuggestions.value = []
   triggerSlugCheck()
@@ -411,6 +459,7 @@ const triggerSlugCheck = () => {
     slugChecking.value = true
     const available = await checkSlugAvailability(slug)
     slugStatus.value = available ? 'available' : 'taken'
+    if (!available) fieldErrors.store_slug = 'This URL is already taken — choose another'
     slugChecking.value = false
   }, 500)
 }
@@ -425,7 +474,10 @@ const pickSuggestion = (s: string) => {
   form.store_slug = s
   slugSuggestions.value = []
   slugStatus.value = 'available'
+  fieldErrors.store_slug = ''
 }
+
+// ── Media uploads ───────────────────────────────────────────────────────────
 
 const handleLogoUpload = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
@@ -453,8 +505,15 @@ const handleBannerUpload = async (e: Event) => {
   }
 }
 
+// ── Submit ──────────────────────────────────────────────────────────────────
+
 const handleSubmit = async () => {
-  if (isSubmitting.value || slugStatus.value === 'taken') return
+  if (isSubmitting.value) return
+
+  // Reset field errors and run client validation
+  Object.keys(fieldErrors).forEach((k) => { fieldErrors[k] = '' })
+  if (!validateForm()) return
+
   isSubmitting.value = true
   try {
     await createSeller({
@@ -468,6 +527,11 @@ const handleSubmit = async () => {
       store_banner: form.store_banner || undefined,
       default_currency: form.default_currency,
     })
+  } catch (err: any) {
+    // Map API field errors back to inline messages
+    if (err.fieldErrors) {
+      Object.assign(fieldErrors, err.fieldErrors)
+    }
   } finally {
     isSubmitting.value = false
   }

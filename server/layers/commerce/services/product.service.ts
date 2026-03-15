@@ -93,6 +93,13 @@ export const productService = {
     return product
   },
 
+  async getProductBySlug(slug: string) {
+    const product = await productRepository.getProductBySlugFull(slug)
+    if (!product)
+      throw new UserError('PRODUCT_NOT_FOUND', 'Product not found', 404)
+    return product
+  },
+
   async getSellerProducts(
     storeSlug: string,
     pagination: { limit: number; offset: number },

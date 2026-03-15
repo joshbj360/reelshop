@@ -190,8 +190,6 @@ const expiryText = computed(() => {
   return `in ${h}h`
 })
 
-const formatPrice = (cents: number) =>
-  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
-    cents / 100,
-  )
+import { formatProductPrice } from '~/utils/currency'
+const formatPrice = (price: number) => formatProductPrice(price, 'NGN')
 </script>

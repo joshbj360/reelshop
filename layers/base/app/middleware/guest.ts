@@ -12,11 +12,13 @@ import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
  * })
  */
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware(() => {
+  if (import.meta.server) return
+
   const profileStore = useProfileStore()
 
-  // If already logged in, redirect to dashboard
+  // If already logged in, redirect away from auth pages
   if (profileStore.isLoggedIn) {
-    return navigateTo('/seller/dashboard')
+    return navigateTo('/')
   }
 })

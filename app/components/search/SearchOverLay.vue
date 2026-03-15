@@ -147,6 +147,27 @@
               </div>
             </div>
 
+            <!-- Tags -->
+            <div v-if="results.data.tags.length">
+              <h3
+                class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400"
+              >
+                Tags
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="tag in results.data.tags"
+                  :key="tag.id"
+                  @click="navigateToTag(tag)"
+                  class="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:border-brand/40 hover:bg-brand/5 hover:text-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:text-brand"
+                >
+                  <span class="text-gray-400 dark:text-neutral-500">#</span>
+                  {{ tag.name }}
+                  <span class="text-xs text-gray-400 dark:text-neutral-500">{{ tag._count?.products ?? '' }}</span>
+                </button>
+              </div>
+            </div>
+
             <!-- Products -->
             <div v-if="results.data.products.length">
               <h3
@@ -158,7 +179,7 @@
                 <button
                   v-for="product in results.data.products"
                   :key="product.id"
-                  @click="navigateToProduct(product.id)"
+                  @click="navigateToProduct(product.slug)"
                   class="flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800"
                 >
                   <div
@@ -272,10 +293,10 @@ const searchQuery = ref('')
 const isSearching = ref(false)
 const results = ref<{
   success: boolean
-  data: { users: any[]; products: any[]; posts: any[]; stores: any[] }
+  data: { users: any[]; products: any[]; posts: any[]; stores: any[]; tags: any[] }
 }>({
   success: false,
-  data: { users: [], products: [], posts: [], stores: [] },
+  data: { users: [], products: [], posts: [], stores: [], tags: [] },
 })
 
 const hasResults = computed(
@@ -283,10 +304,11 @@ const hasResults = computed(
     results.value.data.users.length > 0 ||
     results.value.data.stores.length > 0 ||
     results.value.data.products.length > 0 ||
-    results.value.data.posts.length > 0,
+    results.value.data.posts.length > 0 ||
+    results.value.data.tags.length > 0,
 )
 
-const empty = { users: [], products: [], posts: [], stores: [] }
+const empty = { users: [], products: [], posts: [], stores: [], tags: [] }
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(searchQuery, (val) => {
@@ -313,6 +335,7 @@ watch(searchQuery, (val) => {
           products: (res.data as any).products || [],
           posts: (res.data as any).posts || [],
           stores: (res.data as any).stores || [],
+          tags: (res.data as any).tags || [],
         }
       }
     } catch (e) {
@@ -334,13 +357,18 @@ const navigateToStore = (slug: string) => {
   router.push(`/sellers/profile/${slug}`)
 }
 
-const navigateToProduct = (id: number) => {
+const navigateToProduct = (slug: string) => {
   emit('close')
-  router.push(`/products/${id}`)
+  router.push(`/product/${slug}`)
 }
 
 const navigateToPost = (id: number) => {
   emit('close')
   router.push(`/post/${id}`)
+}
+
+const navigateToTag = (tag: any) => {
+  emit('close')
+  router.push({ path: '/discover', query: { tab: 'tags', tagId: tag.id } })
 }
 </script>

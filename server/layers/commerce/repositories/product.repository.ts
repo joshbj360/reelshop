@@ -22,6 +22,45 @@ const productInclude = {
       category: { select: { id: true, name: true, slug: true } },
     },
   },
+  tags: {
+    include: {
+      tag: { select: { id: true, name: true } },
+    },
+  },
+}
+
+// Upsert tags by name and sync the product→tag join table
+async function upsertProductTags(productId: number, tagNames: string[]) {
+  const cleaned = tagNames
+    .map((t) => t.trim().toLowerCase())
+    .filter((t) => t.length > 0 && t.length <= 50)
+
+  if (!cleaned.length) {
+    // Remove all existing tags if empty array passed
+    await prisma.productTags.deleteMany({ where: { productId } })
+    return
+  }
+
+  // Upsert each tag by name
+  const tags = await Promise.all(
+    cleaned.map((name) =>
+      prisma.tag.upsert({
+        where: { name },
+        create: { name },
+        update: {},
+        select: { id: true },
+      }),
+    ),
+  )
+
+  const tagIds = tags.map((t) => t.id)
+
+  // Replace all existing tags for this product
+  await prisma.productTags.deleteMany({ where: { productId } })
+  await prisma.productTags.createMany({
+    data: tagIds.map((tagId) => ({ productId, tagId })),
+    skipDuplicates: true,
+  })
 }
 
 export const productRepository = {
@@ -105,10 +144,17 @@ export const productRepository = {
       productData.bannerImageUrl = data.mediaItems[0].url
     }
 
-    return prisma.products.create({
+    const product = await prisma.products.create({
       data: productData,
       include: productInclude,
     })
+
+    // Upsert and connect tags after creation
+    if (data.tagNames?.length) {
+      await upsertProductTags(product.id, data.tagNames)
+    }
+
+    return product
   },
 
   async getProducts(
@@ -159,6 +205,13 @@ export const productRepository = {
     })
   },
 
+  async getProductBySlugFull(slug: string) {
+    return prisma.products.findUnique({
+      where: { slug },
+      include: productInclude,
+    })
+  },
+
   async getProductsBySellerSlug(
     storeSlug: string,
     pagination: { limit: number; offset: number },
@@ -205,11 +258,18 @@ export const productRepository = {
     if (data.mediaId) {
       updateData.media = { connect: [{ id: data.mediaId }] }
     }
-    return prisma.products.update({
+    const product = await prisma.products.update({
       where: { id },
       data: updateData,
       include: productInclude,
     })
+
+    // Sync tags if provided
+    if (data.tagNames !== undefined) {
+      await upsertProductTags(id, data.tagNames)
+    }
+
+    return product
   },
 
   async archiveProduct(id: number) {

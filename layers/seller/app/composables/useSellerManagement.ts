@@ -50,10 +50,21 @@ export function useSellerManagement() {
 
       return result
     } catch (error: any) {
-      const message =
-        error.response?.data?.statusMessage ||
-        error.message ||
-        'Failed to create seller'
+      // Extract Zod field-level errors if present (ApiError.data = array of ZodIssue)
+      const zodErrors: { path: string[]; message: string }[] | undefined =
+        Array.isArray(error.data) ? error.data : undefined
+      if (zodErrors?.length) {
+        // Build a human-readable list of field errors
+        const messages = zodErrors.map((e) => `${e.path.join('.') || 'field'}: ${e.message}`)
+        const message = messages.join(' · ')
+        sellerStore.setError(message)
+        const fieldMap: Record<string, string> = {}
+        for (const e of zodErrors) {
+          if (e.path[0]) fieldMap[e.path[0]] = e.message
+        }
+        throw Object.assign(error, { fieldErrors: fieldMap })
+      }
+      const message = error.message || 'Failed to create seller'
       sellerStore.setError(message)
       throw error
     } finally {

@@ -9,6 +9,7 @@ import { useRequestEvent, useRuntimeConfig, navigateTo } from 'nuxt/app'
 import { notify } from '@kyvg/vue3-notification'
 import { ApiError } from './api.error'
 import { useAuthStore } from '../stores/auth.store'
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 
 export interface ApiServiceOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
@@ -190,10 +191,9 @@ export class BaseApiClient {
 
     if (isClient) {
       if ((statusCode === 401 || statusCode === 403) && !skipAuth) {
-        // Auth errors always clear session and redirect — regardless of silent flag
-        try {
-          useAuthStore().clearAuth()
-        } catch {}
+        // Clear ALL stores so isLoggedIn becomes false before navigating
+        try { useAuthStore().clearAuth() } catch {}
+        try { useProfileStore().clearStore() } catch {}
         notify({
           type: 'error',
           title: statusCode === 401 ? 'Session expired' : 'Access denied',

@@ -1,9 +1,11 @@
 import type { Media as MediaModel } from '@prisma/client'
+import { formatProductPrice } from '~~/app/utils/currency'
 
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
-    price / 100,
-  )
+/**
+ * Format a product price stored as a major NGN unit (e.g. 5000 → ₦5,000).
+ * Product prices are NOT in kobo — do not divide by 100.
+ */
+const formatPrice = (price: number) => formatProductPrice(price, 'NGN')
 const formatNumber = (num: number) => new Intl.NumberFormat().format(num)
 
 /**

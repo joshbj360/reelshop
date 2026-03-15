@@ -339,14 +339,8 @@ const formatCount = (n: number) => {
   return n.toString()
 }
 
-const formatPrice = (price: number) => {
-  // Modify based on your global currency settings
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    minimumFractionDigits: 0,
-  }).format(price)
-}
+import { formatProductPrice } from '~/utils/currency'
+const formatPrice = (price: number) => formatProductPrice(price, 'NGN')
 </script>
 
 <style scoped>

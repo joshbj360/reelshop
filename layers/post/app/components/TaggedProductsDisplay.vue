@@ -114,13 +114,10 @@ const emit = defineEmits<{
   'select-product': [id: number]
 }>()
 
+import { formatProductPrice } from '~~/app/utils/currency'
 const formatPrice = (price: number | null | undefined) => {
   if (price == null) return ''
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    maximumFractionDigits: 0,
-  }).format(price)
+  return formatProductPrice(price, 'NGN')
 }
 </script>
 

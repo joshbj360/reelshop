@@ -134,10 +134,8 @@ const getProductImage = (product: any) => {
   return null
 }
 
-const formatPrice = (cents: number) =>
-  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
-    cents / 100,
-  )
+import { formatProductPrice } from '~~/app/utils/currency'
+const formatPrice = (price: number) => formatProductPrice(price, 'NGN')
 
 const isSelected = (productId: number) =>
   selectedProducts.value.some((p) => p.id === productId)

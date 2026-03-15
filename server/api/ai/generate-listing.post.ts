@@ -1,9 +1,10 @@
 // POST /api/ai/generate-listing
 // Accepts a base64 product image and returns AI-generated listing data + social captions
+// Uses OpenAI GPT-4o vision
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const apiKey = config.anthropicApiKey
+  const apiKey = config.openaiApiKey
 
   if (!apiKey) {
     throw createError({
@@ -21,6 +22,10 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'imageBase64 and mimeType are required',
     })
   }
+
+  // Strip data URI prefix if client sent it (e.g. "data:image/jpeg;base64,...")
+  const cleanBase64 = (imageBase64 as string).replace(/^data:[^;]+;base64,/, '')
+  const dataUrl = `data:${mimeType};base64,${cleanBase64}`
 
   const systemPrompt = `You are an expert e-commerce copywriter and social media strategist for an African fashion & lifestyle marketplace.
 Your job is to analyze a product image and generate compelling, platform-optimized listing content.
@@ -41,54 +46,45 @@ Return ONLY this JSON structure:
 }`
 
   try {
-    const response: any = await $fetch(
-      'https://api.anthropic.com/v1/messages',
-      {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-        },
-        body: {
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1024,
-          system: systemPrompt,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: mimeType,
-                    data: imageBase64,
-                  },
-                },
-                { type: 'text', text: userPrompt },
-              ],
-            },
-          ],
-        },
+    const response: any = await $fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
-    )
+      body: {
+        model: 'gpt-4o',
+        max_tokens: 1024,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: dataUrl, detail: 'low' } },
+              { type: 'text', text: userPrompt },
+            ],
+          },
+        ],
+      },
+    })
 
-    const rawText: string = response.content?.[0]?.text || ''
+    const rawText: string = response.choices?.[0]?.message?.content || ''
 
     // Strip any accidental markdown code fences
     const jsonText = rawText
       .replace(/^```(?:json)?\s*/i, '')
       .replace(/\s*```$/i, '')
       .trim()
-    const data = JSON.parse(jsonText)
 
+    const data = JSON.parse(jsonText)
     return { success: true, data }
   } catch (err: any) {
-    console.error('[POST /api/ai/generate-listing]', err?.message || err)
+    const status = err?.status || err?.statusCode || 500
+    const detail = err?.data?.error?.message || err?.data?.message || err?.message || 'Unknown error'
+    console.error(`[POST /api/ai/generate-listing] ${status}: ${detail}`, err?.data || '')
     throw createError({
-      statusCode: 500,
-      statusMessage: 'AI generation failed',
+      statusCode: status,
+      statusMessage: `AI generation failed: ${detail}`,
     })
   }
 })

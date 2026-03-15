@@ -22,7 +22,7 @@ model Profile {
   bio               String?
   location          String?
   links             Json?
-  addresses         Addresses?     @relation("UserAddress")
+  addresses         Addresses[]    @relation("UserAddress")
   cartItems         CartItem[]
   comments          Comment[]      @relation("UserComments")
   commentLikes      CommentLike[]  @relation("UserCommentLikes")
@@ -247,17 +247,21 @@ model CartItem {
 
 model Addresses {
   id         Int      @id @default(autoincrement())
-  userId     String   @unique @db.Uuid
+  userId     String   @db.Uuid
+  label      String?
   name       String
   address    String
+  county     String
+  state      String
   zipcode    String
   country    String
+  phone      String
+  isDefault  Boolean  @default(false)
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @updatedAt @db.Timestamptz(6)
-  county     String
-  phone      String
-  state      String
   user       Profile  @relation("UserAddress", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model ShippingZone {

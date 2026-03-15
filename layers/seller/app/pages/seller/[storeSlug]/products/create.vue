@@ -509,6 +509,51 @@
           </div>
         </div>
 
+        <!-- Tags -->
+        <div
+          class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
+        >
+          <label
+            class="mb-3 block text-sm font-semibold text-gray-900 dark:text-neutral-100"
+          >
+            Tags
+            <span class="ml-1 font-normal text-gray-400 dark:text-neutral-500"
+              >(optional, max 10)</span
+            >
+          </label>
+          <!-- Tag pills -->
+          <div v-if="form.tagNames.length" class="mb-2 flex flex-wrap gap-1.5">
+            <span
+              v-for="(tag, i) in form.tagNames"
+              :key="i"
+              class="flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-sm font-medium text-brand"
+            >
+              #{{ tag }}
+              <button
+                type="button"
+                @click="form.tagNames.splice(i, 1)"
+                class="ml-0.5 rounded-full hover:bg-brand/20"
+              >
+                <Icon name="mdi:close" size="13" />
+              </button>
+            </span>
+          </div>
+          <!-- Tag input -->
+          <input
+            v-if="form.tagNames.length < 10"
+            v-model="tagInput"
+            type="text"
+            placeholder="Type a tag and press Enter or comma"
+            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none transition-all focus:border-brand/50 focus:bg-white focus:ring-2 focus:ring-brand/10 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:bg-neutral-800"
+            @keydown.enter.prevent="addTag"
+            @keydown.188.prevent="addTag"
+          />
+          <p class="mt-1.5 text-xs text-gray-400 dark:text-neutral-500">
+            Tags help shoppers find your product. E.g. "streetwear", "vintage",
+            "summer"
+          </p>
+        </div>
+
         <!-- Flags -->
         <div
           class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-neutral-700 dark:bg-neutral-800"
@@ -693,6 +738,7 @@ const form = reactive({
   isAccessory: false,
   variants: [] as Array<{ size: string; price: number | null; stock: number }>,
   categoryIds: [] as number[],
+  tagNames: [] as string[],
   // Added social captions to hold AI outputs
   socialCaptions: {
     instagram: '',
@@ -796,6 +842,15 @@ const toggleCategory = (id: number) => {
   else form.categoryIds.splice(idx, 1)
 }
 
+const tagInput = ref('')
+const addTag = () => {
+  const name = tagInput.value.trim().toLowerCase().replace(/,/g, '')
+  if (name && name.length <= 50 && !form.tagNames.includes(name) && form.tagNames.length < 10) {
+    form.tagNames.push(name)
+  }
+  tagInput.value = ''
+}
+
 const addVariant = () => {
   form.variants.push({ size: '', price: null, stock: 0 })
 }
@@ -824,6 +879,7 @@ const handleSubmit = async () => {
       payload.affiliateCommission = form.affiliateCommission
     if (form.SKU) payload.SKU = form.SKU
     if (form.categoryIds.length) payload.categoryIds = form.categoryIds
+    if (form.tagNames.length) payload.tagNames = form.tagNames
 
     if (form.variants.length) {
       payload.variants = form.variants

@@ -324,12 +324,14 @@ const loadMore = async () => {
 }
 
 onMounted(() => {
-  // Load stories independently — failure must never block the feed
-  fetchStories()
-    .catch(() => {})
-    .then(() => {
-      nextTick(() => onStoriesScroll())
-    })
+  // Load stories only for logged-in users (guests don't see the stories section)
+  if (profileStore.isLoggedIn) {
+    fetchStories()
+      .catch(() => {})
+      .then(() => {
+        nextTick(() => onStoriesScroll())
+      })
+  }
 
   // Setup intersection observer for infinite scroll
   observer.value = new IntersectionObserver(

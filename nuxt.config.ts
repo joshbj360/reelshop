@@ -19,7 +19,6 @@ export default defineNuxtConfig({
   ],
   modules: [
     '@nuxt/icon',
-    '@nuxtjs/supabase',
     '@pinia/nuxt',
     'nuxt3-notifications',
     '@nuxtjs/tailwindcss',
@@ -70,24 +69,6 @@ export default defineNuxtConfig({
     classSuffix: '-mode',
     storageKey: 'nuxt-color-mode',
   },
-  supabase: {
-    redirect: false,
-    redirectOptions: {
-      login: '/auth/login',
-      callback: '/auth/callback',
-      exclude: [
-        '/',
-        '/discover',
-        '/thrift',
-        '/category/*',
-        '/sellers/profile/*',
-        '/profile/*',
-        '/stories/*',
-        '/reels',
-        '/search',
-      ],
-    },
-  },
   runtimeConfig: {
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
     openaiApiKey: process.env.OPENAI_API_KEY,
@@ -104,7 +85,6 @@ export default defineNuxtConfig({
       CloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
-      supabaseUrl: process.env.SUPABASE_URL,
       senderEmail: process.env.SENDER_EMAIL,
     },
     private: {

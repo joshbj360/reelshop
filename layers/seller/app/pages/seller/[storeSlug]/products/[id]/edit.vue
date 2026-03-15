@@ -251,6 +251,40 @@
             </div>
           </div>
 
+          <!-- Tags -->
+          <div
+            class="rounded-xl border border-gray-200 bg-white p-6 dark:border-neutral-700 dark:bg-neutral-800"
+          >
+            <h2 class="mb-1 font-semibold text-gray-900 dark:text-neutral-100">
+              Tags
+              <span class="ml-1 text-sm font-normal text-gray-400 dark:text-neutral-500">(optional, max 10)</span>
+            </h2>
+            <p class="mb-3 text-xs text-gray-500 dark:text-neutral-400">
+              Tags help shoppers discover your product
+            </p>
+            <div v-if="form.tagNames.length" class="mb-2 flex flex-wrap gap-1.5">
+              <span
+                v-for="(tag, i) in form.tagNames"
+                :key="i"
+                class="flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-sm font-medium text-brand"
+              >
+                #{{ tag }}
+                <button type="button" @click="form.tagNames.splice(i, 1)" class="ml-0.5 rounded-full hover:bg-brand/20">
+                  <Icon name="mdi:close" size="13" />
+                </button>
+              </span>
+            </div>
+            <input
+              v-if="form.tagNames.length < 10"
+              v-model="tagInput"
+              type="text"
+              placeholder="Type a tag and press Enter or comma"
+              class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none transition-all focus:border-brand/50 focus:bg-white focus:ring-2 focus:ring-brand/10 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:bg-neutral-800"
+              @keydown.enter.prevent="addTag"
+              @keydown.188.prevent="addTag"
+            />
+          </div>
+
           <!-- Flags -->
           <div
             class="rounded-xl border border-gray-200 bg-white p-6 dark:border-neutral-700 dark:bg-neutral-800"
@@ -401,6 +435,7 @@ const form = reactive({
   isThrift: false,
   isAccessory: false,
   categoryIds: [] as number[],
+  tagNames: [] as string[],
 })
 
 const socialCaptions = reactive({
@@ -411,6 +446,15 @@ const socialCaptions = reactive({
 
 const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
 const categoriesLoading = ref(false)
+
+const tagInput = ref('')
+const addTag = () => {
+  const tag = tagInput.value.trim().toLowerCase().replace(/,/g, '')
+  if (tag && !form.tagNames.includes(tag) && form.tagNames.length < 10) {
+    form.tagNames.push(tag)
+  }
+  tagInput.value = ''
+}
 
 const toggleCategory = (id: number) => {
   const idx = form.categoryIds.indexOf(id)
@@ -438,6 +482,9 @@ onMounted(async () => {
           form.categoryIds = (product.category || []).map(
             (c: any) => c.category.id,
           )
+          form.tagNames = (product.tags || [])
+            .map((t: any) => t.tag?.name ?? t.name)
+            .filter(Boolean)
 
           // Load cover image
           const firstMedia = product.media?.find((m: any) => !m.isBgMusic)
@@ -483,6 +530,7 @@ const handleSubmit = async () => {
         ? form.affiliateCommission
         : null
     payload.categoryIds = form.categoryIds
+    payload.tagNames = form.tagNames
 
     await updateProduct(productId.value, payload)
     successMsg.value = 'Product updated successfully!'

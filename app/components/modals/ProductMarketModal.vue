@@ -206,17 +206,14 @@ const currency = computed(
   () => props.product?.seller?.default_currency ?? 'NGN',
 )
 
+import { formatProductPrice } from '~/utils/currency'
 const formatPrice = (amount: number) =>
-  new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: currency.value,
-    maximumFractionDigits: 0,
-  }).format(amount)
+  formatProductPrice(amount, currency.value as any)
 
 // Build referral URL — includes ?ref=userId so the server can attribute the sale
 const referralUrl = computed(() => {
   if (!props.product || typeof window === 'undefined') return ''
-  const base = `${window.location.origin}/discover?product=${props.product.id}`
+  const base = `${window.location.origin}/product/${props.product.slug}`
   const userId = profileStore.me?.username
   return userId ? `${base}&ref=${userId}` : base
 })

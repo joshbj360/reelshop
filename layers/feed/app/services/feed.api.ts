@@ -23,6 +23,7 @@ export class FeedApiClient extends BaseApiClient {
 
     return this.request(`/api/feed/home?${params}`, {
       method: 'GET',
+      skipAuth: true,
     })
   }
 
@@ -45,6 +46,7 @@ export class FeedApiClient extends BaseApiClient {
 
     return this.request(`/api/feed/discover?limit=${limit}&offset=${offset}`, {
       method: 'GET',
+      skipAuth: true,
     })
   }
 
@@ -71,6 +73,7 @@ export class FeedApiClient extends BaseApiClient {
   async getReels(limit = 10, offset = 0): Promise<any> {
     return this.request(`/api/feed/reels?limit=${limit}&offset=${offset}`, {
       method: 'GET',
+      skipAuth: true,
     })
   }
 }

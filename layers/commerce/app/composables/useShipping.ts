@@ -1,3 +1,5 @@
+import { formatInCurrency, type SupportedCurrency } from '~~/app/utils/currency'
+
 export interface ShippingZone {
   id: string
   name: string
@@ -8,7 +10,7 @@ export interface ShippingZone {
 }
 
 export interface ShippingCalculation {
-  cost: number
+  cost: number       // NGN kobo
   zoneId: string
   zoneName: string
   estimatedDays: string
@@ -54,12 +56,17 @@ export const useShipping = () => {
     }
   }
 
-  const formatShippingCost = (cents: number, currency = 'NGN') => {
-    if (cents === 0) return 'Free'
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency,
-    }).format(cents / 100)
+  /**
+   * Format a shipping cost (NGN kobo) in the customer's display currency.
+   * Falls back to NGN if currency not provided.
+   */
+  const formatShippingCost = (
+    kobo: number,
+    currency: SupportedCurrency = 'NGN',
+    rates?: Record<SupportedCurrency, number>,
+  ): string => {
+    if (kobo === 0) return 'Free'
+    return formatInCurrency(kobo, currency, rates)
   }
 
   return {

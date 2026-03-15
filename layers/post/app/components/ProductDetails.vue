@@ -279,15 +279,11 @@ const needsVariantSelection = computed(
   () => props.product.variants?.length > 0 && !selectedVariant.value,
 )
 
+import { formatProductPrice } from '~~/app/utils/currency'
 const formatPrice = (price: number | string) => {
   const num = Number(price)
-  if (isNaN(num)) return '₦0.00'
-  // Price is stored in kobo (smallest unit) if > 1000 and looks like it, otherwise assume naira directly
-  // Use Intl.NumberFormat for NGN
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-  }).format(num)
+  if (isNaN(num)) return '₦0'
+  return formatProductPrice(num, 'NGN')
 }
 
 const handleAddToCart = async () => {

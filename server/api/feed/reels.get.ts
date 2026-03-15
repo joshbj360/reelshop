@@ -27,6 +27,24 @@ export default defineEventHandler(async (event) => {
         },
       },
       _count: { select: { likes: true, comments: true, shares: true } },
+      taggedProducts: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              title: true,
+              price: true,
+              discount: true,
+              slug: true,
+              media: {
+                take: 1,
+                where: { isBgMusic: false },
+                select: { url: true, type: true },
+              },
+            },
+          },
+        },
+      },
     },
     orderBy: { created_at: 'desc' },
     take: limit,

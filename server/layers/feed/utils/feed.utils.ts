@@ -49,7 +49,8 @@ export const normalizePost = (post: IPost): IFeedItem => {
     likeCount: post._count?.likes || 0,
     commentCount: post._count?.comments || 0,
     shareCount: post._count?.shares || 0,
-    taggedProducts: post.taggedProducts ?? [],
+    // taggedProducts from DB is ProductPostTag[] with nested .product — flatten to IProduct[]
+    taggedProducts: (post.taggedProducts ?? []).map((tag: any) => tag.product ?? tag).filter(Boolean),
   }
 }
 
