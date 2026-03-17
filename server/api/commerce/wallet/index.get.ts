@@ -2,19 +2,58 @@
 import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { walletService } from '../../../layers/commerce/services/wallet.service'
 import { UserError } from '../../../layers/profile/types/user.types'
+import { prisma } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   try {
     const user = await requireAuth(event)
-    const sellerProfile = user.sellerProfile
-    if (!sellerProfile)
-      throw new UserError(
-        'SELLER_REQUIRED',
-        'A seller profile is required',
-        403,
-      )
-    const result = await walletService.getWallet(sellerProfile.id)
-    return { success: true, data: result }
+
+    // Get ALL seller profiles for this user (not just first)
+    const sellerProfiles = await prisma.sellerProfile.findMany({
+      where: { profileId: user.id, is_active: true },
+      select: { id: true, store_name: true, store_slug: true },
+    })
+
+    if (!sellerProfiles.length) {
+      // Non-seller: return empty wallet state
+      return {
+        success: true,
+        data: {
+          wallet: { balance: 0, pending_balance: 0 },
+          stats: { totalEarned: 0, totalSpent: 0 },
+          stores: [],
+        },
+      }
+    }
+
+    // Fetch wallet + stats per store in parallel
+    const storeWallets = await Promise.all(
+      sellerProfiles.map(async (sp) => {
+        const { wallet, stats } = await walletService.getWallet(sp.id)
+        return {
+          storeId: sp.id,
+          storeName: sp.store_name,
+          storeSlug: sp.store_slug,
+          wallet,
+          stats,
+        }
+      }),
+    )
+
+    // Aggregate totals across all stores
+    const totalBalance = storeWallets.reduce((sum, s) => sum + (s.wallet?.balance ?? 0), 0)
+    const totalPending = storeWallets.reduce((sum, s) => sum + (s.wallet?.pending_balance ?? 0), 0)
+    const totalEarned = storeWallets.reduce((sum, s) => sum + (s.stats?.totalEarned ?? 0), 0)
+    const totalSpent = storeWallets.reduce((sum, s) => sum + (s.stats?.totalSpent ?? 0), 0)
+
+    return {
+      success: true,
+      data: {
+        wallet: { balance: totalBalance, pending_balance: totalPending },
+        stats: { totalEarned, totalSpent },
+        stores: storeWallets,
+      },
+    }
   } catch (error: any) {
     if (error instanceof UserError)
       throw createError({

@@ -15,6 +15,8 @@ import { useProfileApi } from '~~/layers/profile/app/services/profile.api'
 import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
 import { useCartStore } from '~~/layers/commerce/app/stores/cart.store'
+import { useSettings } from '~/composables/useSettings'
+import { useChat } from '~~/layers/profile/app/composables/useChat'
 import type { IProduct } from '~~/layers/post/app/types/post.types'
 import type { IProfile } from '~~/layers/profile/app/types/profile.types'
 export const useAuth = () => {
@@ -117,6 +119,13 @@ export const useAuth = () => {
   // ==================== LOGOUT ====================
 
   const clearAllStores = () => {
+    // Tear down real-time connections before clearing state
+    if (import.meta.client) {
+      const { disconnectStream } = useNotificationStore()
+      const { disconnectSocket } = useChat()
+      disconnectStream()
+      disconnectSocket()
+    }
     authStore.clearAuth()
     profileStore.clearStore()
     useNotificationStore().clearNotifications()
@@ -142,25 +151,36 @@ export const useAuth = () => {
    */
   const syncUserToProfile = async (user: any) => {
     try {
-      const profileData = await profileApi.getPrivateProfile()
-      const profileStats = await profileApi.getProfileStats(
-        profileData.data.username as string,
-      )
+      const [profileData, settingsData] = await Promise.allSettled([
+        profileApi.getPrivateProfile(),
+        profileApi.getSettings(),
+      ])
 
-      // 4. Update the store
-      profileStore.setPrivateProfile(profileData.data)
-
-      if (profileStats) {
-        profileStore.setProfileStats(
-          profileData.data.username as string,
-          profileStats.data,
-        )
+      if (profileData.status === 'fulfilled') {
+        profileStore.setPrivateProfile(profileData.value.data)
+        try {
+          const stats = await profileApi.getProfileStats(profileData.value.data.username as string)
+          if (stats) profileStore.setProfileStats(profileData.value.data.username as string, stats.data)
+        } catch { /* stats are non-critical */ }
+        console.log('✅ User synced via Profile Service:', profileData.value.data.username)
       }
 
-      console.log(
-        '✅ User synced via Profile Service:',
-        profileData.data.username,
-      )
+      if (settingsData.status === 'fulfilled') {
+        const srv = settingsData.value?.data
+        if (srv) {
+          profileStore.setMySettings(srv)
+          if (import.meta.client) {
+            const { hydrateFromServer } = useSettings()
+            hydrateFromServer(srv)
+          }
+        }
+      }
+
+      // Open real-time connections after auth is confirmed
+      if (import.meta.client) {
+        useNotificationStore().connectStream()
+        useChat().connectSocket()
+      }
     } catch (error) {
       console.error('Failed to sync user:', error)
 

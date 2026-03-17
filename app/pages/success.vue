@@ -1,5 +1,5 @@
 <template>
-  <MainLayout>
+  <HomeLayout>
     <div id="SuccessPage" class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div
         class="flex flex-col items-center rounded-2xl bg-white p-8 text-center shadow-xl sm:p-12"
@@ -64,7 +64,7 @@
             Continue Shopping
           </NuxtLink>
           <NuxtLink
-            to="/buyer/profile"
+            to="/buyer/orders"
             class="rounded-lg bg-gray-100 px-6 py-3 font-semibold text-gray-800 transition-colors hover:bg-gray-200"
           >
             View My Orders
@@ -72,21 +72,17 @@
         </div>
       </div>
     </div>
-  </MainLayout>
+  </HomeLayout>
 </template>
 
 <script setup lang="ts">
-import MainLayout from '~/layouts/HomeLayout.vue'
-import { useCartStore } from '~/stores/cart.store'
-import { onMounted } from 'vue'
+import HomeLayout from '~/layouts/HomeLayout.vue'
+import { useCartStore } from '~~/layers/commerce/app/stores/cart.store'
 
 const cartStore = useCartStore()
 
-// This ensures that if the checkout list is empty (e.g., user refreshes the success page),
-// the cart is also cleared of the purchased items.
+// Clear the cart on successful payment
 onMounted(() => {
-  if (cartStore.checkout.length > 0) {
-    cartStore.clearPurchasedItems()
-  }
+  cartStore.clearStore()
 })
 </script>

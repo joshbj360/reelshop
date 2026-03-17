@@ -1,7 +1,7 @@
 // GET /api/commerce/products/:id
-import { optionalAuth } from '../../../layers/shared/middleware/requireAuth'
-import { productService } from '../../../layers/commerce/services/product.service'
-import { UserError } from '../../../layers/profile/types/user.types'
+import { optionalAuth } from '../../../../layers/shared/middleware/requireAuth'
+import { productService } from '../../../../layers/commerce/services/product.service'
+import { UserError } from '../../../../layers/profile/types/user.types'
 
 export default defineEventHandler(async (event) => {
   try {

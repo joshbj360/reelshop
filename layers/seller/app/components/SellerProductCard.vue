@@ -6,7 +6,7 @@
     <div class="relative aspect-square bg-gray-100 dark:bg-neutral-700">
       <img
         v-if="product.media?.[0]?.url"
-        :src="product.media[0].url"
+        :src="imgThumb(product.media[0].url)"
         :alt="product.title"
         loading="lazy"
         class="h-full w-full object-cover"
@@ -40,7 +40,7 @@
         {{ product.title }}
       </p>
       <p class="mt-1 font-bold text-brand">
-        ₦{{ Number(product.price).toLocaleString() }}
+        {{ formatPrice(product.price) }}
       </p>
       <p class="mt-1 text-xs text-gray-500 dark:text-neutral-400">
         {{ product._count?.variants ?? product.variants?.length ?? 0 }} variant(s)
@@ -91,6 +91,9 @@
 </template>
 
 <script setup lang="ts">
+import { imgThumb } from '~/utils/cloudinary'
+const { formatPrice } = useCurrency()
+
 defineProps<{
   product: any
   storeSlug: string

@@ -189,6 +189,13 @@ export const sellerRepository = {
       store_website?: string
       store_socials?: Record<string, any>
       default_currency?: string
+      shipFromName?: string
+      shipFromAddress?: string
+      shipFromCity?: string
+      shipFromState?: string
+      shipFromZip?: string
+      shipFromCountry?: string
+      shipFromPhone?: string
     },
   ): Promise<any> {
     // Verify ownership
@@ -218,6 +225,13 @@ export const sellerRepository = {
         ...(data.default_currency && {
           default_currency: data.default_currency,
         }),
+        ...(data.shipFromName !== undefined && { shipFromName: data.shipFromName || null }),
+        ...(data.shipFromAddress !== undefined && { shipFromAddress: data.shipFromAddress || null }),
+        ...(data.shipFromCity !== undefined && { shipFromCity: data.shipFromCity || null }),
+        ...(data.shipFromState !== undefined && { shipFromState: data.shipFromState || null }),
+        ...(data.shipFromZip !== undefined && { shipFromZip: data.shipFromZip || null }),
+        ...(data.shipFromCountry && { shipFromCountry: data.shipFromCountry }),
+        ...(data.shipFromPhone !== undefined && { shipFromPhone: data.shipFromPhone || null }),
       },
     })
   },

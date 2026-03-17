@@ -1,6 +1,8 @@
 import { prisma } from '../../utils/db'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  // Trending data refreshes slowly — cache for 5 minutes
+  setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=120')
   const [trendingProducts, trendingTags, featuredSellers] = await Promise.all([
     // Trending: most liked published products
     prisma.products.findMany({

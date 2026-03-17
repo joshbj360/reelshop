@@ -20,6 +20,7 @@ export interface IProduct extends Products {
     isBgMusic?: boolean
   }>
   variants?: IProductVariant[]
+  offers?: IProductOffer[]
   _count?: {
     likes: number
     comments: number
@@ -31,6 +32,15 @@ export interface IProduct extends Products {
 }
 
 export interface IProductVariant extends ProductVariant {}
+
+export interface IProductOffer {
+  id: number
+  productId: number
+  minQuantity: number
+  discount: number
+  label?: string | null
+  isActive: boolean
+}
 
 export interface ICartItem extends CartItem {
   variant?: IProductVariant & {

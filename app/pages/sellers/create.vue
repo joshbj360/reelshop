@@ -170,7 +170,7 @@
           <div class="relative">
             <span
               class="absolute left-3.5 top-1/2 -translate-y-1/2 select-none text-[13px] text-gray-400 dark:text-neutral-500"
-              >styli.com/sellers/</span
+              >{{ $config.public.brandDomain || 'indix.app' }}/sellers/</span
             >
             <input
               v-model="form.store_slug"

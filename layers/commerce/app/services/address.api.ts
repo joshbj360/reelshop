@@ -27,19 +27,31 @@ export interface ISaveAddressInput {
 
 class AddressApiClient extends BaseApiClient {
   async getAddresses(): Promise<{ success: boolean; data: ISavedAddress[] }> {
-    return this.request('/api/profile/addresses') as Promise<{ success: boolean; data: ISavedAddress[] }>
+    return this.request('/api/profile/addresses') as Promise<{
+      success: boolean
+      data: ISavedAddress[]
+    }>
   }
 
-  async saveAddress(input: ISaveAddressInput): Promise<{ success: boolean; data: ISavedAddress }> {
-    return this.request('/api/profile/addresses', { method: 'POST', body: input }) as Promise<{ success: boolean; data: ISavedAddress }>
+  async saveAddress(
+    input: ISaveAddressInput,
+  ): Promise<{ success: boolean; data: ISavedAddress }> {
+    return this.request('/api/profile/addresses', {
+      method: 'POST',
+      body: input,
+    }) as Promise<{ success: boolean; data: ISavedAddress }>
   }
 
   async deleteAddress(id: number): Promise<{ success: boolean }> {
-    return this.request(`/api/profile/addresses/${id}`, { method: 'DELETE' }) as Promise<{ success: boolean }>
+    return this.request(`/api/profile/addresses/${id}`, {
+      method: 'DELETE',
+    }) as Promise<{ success: boolean }>
   }
 
   async setDefaultAddress(id: number): Promise<{ success: boolean }> {
-    return this.request(`/api/profile/addresses/${id}/default`, { method: 'PATCH' }) as Promise<{ success: boolean }>
+    return this.request(`/api/profile/addresses/${id}/default`, {
+      method: 'PATCH',
+    }) as Promise<{ success: boolean }>
   }
 }
 

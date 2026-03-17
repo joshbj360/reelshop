@@ -24,9 +24,16 @@ export interface ApiServiceOptions {
 
 export class BaseApiClient {
   protected baseURL: string
+  private static isRefreshing = false
+  private static refreshSubscribers: Array<(token: string) => void> = []
 
   constructor() {
     this.baseURL = this.initializeBaseURL()
+  }
+
+  private static onRefreshed(token: string) {
+    BaseApiClient.refreshSubscribers.forEach((cb) => cb(token))
+    BaseApiClient.refreshSubscribers = []
   }
 
   private initializeBaseURL(): string {
@@ -101,7 +108,54 @@ export class BaseApiClient {
         headers,
       })) as T
     } catch (error: any) {
+      // Auto-refresh on 401 (client only, non-skipAuth)
+      const statusCode = error.status || error.statusCode
+      if (statusCode === 401 && !options.skipAuth && import.meta.client) {
+        const refreshed = await this.tryRefreshToken()
+        if (refreshed) {
+          // Retry original request with new token
+          const newToken = this.getAuthToken()
+          if (newToken) headers['Authorization'] = `Bearer ${newToken}`
+          try {
+            return (await $fetch<T>(`${this.baseURL}${endpoint}`, {
+              ...options,
+              headers,
+            })) as T
+          } catch (retryError: any) {
+            this.handleError(retryError, endpoint, options.skipAuth, options.silent)
+          }
+        }
+      }
       this.handleError(error, endpoint, options.skipAuth, options.silent)
+    }
+  }
+
+  private async tryRefreshToken(): Promise<boolean> {
+    if (!import.meta.client) return false
+
+    // If already refreshing, queue up and wait
+    if (BaseApiClient.isRefreshing) {
+      return new Promise((resolve) => {
+        BaseApiClient.refreshSubscribers.push((token) => resolve(!!token))
+      })
+    }
+
+    BaseApiClient.isRefreshing = true
+    try {
+      // Server reads refreshToken from HTTP-only cookie — no body needed
+      const result = await $fetch<{ accessToken: string }>(
+        `${this.baseURL}/api/auth/refresh-token`,
+        { method: 'POST' },
+      )
+      const newToken = (result as any)?.accessToken
+      if (!newToken) throw new Error('No token in response')
+      useAuthStore().setAccessToken(newToken)
+      BaseApiClient.onRefreshed(newToken)
+      return true
+    } catch {
+      return false
+    } finally {
+      BaseApiClient.isRefreshing = false
     }
   }
 
@@ -190,17 +244,14 @@ export class BaseApiClient {
     const safeMessage = this.getSafeErrorMessage(statusCode, serverMessage)
 
     if (isClient) {
-      if ((statusCode === 401 || statusCode === 403) && !skipAuth) {
-        // Clear ALL stores so isLoggedIn becomes false before navigating
+      if (statusCode === 401 && !skipAuth) {
+        // Only 401 (expired/invalid token) should trigger logout
         try { useAuthStore().clearAuth() } catch {}
         try { useProfileStore().clearStore() } catch {}
         notify({
           type: 'error',
-          title: statusCode === 401 ? 'Session expired' : 'Access denied',
-          text:
-            statusCode === 401
-              ? 'Please log in to continue.'
-              : 'You do not have permission to perform this action.',
+          title: 'Session expired',
+          text: 'Please log in to continue.',
           duration: 6000,
         })
         navigateTo('/user-login')

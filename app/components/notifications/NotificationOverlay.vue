@@ -10,6 +10,7 @@
 
         <!-- Panel -->
         <div
+          ref="panelEl"
           class="relative ml-auto flex h-full w-full flex-col border-l border-gray-200 bg-white md:w-96 dark:border-neutral-800 dark:bg-neutral-950"
         >
           <!-- Header -->
@@ -165,11 +166,20 @@
 </template>
 
 <script setup lang="ts">
+import { onClickOutside } from '@vueuse/core'
 import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
 import { useNotificationApi } from '~~/layers/profile/app/services/notification.api'
 
 const props = defineProps<{ isOpen: boolean }>()
-defineEmits(['close'])
+const emit = defineEmits(['close'])
+
+const panelEl = ref<HTMLElement | null>(null)
+
+onClickOutside(panelEl, () => {
+  if (props.isOpen) {
+    emit('close')
+  }
+})
 
 const api = useNotificationApi()
 const store = useNotificationStore()

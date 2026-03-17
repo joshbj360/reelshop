@@ -99,8 +99,13 @@ export const useProfileStore = defineStore('profile', () => {
     if (me.value) updateStat(me.value.username as string, 'postsCount', -1)
   }
 
+  const setMySettings = (s: any) => {
+    mySettings.value = s
+  }
+
   const clearStore = () => {
     me.value = null
+    mySettings.value = null
     myPosts.value = []
     publicProfiles.value.clear()
     profileStats.value.clear()
@@ -122,6 +127,7 @@ export const useProfileStore = defineStore('profile', () => {
     setLoading,
     setError,
     setPrivateProfile,
+    setMySettings,
     setPublicProfile: (p: IProfile) =>
       publicProfiles.value.set(p.username as string, p),
     setProfileStats,

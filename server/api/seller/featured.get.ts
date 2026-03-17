@@ -2,7 +2,11 @@
 import { prisma } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
+  // Featured sellers change slowly — cache for 5 minutes, skip cache when searching
   const query = getQuery(event)
+  if (!query.search) {
+    setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=120')
+  }
   const limit = Math.min(Math.max(Number(query.limit) || 6, 1), 50)
   const offset = Math.max(Number(query.offset) || 0, 0)
   const search = String(query.search || '').trim()

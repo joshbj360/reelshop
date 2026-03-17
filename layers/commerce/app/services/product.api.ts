@@ -21,7 +21,7 @@ export class ProductApiClient extends BaseApiClient {
     return this.request(`/api/commerce/products${query}`, { method: 'GET' })
   }
 
-  async getProductById(id: number) {
+  async getProductById(id: number): Promise<{success: boolean; data: any}> {
     return this.request(`/api/commerce/products/${id}`, { method: 'GET' })
   }
 

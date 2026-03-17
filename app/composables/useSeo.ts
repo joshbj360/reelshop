@@ -2,10 +2,12 @@
  * SEO helper composable — centralises useSeoMeta calls for every page type.
  * Usage: const { setHomePage } = useSeo(); setHomePage()
  */
+import { BRAND } from '~/utils/brand'
+
 export const useSeo = () => {
   const config = useRuntimeConfig()
-  const siteName = (config.public.siteName as string) || 'Styli'
-  const baseURL = (config.public.baseURL as string) || 'https://styli.app'
+  const siteName = (config.public.siteName as string) || BRAND.name
+  const baseURL = (config.public.baseURL as string) || `https://${BRAND.domain}`
   const defaultImage = `${baseURL}/og-default.png`
 
   const defaults = () => {
@@ -19,13 +21,13 @@ export const useSeo = () => {
       ogType: 'website',
       ogLocale: 'en_US',
       twitterCard: 'summary_large_image',
-      twitterSite: '@styliapp',
+      twitterSite: BRAND.twitterHandle,
     })
   }
 
   const setHomePage = () => {
     const desc =
-      'Discover fashion, thrift, and lifestyle products from African creators on Styli.'
+      `Discover fashion, thrift, and lifestyle products from African creators on ${siteName}.`
     useSeoMeta({
       title: siteName,
       description: desc,
@@ -52,7 +54,7 @@ export const useSeo = () => {
 
   const setThriftPage = () => {
     const desc =
-      'Find pre-loved fashion and thrift items at unbeatable prices on Styli.'
+      `Find pre-loved fashion and thrift items at unbeatable prices on ${siteName}.`
     useSeoMeta({
       title: 'Thrift Store',
       description: desc,
@@ -128,7 +130,7 @@ export const useSeo = () => {
   const setCheckoutPage = () => {
     useSeoMeta({
       title: 'Checkout',
-      description: 'Complete your order on Styli.',
+      description: `Complete your order on ${siteName}.`,
       robots: 'noindex',
     })
   }
@@ -136,7 +138,7 @@ export const useSeo = () => {
   const setOrdersPage = () => {
     useSeoMeta({
       title: 'My Orders',
-      description: 'View and track your orders on Styli.',
+      description: `View and track your orders on ${siteName}.`,
       robots: 'noindex',
     })
   }

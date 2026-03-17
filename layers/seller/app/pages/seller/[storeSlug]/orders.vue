@@ -234,6 +234,7 @@
 
 <script setup lang="ts">
 import { useOrderApi } from '~~/layers/commerce/app/services/order.api'
+import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
 import { notify } from '@kyvg/vue3-notification'
 
 definePageMeta({ middleware: 'auth', layout: 'store-layout' })
@@ -333,6 +334,13 @@ const formatDate = (d: string) =>
   })
 
 onMounted(loadOrders)
+
+// Reload orders when an ORDER notification arrives via SSE
+const notificationStore = useNotificationStore()
+watch(
+  () => notificationStore.notifications[0],
+  (n) => { if (n?.type === 'ORDER') loadOrders() },
+)
 </script>
 
 <style scoped>

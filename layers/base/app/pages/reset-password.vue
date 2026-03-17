@@ -1,182 +1,181 @@
 <!-- layers/auth/pages/reset-password.vue -->
 <template>
-  <AuthLayout
-    title="Reset your password"
-    subtitle="Create a new password for your account"
-  >
-    <!-- Token Invalid Message -->
-    <div
-      v-if="tokenInvalid"
-      class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
-    >
-      <div class="flex gap-3">
-        <Icon
-          name="mdi:alert-circle"
-          class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
-        />
-        <div>
-          <h3 class="text-sm font-semibold text-red-900 dark:text-red-300">
-            Invalid reset link
-          </h3>
-          <p class="mt-1 text-xs text-red-800 dark:text-red-400">
-            This reset link has expired or is invalid. Please request a new one.
-          </p>
-          <NuxtLink
-            to="/forgot-password"
-            class="mt-2 inline-block text-xs font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-          >
-            Request new link →
-          </NuxtLink>
-        </div>
-      </div>
+  <div class="relative min-h-screen overflow-hidden">
+    <!-- Full-screen Background -->
+    <div class="absolute inset-0 z-0">
+      <img
+        src="https://www.bellanaijastyle.com/wp-content/uploads/2024/02/Lagos-Fashion-Week-Street-Style-2024-1.jpg"
+        alt="Stylish group at Lagos Fashion Week street style in vibrant outfits"
+        class="h-full w-full object-cover object-center brightness-[0.78] contrast-[1.08] saturate-[1.15]"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/45 to-black/30" />
     </div>
 
-    <!-- Error Message -->
-    <div
-      v-else-if="error"
-      class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
-    >
-      <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-    </div>
-
-    <!-- Reset Password Form -->
-    <form v-else class="space-y-4" @submit.prevent="handleSubmit">
-      <!-- New Password Input -->
-      <div>
-        <div class="relative">
-          <input
-            v-model="form.password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="New password (min 12 characters)"
-            :disabled="isLoading || success"
-            :class="[
-              'w-full rounded-xl border bg-transparent px-4 py-3 pr-12 text-sm placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-purple-500',
-              errors.password
-                ? 'border-red-300 dark:border-red-700'
-                : 'border-gray-200 text-gray-900 dark:border-neutral-700 dark:text-white',
-            ]"
-          />
-          <button
-            type="button"
-            :disabled="isLoading || success"
-            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300"
-            @click="showPassword = !showPassword"
-          >
-            <Icon
-              :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
-              class="h-5 w-5"
-            />
-          </button>
-        </div>
-        <p
-          v-if="errors.password"
-          class="mt-1.5 text-sm text-red-600 dark:text-red-400"
-        >
-          {{ errors.password }}
-        </p>
-      </div>
-
-      <!-- Confirm Password Input -->
-      <div>
-        <div class="relative">
-          <input
-            v-model="form.confirmPassword"
-            :type="showConfirmPassword ? 'text' : 'password'"
-            placeholder="Confirm new password"
-            :disabled="isLoading || success"
-            :class="[
-              'w-full rounded-xl border bg-transparent px-4 py-3 pr-12 text-sm placeholder-gray-400 transition-all focus:border-transparent focus:ring-2 focus:ring-purple-500',
-              errors.confirmPassword
-                ? 'border-red-300 dark:border-red-700'
-                : 'border-gray-200 text-gray-900 dark:border-neutral-700 dark:text-white',
-            ]"
-          />
-          <button
-            type="button"
-            :disabled="isLoading || success"
-            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300"
-            @click="showConfirmPassword = !showConfirmPassword"
-          >
-            <Icon
-              :name="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'"
-              class="h-5 w-5"
-            />
-          </button>
-        </div>
-        <p
-          v-if="errors.confirmPassword"
-          class="mt-1.5 text-sm text-red-600 dark:text-red-400"
-        >
-          {{ errors.confirmPassword }}
-        </p>
-      </div>
-
-      <!-- Password Strength Meter -->
-      <PasswordStrengthMeter v-if="form.password" :password="form.password" />
-
-      <!-- Success Message -->
+    <!-- Main Content – centered glassmorphism card -->
+    <div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 py-10 sm:px-6 md:py-12 lg:px-8">
       <div
-        v-if="success"
-        class="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+        class="fade-in w-full max-w-md rounded-2xl bg-white/88 p-6 shadow-2xl backdrop-blur-xl sm:p-8 md:max-w-lg md:p-10 lg:max-w-md dark:bg-neutral-900/82 dark:shadow-black/40"
       >
-        <div class="flex gap-3">
-          <Icon
-            name="mdi:check-circle"
-            class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
-          />
-          <div>
-            <h3
-              class="text-sm font-semibold text-green-900 dark:text-green-300"
-            >
-              Password reset successfully!
-            </h3>
-            <p class="mt-1 text-xs text-green-800 dark:text-green-400">
-              Your password has been updated. Redirecting to login...
-            </p>
+        <!-- Header & Motivational Copy -->
+        <div class="mb-7 text-center">
+          <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+            Reset Password
+          </h1>
+          <p class="mt-2.5 text-base leading-relaxed text-gray-700 dark:text-gray-300">
+            Set a new password and jump back into sharing your style, discovering trends, and shopping on {{ $config.public.siteName || 'Indix' }}
+          </p>
+        </div>
+
+        <!-- Token Invalid State -->
+        <div
+          v-if="tokenInvalid"
+          class="mb-6 rounded-xl border border-red-200/80 bg-red-50/70 p-5 dark:border-red-800/40 dark:bg-red-950/25"
+        >
+          <div class="flex gap-3">
+            <Icon
+              name="mdi:alert-circle"
+              class="mt-0.5 h-6 w-6 flex-shrink-0 text-red-600 dark:text-red-400"
+            />
+            <div>
+              <h3 class="text-base font-semibold text-red-900 dark:text-red-300">
+                Invalid or expired link
+              </h3>
+              <p class="mt-1.5 text-sm text-red-800 dark:text-red-300">
+                This reset link is no longer valid. Please request a new one.
+              </p>
+              <NuxtLink
+                to="/forgot-password"
+                class="mt-3 inline-block text-sm font-medium text-brand hover:text-brand/80 transition"
+              >
+                Request new reset link →
+              </NuxtLink>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Submit Button -->
-      <button
-        v-if="!success"
-        type="submit"
-        :disabled="isLoading"
-        class="w-full rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-purple-700 hover:to-purple-600 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <span v-if="isLoading" class="flex items-center justify-center gap-2">
-          <span
-            class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-          />
-          Resetting password...
-        </span>
-        <span v-else>Reset Password</span>
-      </button>
-    </form>
-
-    <!-- Footer Slot -->
-    <template #footer>
-      <p
-        v-if="!success"
-        class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400"
-      >
-        Remember your password?
-        <NuxtLink
-          to="/user-login"
-          class="ml-1 font-semibold text-purple-600 transition-colors hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+        <!-- General Error (non-token) -->
+        <div
+          v-else-if="error && !success"
+          class="mb-6 rounded-xl border border-red-200/80 bg-red-50/70 p-4 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-950/25 dark:text-red-300"
         >
-          Sign In
-        </NuxtLink>
-      </p>
-    </template>
-  </AuthLayout>
+          {{ error }}
+        </div>
+
+        <!-- Reset Form (only shown if token valid & not success) -->
+        <form v-else-if="!success" class="space-y-5" @submit.prevent="handleSubmit">
+          <!-- New Password -->
+          <div class="relative">
+            <input
+              v-model="form.password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="New password (min 12 characters)"
+              :disabled="isLoading"
+              class="w-full rounded-xl border bg-white/60 px-4 py-3.5 pr-12 text-base placeholder-gray-500 transition focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-600 dark:bg-neutral-800/50 dark:text-white dark:placeholder-gray-400"
+              :class="{ 'border-red-400 dark:border-red-600': errors.password }"
+            />
+            <button
+              type="button"
+              :disabled="isLoading"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              @click="showPassword = !showPassword"
+            >
+              <Icon :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'" class="h-5.5 w-5.5" />
+            </button>
+            <p v-if="errors.password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+              {{ errors.password }}
+            </p>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="relative">
+            <input
+              v-model="form.confirmPassword"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Confirm new password"
+              :disabled="isLoading"
+              class="w-full rounded-xl border bg-white/60 px-4 py-3.5 pr-12 text-base placeholder-gray-500 transition focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-600 dark:bg-neutral-800/50 dark:text-white dark:placeholder-gray-400"
+              :class="{ 'border-red-400 dark:border-red-600': errors.confirmPassword }"
+            />
+            <button
+              type="button"
+              :disabled="isLoading"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              @click="showConfirmPassword = !showConfirmPassword"
+            >
+              <Icon :name="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'" class="h-5.5 w-5.5" />
+            </button>
+            <p v-if="errors.confirmPassword" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+              {{ errors.confirmPassword }}
+            </p>
+          </div>
+
+          <!-- Password Strength Meter -->
+          <PasswordStrengthMeter v-if="form.password" :password="form.password" />
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            :disabled="isLoading"
+            class="w-full rounded-xl bg-brand py-3.5 text-base font-semibold text-white shadow transition hover:bg-brand/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-60 mt-2"
+          >
+            <span v-if="isLoading" class="flex items-center justify-center gap-2.5">
+              <div class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              Resetting password...
+            </span>
+            <span v-else>Reset Password</span>
+          </button>
+        </form>
+
+        <!-- Success State -->
+        <div v-if="success" class="space-y-6">
+          <div
+            class="rounded-xl border border-green-200/80 bg-green-50/70 p-5 text-sm dark:border-green-800/40 dark:bg-green-950/25"
+          >
+            <div class="flex gap-3">
+              <Icon name="mdi:check-circle" class="mt-0.5 h-6 w-6 flex-shrink-0 text-green-600 dark:text-green-400" />
+              <div>
+                <h3 class="font-semibold text-green-900 dark:text-green-300">
+                  Password reset successful!
+                </h3>
+                <p class="mt-1.5 text-gray-800 dark:text-gray-300">
+                  Your password has been updated.<br />
+                  Redirecting you to sign in...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional: manual login link if redirect is slow -->
+          <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+            Taking too long?
+            <NuxtLink to="/user-login" class="font-semibold text-brand hover:text-brand/80 transition">
+              Go to login
+            </NuxtLink>
+          </p>
+        </div>
+
+        <!-- Footer Link (only when not success & token valid) -->
+        <p
+          v-if="!success && !tokenInvalid"
+          class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400"
+        >
+          Remember your password?
+          <NuxtLink
+            to="/user-login"
+            class="font-semibold text-brand hover:text-brand/80 transition"
+          >
+            Sign in
+          </NuxtLink>
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, computed } from 'vue'
-import { useRoute } from 'nuxt/app'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
-import AuthLayout from '../layouts/AuthLayout.vue'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter.vue'
 
 definePageMeta({
@@ -186,11 +185,8 @@ definePageMeta({
 
 const route = useRoute()
 const router = useRouter()
-const {
-  resetPassword: authResetPassword,
-  isLoading: authLoading,
-  error: authError,
-} = useAuth()
+
+const { resetPassword: authResetPassword, isLoading: authLoading, error: authError } = useAuth()
 
 const success = ref(false)
 const tokenInvalid = ref(false)
@@ -211,28 +207,23 @@ const errors = reactive({
 const isLoading = computed(() => authLoading.value)
 const error = computed(() => authError.value)
 
-// Client-side validation
 const validateForm = () => {
   errors.password = ''
   errors.confirmPassword = ''
 
-  // Password validation
   if (!form.password) {
     errors.password = 'Password is required'
     return false
   }
-
   if (form.password.length < 12) {
     errors.password = 'Password must be at least 12 characters'
     return false
   }
 
-  // Confirm password validation
   if (!form.confirmPassword) {
     errors.confirmPassword = 'Please confirm your password'
     return false
   }
-
   if (form.password !== form.confirmPassword) {
     errors.confirmPassword = 'Passwords do not match'
     return false
@@ -249,18 +240,27 @@ const handleSubmit = async () => {
   try {
     await authResetPassword(token, form.password, form.confirmPassword)
     success.value = true
-    // authResetPassword handles navigation on success
-  } catch (err: any) {
-    console.error('Reset password error:', err)
-    // Error is already in authError
+    // authResetPassword should handle navigation / redirect
+  } catch (err) {
+    console.error('Password reset failed:', err)
   }
 }
 
 onMounted(() => {
-  // Check if token exists
   const token = route.query.token as string
   if (!token) {
     tokenInvalid.value = true
   }
 })
 </script>
+
+<style scoped>
+.fade-in {
+  animation: fadeInUp 0.55s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>

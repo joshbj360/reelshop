@@ -1,11 +1,9 @@
-// FILE PATH: server/layers/seller/api/[slug].get.ts
-
 import { defineEventHandler } from 'h3'
-import { sellerService } from '../../layers/seller/services/seller.services'
+import { sellerService } from '../../../layers/seller/services/seller.services'
 
 export default defineEventHandler(async (event) => {
   try {
-    const slug = getRouterParam(event, 'slug')
+    const slug = getRouterParam(event, 'id')
 
     if (!slug) {
       throw createError({

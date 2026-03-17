@@ -30,7 +30,6 @@ export default defineNuxtConfig({
 
   i18n: {
     defaultLocale: 'en',
-    lazy: true,
     langDir: 'locales/',
     strategy: 'no_prefix',
     locales: [
@@ -59,6 +58,14 @@ export default defineNuxtConfig({
 
   nitro: {
     plugins: ['plugins/monitoring'],
+    experimental: {
+      websocket: true,
+      tasks: true,
+    },
+    scheduledTasks: {
+      // Every 6 hours: auto-release funds for orders shipped 7+ days ago
+      '0 */6 * * *': ['releaseShippedOrders'],
+    },
   },
   colorMode: {
     preference: 'system', // default preference: 'system' | 'light' | 'dark'
@@ -78,6 +85,13 @@ export default defineNuxtConfig({
     platformCommissionRate: process.env.PLATFORM_COMMISSION_RATE,
     supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
     resendApiKey: process.env.RESEND_API_KEY,
+    // Shipping providers
+    shippoApiKey: process.env.SHIPPO_API_KEY,
+    shippoWebhookSecret: process.env.SHIPPO_WEBHOOK_SECRET,
+    sendboxApiKey: process.env.SENDBOX_API_KEY,
+    sendboxWebhookSecret: process.env.SENDBOX_WEBHOOK_SECRET,
+    paypalClientId: process.env.PAYPAL_CLIENT_ID,
+    paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
     public: {
       siteName: process.env.NUXT_PUBLIC_SITE_NAME,
       baseURL: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',

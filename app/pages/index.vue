@@ -1,68 +1,64 @@
+<!-- pages/index.vue -->
 <template>
   <HomeLayout :narrow-feed="true">
-    <div class="w-full space-y-8">
-      <!-- Loading Skeleton (Initial Load) -->
+    <div class="w-full space-y-8 px-2 sm:px-4">
+      <!-- Loading Skeleton -->
       <HomepageSkeleton v-if="pending && !mainFeed.length" />
 
       <!-- Error State -->
       <div
         v-else-if="error"
-        class="flex flex-col items-center justify-center gap-4 py-24"
+        class="flex flex-col items-center justify-center gap-5 py-32 text-center"
       >
-        <Icon
-          name="mdi:wifi-off"
-          size="48"
-          class="text-gray-300 dark:text-neutral-600"
-        />
-        <p class="text-sm font-medium text-gray-500 dark:text-neutral-400">
-          {{ $t('feed.loadError') }}
-        </p>
+        <div class="rounded-full bg-red-50/80 p-5 dark:bg-red-950/30">
+          <Icon name="mdi:wifi-off" size="48" class="text-red-500 dark:text-red-400" />
+        </div>
+        <div>
+          <p class="text-lg font-semibold text-gray-800 dark:text-neutral-200">
+            {{ $t('feed.loadError') }}
+          </p>
+          <p class="mt-2 text-sm text-gray-500 dark:text-neutral-400">
+            Please check your connection and try again.
+          </p>
+        </div>
         <button
           @click="refresh()"
-          class="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#d81b36]"
+          class="rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-brand/90 hover:shadow-lg active:scale-95"
         >
           {{ $t('common.tryAgain') }}
         </button>
       </div>
 
-      <!-- Content -->
-      <div v-else>
-        <!-- Stories Section -->
-        <section v-if="profileStore.isLoggedIn" class="pb-2">
-          <h2
-            class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500"
-          >
+      <!-- Main Content -->
+      <div v-else class="space-y-8">
+        <!-- Stories Section (Logged-in users only) -->
+        <section v-if="profileStore.isLoggedIn" class="pb-4">
+          <h2 class="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-500">
             {{ $t('feed.todayInspo') }}
           </h2>
+
           <div class="relative">
-            <!-- Left scroll arrow -->
+            <!-- Scroll Arrows -->
             <button
               v-if="storiesScrollLeft > 0"
               @click="scrollStories('left')"
-              class="absolute left-0 top-[33px] z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+              class="absolute -left-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900/90 dark:hover:bg-neutral-800"
             >
-              <Icon
-                name="mdi:chevron-left"
-                size="18"
-                class="text-gray-600 dark:text-neutral-300"
-              />
+              <Icon name="mdi:chevron-left" size="20" class="text-gray-600 dark:text-neutral-300" />
             </button>
-            <!-- Right scroll arrow -->
+
             <button
               v-if="storiesCanScrollRight"
               @click="scrollStories('right')"
-              class="absolute right-0 top-[33px] z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+              class="absolute -right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900/90 dark:hover:bg-neutral-800"
             >
-              <Icon
-                name="mdi:chevron-right"
-                size="18"
-                class="text-gray-600 dark:text-neutral-300"
-              />
+              <Icon name="mdi:chevron-right" size="20" class="text-gray-600 dark:text-neutral-300" />
             </button>
 
+            <!-- Stories Scroller -->
             <div
               ref="storiesScroller"
-              class="scrollbar-hide flex gap-4 overflow-x-auto pb-3"
+              class="scrollbar-hide flex gap-4 overflow-x-auto pb-4"
               @scroll="onStoriesScroll"
             >
               <!-- Add Story Button -->
@@ -70,21 +66,18 @@
                 <button
                   @click="showUploadModal = true"
                   aria-label="Add your story"
-                  class="story-ring rounded-full p-[2px] transition-transform hover:scale-105 active:scale-95"
+                  class="story-ring flex h-[70px] w-[70px] items-center justify-center rounded-full p-1 transition-all hover:scale-105 active:scale-95"
                 >
-                  <div
-                    class="flex h-[66px] w-[66px] items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-900"
-                  >
-                    <Icon name="mdi:plus-thick" size="22" class="text-brand" />
+                  <div class="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-neutral-900">
+                    <Icon name="mdi:plus" size="28" class="text-brand" />
                   </div>
                 </button>
-                <span
-                  class="text-[11px] font-medium text-gray-500 dark:text-neutral-400"
-                  >{{ $t('feed.yourStory') }}</span
-                >
+                <span class="text-xs font-medium text-gray-500 dark:text-neutral-400">
+                  {{ $t('feed.yourStory') }}
+                </span>
               </div>
 
-              <!-- Stories -->
+              <!-- User Stories -->
               <div
                 v-for="story in stories"
                 :key="story.id"
@@ -92,29 +85,26 @@
                 class="group flex shrink-0 cursor-pointer flex-col items-center gap-2"
               >
                 <div
-                  class="story-ring rounded-full p-[2px] transition-transform group-hover:scale-105 group-active:scale-95"
+                  class="story-ring flex h-[70px] w-[70px] items-center justify-center rounded-full p-1 transition-all group-hover:scale-105 group-active:scale-95"
                 >
                   <img
                     :src="getMediaThumbnailUrl(story.media)"
-                    alt="Story"
-                    class="h-[66px] w-[66px] rounded-full object-cover ring-2 ring-white dark:ring-neutral-950"
+                    :alt="story.author?.username || 'Story'"
+                    class="h-full w-full rounded-full object-cover ring-2 ring-white dark:ring-neutral-950"
                   />
                 </div>
-                <span
-                  class="w-[70px] truncate text-center text-[11px] font-medium text-gray-500 dark:text-neutral-400"
-                >
+                <span class="w-[70px] truncate text-center text-xs font-medium text-gray-500 dark:text-neutral-400">
                   {{ story.author?.username || 'User' }}
                 </span>
               </div>
             </div>
-            <!-- end storiesScroller -->
           </div>
-          <!-- end relative wrapper -->
-          <div class="mt-4 border-t border-gray-100 dark:border-neutral-800" />
+
+          <div class="mt-5 border-t border-gray-100 dark:border-neutral-800" />
         </section>
 
         <!-- Main Feed -->
-        <section class="space-y-5 pt-2">
+        <section class="space-y-6">
           <template v-for="item in mainFeed" :key="item.id">
             <ShopProductCard
               v-if="item.type === 'PRODUCT' && item.product"
@@ -135,22 +125,30 @@
         </section>
 
         <!-- Infinite Scroll Trigger -->
-        <div ref="loadMoreTrigger" class="h-10" />
+        <div ref="loadMoreTrigger" class="h-16" />
 
-        <!-- Loading More Indicator -->
+        <!-- Loading More -->
         <div
           v-if="feedStore.isLoading && mainFeed.length > 0"
-          class="flex items-center justify-center gap-2 py-6"
+          class="flex items-center justify-center gap-3 py-8"
         >
-          <Icon name="eos-icons:loading" size="20" class="text-brand" />
-          <span class="text-xs text-gray-400 dark:text-neutral-500">{{
-            $t('common.loadingMore')
-          }}</span>
+          <div class="h-5 w-5 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          <span class="text-sm text-gray-500 dark:text-neutral-400">
+            {{ $t('common.loadingMore') }}
+          </span>
+        </div>
+
+        <!-- End of Feed Message -->
+        <div
+          v-if="!feedStore.canLoadMore && mainFeed.length > 0 && !feedStore.isLoading"
+          class="py-12 text-center text-sm text-gray-500 dark:text-neutral-400"
+        >
+          You've reached the end ✨ Keep exploring!
         </div>
       </div>
     </div>
 
-    <!-- Right Sidebar -->
+    <!-- Right Sidebar Slot -->
     <template #right-sidebar>
       <RightSideNav />
     </template>
@@ -198,51 +196,43 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 
-import { useFeedStore } from '../../layers/feed/app/stores/feed.stores'
 
-const { setHomePage } = useSeo()
-setHomePage()
-import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
-import { useStory } from '~~/layers/feed/app/composables/useStory'
-
-// Layouts & Components
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import HomepageSkeleton from '~/components/skeletons/HomePageSkeleton.vue'
 import StoryUploadModal from '~/components/modals/StoryUploadModal.vue'
-import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue'
 import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
+import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue'
 import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
 import PostCommentModal from '~/components/modals/PostCommentModal.vue'
 import ProductCommentModal from '~/components/modals/ProductCommentModal.vue'
 import ShopProductCard from '~/components/shop/ShopProductCard.vue'
-
-import PostCard from '../../layers/post/app/components/PostCard.vue'
+import PostCard from '~~/layers/post/app/components/PostCard.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue'
-import { useFeedApi } from '../../layers/feed/app/services/feed.api'
-import { useProductApi } from '../../layers/commerce/app/services/product.api'
-import { getMediaThumbnailUrl } from '../../layers/base/app/utils/formatters'
-import type { IFeedItem } from '../../layers/feed/app/types/feed.types'
-import type { IProduct } from '../../layers/post/app/types/post.types'
 
-// Stores & Services
+import { useProductApi } from '~~/layers/commerce/app/services/product.api'
+import { useFeedApi } from '~~/layers/feed/app/services/feed.api'
+import { useFeedStore } from '~~/layers/feed/app/stores/feed.stores'
+import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import type { IFeedItem } from '~~/layers/feed/app/types/feed.types'
+import type { IProduct } from '~~/layers/post/app/types/post.types'
+
 const router = useRouter()
 const feedStore = useFeedStore()
 const profileStore = useProfileStore()
-const { stories: storyList, fetchStories } = useStory()
+const { stories, fetchStories } = useStory()
 
-const feedApi = useFeedApi()
+// SEO
+useSeo().setHomePage()
 
-// Modal States
+// States
 const commentProduct = ref<IProduct | null>(null)
 const commentPost = ref<IFeedItem | null>(null)
 const selectedProduct = ref<IProduct | null>(null)
 const marketProduct = ref<IProduct | null>(null)
 const selectedPost = ref<IFeedItem | null>(null)
 const showUploadModal = ref(false)
-const loadMoreTrigger = ref<HTMLElement | null>(null)
-const observer = ref<IntersectionObserver | null>(null)
 
-// Stories scroller
+// Stories scroller refs & state
 const storiesScroller = ref<HTMLElement | null>(null)
 const storiesScrollLeft = ref(0)
 const storiesCanScrollRight = ref(false)
@@ -252,23 +242,18 @@ const onStoriesScroll = () => {
   storiesScrollLeft.value = storiesScroller.value.scrollLeft
   storiesCanScrollRight.value =
     storiesScroller.value.scrollLeft + storiesScroller.value.clientWidth <
-    storiesScroller.value.scrollWidth - 4
+    storiesScroller.value.scrollWidth - 10
 }
 
 const scrollStories = (dir: 'left' | 'right') => {
   if (!storiesScroller.value) return
   storiesScroller.value.scrollBy({
-    left: dir === 'left' ? -220 : 220,
+    left: dir === 'left' ? -240 : 240,
     behavior: 'smooth',
   })
 }
 
-// 1. Fetch layout data (top sellers, categories)
-//const { data: layoutData } = useLayoutData();
-//const topSellers = computed(() => layoutData.value?.topSellers || []);
-
-// 2. Fetch feed data — client-only to avoid a server→server HTTP call during SSR
-// that would hang indefinitely. The skeleton shows briefly then data loads.
+// Feed loading (client-only)
 const {
   data: feedData,
   pending,
@@ -276,91 +261,44 @@ const {
   refresh,
 } = useLazyAsyncData(
   'homepage-main',
-  () => feedApi.getHomeFeed({ limit: 20 }),
-  {
-    server: false,
-    default: () =>
-      ({
-        items: [],
-        meta: { total: 0, limit: 20, offset: 0, hasMore: false },
-      }) as any,
-  },
+  () => useFeedApi().getHomeFeed({ limit: 20 }),
+  { server: false }
 )
 
-// Sync Pinia feed store whenever data arrives or refreshes.
-watch(
-  feedData,
-  (val) => {
-    if (val?.items?.length) {
-      feedStore.setInitialFeed(val.items, val.meta, 'main')
-    }
-  },
-  { immediate: true },
-)
+watch(feedData, (val) => {
+  if (val?.items?.length) {
+    feedStore.setInitialFeed(val.items, val.meta, 'main')
+  }
+}, { immediate: true })
 
-// 3. Use computed properties for reactive data
-const stories = storyList
-const mainFeed = computed(() =>
-  feedStore.mainFeed?.length ? feedStore.mainFeed : feedData.value?.items ?? [],
-)
-//const categories = computed(() => categoryStore.categories || []);
+const mainFeed = computed(() => feedStore.mainFeed?.length ? feedStore.mainFeed : feedData.value?.items ?? [])
 
-// 4. Infinite scroll setup
+// Infinite scroll
+const loadMoreTrigger = ref<HTMLElement | null>(null)
+const observer = ref<IntersectionObserver | null>(null)
+
 const loadMore = async () => {
   if (!feedStore.canLoadMore || feedStore.isLoading) return
-
-  try {
-    const response = await feedApi.getHomeFeed({
-      limit: 20,
-      offset: feedStore.currentOffset,
-    })
-
-    if (response && response.items) {
-      feedStore.appendToFeed(response.items, response.meta, 'main')
-    }
-  } catch (error) {
-    console.error('Failed to load more feed items:', error)
-  }
+  await feedStore.loadMore('main')
 }
 
 onMounted(() => {
-  // Load stories only for logged-in users (guests don't see the stories section)
   if (profileStore.isLoggedIn) {
-    fetchStories()
-      .catch(() => {})
-      .then(() => {
-        nextTick(() => onStoriesScroll())
-      })
+    fetchStories().catch(() => {}).then(() => nextTick(onStoriesScroll))
   }
 
-  // Setup intersection observer for infinite scroll
   observer.value = new IntersectionObserver(
-    (entries) => {
-      if (entries[0]?.isIntersecting) {
-        loadMore()
-      }
-    },
-    { rootMargin: '200px' },
+    (entries) => entries[0]?.isIntersecting && loadMore(),
+    { rootMargin: '300px' }
   )
 
-  if (loadMoreTrigger.value) {
-    observer.value.observe(loadMoreTrigger.value)
-  }
+  if (loadMoreTrigger.value) observer.value.observe(loadMoreTrigger.value)
 })
 
-onUnmounted(() => {
-  if (observer.value) {
-    observer.value.disconnect()
-  }
-})
+onUnmounted(() => observer.value?.disconnect())
 
-// Modal Handlers
-const openCommentsModal = (product: IProduct) => {
-  commentProduct.value = product
-}
-
+// Modal handlers
 const openPostCommentsModal = (post: IFeedItem) => {
-  // Open full detail modal — PostDetails contains the comment thread
   selectedPost.value = post
 }
 
@@ -368,14 +306,11 @@ const openProductModal = (product: IProduct) => {
   selectedProduct.value = product
 }
 
-const productApi = useProductApi()
 const openProductById = async (id: number) => {
   try {
-    const res = await productApi.getProductById(id)
-    selectedProduct.value = res?.data ?? res
-  } catch {
-    // BaseApiClient already shows toast
-  }
+    const res = await useProductApi().getProductById(id)
+    selectedProduct.value = res?.data
+  } catch {}
 }
 
 const openPostModal = (post: IFeedItem) => {
@@ -389,23 +324,23 @@ const removeFromFeed = (postId: string) => {
 const handleStoryPosted = async () => {
   showUploadModal.value = false
   await Promise.all([
-    refreshNuxtData('homepage-main'),
-    fetchStories().catch(() => {}),
+    refresh(),
+    fetchStories().catch(() => {})
   ])
 }
 </script>
 
 <style scoped>
+.story-ring {
+  background: linear-gradient(135deg, #f02c56, #ff9a3c, #a855f7, #9333ea);
+  padding: 3px;
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
-
-/* Gradient ring shared by story avatars and the Add Story button */
-.story-ring {
-  background: linear-gradient(135deg, #f02c56, #ff9a3c, #a855f7);
 }
 </style>

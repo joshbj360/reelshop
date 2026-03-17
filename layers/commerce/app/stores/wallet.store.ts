@@ -1,6 +1,7 @@
 export const useWalletStore = defineStore('wallet', () => {
   const wallet = ref<any>(null)
   const stats = ref<any>({ totalEarned: 0, totalSpent: 0 })
+  const storeWallets = ref<any[]>([])
   const transactions = ref<any[]>([])
   const transactionsTotal = ref(0)
   const isLoading = ref(false)
@@ -12,15 +13,17 @@ export const useWalletStore = defineStore('wallet', () => {
   return {
     wallet,
     stats,
+    storeWallets,
     transactions,
     transactionsTotal,
     isLoading,
     error,
     balance,
     pendingBalance,
-    setWallet: (w: any, s: any) => {
+    setWallet: (w: any, s: any, stores?: any[]) => {
       wallet.value = w
       stats.value = s
+      storeWallets.value = stores ?? []
     },
     setTransactions: (t: any[], total: number) => {
       transactions.value = t

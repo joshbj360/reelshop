@@ -42,7 +42,6 @@ model Profile {
   postLikes         PostLike[]        @relation("UserProfileLikes")
   sellerProfile     SellerProfile[]   @relation("SellerProfile")
   shares            Share[]           @relation("ProfileShares")
-  socialMedia       SocialMediaInfo[] @relation("ProfileSocialMedia")
   stories           Story[]           @relation("UserStories")
   sessions          Session[]         @relation("UserSessions")
 
@@ -73,11 +72,19 @@ model SellerProfile {
   store_slug            String                 @unique
   auto_answer_enabled   Boolean                @default(false)
   default_currency      String                 @default("NGN")
+  // Shipping origin — where this store ships from
+  shipFromName          String?
+  shipFromAddress       String?
+  shipFromCity          String?
+  shipFromState         String?
+  shipFromZip           String?
+  shipFromCountry       String                 @default("NG")
+  shipFromPhone         String?
   media                 Media[]                @relation("MediaSeller")
   products              Products[]             @relation("SellerProducts")
   profile               Profile                @relation("SellerProfile", fields: [profileId], references: [id], onDelete: Cascade)
   wallet                SellerWallet?
-  shippingZones         ShippingZone[]
+  bankAccounts          BankAccount[]
   verificationDocuments VerificationDocument[]
   conversations         Conversation[]         @relation("ConversationSeller")
 
@@ -145,7 +152,6 @@ model Products {
   sellerId       String              @db.Uuid
   created_at     DateTime            @default(now()) @db.Timestamptz(6)
   updated_at     DateTime            @updatedAt @db.Timestamptz(6)
-  shippingZoneId String?             @db.Uuid
   soldCount      Int                 @default(0)
   averageRating  Float?
   totalReviews   Int                 @default(0)
@@ -161,7 +167,6 @@ model Products {
   comments       Comment[]
   conversations  Conversation[]      @relation("ConversationProduct")
   likes          Like[]
-  measurement    Measurement?
   media          Media[]
   messages       Message[]           @relation("ProductMessages")
   notifications  Notification[]      @relation("NotificationToProduct")
@@ -171,10 +176,9 @@ model Products {
   styledWith     ProductRelation[]   @relation("StyledWith")
   tags           ProductTags[]       @relation("ProductTag")
   variants       ProductVariant[]
+  offers         ProductOffer[]
   seller         SellerProfile       @relation("SellerProducts", fields: [sellerId], references: [id], onDelete: Cascade)
-  shippingZone   ShippingZone?       @relation(fields: [shippingZoneId], references: [id])
   shares         Share[]             @relation("ProductShare")
-  socialMedia    SocialMediaInfo[]   @relation("ProductSocialMedia")
   stories        Story[]
 
   @@index([sellerId])
@@ -191,6 +195,23 @@ model ProductVariant {
   product    Products    @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, size])
+}
+
+/// Volume-discount offer: "Buy X or more, get Y% off"
+model ProductOffer {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  /// Minimum quantity to trigger the offer
+  minQuantity Int
+  /// Discount percentage (0-100)
+  discount    Float
+  /// Optional seller-written label shown to buyers
+  label       String?
+  isActive    Boolean  @default(true)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  product     Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 model Orders {
@@ -215,9 +236,15 @@ model Orders {
   created_at      DateTime       @default(now()) @db.Timestamptz(6)
   updated_at      DateTime       @updatedAt @db.Timestamptz(6)
   paymentMethod   String
-  shipper         String?
-  trackingNumber  String?
-  payoutAmount    Int?
+  shipper          String?
+  trackingNumber   String?
+  /// URL to the shipping label PDF (populated after shipment is created)
+  labelUrl         String?
+  /// Which shipping provider created this shipment: 'sendbox' | 'shippo'
+  shippingProvider String?
+  payoutAmount     Int?
+  /// Timestamp when seller marked the order as shipped
+  shippedAt        DateTime?
   notifications   Notification[] @relation("NotificationToOrder")
   orderItem       OrderItem[]
   user            Profile        @relation("BuyerOrders", fields: [userId], references: [id])
@@ -264,29 +291,6 @@ model Addresses {
   @@index([userId])
 }
 
-model ShippingZone {
-  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name       String
-  created_at DateTime      @default(now()) @db.Timestamptz(6)
-  updated_at DateTime      @updatedAt @db.Timestamptz(6)
-  sellerId   String        @db.Uuid
-  isDefault  Boolean       @default(false)
-  products   Products[]
-  seller     SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  rates      ZoneRate[]
-
-  @@unique([sellerId, name])
-}
-
-model ZoneRate {
-  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  zoneId    String       @db.Uuid
-  cost      Float
-  countries String[]
-  states    String[]
-  zone      ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-}
-
 /// Global platform-level shipping zones (not seller-scoped)
 model GlobalShippingZone {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -302,6 +306,18 @@ model GlobalShippingZone {
   sortOrder     Int      @default(0)
   created_at    DateTime @default(now()) @db.Timestamptz(6)
   updated_at    DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model BankAccount {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sellerId      String        @db.Uuid
+  bankName      String
+  bankCode      String
+  accountNumber String
+  accountName   String
+  isDefault     Boolean       @default(false)
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  seller        SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 }
 
 model SellerWallet {
@@ -511,16 +527,6 @@ model Tag {
   products   ProductTags[] @relation("ProductTag")
 }
 
-model Measurement {
-  id        Int       @id @default(autoincrement())
-  productId Int?      @unique
-  weight    Float?
-  length    Float?
-  width     Float?
-  height    Float?
-  product   Products? @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-
 model VerificationDocument {
   id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   sellerProfileId String             @db.Uuid
@@ -553,17 +559,6 @@ model Notification {
   profile    Profile          @relation("NotificationToProfile", fields: [userId], references: [id])
 
   @@index([userId])
-}
-
-model SocialMediaInfo {
-  id         Int       @id @default(autoincrement())
-  userId     String?   @db.Uuid
-  productId  Int?
-  platform   String
-  handle     String
-  created_at DateTime  @default(now())
-  product    Products? @relation("ProductSocialMedia", fields: [productId], references: [id], onDelete: Cascade)
-  profile    Profile?  @relation("ProfileSocialMedia", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ProductCategories {
@@ -696,6 +691,13 @@ model UserSettings {
   private_profile     Boolean  @default(false)
   two_factor_enabled  Boolean  @default(false)
   language            String   @default("en")
+  currency            String   @default("NGN")
+  theme               String   @default("system")
+  text_size           String   @default("medium")
+  auto_mute           Boolean  @default(true)
+  compact_feed        Boolean  @default(false)
+  show_captions       Boolean  @default(true)
+  show_like_counts    Boolean  @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 

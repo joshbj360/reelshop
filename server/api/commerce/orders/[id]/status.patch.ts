@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
 import { prisma } from '../../../../utils/db'
 import { UserError } from '../../../../layers/profile/types/user.types'
+import { walletService } from '../../../../layers/commerce/services/wallet.service'
+import { notificationService } from '../../../../layers/profile/services/notification.service'
 
 const schema = z.object({
   status: z.enum(['CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED']),
@@ -53,8 +55,27 @@ export default defineEventHandler(async (event) => {
         status: body.status as any,
         ...(body.trackingNumber ? { trackingNumber: body.trackingNumber } : {}),
         ...(body.shipper ? { shipper: body.shipper } : {}),
+        // Record when shipped so auto-release cron can use it
+        ...(body.status === 'SHIPPED' ? { shippedAt: new Date() } : {}),
       },
     })
+
+    // Notify buyer when order is shipped
+    if (body.status === 'SHIPPED') {
+      notificationService.createNotification({
+        userId: order.userId,
+        type: 'ORDER',
+        actorId: user.id,
+        message: `Your order #${id} has been shipped${body.trackingNumber ? ` · Tracking: ${body.trackingNumber}` : ''}. Funds will be released to the seller in 7 days if not confirmed.`,
+      }).catch((e) => console.error('[notify buyer shipped]', e))
+    }
+
+    // Release held funds to seller available balance on delivery
+    if (body.status === 'DELIVERED' && order.paymentStatus === 'PAID') {
+      walletService.releaseFundsOnDelivery(id).catch(
+        (e) => console.error('[wallet release]', e),
+      )
+    }
 
     return { success: true, data: updated }
   } catch (error: any) {

@@ -3,7 +3,7 @@
     <!-- Show user uploaded image if available -->
     <img
       v-if="avatar"
-      :src="avatar"
+      :src="imgAvatar(avatar)"
       class="avatar-image"
       :class="sizeClass"
       alt="User avatar"
@@ -25,6 +25,7 @@
 <script setup>
 import { computed } from 'vue'
 import { string } from 'zod'
+import { imgAvatar } from '~/utils/cloudinary'
 
 const props = defineProps({
   username: {

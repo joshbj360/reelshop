@@ -167,9 +167,12 @@ const loadMore = async () => {
   await loadPosts()
 }
 
-// Handle both IPost (media array) and IFeedItem (media single object)
-const firstMedia = (post: any) =>
-  Array.isArray(post.media) ? post.media[0] ?? null : post.media ?? null
+// Handle IFeedItem (mediaItems[]), IPost (media array), or single media object
+const firstMedia = (post: any) => {
+  if (post.mediaItems?.length) return post.mediaItems[0]
+  if (Array.isArray(post.media)) return post.media[0] ?? null
+  return post.media ?? null
+}
 
 // Convert IPost → IFeedItem shape before opening PostDetailModal
 const openPost = (post: any) => {

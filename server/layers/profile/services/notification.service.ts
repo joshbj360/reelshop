@@ -7,6 +7,7 @@
 
 import { UserError } from '../types/user.types'
 import { notificationRepository } from '../repositories/notification.repository'
+import { sseConnections } from '~~/server/utils/connections'
 
 // Define the interface for the Create Notification object
 export interface CreateNotificationArgs {
@@ -53,7 +54,7 @@ export const notificationService = {
       // Map service type to Prisma enum value
       const mappedType = typeMap[type] || 'GENERAL'
 
-      return await notificationRepository.createNotification({
+      const notification = await notificationRepository.createNotification({
         userId,
         type: mappedType,
         actorId,
@@ -63,6 +64,13 @@ export const notificationService = {
         conversationId,
         read: false,
       })
+
+      // Push to the user's open SSE stream if they are currently online
+      // This is fire-and-forget — if they're offline the notification is
+      // still in the DB and will appear next time they load the app
+      sseConnections.send(userId, 'notification', notification)
+
+      return notification
     } catch (error: any) {
       // Notifications are non-blocking/non-critical. Log error but don't crash.
       console.error('Error creating notification:', error)

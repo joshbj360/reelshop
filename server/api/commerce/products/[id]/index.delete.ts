@@ -1,8 +1,8 @@
 // DELETE /api/commerce/products/:id (soft delete - archives)
-import { getClientIP } from '../../../layers/shared/utils/security'
-import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
-import { productService } from '../../../layers/commerce/services/product.service'
-import { UserError } from '../../../layers/profile/types/user.types'
+import { getClientIP } from '../../../../layers/shared/utils/security'
+import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
+import { productService } from '../../../../layers/commerce/services/product.service'
+import { UserError } from '../../../../layers/profile/types/user.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     const result = await productService.archiveProduct(
       id,
-      sellerProfile.id,
+      user.id,
       ipAddress,
       userAgent,
     )

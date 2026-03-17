@@ -3,6 +3,36 @@
 // Set this URL in the Paystack dashboard: https://yourdomain.com/api/commerce/payments/webhook
 import crypto from 'crypto'
 import { prisma } from '../../../utils/db'
+import { notificationService } from '../../../layers/profile/services/notification.service'
+import { walletService } from '../../../layers/commerce/services/wallet.service'
+
+async function notifySellers(orderId: number) {
+  const items = await prisma.orderItem.findMany({
+    where: { orderId },
+    include: {
+      variant: {
+        include: {
+          product: {
+            include: { seller: { select: { profileId: true } } },
+          },
+        },
+      },
+    },
+  })
+
+  const seen = new Set<string>()
+  for (const item of items) {
+    const sellerId = item.variant?.product?.seller?.profileId
+    if (!sellerId || seen.has(sellerId)) continue
+    seen.add(sellerId)
+    await notificationService.createNotification({
+      userId: sellerId,
+      type: 'ORDER',
+      actorId: sellerId,
+      message: `New order #${orderId} payment confirmed`,
+    })
+  }
+}
 
 export default defineEventHandler(async (event) => {
   const secret = process.env.PAYSTACK_SECRET_KEY
@@ -38,6 +68,8 @@ export default defineEventHandler(async (event) => {
         where: { id: order.id },
         data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
       })
+      notifySellers(order.id).catch((e) => console.error('[webhook notify]', e))
+      walletService.creditSellersOnPayment(order.id).catch((e) => console.error('[webhook wallet]', e))
     }
   }
 

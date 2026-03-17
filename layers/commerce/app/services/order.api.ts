@@ -49,6 +49,21 @@ export class OrderApiClient extends BaseApiClient {
       body,
     })
   }
+  async initializePayPal(data: any) {
+    return this.request('/api/commerce/payments/paypal/create', {
+      method: 'POST',
+      body: data,
+    })
+  }
+  async capturePayPal(data: { orderId: number; paypalOrderId: string }) {
+    return this.request('/api/commerce/payments/paypal/capture', {
+      method: 'POST',
+      body: data,
+    })
+  }
+  async confirmReceipt(id: number) {
+    return this.request(`/api/commerce/orders/${id}/confirm-receipt`, { method: 'POST' })
+  }
 }
 
 let instance: OrderApiClient | null = null

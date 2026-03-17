@@ -50,7 +50,7 @@ export class ProfileApiClient extends BaseApiClient {
    * Get user settings
    */
   async getSettings(): Promise<any> {
-    return this.request('/api/settings', {
+    return this.request('/api/profile/settings', {
       method: 'GET',
     })
   }
@@ -59,7 +59,7 @@ export class ProfileApiClient extends BaseApiClient {
    * Update user settings
    */
   async updateSettings(updates: any): Promise<any> {
-    return this.request('/api/settings', {
+    return this.request('/api/profile/settings', {
       method: 'PATCH',
       body: updates,
     })

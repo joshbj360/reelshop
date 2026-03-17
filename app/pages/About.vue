@@ -20,7 +20,7 @@
         <p
           class="mx-auto max-w-2xl text-lg leading-relaxed text-gray-500 sm:text-xl dark:text-neutral-400"
         >
-          {{ config.public.siteName || 'Styli' }} isn't just another
+          {{ config.public.siteName || 'Indix' }} isn't just another
           marketplace. We are a complete Creative Management System built to
           automate your growth, eliminate borders, and turn every scroll into a
           sale.
@@ -193,7 +193,7 @@ import RightSideNavLinks from '~/layouts/children/RightSideNavLinks.vue'
 const config = useRuntimeConfig()
 
 useSeoMeta({
-  title: 'Our Story · Styli',
+  title: `Our Story · ${useRuntimeConfig().public.siteName || 'Indix'}`,
   description:
     'Learn how we are revolutionizing commerce by empowering sellers with AI, automated social reach, and cross-border logistics.',
 })

@@ -14,6 +14,7 @@ const productInclude = {
     orderBy: { created_at: 'asc' as const },
   },
   variants: true,
+  offers: { where: { isActive: true }, orderBy: { minQuantity: 'asc' as const } },
   _count: {
     select: { likes: true, comments: true, shares: true },
   },
@@ -109,6 +110,16 @@ export const productRepository = {
           size: v.size,
           stock: v.stock,
           price: v.price,
+        })),
+      }
+    }
+
+    if (data.offers && data.offers.length > 0) {
+      productData.offers = {
+        create: data.offers.map((o: any) => ({
+          minQuantity: o.minQuantity,
+          discount: o.discount,
+          label: o.label || null,
         })),
       }
     }
@@ -228,7 +239,7 @@ export const productRepository = {
     })
   },
 
-  async updateProduct(id: number, data: any) {
+  async updateProduct(id: number, data: any, authorId?: string) {
     const updateData: any = {}
     if (data.title !== undefined) updateData.title = data.title
     if (data.description !== undefined)
@@ -258,6 +269,85 @@ export const productRepository = {
     if (data.mediaId) {
       updateData.media = { connect: [{ id: data.mediaId }] }
     }
+
+    // Replace variants if provided (delete all, create new)
+    if (data.variants !== undefined) {
+      await prisma.productVariant.deleteMany({ where: { productId: id } })
+      if (data.variants.length > 0) {
+        updateData.variants = {
+          create: data.variants.map((v: any) => ({
+            size: v.size,
+            stock: v.stock,
+            price: v.price,
+          })),
+        }
+      }
+    }
+
+    // Replace offers if provided (delete all, create new)
+    if (data.offers !== undefined) {
+      await prisma.productOffer.deleteMany({ where: { productId: id } })
+      if (data.offers.length > 0) {
+        updateData.offers = {
+          create: data.offers.map((o: any) => ({
+            minQuantity: o.minQuantity,
+            discount: o.discount,
+            label: o.label || null,
+          })),
+        }
+      }
+    }
+
+    // Remove individual media items
+    if (data.removeMediaIds?.length) {
+      await prisma.media.deleteMany({
+        where: { id: { in: data.removeMediaIds } },
+      })
+    }
+
+    // Remove bg music
+    if (data.removeBgMusic) {
+      await prisma.media.deleteMany({
+        where: { productId: id, isBgMusic: true },
+      })
+    }
+
+    // Add new media items
+    if (authorId && data.mediaItems?.length) {
+      updateData.media = updateData.media || {}
+      updateData.media.create = data.mediaItems.map((m: any) => ({
+        url: m.url,
+        public_id: m.public_id,
+        type: m.type || 'IMAGE',
+        isBgMusic: false,
+        authorId,
+      }))
+      // Update cover if no explicit bannerImageUrl
+      if (!data.bannerImageUrl) {
+        updateData.bannerImageUrl = data.mediaItems[0].url
+      }
+    }
+
+    // Add new bg music
+    if (authorId && data.bgMusic?.url) {
+      // Remove existing bg music first
+      await prisma.media.deleteMany({
+        where: { productId: id, isBgMusic: true },
+      })
+      const bgMediaCreate = {
+        url: data.bgMusic.url,
+        public_id: data.bgMusic.public_id || '',
+        type: 'AUDIO',
+        isBgMusic: true,
+        authorId,
+      }
+      if (updateData.media?.create) {
+        updateData.media.create.push(bgMediaCreate)
+      } else {
+        updateData.media = { ...(updateData.media || {}), create: [bgMediaCreate] }
+      }
+    }
+
     const product = await prisma.products.update({
       where: { id },
       data: updateData,
@@ -305,9 +395,12 @@ export const productRepository = {
     return prisma.products.count({ where })
   },
 
-  async checkOwnership(id: number, sellerId: string): Promise<boolean> {
+  async checkOwnership(id: number, userId: string): Promise<boolean> {
     const product = await prisma.products.findFirst({
-      where: { id, sellerId },
+      where: {
+        id,
+        seller: { profileId: userId },
+      },
       select: { id: true },
     })
     return !!product

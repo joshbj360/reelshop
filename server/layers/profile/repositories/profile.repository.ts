@@ -169,7 +169,7 @@ export const profileRepository = {
         ...(data.bio !== undefined && { bio: data.bio }),
         ...(data.avatar !== undefined && { avatar: data.avatar }),
         ...(data.location !== undefined && { location: data.location }),
-        ...(data.website !== undefined && { website: data.website }),
+        ...(data.links !== undefined && { links: data.links }),
         ...(data.phone !== undefined && { phone: data.phone }),
         ...(data.dateOfBirth !== undefined && {
           date_of_birth: data.dateOfBirth,

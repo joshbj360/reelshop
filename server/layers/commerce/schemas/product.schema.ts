@@ -20,6 +20,12 @@ export const productVariantSchema = z
     price: v.price,
   }))
 
+export const productOfferSchema = z.object({
+  minQuantity: z.number().int().min(2),
+  discount: z.number().min(1).max(100),
+  label: z.string().max(80).optional(),
+})
+
 export const createProductSchema = z.object({
   title: z.string().min(2).max(100),
   description: z.string().min(10).max(2000).optional(),
@@ -33,6 +39,7 @@ export const createProductSchema = z.object({
   bannerImageUrl: z.string().url().optional(),
   mediaId: z.string().uuid().optional(),
   variants: z.array(productVariantSchema).optional(),
+  offers: z.array(productOfferSchema).optional(),
   // Multi-image + background music
   mediaItems: z.array(mediaItemSchema).optional(),
   bgMusic: z
@@ -63,6 +70,7 @@ export const updateProductSchema = z.object({
   bannerImageUrl: z.string().url().optional(),
   mediaId: z.string().uuid().optional(),
   variants: z.array(productVariantSchema).optional(),
+  offers: z.array(productOfferSchema).optional(),
   mediaItems: z.array(mediaItemSchema).optional(),
   bgMusic: z
     .object({ url: z.string().url(), public_id: z.string() })
@@ -77,6 +85,8 @@ export const updateProductSchema = z.object({
       pinterest: z.string().optional(),
     })
     .optional(),
+  removeMediaIds: z.array(z.string()).optional(),
+  removeBgMusic: z.boolean().optional(),
 })
 
 export const listProductsSchema = z.object({

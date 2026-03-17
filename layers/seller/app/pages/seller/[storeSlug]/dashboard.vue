@@ -62,6 +62,31 @@
         </div>
       </div>
 
+      <!-- Wallet balance card -->
+      <div class="mb-6 rounded-xl bg-gradient-to-br from-brand to-[#d81b36] p-5 text-white">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs text-white/70">Available Balance</p>
+            <p class="text-3xl font-bold">{{ formatAmount(storeWallet.balance) }}</p>
+            <p class="mt-1 text-xs text-white/70">
+              <span class="font-semibold text-white/90">{{ formatAmount(storeWallet.pendingBalance) }}</span>
+              pending (releases on delivery)
+            </p>
+          </div>
+          <Icon name="mdi:wallet" size="40" class="text-white/20" />
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-3 border-t border-white/20 pt-4">
+          <div>
+            <p class="text-[11px] text-white/60">Total Earned</p>
+            <p class="text-sm font-bold">{{ formatAmount(storeWallet.totalEarned) }}</p>
+          </div>
+          <div>
+            <p class="text-[11px] text-white/60">Total Paid Out</p>
+            <p class="text-sm font-bold">{{ formatAmount(storeWallet.totalSpent) }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Stats row -->
       <div class="mb-6 grid grid-cols-3 gap-4">
         <div
@@ -205,6 +230,7 @@
 <script setup lang="ts">
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
+import { BaseApiClient } from '~~/layers/base/app/services/base.api'
 
 definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
@@ -218,20 +244,40 @@ const isPageLoading = ref(true)
 const productsLoading = ref(false)
 const recentProducts = ref<any[]>([])
 const productCount = ref(0)
+const storeWallet = ref({ balance: 0, pendingBalance: 0, totalEarned: 0, totalSpent: 0 })
+
+const formatAmount = (kobo: number) =>
+  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(kobo / 100)
 
 const loadData = async (slug: string) => {
   try {
     await loadPublicSeller(slug)
   } catch {}
+
+  // Load products and wallet in parallel
   productsLoading.value = true
-  try {
-    const res: any = await fetchSellerProducts(slug, { limit: 4 })
-    recentProducts.value = res?.products ?? []
-    productCount.value = res?.meta?.total ?? 0
-  } catch {
+  const api = new BaseApiClient()
+  const [productsRes, walletRes]: any[] = await Promise.allSettled([
+    fetchSellerProducts(slug, { limit: 4 }),
+    api.request(`/api/commerce/wallet/store/${slug}`, { method: 'GET' }),
+  ])
+
+  if (productsRes.status === 'fulfilled') {
+    recentProducts.value = productsRes.value?.products ?? []
+    productCount.value = productsRes.value?.meta?.total ?? 0
+  } else {
     recentProducts.value = []
-  } finally {
-    productsLoading.value = false
+  }
+  productsLoading.value = false
+
+  if (walletRes.status === 'fulfilled' && walletRes.value?.data) {
+    const w = walletRes.value.data
+    storeWallet.value = {
+      balance: w.balance ?? 0,
+      pendingBalance: w.pendingBalance ?? 0,
+      totalEarned: w.totalEarned ?? 0,
+      totalSpent: w.totalSpent ?? 0,
+    }
   }
 }
 

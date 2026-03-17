@@ -94,7 +94,7 @@
                     class="h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-white transition-all dark:bg-neutral-800"
                     :class="i === currentIndex ? 'border-brand shadow-sm shadow-brand/20' : 'border-transparent opacity-60 hover:opacity-100'"
                   >
-                    <img :src="m.url" class="h-full w-full object-contain" />
+                    <img :src="imgThumb(m.url)" class="h-full w-full object-contain" />
                   </button>
                 </div>
               </template>
@@ -125,7 +125,7 @@
                   >
                     <img
                       v-if="product.seller.store_logo"
-                      :src="product.seller.store_logo"
+                      :src="imgAvatar(product.seller.store_logo)"
                       class="h-5 w-5 rounded-full border border-gray-100 object-cover dark:border-neutral-700"
                     />
                     <div
@@ -155,20 +155,14 @@
                     <span
                       class="text-2xl font-black tracking-tight text-gray-900 md:text-3xl dark:text-neutral-100"
                       >{{
-                        formatPrice(
-                          discountedPrice,
-                          product?.seller?.default_currency ?? 'NGN',
-                        )
+                        formatPrice(discountedPrice)
                       }}</span
                     >
                     <span
                       v-if="discountPercent > 0"
                       class="text-[14px] font-medium text-gray-400 line-through dark:text-neutral-500"
                       >{{
-                        formatPrice(
-                          product.price,
-                          product?.seller?.default_currency ?? 'NGN',
-                        )
+                        formatPrice(product.price)
                       }}</span
                     >
                     <span
@@ -302,6 +296,63 @@
                   >
                     <Icon name="mdi:alert-circle-outline" size="14" /> Please
                     select an option to continue
+                  </p>
+                </div>
+
+                <!-- Volume Offers -->
+                <div
+                  v-if="product.offers && product.offers.length > 0"
+                  class="rounded-2xl bg-gray-50 p-4 dark:bg-neutral-800"
+                >
+                  <p
+                    class="mb-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+                  >
+                    Volume Deals
+                  </p>
+                  <div class="flex flex-col gap-2">
+                    <div
+                      v-for="offer in product.offers"
+                      :key="offer.id"
+                      class="flex items-center justify-between rounded-xl border px-3 py-2 transition-colors"
+                      :class="
+                        activeOffer?.id === offer.id
+                          ? 'border-brand bg-brand/5 dark:border-brand/60 dark:bg-brand/10'
+                          : 'border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+                      "
+                    >
+                      <div class="flex items-center gap-2">
+                        <Icon
+                          name="mdi:tag-multiple-outline"
+                          size="15"
+                          :class="activeOffer?.id === offer.id ? 'text-brand' : 'text-gray-400 dark:text-neutral-500'"
+                        />
+                        <span class="text-[13px] font-semibold text-gray-700 dark:text-neutral-300">
+                          {{ offer.label || `Buy ${offer.minQuantity}+` }}
+                        </span>
+                      </div>
+                      <span
+                        class="rounded-full px-2.5 py-0.5 text-[12px] font-bold"
+                        :class="
+                          activeOffer?.id === offer.id
+                            ? 'bg-brand text-white'
+                            : 'bg-gray-100 text-gray-600 dark:bg-neutral-700 dark:text-neutral-300'
+                        "
+                      >
+                        −{{ offer.discount }}%
+                      </span>
+                    </div>
+                  </div>
+                  <p
+                    v-if="activeOffer"
+                    class="mt-2 flex items-center gap-1 text-[12px] font-semibold text-brand"
+                  >
+                    <Icon name="mdi:check-circle" size="14" /> Deal applied at qty {{ qty }}!
+                  </p>
+                  <p
+                    v-else
+                    class="mt-2 text-[12px] text-gray-400 dark:text-neutral-500"
+                  >
+                    Add more to unlock a deal
                   </p>
                 </div>
 
@@ -575,6 +626,7 @@ import { ref, computed, watch } from 'vue'
 import type {
   IProduct,
   IProductVariant,
+  IProductOffer,
 } from '~~/layers/commerce/app/types/commerce.types'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
@@ -630,7 +682,9 @@ onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
 const mediaItems = computed(() =>
-  (props.product?.media ?? []).filter((m: any) => !m.isBgMusic),
+  (props.product?.media ?? [])
+    .filter((m: any) => !m.isBgMusic)
+    .map((m: any) => ({ ...m, url: imgDetail(m.url) ?? m.url })),
 )
 const bgMusic = computed(
   () => (props.product?.media ?? []).find((m: any) => m.isBgMusic) ?? null,
@@ -647,15 +701,28 @@ const toggleBgMusic = () => {
   }
 }
 
-import { formatProductPrice } from '~/utils/currency'
-const formatPrice = (price: number, cur: string) =>
-  formatProductPrice(price, cur as any)
+import { imgThumb, imgDetail, imgAvatar } from '~/utils/cloudinary'
+const { formatPrice } = useCurrency()
+
+// Best volume offer applicable at current qty
+const activeOffer = computed<IProductOffer | null>(() => {
+  const offers = props.product?.offers
+  if (!offers?.length) return null
+  return (
+    [...offers]
+      .filter((o) => qty.value >= o.minQuantity)
+      .sort((a, b) => b.discount - a.discount)[0] ?? null
+  )
+})
 
 const discountPercent = computed(() => props.product?.discount ?? 0)
 const discountedPrice = computed(() => {
   if (!props.product) return 0
-  if (discountPercent.value > 0)
-    return Math.round(props.product.price * (1 - discountPercent.value / 100))
+  // Volume offer takes precedence over product-level discount
+  const offerDiscount = activeOffer.value?.discount ?? 0
+  const effectiveDiscount = Math.max(discountPercent.value, offerDiscount)
+  if (effectiveDiscount > 0)
+    return Math.round(props.product.price * (1 - effectiveDiscount / 100))
   return props.product.price
 })
 

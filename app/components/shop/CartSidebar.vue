@@ -140,13 +140,7 @@
                   <p
                     class="mt-0.5 text-[13px] font-bold text-gray-900 dark:text-neutral-100"
                   >
-                    {{
-                      formatPrice(
-                        itemPrice(item) * item.quantity,
-                        item.variant?.product?.seller?.default_currency ??
-                          'NGN',
-                      )
-                    }}
+                    {{ formatPrice(itemPrice(item) * item.quantity) }}
                   </p>
 
                   <!-- Qty controls -->
@@ -253,6 +247,8 @@ const handleDecrement = (item: any) => {
 const itemPrice = (item: any): number => {
   return item.variant?.price ?? item.variant?.product?.price ?? 0
 }
+
+const { formatPrice } = useCurrency()
 </script>
 
 <style scoped>

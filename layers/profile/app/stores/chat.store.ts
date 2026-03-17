@@ -11,6 +11,12 @@ export const useChatStore = defineStore('chat', () => {
     conversations.value.find((c) => c.id === id)
   const getConversationMessages = (id: string): IMessage[] =>
     messagesByConversation.value[id] ?? []
+  const getMessageById = (msgId: string): IMessage | undefined => {
+    for (const msgs of Object.values(messagesByConversation.value)) {
+      const found = msgs.find((m) => m.id === msgId)
+      if (found) return found
+    }
+  }
 
   const setConversations = (newConversations: IConversation[]) => {
     conversations.value = newConversations
@@ -33,10 +39,21 @@ export const useChatStore = defineStore('chat', () => {
   }
   const addConversationMessage = (id: string, msg: IMessage) => {
     const existing = messagesByConversation.value[id] ?? []
+    // Deduplicate by id — prevents double-render if both HTTP response and WebSocket arrive
+    if (existing.some((m) => m.id === msg.id)) return
     messagesByConversation.value = {
       ...messagesByConversation.value,
       [id]: [...existing, msg],
     }
+  }
+
+  /** Move a conversation to the top of the list and update its last message preview */
+  const bumpConversation = (id: string, lastMsg: IMessage) => {
+    const idx = conversations.value.findIndex((c) => c.id === id)
+    if (idx === -1) return
+    const conv = { ...conversations.value[idx], lastMessageAt: lastMsg.createdAt }
+    conversations.value.splice(idx, 1)
+    conversations.value.unshift(conv)
   }
 
   const setLoading = (loading: boolean) => {
@@ -59,6 +76,8 @@ export const useChatStore = defineStore('chat', () => {
     error,
     getConversationById,
     getConversationMessages,
+    getMessageById,
+    bumpConversation,
     setConversations,
     addConversation,
     setCurrentConversation,

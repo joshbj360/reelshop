@@ -5,10 +5,23 @@ import { prisma } from '~~/server/utils/db'
 export default defineEventHandler(async (event) => {
   const user = await requireAuth(event)
   const body = await readBody(event)
-  const { label, name, address, county, state, zipcode, country, phone, setAsDefault } = body
+  const {
+    label,
+    name,
+    address,
+    county,
+    state,
+    zipcode,
+    country,
+    phone,
+    setAsDefault,
+  } = body
 
   if (!name?.trim() || !address?.trim() || !country?.trim()) {
-    throw createError({ statusCode: 400, statusMessage: 'Name, address and country are required' })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Name, address and country are required',
+    })
   }
 
   // If setAsDefault, clear existing defaults first

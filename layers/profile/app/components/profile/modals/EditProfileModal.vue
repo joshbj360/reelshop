@@ -104,10 +104,10 @@
               <label
                 class="mb-2 block text-sm font-medium text-gray-700 dark:text-neutral-300"
               >
-                Links
+                Website
               </label>
               <input
-                v-model="formData.links"
+                v-model="formData.websiteUrl"
                 type="url"
                 placeholder="https://example.com"
                 class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
@@ -154,11 +154,17 @@ const isSaving = ref(false)
 const avatarInput = ref<HTMLInputElement | null>(null)
 const pendingAvatarFile = ref<File | null>(null)
 
+// Extract the website URL from the links JSON array for the simple URL input
+const extractWebsite = (links: any) => {
+  if (!links || !Array.isArray(links)) return ''
+  return links.find((l: any) => l.type === 'website')?.url ?? ''
+}
+
 const formData = reactive({
   avatar: props.profile.avatar,
   bio: props.profile.bio || '',
-  links: props.profile.links || [],
-  location: props.profile.stateOfResidence || '',
+  websiteUrl: extractWebsite(props.profile.links) || (props.profile.profileUrl as string) || '',
+  location: props.profile.location || props.profile.stateOfResidence || '',
 })
 
 const triggerAvatarUpload = () => {
@@ -192,9 +198,14 @@ const saveChanges = async () => {
       avatarUrl = uploaded.url
     }
 
+    // Build links array from the simple website URL input
+    const links = formData.websiteUrl
+      ? [{ type: 'website', url: formData.websiteUrl }]
+      : []
+
     await updateMyProfile({
       bio: formData.bio,
-      website: formData.links,
+      links,
       location: formData.location,
       avatar: avatarUrl,
     })
@@ -214,9 +225,8 @@ const handleClose = () => {
   // Check if there are unsaved changes
   const hasChanges =
     formData.bio !== (props.profile.bio || '') ||
-    JSON.stringify(formData.links) !==
-      JSON.stringify(props.profile.links || []) ||
-    formData.location !== (props.profile.stateOfResidence || '') ||
+    formData.websiteUrl !== extractWebsite(props.profile.links) ||
+    formData.location !== (props.profile.location || props.profile.stateOfResidence || '') ||
     formData.avatar !== props.profile.avatar
 
   if (hasChanges) {

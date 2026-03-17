@@ -215,7 +215,7 @@ const referralUrl = computed(() => {
   if (!props.product || typeof window === 'undefined') return ''
   const base = `${window.location.origin}/product/${props.product.slug}`
   const userId = profileStore.me?.username
-  return userId ? `${base}&ref=${userId}` : base
+  return userId ? `${base}?ref=${userId}` : base
 })
 
 const copied = ref(false)

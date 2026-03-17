@@ -59,10 +59,29 @@ export const walletRepository = {
     })
   },
 
+  async incrementPendingBalance(walletId: string, amount: number) {
+    return prisma.sellerWallet.update({
+      where: { id: walletId },
+      data: { pending_balance: { increment: amount } },
+    })
+  },
+
+  /** Move amount from pending_balance to available balance (on delivery) */
+  async releasePendingToBalance(walletId: string, amount: number) {
+    return prisma.sellerWallet.update({
+      where: { id: walletId },
+      data: {
+        pending_balance: { decrement: amount },
+        balance: { increment: amount },
+      },
+    })
+  },
+
   async getWalletStats(walletId: string) {
     const [credits, debits] = await Promise.all([
+      // Only count CREDIT and CREDIT_RELEASED — not CREDIT_PENDING (not yet earned)
       prisma.transaction.aggregate({
-        where: { walletId, type: 'CREDIT' },
+        where: { walletId, type: { in: ['CREDIT', 'CREDIT_RELEASED'] } },
         _sum: { amount: true },
       }),
       prisma.transaction.aggregate({

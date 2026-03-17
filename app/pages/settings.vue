@@ -211,6 +211,49 @@
         </div>
       </section>
 
+      <!-- Currency -->
+      <section
+        class="overflow-hidden rounded-2xl border border-gray-100 bg-white dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <div
+          class="border-b border-gray-100 px-5 py-3.5 dark:border-neutral-800"
+        >
+          <h2
+            class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+          >
+            Currency
+          </h2>
+        </div>
+        <div class="flex items-center justify-between px-5 py-4">
+          <div class="flex items-center gap-3">
+            <Icon
+              name="mdi:currency-usd"
+              size="20"
+              class="text-gray-500 dark:text-neutral-400"
+            />
+            <div>
+              <p
+                class="text-sm font-medium text-gray-900 dark:text-neutral-100"
+              >
+                Default Currency
+              </p>
+              <p class="mt-0.5 text-xs text-gray-400 dark:text-neutral-500">
+                Used for price display
+              </p>
+            </div>
+          </div>
+          <select
+            :value="settings.currency"
+            @change="update('currency', ($event.target as HTMLSelectElement).value)"
+            class="rounded-xl border-0 bg-gray-100 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:bg-neutral-800 dark:text-neutral-300"
+          >
+            <option v-for="c in CURRENCIES" :key="c.code" :value="c.code">
+              {{ c.symbol }} {{ c.code }} — {{ c.name }}
+            </option>
+          </select>
+        </div>
+      </section>
+
       <!-- Account -->
       <ClientOnly>
         <section
@@ -297,6 +340,16 @@ const colorMode = useColorMode()
 const profileStore = useProfileStore()
 const { locale, locales, setLocale } = useI18n()
 
+// On mount, apply saved theme + language from settings (covers server-hydrated values)
+onMounted(() => {
+  if (settings.value.theme && settings.value.theme !== colorMode.preference) {
+    colorMode.preference = settings.value.theme
+  }
+  if (settings.value.language && settings.value.language !== locale.value) {
+    setLocale(settings.value.language as any)
+  }
+})
+
 const COLOR_MODES = [
   { value: 'light', label: 'Light' },
   { value: 'system', label: 'Auto' },
@@ -308,6 +361,27 @@ const TEXT_SIZES = [
   { value: 'medium', label: 'M' },
   { value: 'large', label: 'L' },
 ]
+
+const CURRENCIES = [
+  { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
+  { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
+  { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+]
+
+// Sync theme preference to settings composable when colorMode changes
+watch(() => colorMode.preference, (val) => {
+  update('theme', val)
+})
+
+// Sync language preference to settings composable when locale changes
+watch(locale, (val) => {
+  update('language', val)
+})
 
 useSeoMeta({ title: 'Settings · Styli', robots: 'noindex' })
 

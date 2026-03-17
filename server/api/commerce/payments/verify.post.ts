@@ -5,6 +5,37 @@ import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { paystack } from '../../../utils/paystack'
 import { prisma } from '../../../utils/db'
 import { UserError } from '../../../layers/profile/types/user.types'
+import { notificationService } from '../../../layers/profile/services/notification.service'
+import { walletService } from '../../../layers/commerce/services/wallet.service'
+
+/** Notify every unique seller whose products are in this order */
+async function notifySellers(orderId: number, buyerName: string) {
+  const items = await prisma.orderItem.findMany({
+    where: { orderId },
+    include: {
+      variant: {
+        include: {
+          product: {
+            include: { seller: { select: { profileId: true, store_name: true } } },
+          },
+        },
+      },
+    },
+  })
+
+  const seen = new Set<string>()
+  for (const item of items) {
+    const sellerId = item.variant?.product?.seller?.profileId
+    if (!sellerId || seen.has(sellerId)) continue
+    seen.add(sellerId)
+    await notificationService.createNotification({
+      userId: sellerId,
+      type: 'ORDER',
+      actorId: sellerId,
+      message: `New order #${orderId} received from ${buyerName}`,
+    })
+  }
+}
 
 const schema = z.object({ reference: z.string().min(1) })
 
@@ -40,11 +71,15 @@ export default defineEventHandler(async (event) => {
     if (result.data.status === 'success') {
       await prisma.orders.update({
         where: { id: order.id },
-        data: {
-          paymentStatus: 'PAID',
-          status: 'CONFIRMED',
-        },
+        data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
       })
+      // Non-blocking — notify sellers and credit wallets in background
+      notifySellers(order.id, user.username || user.email || 'a customer').catch(
+        (e) => console.error('[notify sellers]', e),
+      )
+      walletService.creditSellersOnPayment(order.id).catch(
+        (e) => console.error('[wallet credit]', e),
+      )
       return { success: true, data: { status: 'paid', orderId: order.id } }
     }
 

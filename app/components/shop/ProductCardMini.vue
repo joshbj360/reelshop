@@ -98,12 +98,12 @@
             v-if="discountPercent > 0"
             class="mb-0.5 text-[9px] leading-none text-gray-400 line-through dark:text-neutral-500"
           >
-            {{ formatPrice(product.price, currency) }}
+            {{ formatPrice(product.price) }}
           </span>
           <span
             class="text-[13px] font-bold leading-none text-gray-900 dark:text-neutral-100"
           >
-            {{ formatPrice(discountedPrice, currency) }}
+            {{ formatPrice(discountedPrice) }}
           </span>
         </div>
 
@@ -152,20 +152,18 @@ const emit = defineEmits<{
   'quick-add': [product: IProduct]
 }>()
 
+import { imgThumb } from '~/utils/cloudinary'
+
 // ── Media ────────────────────────────────────────────────────────────────────
 const coverImage = computed(() => {
   const images = (props.product.media ?? []).filter(
     (m) => m.type === 'IMAGE' || m.type === 'VIDEO',
   )
-  return images[0]?.url || null
+  return imgThumb(images[0]?.url) || null
 })
 
 // ── Pricing ──────────────────────────────────────────────────────────────────
-import { formatProductPrice } from '~/utils/currency'
-const formatPrice = (price: number, cur: string) =>
-  formatProductPrice(price, cur as any)
-
-const currency = computed(() => props.product.seller?.default_currency ?? 'NGN')
+const { formatPrice } = useCurrency()
 const discountPercent = computed(() => props.product.discount ?? 0)
 const discountedPrice = computed(() =>
   discountPercent.value > 0

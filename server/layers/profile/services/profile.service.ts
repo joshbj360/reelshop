@@ -10,11 +10,16 @@ export const profileService = {
   // ==================== GET PROFILE ====================
 
   async getProfile(userId: string) {
-    const profile = await profileRepository.findById(userId)
+    const profile = await profileRepository.findByIdFull(userId)
 
     if (!profile) {
       throw new UserError('USER_NOT_FOUND', 'User not found', 404)
     }
+
+    const links = profile.links as any[] | null
+    const websiteUrl = Array.isArray(links)
+      ? links.find((l: any) => l.type === 'website')?.url ?? null
+      : null
 
     return {
       id: profile.id,
@@ -22,8 +27,13 @@ export const profileService = {
       username: profile.username,
       bio: profile.bio || undefined,
       avatar: profile.avatar || undefined,
+      location: profile.location || undefined,
+      stateOfResidence: profile.location || undefined,
+      links: profile.links || undefined,
+      profileUrl: websiteUrl || undefined,
       emailVerified: profile.email_verified,
       role: profile.role,
+      sellerProfile: profile.sellerProfile?.[0] ?? undefined,
       createdAt: profile.created_at,
       updatedAt: profile.updated_at,
     }

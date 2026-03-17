@@ -125,7 +125,9 @@ export const productService = {
     userAgent: string,
     authorId?: string,
   ) {
-    const isOwner = await productRepository.checkOwnership(id, sellerId)
+    // Check ownership by userId (works across multiple stores owned by same user)
+    const userId = authorId || sellerId
+    const isOwner = await productRepository.checkOwnership(id, userId)
     if (!isOwner)
       throw new UserError(
         'FORBIDDEN',
@@ -134,7 +136,7 @@ export const productService = {
       )
 
     const validated = updateProductSchema.parse(data)
-    const updated = await productRepository.updateProduct(id, validated)
+    const updated = await productRepository.updateProduct(id, validated, authorId)
 
     if (authorId)
       await auditService.logUserAction({

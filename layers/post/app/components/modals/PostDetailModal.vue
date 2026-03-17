@@ -43,7 +43,7 @@
           >
             <!-- Media item -->
             <video
-              v-if="currentMedia.type === 'VIDEO'"
+              v-if="currentMedia?.type === 'VIDEO'"
               :key="currentMedia.url"
               :src="currentMedia.url"
               :poster="currentMedia.thumbnailUrl"
@@ -53,8 +53,8 @@
             />
             <img
               v-else
-              :key="currentMedia.url"
-              :src="currentMedia.url"
+              :key="currentMedia?.url + '-img'"
+              :src="currentMedia?.url"
               :alt="post.caption || 'Post'"
               class="h-full w-full object-contain"
             />
@@ -134,13 +134,13 @@
           <div class="flex min-h-0 min-w-0 flex-1 flex-col">
             <!-- Mobile: media carousel stacked on top -->
             <div
-              v-if="hasMedia"
+              v-if="hasMedia && currentMedia?.url"
               class="relative shrink-0 bg-black sm:hidden"
               style="aspect-ratio: 4/5; max-height: 38vh"
             >
               <video
                 v-if="currentMedia.type === 'VIDEO'"
-                :key="currentMedia.url + '-mob'"
+                :key="currentMedia.url + '-mob-video'"
                 :src="currentMedia.url"
                 :poster="currentMedia.thumbnailUrl"
                 class="h-full w-full object-contain"
@@ -148,10 +148,10 @@
                 playsinline
               />
               <img
-                v-else
-                :key="currentMedia.url + '-mob'"
+                v-else-if="currentMedia?.url"
+                :key="currentMedia.url + '-mob-img'"
                 :src="currentMedia.url"
-                :alt="post.caption || 'Post'"
+                :alt="post?.caption || 'Post'"
                 class="h-full w-full object-contain"
               />
 

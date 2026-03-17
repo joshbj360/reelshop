@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import type { IMessage } from '../types/profile.types'
+import { useProfileStore } from '../stores/profile.store'
 
 const props = defineProps<{
   message: IMessage

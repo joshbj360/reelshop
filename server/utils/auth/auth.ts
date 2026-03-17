@@ -48,7 +48,7 @@ export function generateTokens(
   const accessToken = jwt.sign(
     { userId, email, role },
     JWT_SECRET,
-    { expiresIn: '15m' }, // 15 minutes
+    { expiresIn: '24h' }, // 24 hours
   )
 
   const refreshToken = jwt.sign(

@@ -114,11 +114,7 @@ const emit = defineEmits<{
   'select-product': [id: number]
 }>()
 
-import { formatProductPrice } from '~~/app/utils/currency'
-const formatPrice = (price: number | null | undefined) => {
-  if (price == null) return ''
-  return formatProductPrice(price, 'NGN')
-}
+const { formatPrice } = useCurrency()
 </script>
 
 <style scoped>

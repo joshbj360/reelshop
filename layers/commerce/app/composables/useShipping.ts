@@ -1,4 +1,10 @@
 import { formatInCurrency, type SupportedCurrency } from '~~/app/utils/currency'
+import type {
+  IShipmentRate,
+  ITrackingResult,
+} from '~~/server/utils/shipping/types'
+
+export type { IShipmentRate, ITrackingResult }
 
 export interface ShippingZone {
   id: string
@@ -10,7 +16,7 @@ export interface ShippingZone {
 }
 
 export interface ShippingCalculation {
-  cost: number       // NGN kobo
+  cost: number // NGN kobo
   zoneId: string
   zoneName: string
   estimatedDays: string
@@ -69,6 +75,58 @@ export const useShipping = () => {
     return formatInCurrency(kobo, currency, rates)
   }
 
+  // ─── Live carrier rates (Sendbox / Shippo) ──────────────────────────────
+  const liveRates = ref<IShipmentRate[]>([])
+  const selectedRate = ref<IShipmentRate | null>(null)
+  const isLoadingRates = ref(false)
+  const ratesError = ref<string | null>(null)
+
+  const fetchLiveRates = async (payload: {
+    from: Record<string, string>
+    to: Record<string, string>
+    parcel: Record<string, number>
+  }) => {
+    isLoadingRates.value = true
+    ratesError.value = null
+    liveRates.value = []
+    selectedRate.value = null
+    try {
+      const res = await $fetch<{ success: boolean; data: IShipmentRate[] }>(
+        '/api/commerce/shipping/rates',
+        { method: 'POST', body: payload },
+      )
+      liveRates.value = res.data
+      // Auto-select cheapest
+      if (liveRates.value.length > 0) {
+        selectedRate.value = liveRates.value.reduce((a, b) =>
+          a.amountNGN <= b.amountNGN ? a : b,
+        )
+      }
+    } catch (err: any) {
+      ratesError.value = err?.data?.message ?? 'Could not fetch shipping rates'
+    } finally {
+      isLoadingRates.value = false
+    }
+  }
+
+  const trackShipment = async (
+    trackingNumber: string,
+    carrier?: string,
+    provider?: 'sendbox' | 'shippo',
+  ): Promise<ITrackingResult | null> => {
+    try {
+      const params = new URLSearchParams()
+      if (carrier) params.set('carrier', carrier)
+      if (provider) params.set('provider', provider)
+      const res = await $fetch<{ success: boolean; data: ITrackingResult }>(
+        `/api/commerce/shipping/track/${trackingNumber}?${params.toString()}`,
+      )
+      return res.data
+    } catch {
+      return null
+    }
+  }
+
   return {
     zones,
     calculation,
@@ -76,5 +134,12 @@ export const useShipping = () => {
     fetchZones,
     calculateShipping,
     formatShippingCost,
+    // Live carrier rates
+    liveRates,
+    selectedRate,
+    isLoadingRates,
+    ratesError,
+    fetchLiveRates,
+    trackShipment,
   }
 }

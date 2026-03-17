@@ -16,7 +16,7 @@
             <Icon name="mdi:hanger" class="h-5 w-5 text-white" />
           </div>
           <span class="text-sm font-bold text-gray-500 dark:text-neutral-400"
-            >← Back to Styli</span
+            >← Back to {{ $config.public.siteName || 'Indix' }}</span
           >
         </NuxtLink>
       </div>

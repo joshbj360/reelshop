@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     )
 
     // 2. Build a unique Paystack reference
-    const reference = `styli_${order.id}_${Date.now()}`
+    const reference = `indix_${order.id}_${Date.now()}`
 
     // 3. Store the reference on the order
     await prisma.orders.update({

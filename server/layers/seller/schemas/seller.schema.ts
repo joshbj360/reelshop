@@ -152,6 +152,22 @@ export const updateSellerProfileSchema = z
     default_currency: z
       .enum(['NGN', 'USD', 'GBP', 'EUR', 'GHS', 'KES', 'ZAR'])
       .optional(),
+
+    // Shipping origin
+    shipFromName: z.string().max(100).optional(),
+    shipFromAddress: z.string().max(200).optional(),
+    shipFromCity: z.string().max(100).optional(),
+    shipFromState: z.string().max(100).optional(),
+    shipFromZip: z.string().max(20).optional(),
+    shipFromCountry: z.string().length(2).optional(),
+    shipFromPhone: z
+      .preprocess(
+        (val) =>
+          typeof val === 'string'
+            ? val.replace(/[\s\-().]/g, '').trim() || undefined
+            : val,
+        z.string().regex(/^\+?[1-9]\d{6,14}$/).optional(),
+      ),
   })
   .refine(
     (data) => Object.values(data).some((value) => value !== undefined),

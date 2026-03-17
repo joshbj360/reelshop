@@ -20,6 +20,9 @@ export class AffiliateApiClient extends BaseApiClient {
       method: 'GET',
     })
   }
+  async getSellerProducts() {
+    return this.request('/api/commerce/affiliate/seller-products', { method: 'GET' })
+  }
 }
 
 let instance: AffiliateApiClient | null = null

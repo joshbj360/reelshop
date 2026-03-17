@@ -1,8 +1,8 @@
 // PATCH /api/commerce/products/:id
-import { getClientIP } from '../../../layers/shared/utils/security'
-import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
-import { productService } from '../../../layers/commerce/services/product.service'
-import { UserError } from '../../../layers/profile/types/user.types'
+import { getClientIP } from '../../../../layers/shared/utils/security'
+import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
+import { productService } from '../../../../layers/commerce/services/product.service'
+import { UserError } from '../../../../layers/profile/types/user.types'
 
 export default defineEventHandler(async (event) => {
   try {

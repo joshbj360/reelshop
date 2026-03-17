@@ -1,28 +1,23 @@
+<!-- layouts/default.vue (or your home layout file) -->
 <template>
   <!-- ─── MOBILE HEADER ─────────────────────────────────────────────────────── -->
   <HeaderNavMobile
-    class="transition-transform duration-300 ease-in-out"
+    class="fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out"
     :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-full'"
     @open-search="showSearchOverlay = true"
     @open-notifications="showNotificationOverlay = true"
     @open-cart="showCart = true"
   />
 
-  <!-- ─── MOBILE CATEGORY BAR (Optional) ──────────────────────────────────── -->
+  <!-- ─── MOBILE CATEGORY BAR ──────────────────────────────────────────────── -->
   <CategoryListMobile
     v-if="showCategoryBar"
-    class="transition-transform duration-300 ease-in-out"
-    :class="
-      mobileNavVisible
-        ? 'translate-y-0'
-        : '-translate-y-[calc(100%+3.5rem+env(safe-area-inset-top,0px))]'
-    "
+    class="fixed top-[3.5rem] left-0 right-0 z-20 transition-transform duration-300 ease-in-out"
+    :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-full'"
   />
 
-  <div
-    class="min-h-screen bg-gray-50 text-gray-900 transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100"
-  >
-    <!-- ─── LEFT SIDEBAR (Desktop) ────────────────────────────────────────── -->
+  <div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <!-- ─── DESKTOP LEFT SIDEBAR ─────────────────────────────────────────────── -->
     <aside
       class="scrollbar-hide fixed left-0 top-0 z-20 hidden h-full w-20 border-r border-gray-200 bg-white md:block xl:w-72 dark:border-neutral-800 dark:bg-neutral-900"
     >
@@ -34,14 +29,17 @@
       />
     </aside>
 
-    <!-- ─── MAIN CONTENT AREA ─────────────────────────────────────────────── -->
+    <!-- ─── MAIN CONTENT AREA ────────────────────────────────────────────────── -->
     <main class="md:ml-20 xl:ml-72">
       <div class="mx-auto flex max-w-[1500px]">
-        <!-- MAIN FEED/PAGE CONTENT -->
+        <!-- Main feed / page content -->
         <div
           ref="mainScrollRef"
-          class="main-scroll scrollbar-hide h-[100dvh] min-w-0 flex-1 overflow-y-auto px-2 py-6 transition-all sm:px-4"
-          :class="[mainContentClasses, showCategoryBar ? 'has-category' : '']"
+          class="main-scroll scrollbar-hide h-[100dvh] min-w-0 flex-1 overflow-y-auto px-2 py-6 transition-all duration-200 sm:px-4"
+          :class="[
+            mainContentClasses,
+            hasScrolled ? 'shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.06)] dark:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.07)]' : ''
+          ]"
           @scroll.passive="onMainScroll"
         >
           <div
@@ -52,7 +50,7 @@
           </div>
         </div>
 
-        <!-- RIGHT SIDEBAR (Desktop) -->
+        <!-- ─── RIGHT SIDEBAR (Desktop) ──────────────────────────────────────── -->
         <aside
           v-if="showRightSidebar"
           class="scrollbar-hide hidden h-[100dvh] w-[420px] shrink-0 overflow-y-auto border-l border-gray-200 bg-white p-4 lg:block dark:border-neutral-800 dark:bg-neutral-900"
@@ -64,16 +62,17 @@
       </div>
     </main>
 
-    <!-- ─── BOTTOM NAVIGATION (Mobile) ────────────────────────────────────── -->
+    <!-- ─── MOBILE BOTTOM NAVIGATION ─────────────────────────────────────────── -->
     <BottomNavMobile
-      class="transition-transform duration-300 ease-in-out"
+      class="fixed bottom-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out"
       :class="bottomNavVisible ? 'translate-y-0' : 'translate-y-full'"
       @create="showCreateModal = true"
     />
 
-    <!-- ─── FLOATING ACTION BUTTONS & BANNERS ─────────────────────────────── -->
+    <!-- ─── FLOATING ACTION BUTTONS & BANNERS ────────────────────────────────── -->
     <MobileAIChatButton
       :is-open="showAI"
+      :banner-visible="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
       @open="showAI = true"
       @close="showAI = false"
     />
@@ -81,28 +80,18 @@
     <ClientOnly>
       <Transition name="seller-banner">
         <div
-          v-if="
-            !dismissSellerBanner &&
-            profileStore.isLoggedIn &&
-            !sellerStore.hasSellers
-          "
+          v-if="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
           class="fixed bottom-16 left-0 right-0 z-20 px-3 pb-2 md:hidden"
         >
           <div
             class="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#f02c56] to-purple-600 px-3 py-2.5 shadow-xl"
           >
-            <div
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20"
-            >
-              <Icon
-                name="mdi:store-plus-outline"
-                size="16"
-                class="text-white"
-              />
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
+              <Icon name="mdi:store-plus-outline" size="16" class="text-white" />
             </div>
             <div class="min-w-0 flex-1">
               <p class="text-[12px] font-bold leading-tight text-white">
-                Start selling on Styli
+                Start selling on {{ $config.public.siteName || 'Indix' }}
               </p>
               <p class="text-[10px] text-white/70">
                 Turn your passion into profit
@@ -125,7 +114,7 @@
       </Transition>
     </ClientOnly>
 
-    <!-- ─── MODALS & OVERLAYS ─────────────────────────────────────────────── -->
+    <!-- ─── MODALS & OVERLAYS ────────────────────────────────────────────────── -->
     <CreateModal
       :is-open="showCreateModal"
       @close="showCreateModal = false"
@@ -170,60 +159,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-// Component Imports
+// ─── Imports ────────────────────────────────────────────────────────────────
 import BottomNavMobile from '~/layouts/children/BottomNavMobile.vue'
 import CategoryListMobile from '~/layouts/children/TopMobileCategory.vue'
 import SideNav from '~/layouts/children/SideNav.vue'
 import HeaderNavMobile from '~/layouts/children/HeaderNavMobile.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue'
 
-// Modals & Overlays
 import CreateModal from '~/components/modals/CreateModal.vue'
 import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
+import StoryUploadModal from '../components/modals/StoryUploadModal.vue'
+import QuickProductModal from '../components/modals/QuickProductModal.vue'
+
 import SearchOverlay from '~/components/search/SearchOverLay.vue'
 import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue'
 import CartSidebar from '~/components/shop/CartSidebar.vue'
 import ShareModal from '~/components/modals/ShareModal.vue'
-import StoryUploadModal from '../components/modals/StoryUploadModal.vue'
 import MobileAIChatButton from '../../layers/AI/chat/MobileAIChat.vue'
 
-// Composables & Stores
 import { useLayoutData } from '~/composables/useLayoutData'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
-import { useShareModal } from '~/composables/useShareModal' // Ensure this exists
+import { useShareModal } from '~/composables/useShareModal'
 
+// ─── Stores & Composables ───────────────────────────────────────────────────
 const route = useRoute()
 const { shareState, closeShare } = useShareModal()
 const profileStore = useProfileStore()
 const sellerStore = useSellerStore()
 const { refresh } = useLayoutData()
 
-// ─── PROPS & LAYOUT STATE ─────────────────────────────────────────────────────
+// ─── Props ──────────────────────────────────────────────────────────────────
 const props = defineProps<{
-  narrowFeed?: boolean // True for centered narrow feed (homepage, reels)
-  hideRightSidebar?: boolean // Force hide right sidebar
-  hideCategoryBar?: boolean // Force hide mobile category bar
-  customPadding?: boolean // Use custom padding instead of defaults
+  narrowFeed?: boolean
+  hideRightSidebar?: boolean
+  hideCategoryBar?: boolean
+  customPadding?: boolean
 }>()
 
-// Auto-detect layout based on route if prop is not explicitly passed
+// ─── Layout Detection ───────────────────────────────────────────────────────
 const isNarrowFeed = computed(() => {
   if (props.narrowFeed !== undefined) return props.narrowFeed
-  return ['index', 'reels', 'profile-username', 'post-id'].includes(
-    route.name as string,
-  )
+  return ['index', 'reels', 'profile-username', 'post-id'].includes(route.name as string)
 })
 
 const showCategoryBar = computed(() => {
   if (props.hideCategoryBar) return false
-  return (
-    isNarrowFeed.value &&
-    ['index', 'discover', 'thrift'].includes(route.name as string)
-  )
+  return isNarrowFeed.value && ['index', 'discover', 'thrift'].includes(route.name as string)
 })
 
 const showRightSidebar = computed(() => {
@@ -231,53 +216,75 @@ const showRightSidebar = computed(() => {
   return true
 })
 
-// Dynamic padding based on what headers are visible
 const mainContentClasses = computed(() => {
   if (props.customPadding) return ''
-  const classes = ['lg:px-4']
-  if (showCategoryBar.value) {
-    classes.push('pt-28 md:pt-6') // Space for header + category bar
-  } else {
-    classes.push('pt-16 md:pt-6') // Space for header only
-  }
-  return classes.join(' ')
+  return showCategoryBar.value ? 'pt-28 md:pt-6 lg:px-4' : 'pt-16 md:pt-6 lg:px-4'
 })
 
-// ─── MOBILE SCROLL BEHAVIOR (Hide/Show Nav) ──────────────────────────────────
+// ─── Scroll / Nav-hide Behavior ─────────────────────────────────────────────
 const mainScrollRef = ref<HTMLElement | null>(null)
+const hasScrolled = ref(false)
 const mobileNavVisible = ref(true)
 const bottomNavVisible = ref(true)
 
-let lastScrollY = 0
-let scrollStopTimer: ReturnType<typeof setTimeout> | null = null
+let pauseTimer: ReturnType<typeof setTimeout> | null = null
+const AUTO_REVEAL_AFTER_PAUSE = 1500 // ms of stillness → bring navs back
 
+const revealNav = () => {
+  mobileNavVisible.value = true
+  bottomNavVisible.value = true
+}
+const hideNav = () => {
+  mobileNavVisible.value = false
+  bottomNavVisible.value = false
+}
+const scheduleReveal = () => {
+  if (pauseTimer) clearTimeout(pauseTimer)
+  pauseTimer = setTimeout(revealNav, AUTO_REVEAL_AFTER_PAUSE)
+}
+
+// ── Desktop: inner-div scroll ────────────────────────────────────────────────
+let lastDivScrollY = 0
 const onMainScroll = () => {
   const el = mainScrollRef.value
   if (!el) return
-
   const y = el.scrollTop
-  const delta = y - lastScrollY
-
-  // Ignore micro-scrolls to prevent jitter
-  if (Math.abs(delta) < 5) return
-
-  // Only hide if we've scrolled down a bit past the header
-  const scrollingDown = delta > 0 && y > 80
-
-  mobileNavVisible.value = !scrollingDown
-  bottomNavVisible.value = !scrollingDown
-  lastScrollY = y
-
-  // Auto-reveal bottom nav after user stops scrolling for 1.5s
-  if (scrollStopTimer) clearTimeout(scrollStopTimer)
-  if (scrollingDown) {
-    scrollStopTimer = setTimeout(() => {
-      bottomNavVisible.value = true
-    }, 1500)
-  }
+  hasScrolled.value = y > 20
+  const delta = y - lastDivScrollY
+  lastDivScrollY = y
+  if (Math.abs(delta) < 4) return
+  delta > 0 && y > 60 ? hideNav() : revealNav()
+  scheduleReveal()
 }
 
-// ─── MODAL CONTROLS ──────────────────────────────────────────────────────────
+// ── Desktop fallback: window scroll ─────────────────────────────────────────
+let lastWinScrollY = 0
+const onWindowScroll = () => {
+  const y = window.scrollY
+  hasScrolled.value = y > 20
+  const delta = y - lastWinScrollY
+  lastWinScrollY = y
+  if (Math.abs(delta) < 4) return
+  delta > 0 && y > 60 ? hideNav() : revealNav()
+  scheduleReveal()
+}
+
+// ── Mobile: touch direction detection (most reliable on all mobile browsers) ─
+let touchStartY = 0
+const onTouchStart = (e: TouchEvent) => {
+  touchStartY = e.touches[0].clientY
+  if (pauseTimer) clearTimeout(pauseTimer)
+}
+const onTouchMove = (e: TouchEvent) => {
+  const diff = touchStartY - e.touches[0].clientY // positive = scrolling down
+  if (Math.abs(diff) < 15) return // ignore tiny movements
+  diff > 0 ? hideNav() : revealNav()
+}
+const onTouchEnd = () => {
+  scheduleReveal()
+}
+
+// ─── Modal Controls ─────────────────────────────────────────────────────────
 const showCreateModal = ref(false)
 const showPostModal = ref(false)
 const showStoryModal = ref(false)
@@ -306,7 +313,6 @@ const handlePost = async () => {
   showStoryModal.value = false
   showQuickProductModal.value = false
 
-  // Refresh layout and feed data
   await Promise.all([
     refreshNuxtData('layout-data'),
     refreshNuxtData('homepage-main'),
@@ -314,59 +320,69 @@ const handlePost = async () => {
   ])
 }
 
-// ─── LIFECYCLE ───────────────────────────────────────────────────────────────
+// ─── Lifecycle ──────────────────────────────────────────────────────────────
 let refreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(() => {
-  // Refresh global layout data every 5 minutes (for notification counts, etc.)
+  // Persist banner dismiss
+  dismissSellerBanner.value = localStorage.getItem('dismissedSellerBanner') === 'true'
+
+  // Window scroll — catches document-level scroll (desktop fallback)
+  window.addEventListener('scroll', onWindowScroll, { passive: true })
+  // Touch events — most reliable scroll detection on mobile browsers
+  document.addEventListener('touchstart', onTouchStart, { passive: true })
+  document.addEventListener('touchmove', onTouchMove, { passive: true })
+  document.addEventListener('touchend', onTouchEnd, { passive: true })
+
+  // Periodic refresh (notifications, etc.)
   refreshInterval = setInterval(() => {
     refresh()
   }, 300000)
 })
 
 onUnmounted(() => {
+  window.removeEventListener('scroll', onWindowScroll)
+  document.removeEventListener('touchstart', onTouchStart)
+  document.removeEventListener('touchmove', onTouchMove)
+  document.removeEventListener('touchend', onTouchEnd)
   if (refreshInterval) clearInterval(refreshInterval)
-  if (scrollStopTimer) clearTimeout(scrollStopTimer)
+  if (pauseTimer) clearTimeout(pauseTimer)
+})
+
+watch(dismissSellerBanner, (val) => {
+  if (val) localStorage.setItem('dismissedSellerBanner', 'true')
+  else localStorage.removeItem('dismissedSellerBanner')
 })
 </script>
 
 <style scoped>
-/* Hide Scrollbar but keep functionality */
 .scrollbar-hide {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
 }
 
-/* Mobile Safe Area Adjustments */
+/* Seller banner transition */
+.seller-banner-enter-active,
+.seller-banner-leave-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.seller-banner-enter-from,
+.seller-banner-leave-to {
+  transform: translateY(120%);
+  opacity: 0;
+}
+
+/* Safe area insets for mobile */
 @media (max-width: 767px) {
   .main-scroll {
     padding-top: max(4rem, calc(3.5rem + env(safe-area-inset-top, 0px)));
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
   .main-scroll.has-category {
     padding-top: max(7rem, calc(7rem + env(safe-area-inset-top, 0px)));
   }
-  .main-scroll > div {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-  }
-}
-
-/* Seller Banner Transitions */
-.seller-banner-enter-active {
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.3s ease;
-}
-.seller-banner-leave-active {
-  transition:
-    transform 0.3s ease-in,
-    opacity 0.3s ease-in;
-}
-.seller-banner-enter-from,
-.seller-banner-leave-to {
-  transform: translateY(150%);
-  opacity: 0;
 }
 </style>

@@ -339,8 +339,7 @@ const formatCount = (n: number) => {
   return n.toString()
 }
 
-import { formatProductPrice } from '~/utils/currency'
-const formatPrice = (price: number) => formatProductPrice(price, 'NGN')
+const { formatPrice } = useCurrency()
 </script>
 
 <style scoped>

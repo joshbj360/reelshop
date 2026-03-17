@@ -1,8 +1,110 @@
 import { walletRepository } from '../repositories/wallet.repository'
 import { auditService } from '../../shared/audit/audit.service'
 import { UserError } from '../../profile/types/user.types'
+import { prisma } from '../../../utils/db'
 
 export const walletService = {
+  /**
+   * Called when payment is confirmed (PAID).
+   * Credits each seller's pending_balance. Stores transactions as 'CREDIT_PENDING'
+   * so the exact same amounts can be released on delivery without recalculation.
+   */
+  async creditSellersOnPayment(orderId: number) {
+    // Idempotency guard — skip if already credited for this order
+    const existing = await prisma.transaction.findFirst({
+      where: { orderId, type: { in: ['CREDIT_PENDING', 'CREDIT'] } },
+    })
+    if (existing) return
+
+    const items = await prisma.orderItem.findMany({
+      where: { orderId },
+      include: {
+        variant: {
+          include: {
+            product: {
+              select: {
+                price: true,
+                discount: true,
+                seller: { select: { id: true } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const sellerAmounts = new Map<string, number>()
+    for (const item of items) {
+      const product = item.variant.product
+      const sellerId = product.seller?.id
+      if (!sellerId) continue
+      const price = item.variant.price ?? product.price
+      const discount = product.discount ?? 0
+      const amountKobo = Math.round(price * (1 - discount / 100) * item.quantity * 100)
+      sellerAmounts.set(sellerId, (sellerAmounts.get(sellerId) ?? 0) + amountKobo)
+    }
+
+    for (const [sellerId, amount] of sellerAmounts) {
+      if (amount <= 0) continue
+      const wallet = await walletRepository.getOrCreateWallet(sellerId)
+      await walletRepository.incrementPendingBalance(wallet.id, amount)
+      // Store as CREDIT_PENDING — this exact record is used for the release
+      await walletRepository.createTransaction(wallet.id, {
+        amount,
+        type: 'CREDIT_PENDING',
+        description: `Order #${orderId} — payment held pending delivery`,
+        orderId,
+      })
+    }
+  },
+
+  /**
+   * Called when order status moves to DELIVERED.
+   * Finds the CREDIT_PENDING transactions for this order and releases the
+   * exact same amounts — no recalculation, no floating-point drift.
+   */
+  async releaseFundsOnDelivery(orderId: number) {
+    // Idempotency guard — skip if already released
+    const alreadyReleased = await prisma.transaction.findFirst({
+      where: { orderId, type: 'CREDIT_RELEASED' },
+    })
+    if (alreadyReleased) return
+
+    // Find the pending credits that were created at payment time
+    const pendingCredits = await prisma.transaction.findMany({
+      where: { orderId, type: 'CREDIT_PENDING' },
+    })
+
+    if (!pendingCredits.length) {
+      console.warn(`[wallet] No CREDIT_PENDING transactions found for order #${orderId} — skipping release`)
+      return
+    }
+
+    // Group by wallet
+    const byWallet = new Map<string, { total: number; ids: string[] }>()
+    for (const tx of pendingCredits) {
+      const entry = byWallet.get(tx.walletId) ?? { total: 0, ids: [] }
+      entry.total += tx.amount
+      entry.ids.push(tx.id)
+      byWallet.set(tx.walletId, entry)
+    }
+
+    for (const [walletId, { total, ids }] of byWallet) {
+      if (total <= 0) continue
+      // Move exact amount from pending → available
+      await walletRepository.releasePendingToBalance(walletId, total)
+      // Promote the transactions from CREDIT_PENDING → CREDIT_RELEASED
+      // so they show as earned in stats and history
+      await prisma.transaction.updateMany({
+        where: { id: { in: ids } },
+        data: {
+          type: 'CREDIT_RELEASED',
+          description: `Order #${orderId} — delivered, funds released to balance`,
+        },
+      })
+    }
+  },
+
   async getWallet(sellerId: string) {
     const wallet = await walletRepository.getOrCreateWallet(sellerId)
     const stats = await walletRepository.getWalletStats(wallet.id)

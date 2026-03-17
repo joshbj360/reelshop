@@ -147,12 +147,12 @@
       <div class="mt-2 flex items-baseline gap-2">
         <span
           class="text-[15px] font-bold text-gray-900 dark:text-neutral-100"
-          >{{ formatPrice(discountedPrice, currency) }}</span
+          >{{ formatPrice(discountedPrice) }}</span
         >
         <span
           v-if="discountPercent > 0"
           class="text-[11px] text-gray-400 line-through dark:text-neutral-500"
-          >{{ formatPrice(product.price, currency) }}</span
+          >{{ formatPrice(product.price) }}</span
         >
       </div>
     </div>
@@ -244,6 +244,7 @@
 import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { notify } from '@kyvg/vue3-notification'
+import { imgThumb } from '~/utils/cloudinary'
 
 const props = defineProps<{ product: IProduct }>()
 const emit = defineEmits<{
@@ -261,20 +262,16 @@ const { likeProduct, unlikeProduct } = useProduct()
 
 // ── Media ────────────────────────────────────────────────────────────────────
 const imageItems = computed(() =>
-  (props.product.media ?? []).filter(
-    (m) => !m.isBgMusic && (m.type === 'IMAGE' || m.type === 'VIDEO'),
-  ),
+  (props.product.media ?? [])
+    .filter((m) => !m.isBgMusic && (m.type === 'IMAGE' || m.type === 'VIDEO'))
+    .map((m) => ({ ...m, url: imgThumb(m.url) ?? m.url })),
 )
 const hasBgMusic = computed(() =>
   (props.product.media ?? []).some((m) => m.isBgMusic || m.type === 'AUDIO'),
 )
 
 // ── Pricing ──────────────────────────────────────────────────────────────────
-import { formatProductPrice } from '~/utils/currency'
-const formatPrice = (price: number, cur: string) =>
-  formatProductPrice(price, cur as any)
-
-const currency = computed(() => props.product.seller?.default_currency ?? 'NGN')
+const { formatPrice } = useCurrency()
 const discountPercent = computed(() => props.product.discount ?? 0)
 const discountedPrice = computed(() =>
   discountPercent.value > 0

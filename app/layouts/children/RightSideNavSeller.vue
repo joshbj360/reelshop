@@ -219,7 +219,7 @@
         >
           <p>
             © {{ new Date().getFullYear() }}
-            {{ useRuntimeConfig().public.siteName || 'Styli' }}. All rights
+            {{ useRuntimeConfig().public.siteName || 'Indix' }}. All rights
             reserved.
           </p>
         </div>

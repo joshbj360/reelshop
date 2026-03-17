@@ -121,12 +121,7 @@ export const sellerService = {
 
   async getUserSellerProfiles(userId: string): Promise<SellerProfile[]> {
     const sellers = await sellerRepository.getUserSellerProfiles(userId)
-
-    if (!sellers || sellers.length === 0) {
-      throw new SellerError('No seller profiles found for this user', 404)
-    }
-
-    return sellers
+    return sellers ?? []
   },
 
   // ==================== UPDATE SELLER ====================

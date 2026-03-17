@@ -10,6 +10,7 @@ export const useWallet = () => {
   const balance = computed(() => store.balance)
   const pendingBalance = computed(() => store.pendingBalance)
   const stats = computed(() => store.stats)
+  const storeWallets = computed(() => store.storeWallets)
   const transactions = computed(() => store.transactions)
 
   const fetchWallet = async () => {
@@ -17,7 +18,7 @@ export const useWallet = () => {
     store.setError(null)
     try {
       const result: any = await api.getWallet()
-      store.setWallet(result.data?.wallet, result.data?.stats)
+      store.setWallet(result.data?.wallet, result.data?.stats, result.data?.stores)
       return result.data
     } catch (e: any) {
       store.setError(e.message || 'Failed to fetch wallet')
@@ -82,6 +83,7 @@ export const useWallet = () => {
     balance,
     pendingBalance,
     stats,
+    storeWallets,
     transactions,
     fetchWallet,
     fetchTransactions,

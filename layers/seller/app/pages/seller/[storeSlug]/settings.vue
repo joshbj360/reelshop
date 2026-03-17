@@ -193,7 +193,7 @@
             <div
               class="w-full select-none rounded-xl border border-gray-200 bg-gray-100 px-4 py-2.5 text-[14px] text-gray-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400"
             >
-              styli.com/sellers/profile/{{ storeSlug }}
+              {{ $config.public.brandDomain || 'indix.app' }}/sellers/profile/{{ storeSlug }}
             </div>
           </div>
 
@@ -281,6 +281,121 @@
           </div>
         </div>
 
+        <!-- Shipping Origin -->
+        <div
+          class="space-y-4 rounded-2xl border border-gray-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <div>
+            <h2
+              class="text-[14px] font-semibold text-gray-900 dark:text-neutral-100"
+            >
+              Shipping Origin
+            </h2>
+            <p class="mt-0.5 text-[12px] text-gray-400 dark:text-neutral-500">
+              Where your orders ship from. Used to calculate accurate shipping
+              rates at checkout.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="col-span-2">
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >Sender Name (for shipping labels)</label
+              >
+              <input
+                v-model="form.shipFromName"
+                type="text"
+                placeholder="e.g. Lagos Warehouse"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              />
+            </div>
+            <div class="col-span-2">
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >Street Address <span class="text-brand">*</span></label
+              >
+              <input
+                v-model="form.shipFromAddress"
+                type="text"
+                placeholder="123 Market Street"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              />
+            </div>
+            <div>
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >City <span class="text-brand">*</span></label
+              >
+              <input
+                v-model="form.shipFromCity"
+                type="text"
+                placeholder="Lagos"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              />
+            </div>
+            <div>
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >State / Province</label
+              >
+              <input
+                v-model="form.shipFromState"
+                type="text"
+                placeholder="Lagos State"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              />
+            </div>
+            <div>
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >Postal / ZIP Code</label
+              >
+              <input
+                v-model="form.shipFromZip"
+                type="text"
+                placeholder="100001"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              />
+            </div>
+            <div>
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >Country</label
+              >
+              <select
+                v-model="form.shipFromCountry"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              >
+                <option v-for="c in SHIP_FROM_COUNTRIES" :key="c.code" :value="c.code">
+                  {{ c.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-span-2">
+              <label
+                class="mb-1.5 block text-[12px] font-semibold text-gray-600 dark:text-neutral-400"
+                >Contact Phone</label
+              >
+              <input
+                v-model="form.shipFromPhone"
+                type="tel"
+                placeholder="+2348012345678"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 placeholder-gray-400 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+              />
+            </div>
+          </div>
+
+          <div
+            v-if="!form.shipFromAddress || !form.shipFromCity"
+            class="flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3.5 py-3 text-[12px] text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400"
+          >
+            <Icon name="mdi:alert-outline" size="14" class="mt-0.5 shrink-0" />
+            Shipping rates won't be shown at checkout until you save your
+            ship-from address and city.
+          </div>
+        </div>
+
         <!-- Save -->
         <button
           type="submit"
@@ -304,6 +419,23 @@
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
 import { useMediaUpload } from '~~/layers/base/app/composables/useMediaUpload'
 import { SUPPORTED_CURRENCIES } from '~/utils/currency'
+
+const SHIP_FROM_COUNTRIES = [
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'GH', name: 'Ghana' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'SN', name: 'Senegal' },
+  { code: 'CI', name: "Côte d'Ivoire" },
+  { code: 'CM', name: 'Cameroon' },
+  { code: 'TZ', name: 'Tanzania' },
+  { code: 'UG', name: 'Uganda' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'AE', name: 'UAE' },
+  { code: 'CN', name: 'China' },
+]
 
 definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
@@ -333,6 +465,14 @@ const form = reactive({
   store_logo: '',
   store_banner: '',
   default_currency: 'NGN' as string,
+  // Shipping origin
+  shipFromName: '',
+  shipFromAddress: '',
+  shipFromCity: '',
+  shipFromState: '',
+  shipFromZip: '',
+  shipFromCountry: 'NG',
+  shipFromPhone: '',
 })
 
 const prefillForm = (s: any) => {
@@ -346,6 +486,14 @@ const prefillForm = (s: any) => {
   form.default_currency = s.default_currency ?? 'NGN'
   logoPreview.value = s.store_logo ?? ''
   bannerPreview.value = s.store_banner ?? ''
+  // Shipping origin
+  form.shipFromName = s.shipFromName ?? ''
+  form.shipFromAddress = s.shipFromAddress ?? ''
+  form.shipFromCity = s.shipFromCity ?? ''
+  form.shipFromState = s.shipFromState ?? ''
+  form.shipFromZip = s.shipFromZip ?? ''
+  form.shipFromCountry = s.shipFromCountry ?? 'NG'
+  form.shipFromPhone = s.shipFromPhone ?? ''
 }
 
 onMounted(async () => {
@@ -407,6 +555,14 @@ const handleSubmit = async () => {
       store_logo: form.store_logo || undefined,
       store_banner: form.store_banner || undefined,
       default_currency: form.default_currency,
+      // Shipping origin
+      shipFromName: form.shipFromName || undefined,
+      shipFromAddress: form.shipFromAddress || undefined,
+      shipFromCity: form.shipFromCity || undefined,
+      shipFromState: form.shipFromState || undefined,
+      shipFromZip: form.shipFromZip || undefined,
+      shipFromCountry: form.shipFromCountry || 'NG',
+      shipFromPhone: form.shipFromPhone || undefined,
     } as any)
     saveSuccess.value = true
     setTimeout(() => {
