@@ -1,5 +1,7 @@
 import { useProductApi } from '../services/product.api'
 import { useProductStore } from '../stores/product.store'
+import type { Product } from '~/app/types/product'
+import type { Category } from '~/app/types/category'
 
 export const useProduct = () => {
   const api = useProductApi()
@@ -20,11 +22,13 @@ export const useProduct = () => {
     store.setLoading(true)
     store.setError(null)
     try {
-      const result: any = await api.getProducts(params)
+      const result: { data: { products: Product[] } } =
+        await api.getProducts(params)
       store.addProducts(result.data?.products || [])
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to fetch products')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to fetch products')
       throw e
     } finally {
       store.setLoading(false)
@@ -38,11 +42,13 @@ export const useProduct = () => {
     store.setLoading(true)
     store.setError(null)
     try {
-      const result: any = await api.getSellerProducts(storeSlug, params)
+      const result: { data: { products: Product[] } } =
+        await api.getSellerProducts(storeSlug, params)
       store.addProducts(result.data?.products || [], storeSlug)
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to fetch seller products')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to fetch seller products')
       throw e
     } finally {
       store.setLoading(false)
@@ -54,41 +60,44 @@ export const useProduct = () => {
     if (cached) return cached
     store.setLoading(true)
     try {
-      const result: any = await api.getProductById(id)
+      const result: { data: Product } = await api.getProductById(id)
       store.setProduct(result.data)
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Product not found')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Product not found')
       throw e
     } finally {
       store.setLoading(false)
     }
   }
 
-  const createProduct = async (data: any) => {
+  const createProduct = async (data: ProductData) => {
     store.setLoading(true)
     store.setError(null)
     try {
-      const result: any = await api.createProduct(data)
+      const result: { data: Product } = await api.createProduct(data)
       store.setProduct(result.data)
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to create product')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to create product')
       throw e
     } finally {
       store.setLoading(false)
     }
   }
 
-  const updateProduct = async (id: number, data: any) => {
+  const updateProduct = async (id: number, data: Partial<ProductData>) => {
     store.setLoading(true)
     store.setError(null)
     try {
-      const result: any = await api.updateProduct(id, data)
+      const result: { data: Product } = await api.updateProduct(id, data)
       store.setProduct(result.data)
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to update product')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to update product')
       throw e
     } finally {
       store.setLoading(false)
@@ -99,8 +108,9 @@ export const useProduct = () => {
     try {
       await api.deleteProduct(id)
       store.removeProduct(id)
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to delete product')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to delete product')
       throw e
     }
   }
@@ -114,12 +124,8 @@ export const useProduct = () => {
   }
 
   const fetchCategories = async () => {
-    try {
-      const result: any = await api.getCategories()
-      return result.data || []
-    } catch (e: any) {
-      throw e
-    }
+    const result: { data: Category[] } = await api.getCategories()
+    return result.data || []
   }
 
   return {

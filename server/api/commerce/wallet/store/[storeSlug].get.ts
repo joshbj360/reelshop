@@ -12,11 +12,12 @@ export default defineEventHandler(async (event) => {
     if (!storeSlug) throw new UserError('INVALID', 'Store slug required', 400)
 
     const seller = await prisma.sellerProfile.findFirst({
-      where: { store_slug: storeSlug, profileId: user.id, is_active: true },
+      where: { store_slug: storeSlug, profileId: user.id },
       select: { id: true, store_name: true, store_slug: true },
     })
 
-    if (!seller) throw new UserError('NOT_FOUND', 'Store not found or access denied', 404)
+    if (!seller)
+      throw new UserError('NOT_FOUND', 'Store not found or access denied', 404)
 
     const { wallet, stats } = await walletService.getWallet(seller.id)
 
@@ -34,7 +35,13 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

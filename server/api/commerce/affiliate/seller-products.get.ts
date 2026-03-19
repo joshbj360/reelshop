@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!sellerProfiles.length) {
-      return { success: true, data: { products: [], totalRevenue: 0, totalUnitsSold: 0 } }
+      return {
+        success: true,
+        data: { products: [], totalRevenue: 0, totalUnitsSold: 0 },
+      }
     }
 
     const sellerIds = sellerProfiles.map((s) => s.id)
@@ -25,7 +28,6 @@ export default defineEventHandler(async (event) => {
       where: {
         sellerId: { in: sellerIds },
         affiliateCommission: { not: null },
-        is_active: true,
       },
       select: {
         id: true,
@@ -58,10 +60,14 @@ export default defineEventHandler(async (event) => {
 
     const enriched = products.map((p) => {
       const allOrderItems = p.variants.flatMap((v) => v.orderItems)
-      const paidItems = allOrderItems.filter((i) => i.order?.paymentStatus === 'PAID')
+      const paidItems = allOrderItems.filter(
+        (i) => i.order?.paymentStatus === 'PAID',
+      )
       const unitsSold = paidItems.reduce((s, i) => s + i.quantity, 0)
       const revenue = paidItems.reduce((s, i) => s + i.price * i.quantity, 0)
-      const commissionEarned = Math.round(revenue * ((p.affiliateCommission ?? 0) / 100))
+      const commissionEarned = Math.round(
+        revenue * ((p.affiliateCommission ?? 0) / 100),
+      )
 
       return {
         id: p.id,
@@ -90,6 +96,9 @@ export default defineEventHandler(async (event) => {
       },
     }
   } catch (error: any) {
-    throw createError({ statusCode: 500, statusMessage: error.message || 'Server error' })
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message || 'Server error',
+    })
   }
 })

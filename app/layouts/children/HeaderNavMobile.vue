@@ -6,12 +6,13 @@
       <!-- Logo -->
       <NuxtLink to="/" class="flex items-center gap-2">
         <div
-          class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#f02c56] to-purple-600"
+          class="flex h-8 w-8 items-center justify-center rounded-xl bg-brand shadow-md shadow-brand/25"
         >
-          <Icon name="mdi:hanger" class="h-4 w-4 text-white" />
+          <span class="text-xs font-black italic text-white">sX</span>
         </div>
-        <span class="text-lg font-bold text-gray-900 dark:text-neutral-100"
-          >{{ $config.public.siteName || 'Indix' }}</span
+        <span
+          class="text-lg font-black tracking-tight text-gray-900 dark:text-neutral-100"
+          >{{ $config.public.siteName || 'styleX' }}</span
         >
       </NuxtLink>
 

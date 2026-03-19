@@ -137,10 +137,31 @@
                   >
                     Size: {{ item.variant.size }}
                   </p>
+                  <!-- Price row: effective price + crossed-out original -->
+                  <div class="mt-0.5 flex items-baseline gap-1.5">
+                    <p
+                      class="text-[13px] font-bold text-gray-900 dark:text-neutral-100"
+                    >
+                      {{
+                        formatPrice(itemEffectivePrice(item) * item.quantity)
+                      }}
+                    </p>
+                    <p
+                      v-if="itemOriginalPrice(item) > itemEffectivePrice(item)"
+                      class="text-[11px] text-gray-400 line-through dark:text-neutral-500"
+                    >
+                      {{ formatPrice(itemOriginalPrice(item) * item.quantity) }}
+                    </p>
+                  </div>
+                  <!-- Offer badge -->
                   <p
-                    class="mt-0.5 text-[13px] font-bold text-gray-900 dark:text-neutral-100"
+                    v-if="activeOffer(item)"
+                    class="mt-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400"
                   >
-                    {{ formatPrice(itemPrice(item) * item.quantity) }}
+                    {{
+                      activeOffer(item)?.label ||
+                      `Buy ${activeOffer(item)?.minQuantity}+, save ${activeOffer(item)?.discount}%`
+                    }}
                   </p>
 
                   <!-- Qty controls -->
@@ -212,6 +233,7 @@
 
 <script setup lang="ts">
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import { effectiveUnitPrice } from '~~/layers/commerce/app/stores/cart.store'
 
 const props = defineProps<{ isOpen: boolean }>()
 defineEmits(['close'])
@@ -244,8 +266,21 @@ const handleDecrement = (item: any) => {
   }
 }
 
-const itemPrice = (item: any): number => {
-  return item.variant?.price ?? item.variant?.product?.price ?? 0
+// Base price before any discounts
+const itemOriginalPrice = (item: any): number =>
+  item.variant?.price ?? item.variant?.product?.price ?? 0
+
+// Price after product.discount + offer discount
+const itemEffectivePrice = (item: any): number => effectiveUnitPrice(item)
+
+// Best active offer that applies to the current quantity
+const activeOffer = (item: any) => {
+  const offers: any[] = item.variant?.product?.offers ?? []
+  return (
+    offers
+      .filter((o) => o.isActive && item.quantity >= o.minQuantity)
+      .sort((a, b) => b.minQuantity - a.minQuantity)[0] ?? null
+  )
 }
 
 const { formatPrice } = useCurrency()

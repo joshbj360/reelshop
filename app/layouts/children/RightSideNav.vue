@@ -1,14 +1,20 @@
 <!-- ~/layouts/children/RightSideNav.vue -->
 <template>
-  <div class="flex h-full flex-col border-l border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+  <div
+    class="flex h-full flex-col border-l border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
+  >
     <!-- Tab Navigation -->
-    <div class="flex shrink-0 gap-1 border-b border-gray-100 bg-gray-50/80 p-2 dark:border-neutral-800/50 dark:bg-neutral-900/70 backdrop-blur-sm">
+    <div
+      class="flex shrink-0 gap-1 border-b border-gray-100 bg-gray-50/80 p-2 backdrop-blur-sm dark:border-neutral-800/50 dark:bg-neutral-900/70"
+    >
       <button
         @click="activeTab = 'discover'"
         class="flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all"
-        :class="activeTab === 'discover'
-          ? 'border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
-          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-300'"
+        :class="
+          activeTab === 'discover'
+            ? 'border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+            : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-300'
+        "
       >
         <Icon name="mdi:compass-outline" size="18" />
         <span>Discover</span>
@@ -17,12 +23,23 @@
       <button
         @click="activeTab = 'ai'"
         class="relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg px-3 py-2.5 text-sm font-semibold transition-all"
-        :class="activeTab === 'ai'
-          ? 'border border-transparent bg-gradient-to-r from-brand to-purple-600 text-white shadow-md shadow-brand/20'
-          : 'text-gray-500 hover:bg-gray-100 hover:text-brand dark:text-neutral-400 dark:hover:bg-neutral-800'"
+        :class="
+          activeTab === 'ai'
+            ? 'border border-transparent bg-gradient-to-r from-brand to-purple-600 text-white shadow-md shadow-brand/20'
+            : 'text-gray-500 hover:bg-gray-100 hover:text-brand dark:text-neutral-400 dark:hover:bg-neutral-800'
+        "
       >
-        <div v-if="activeTab === 'ai'" class="pointer-events-none absolute inset-0 bg-white/15 blur-sm"></div>
-        <Icon :name="activeTab === 'ai' ? 'mdi:robot-happy' : 'mdi:robot-happy-outline'" size="18" class="relative z-10" />
+        <div
+          v-if="activeTab === 'ai'"
+          class="pointer-events-none absolute inset-0 bg-white/15 blur-sm"
+        ></div>
+        <Icon
+          :name="
+            activeTab === 'ai' ? 'mdi:robot-happy' : 'mdi:robot-happy-outline'
+          "
+          size="18"
+          class="relative z-10"
+        />
         <span class="relative z-10">Dasah AI</span>
       </button>
     </div>
@@ -35,7 +52,7 @@
         <ClientOnly>
           <div
             v-if="profileStore.isLoggedIn"
-            class="rounded-2xl border border-brand/10 bg-gradient-to-br from-brand/5 via-purple-500/5 to-transparent p-4 shadow-sm dark:from-brand/10 dark:via-purple-500/10 dark:border-brand/20"
+            class="rounded-2xl border border-brand/10 bg-gradient-to-br from-brand/5 via-purple-500/5 to-transparent p-4 shadow-sm dark:border-brand/20 dark:from-brand/10 dark:via-purple-500/10"
           >
             <div class="flex items-center gap-3">
               <Avatar
@@ -45,12 +62,21 @@
                 class="ring-2 ring-white/80 dark:ring-neutral-900/80"
               />
               <div class="min-w-0 flex-1">
-                <p class="truncate text-base font-bold text-gray-900 dark:text-white">
+                <p
+                  class="truncate text-base font-bold text-gray-900 dark:text-white"
+                >
                   Hey {{ profileStore.me?.username || 'Shopper' }}! 👋
                 </p>
-                <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-neutral-400">
+                <p
+                  class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-neutral-400"
+                >
                   <template v-if="!sellerStore.hasSellers">
-                    Ready to shop or <NuxtLink to="/seller/create" class="font-medium text-brand hover:underline">open your store?</NuxtLink>
+                    Ready to shop or
+                    <NuxtLink
+                      to="/sellers/create"
+                      class="font-medium text-brand hover:underline"
+                      >open your store?</NuxtLink
+                    >
                   </template>
                   <template v-else>
                     Time to check your store stats or add new drops?
@@ -62,15 +88,22 @@
         </ClientOnly>
 
         <!-- Top Shops -->
-        <div v-if="topSellers.length" class="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-800/40">
+        <div
+          v-if="topSellers.length"
+          class="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-800/40"
+        >
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <Icon name="mdi:store-check-outline" size="20" class="text-brand" />
+              <Icon
+                name="mdi:store-check-outline"
+                size="20"
+                class="text-brand"
+              />
               <h3 class="font-bold text-gray-900 dark:text-white">Top Shops</h3>
             </div>
             <NuxtLink
               to="/sellers"
-              class="flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand/80 transition-colors"
+              class="flex items-center gap-1 text-xs font-semibold text-brand transition-colors hover:text-brand/80"
             >
               See All <Icon name="mdi:chevron-right" size="14" />
             </NuxtLink>
@@ -86,11 +119,13 @@
                 :to="`/sellers/profile/${seller.store_slug}`"
                 class="flex min-w-0 flex-1 items-center gap-3"
               >
-                <div class="relative">
-                  <img
-                    :src="seller.store_logo || `https://api.dicebear.com/7.x/initials/svg?seed=${seller.store_name}`"
-                    :alt="seller.store_name"
-                    class="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm transition-all group-hover:scale-105 dark:border-neutral-800"
+                <div
+                  class="relative transition-transform group-hover:scale-105"
+                >
+                  <StoreAvatar
+                    :store-name="seller.store_name ?? ''"
+                    :logo="seller.store_logo ?? ''"
+                    size="lg"
                   />
                   <div
                     v-if="seller.is_verified"
@@ -101,11 +136,14 @@
                 </div>
 
                 <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-brand dark:text-white">
+                  <p
+                    class="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-brand dark:text-white"
+                  >
                     {{ seller.store_name }}
                   </p>
                   <p class="text-xs text-gray-500 dark:text-neutral-400">
-                    {{ formatNumber(seller._count?.products || 0) }} items • {{ formatNumber(getFollowerCount(seller)) }} followers
+                    {{ formatNumber(seller._count?.products || 0) }} items •
+                    {{ formatNumber(getFollowerCount(seller)) }} followers
                   </p>
                 </div>
               </NuxtLink>
@@ -115,9 +153,11 @@
                   v-if="profileStore.isLoggedIn"
                   @click.stop.prevent="toggleFollow(seller)"
                   class="ml-2 shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-all"
-                  :class="followedIds.has(seller.id)
-                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600'
-                    : 'bg-brand text-white hover:bg-brand/90 hover:shadow-md hover:shadow-brand/20'"
+                  :class="
+                    followedIds.has(seller.id)
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600'
+                      : 'bg-brand text-white hover:bg-brand/90 hover:shadow-md hover:shadow-brand/20'
+                  "
                 >
                   {{ followedIds.has(seller.id) ? 'Following' : 'Follow' }}
                 </button>
@@ -127,7 +167,10 @@
         </div>
 
         <!-- Categories Grid -->
-        <div v-if="categories.length" class="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-800/40">
+        <div
+          v-if="categories.length"
+          class="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-800/40"
+        >
           <div class="mb-4 flex items-center gap-2">
             <Icon name="mdi:shape-outline" size="20" class="text-brand" />
             <h3 class="font-bold text-gray-900 dark:text-white">Categories</h3>
@@ -140,16 +183,25 @@
               :to="`/category/${cat.slug}`"
               class="group flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 transition-all hover:border-brand/30 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
             >
-              <div class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gray-50 transition-transform group-hover:scale-110 dark:bg-neutral-800">
+              <div
+                class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gray-50 transition-transform group-hover:scale-110 dark:bg-neutral-800"
+              >
                 <img
                   v-if="cat.thumbnailCatUrl"
                   :src="cat.thumbnailCatUrl"
                   :alt="cat.name"
                   class="h-full w-full object-cover"
                 />
-                <Icon v-else name="mdi:hanger" size="24" class="text-gray-400 dark:text-gray-500" />
+                <Icon
+                  v-else
+                  name="mdi:hanger"
+                  size="24"
+                  class="text-gray-400 dark:text-gray-500"
+                />
               </div>
-              <span class="line-clamp-1 text-center text-xs font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300">
+              <span
+                class="line-clamp-1 text-center text-xs font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300"
+              >
                 {{ cat.name }}
               </span>
             </NuxtLink>
@@ -164,43 +216,79 @@
         </div>
 
         <!-- Quick Links -->
-        <div class="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-800/40">
+        <div
+          class="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-800/40"
+        >
           <div class="mb-3 flex items-center gap-2">
             <Icon name="mdi:link-variant" size="20" class="text-brand" />
             <h3 class="font-bold text-gray-900 dark:text-white">Quick Links</h3>
           </div>
           <div class="space-y-2">
             <NuxtLink to="/discover" class="quick-link group">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900">
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900"
+              >
                 <Icon name="mdi:compass-outline" size="18" />
               </div>
-              <span class="text-sm font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300">Discover</span>
+              <span
+                class="text-sm font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300"
+                >Discover</span
+              >
             </NuxtLink>
             <NuxtLink to="/thrift" class="quick-link group">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900">
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900"
+              >
                 <Icon name="mdi:recycle" size="18" />
               </div>
-              <span class="text-sm font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300">Thrift Store</span>
+              <span
+                class="text-sm font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300"
+                >Thrift Store</span
+              >
             </NuxtLink>
             <NuxtLink to="/trending" class="quick-link group">
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900">
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900"
+              >
                 <Icon name="mdi:fire" size="18" />
               </div>
-              <span class="text-sm font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300">Trending Now</span>
+              <span
+                class="text-sm font-medium text-gray-700 transition-colors group-hover:text-brand dark:text-neutral-300"
+                >Trending Now</span
+              >
             </NuxtLink>
           </div>
         </div>
 
         <!-- Footer -->
         <div class="px-2 py-5 text-center">
-          <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-medium text-gray-400 dark:text-neutral-500">
-            <NuxtLink to="/about" class="hover:text-gray-700 dark:hover:text-neutral-300">About</NuxtLink>
-            <NuxtLink to="/help" class="hover:text-gray-700 dark:hover:text-neutral-300">Help</NuxtLink>
-            <NuxtLink to="/terms" class="hover:text-gray-700 dark:hover:text-neutral-300">Terms</NuxtLink>
-            <NuxtLink to="/privacy" class="hover:text-gray-700 dark:hover:text-neutral-300">Privacy</NuxtLink>
+          <div
+            class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-medium text-gray-400 dark:text-neutral-500"
+          >
+            <NuxtLink
+              to="/about"
+              class="hover:text-gray-700 dark:hover:text-neutral-300"
+              >About</NuxtLink
+            >
+            <NuxtLink
+              to="/help"
+              class="hover:text-gray-700 dark:hover:text-neutral-300"
+              >Help</NuxtLink
+            >
+            <NuxtLink
+              to="/terms"
+              class="hover:text-gray-700 dark:hover:text-neutral-300"
+              >Terms</NuxtLink
+            >
+            <NuxtLink
+              to="/privacy"
+              class="hover:text-gray-700 dark:hover:text-neutral-300"
+              >Privacy</NuxtLink
+            >
           </div>
           <p class="mt-3 text-xs text-gray-400 dark:text-neutral-600">
-            © {{ new Date().getFullYear() }} {{ $config.public.siteName || 'Indix' }}. All rights reserved.
+            © {{ new Date().getFullYear() }}
+            {{ $config.public.siteName || 'styleX' }}. All rights reserved.
           </p>
         </div>
       </div>
@@ -208,16 +296,26 @@
       <!-- AI TAB -->
       <div v-show="activeTab === 'ai'" class="flex h-full flex-col pb-6">
         <!-- AI Intro Card -->
-        <div class="relative mb-5 overflow-hidden rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/10 via-purple-500/10 to-transparent p-5 shadow-sm dark:border-brand/30 dark:from-brand/15 dark:via-purple-500/15">
-          <div class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand/10 blur-2xl"></div>
+        <div
+          class="relative mb-5 overflow-hidden rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/10 via-purple-500/10 to-transparent p-5 shadow-sm dark:border-brand/30 dark:from-brand/15 dark:via-purple-500/15"
+        >
+          <div
+            class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand/10 blur-2xl"
+          ></div>
           <div class="relative z-10 flex flex-col items-center text-center">
-            <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-white shadow-lg dark:border-neutral-900 dark:bg-neutral-900">
+            <div
+              class="mb-4 flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-white shadow-lg dark:border-neutral-900 dark:bg-neutral-900"
+            >
               <Icon name="mdi:robot-happy" size="32" class="text-brand" />
             </div>
-            <h3 class="mb-2 text-xl font-extrabold text-gray-900 dark:text-white">
+            <h3
+              class="mb-2 text-xl font-extrabold text-gray-900 dark:text-white"
+            >
               Hey, I'm Dasah! ✨
             </h3>
-            <p class="max-w-[260px] text-sm text-gray-600 dark:text-neutral-400">
+            <p
+              class="max-w-[260px] text-sm text-gray-600 dark:text-neutral-400"
+            >
               Your fashion AI stylist & shopping assistant.<br />
               Ask me anything — outfits, trends, product finds...
             </p>
@@ -237,7 +335,9 @@
               >
                 <Icon name="mdi:robot" size="18" />
               </div>
-              <div class="max-w-[80%] rounded-2xl rounded-tl-none bg-gray-100 p-3.5 text-sm leading-relaxed text-gray-800 dark:bg-neutral-800 dark:text-neutral-200">
+              <div
+                class="max-w-[80%] rounded-2xl rounded-tl-none bg-gray-100 p-3.5 text-sm leading-relaxed text-gray-800 dark:bg-neutral-800 dark:text-neutral-200"
+              >
                 Hey! Looking for something specific today?<br />
                 Summer outfits, vintage finds, or styling tips?
               </div>
@@ -245,17 +345,23 @@
 
             <!-- Suggestion Chips -->
             <div class="mt-2 flex flex-wrap gap-2">
-              <button class="rounded-full border border-brand/30 bg-white px-3.5 py-1.5 text-xs font-medium text-brand transition-all hover:bg-brand/5 hover:shadow-sm dark:bg-neutral-900">
+              <button
+                class="rounded-full border border-brand/30 bg-white px-3.5 py-1.5 text-xs font-medium text-brand transition-all hover:bg-brand/5 hover:shadow-sm dark:bg-neutral-900"
+              >
                 "Outfit for Lagos wedding"
               </button>
-              <button class="rounded-full border border-brand/30 bg-white px-3.5 py-1.5 text-xs font-medium text-brand transition-all hover:bg-brand/5 hover:shadow-sm dark:bg-neutral-900">
+              <button
+                class="rounded-full border border-brand/30 bg-white px-3.5 py-1.5 text-xs font-medium text-brand transition-all hover:bg-brand/5 hover:shadow-sm dark:bg-neutral-900"
+              >
                 "Best thrift jackets under ₦20k"
               </button>
             </div>
           </div>
 
           <!-- Input Area -->
-          <div class="border-t border-gray-100 bg-gray-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60">
+          <div
+            class="border-t border-gray-100 bg-gray-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60"
+          >
             <div class="relative">
               <input
                 type="text"
@@ -283,6 +389,7 @@ import { useLayoutData } from '~/composables/useLayoutData'
 import { useSocialApi } from '~~/layers/profile/app/services/social.api'
 
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
+import StoreAvatar from '~~/layers/profile/app/components/StoreAvatar.vue'
 
 const profileStore = useProfileStore()
 const sellerStore = useSellerStore()
@@ -307,7 +414,9 @@ onMounted(async () => {
 })
 
 const getFollowerCount = (seller: any) => {
-  return followerCountOverrides.value.get(seller.id) ?? seller.followers_count ?? 0
+  return (
+    followerCountOverrides.value.get(seller.id) ?? seller.followers_count ?? 0
+  )
 }
 
 const toggleFollow = async (seller: any) => {

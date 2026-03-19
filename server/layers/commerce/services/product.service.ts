@@ -136,7 +136,11 @@ export const productService = {
       )
 
     const validated = updateProductSchema.parse(data)
-    const updated = await productRepository.updateProduct(id, validated, authorId)
+    const updated = await productRepository.updateProduct(
+      id,
+      validated,
+      authorId,
+    )
 
     if (authorId)
       await auditService.logUserAction({

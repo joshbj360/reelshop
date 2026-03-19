@@ -44,26 +44,27 @@ export const createSellerProfileSchema = z.object({
     .max(100, 'Store location must be less than 100 characters')
     .optional(),
 
-  store_phone: z
-    .preprocess(
-      (val) =>
-        typeof val === 'string'
-          ? val.replace(/[\s\-().]/g, '').trim() || undefined
-          : val,
-      z
-        .string()
-        .regex(
-          /^\+?[1-9]\d{6,14}$/,
-          'Phone must be in international format, e.g. +2348012345678',
-        )
-        .optional(),
-    ),
+  store_phone: z.preprocess(
+    (val) =>
+      typeof val === 'string'
+        ? val.replace(/[\s\-().]/g, '').trim() || undefined
+        : val,
+    z
+      .string()
+      .regex(
+        /^\+?[1-9]\d{6,14}$/,
+        'Phone must be in international format, e.g. +2348012345678',
+      )
+      .optional(),
+  ),
 
-  store_website: z
-    .preprocess(
-      (val) => (typeof val === 'string' ? val.trim() || undefined : val),
-      z.string().url('Website must be a valid URL, e.g. https://yourstore.com').optional(),
-    ),
+  store_website: z.preprocess(
+    (val) => (typeof val === 'string' ? val.trim() || undefined : val),
+    z
+      .string()
+      .url('Website must be a valid URL, e.g. https://yourstore.com')
+      .optional(),
+  ),
 
   store_logo: z.string().url('Invalid logo URL').optional(),
 
@@ -111,26 +112,27 @@ export const updateSellerProfileSchema = z
       .max(100, 'Store location must be less than 100 characters')
       .optional(),
 
-    store_phone: z
-      .preprocess(
-        (val) =>
-          typeof val === 'string'
-            ? val.replace(/[\s\-().]/g, '').trim() || undefined
-            : val,
-        z
-          .string()
-          .regex(
-            /^\+?[1-9]\d{6,14}$/,
-            'Phone must be in international format, e.g. +2348012345678',
-          )
-          .optional(),
-      ),
+    store_phone: z.preprocess(
+      (val) =>
+        typeof val === 'string'
+          ? val.replace(/[\s\-().]/g, '').trim() || undefined
+          : val,
+      z
+        .string()
+        .regex(
+          /^\+?[1-9]\d{6,14}$/,
+          'Phone must be in international format, e.g. +2348012345678',
+        )
+        .optional(),
+    ),
 
-    store_website: z
-      .preprocess(
-        (val) => (typeof val === 'string' ? val.trim() || undefined : val),
-        z.string().url('Website must be a valid URL, e.g. https://yourstore.com').optional(),
-      ),
+    store_website: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() || undefined : val),
+      z
+        .string()
+        .url('Website must be a valid URL, e.g. https://yourstore.com')
+        .optional(),
+    ),
 
     store_logo: z.string().url('Invalid logo URL').optional(),
 
@@ -160,14 +162,16 @@ export const updateSellerProfileSchema = z
     shipFromState: z.string().max(100).optional(),
     shipFromZip: z.string().max(20).optional(),
     shipFromCountry: z.string().length(2).optional(),
-    shipFromPhone: z
-      .preprocess(
-        (val) =>
-          typeof val === 'string'
-            ? val.replace(/[\s\-().]/g, '').trim() || undefined
-            : val,
-        z.string().regex(/^\+?[1-9]\d{6,14}$/).optional(),
-      ),
+    shipFromPhone: z.preprocess(
+      (val) =>
+        typeof val === 'string'
+          ? val.replace(/[\s\-().]/g, '').trim() || undefined
+          : val,
+      z
+        .string()
+        .regex(/^\+?[1-9]\d{6,14}$/)
+        .optional(),
+    ),
   })
   .refine(
     (data) => Object.values(data).some((value) => value !== undefined),

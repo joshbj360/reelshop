@@ -21,7 +21,10 @@
       <button
         v-for="tab in STATUS_TABS"
         :key="tab.value"
-        @click="activeStatus = tab.value; loadOrders()"
+        @click="
+          activeStatus = tab.value
+          loadOrders()
+        "
         class="shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors"
         :class="
           activeStatus === tab.value
@@ -339,7 +342,9 @@ onMounted(loadOrders)
 const notificationStore = useNotificationStore()
 watch(
   () => notificationStore.notifications[0],
-  (n) => { if (n?.type === 'ORDER') loadOrders() },
+  (n) => {
+    if (n?.type === 'ORDER') loadOrders()
+  },
 )
 </script>
 

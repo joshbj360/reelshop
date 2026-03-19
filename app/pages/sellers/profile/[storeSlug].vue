@@ -1,69 +1,110 @@
 <template>
   <HomeLayout :narrow-feed="false" :hide-right-sidebar="false">
-    <div class="max-w-full pb-20 md:pb-6">
-      <!-- ─── LOADING SKELETON ────────────────────────────────────────── -->
-      <div v-if="pageLoading" class="animate-pulse space-y-4">
-        <div
-          class="-mx-2 h-40 bg-gray-200 sm:-mx-6 md:h-48 dark:bg-neutral-800"
-        />
-        <div class="flex gap-3 px-2 sm:px-4">
+    <div class="pb-20 md:pb-6">
+      <!-- ── SKELETON ──────────────────────────────────────────────────── -->
+      <div v-if="pageLoading" class="animate-pulse">
+        <div class="-mx-2 h-56 bg-gray-200 sm:-mx-6 dark:bg-neutral-800" />
+        <div class="px-3 sm:px-5">
+          <div class="-mt-14 flex items-end gap-4">
+            <div
+              class="h-24 w-24 shrink-0 rounded-2xl border-4 border-white bg-gray-200 dark:border-neutral-950 dark:bg-neutral-700"
+            />
+            <div class="flex-1 space-y-2 pb-2">
+              <div
+                class="h-6 w-48 rounded-lg bg-gray-200 dark:bg-neutral-700"
+              />
+              <div class="h-4 w-28 rounded bg-gray-200 dark:bg-neutral-700" />
+            </div>
+          </div>
+          <div class="mt-5 grid grid-cols-3 gap-3">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-20 rounded-2xl bg-gray-100 dark:bg-neutral-800"
+            />
+          </div>
           <div
-            class="-mt-10 h-20 w-20 shrink-0 rounded-xl border-4 border-white bg-gray-200 sm:-mt-12 sm:h-24 sm:w-24 sm:rounded-2xl dark:border-neutral-950 dark:bg-neutral-800"
-          />
-          <div class="flex-1 space-y-2 pt-2">
-            <div class="h-6 w-1/3 rounded bg-gray-200 dark:bg-neutral-800" />
-            <div class="h-4 w-1/4 rounded bg-gray-200 dark:bg-neutral-800" />
+            class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+          >
+            <div
+              v-for="i in 8"
+              :key="i"
+              class="aspect-[3/4] rounded-2xl bg-gray-100 dark:bg-neutral-800"
+            />
           </div>
         </div>
       </div>
 
-      <!-- ─── ERROR STATE ─────────────────────────────────────────────── -->
-      <div v-else-if="loadError || !seller" class="px-4 py-20 text-center">
-        <Icon
-          name="mdi:store-off-outline"
-          size="64"
-          class="mx-auto mb-4 text-gray-400 dark:text-neutral-600"
-        />
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-neutral-100">
-          Store Not Found
+      <!-- ── ERROR ─────────────────────────────────────────────────────── -->
+      <div
+        v-else-if="loadError || !seller"
+        class="flex flex-col items-center justify-center px-4 py-32 text-center"
+      >
+        <div
+          class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-neutral-800"
+        >
+          <Icon
+            name="mdi:store-off-outline"
+            size="36"
+            class="text-gray-400 dark:text-neutral-600"
+          />
+        </div>
+        <h2 class="text-2xl font-black text-gray-900 dark:text-neutral-100">
+          Store not found
         </h2>
-        <p class="mt-2 text-gray-600 dark:text-neutral-400">
-          The store you are looking for does not exist or may have been moved.
+        <p class="mt-2 max-w-xs text-sm text-gray-500 dark:text-neutral-400">
+          This store doesn't exist or may have been removed.
         </p>
         <NuxtLink
-          to="/"
-          class="mt-6 inline-block rounded-xl bg-brand px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-brand/90"
+          to="/sellers"
+          class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-brand px-7 py-3 text-sm font-bold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark"
         >
-          Browse All Products
+          Browse all stores
         </NuxtLink>
       </div>
 
-      <!-- ─── STORE PROFILE CONTENT ───────────────────────────────────── -->
-      <div v-else class="text-gray-900 dark:text-neutral-100">
-        <!-- Cover Image with Gradient Overlay -->
-        <div
-          class="relative -mx-2 h-40 overflow-hidden bg-gradient-to-br from-[#f02c56] to-purple-600 sm:-mx-6 md:h-48"
-        >
+      <!-- ── PROFILE ────────────────────────────────────────────────────── -->
+      <div v-else>
+        <!-- Banner -->
+        <div class="group relative -mx-2 h-52 overflow-hidden sm:-mx-6 sm:h-64">
           <img
             v-if="seller.store_banner"
             :src="seller.store_banner"
-            :alt="`${seller.store_name} cover`"
-            class="h-full w-full object-cover"
+            :alt="`${seller.store_name} banner`"
+            class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div
-            class="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent dark:from-neutral-950/90"
+            v-else
+            class="h-full w-full bg-gradient-to-br from-brand via-[#9b2c56] to-purple-700"
+          >
+            <!-- Subtle pattern overlay -->
+            <div
+              class="absolute inset-0 opacity-10"
+              style="
+                background-image: radial-gradient(
+                    circle at 20% 50%,
+                    white 1px,
+                    transparent 1px
+                  ),
+                  radial-gradient(circle at 80% 20%, white 1px, transparent 1px),
+                  radial-gradient(circle at 60% 80%, white 1px, transparent 1px);
+                background-size: 60px 60px;
+              "
+            ></div>
+          </div>
+          <!-- Bottom gradient fade -->
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-white/70 via-transparent to-transparent dark:from-neutral-950/80"
           />
         </div>
 
-        <div class="px-2 sm:px-4">
-          <!-- Profile Header -->
-          <div
-            class="relative z-10 -mt-12 flex flex-col gap-3 sm:-mt-14 sm:flex-row sm:items-end sm:gap-4"
-          >
-            <!-- Store Logo -->
-            <div class="group relative shrink-0">
+        <!-- Header -->
+        <div class="px-3 sm:px-5">
+          <div class="relative -mt-16 flex items-end justify-between gap-3">
+            <!-- Logo -->
+            <div class="relative shrink-0">
               <div
-                class="h-20 w-20 overflow-hidden rounded-xl border-4 border-white bg-white shadow-md transition-transform group-hover:scale-105 sm:h-24 sm:w-24 sm:rounded-2xl dark:border-neutral-950 dark:bg-neutral-900"
+                class="h-24 w-24 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl sm:h-28 sm:w-28 dark:border-neutral-950 dark:bg-neutral-900"
               >
                 <img
                   v-if="seller.store_logo"
@@ -73,291 +114,290 @@
                 />
                 <div
                   v-else
-                  class="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f02c56] to-purple-600"
+                  class="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand to-purple-600"
                 >
-                  <Icon name="mdi:storefront" size="36" class="text-white" />
+                  <Icon name="mdi:storefront" size="40" class="text-white" />
                 </div>
               </div>
+              <!-- Verified badge -->
               <div
                 v-if="seller.is_verified"
-                class="absolute -bottom-1 -right-1 rounded-full border-2 border-white bg-blue-500 p-1 shadow-sm dark:border-neutral-950"
+                class="absolute -bottom-1.5 -right-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-blue-500 shadow-md dark:border-neutral-950"
                 title="Verified Store"
               >
-                <Icon name="mdi:check" size="12" class="text-white" />
+                <Icon name="mdi:check-bold" size="13" class="text-white" />
               </div>
             </div>
 
-            <!-- Store Info -->
-            <div class="flex-1 pb-1 sm:pb-2">
-              <div
-                class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+            <!-- Desktop action buttons (right-aligned, bottom of banner) -->
+            <div class="hidden items-center gap-2 pb-1 sm:flex">
+              <button
+                v-if="profileStore.isLoggedIn"
+                :disabled="followLoading"
+                class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all disabled:opacity-60"
+                :class="
+                  isFollowing
+                    ? 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700'
+                    : 'bg-brand text-white shadow-lg shadow-brand/25 hover:bg-brand-dark'
+                "
+                @click="toggleFollow"
               >
-                <div>
-                  <h1
-                    class="flex items-center gap-2 text-xl font-bold text-gray-900 sm:text-2xl dark:text-neutral-100"
-                  >
-                    {{ seller.store_name }}
-                    <span
-                      class="rounded-full bg-gray-100 px-2 py-0.5 align-middle text-[10px] font-bold text-gray-500 dark:bg-neutral-800 dark:text-neutral-400"
-                    >
-                      {{ (seller as any).default_currency ?? 'NGN' }}
-                    </span>
-                  </h1>
-                  <p
-                    class="mt-0.5 text-sm font-medium text-gray-500 dark:text-neutral-400"
-                  >
-                    @{{ seller.store_slug }}
-                  </p>
-
-                  <div
-                    class="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600 sm:text-sm dark:text-neutral-400"
-                  >
-                    <div
-                      v-if="seller.store_location"
-                      class="flex items-center gap-1"
-                    >
-                      <Icon
-                        name="mdi:map-marker"
-                        size="16"
-                        class="text-brand"
-                      />
-                      <span>{{ seller.store_location }}</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <Icon
-                        name="mdi:clock-outline"
-                        size="16"
-                        class="text-brand"
-                      />
-                      <span>Joined {{ formatDate(seller.created_at) }}</span>
-                    </div>
-                    <a
-                      v-if="seller.store_website"
-                      :href="seller.store_website"
-                      target="_blank"
-                      rel="noopener"
-                      class="flex items-center gap-1 text-brand transition-colors hover:text-[#d81b36]"
-                    >
-                      <Icon name="mdi:web" size="16" />
-                      <span>Website</span>
-                    </a>
-                  </div>
-                </div>
-
-                <!-- Action Buttons (Desktop) -->
-                <div class="mt-2 hidden items-center gap-2 sm:mt-0 sm:flex">
-                  <button
-                    v-if="profileStore.isLoggedIn"
-                    @click="toggleFollow"
-                    :disabled="followLoading"
-                    class="flex min-w-[120px] items-center justify-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all"
-                    :class="
-                      isFollowing
-                        ? 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700'
-                        : 'bg-brand text-white shadow-sm shadow-brand/20 hover:bg-[#d81b36]'
-                    "
-                  >
-                    <Icon
-                      v-if="followLoading"
-                      name="eos-icons:loading"
-                      size="16"
-                      class="animate-spin"
-                    />
-                    <template v-else>
-                      <Icon
-                        :name="isFollowing ? 'mdi:check' : 'mdi:plus'"
-                        size="16"
-                      />
-                      <span>{{ isFollowing ? 'Following' : 'Follow' }}</span>
-                    </template>
-                  </button>
-                  <button
-                    class="rounded-xl border border-gray-200 bg-white p-2.5 font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                  >
-                    <Icon name="mdi:message-text-outline" size="18" />
-                  </button>
-                  <button
-                    class="rounded-xl border border-gray-200 bg-white p-2.5 font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                  >
-                    <Icon name="mdi:share-variant-outline" size="18" />
-                  </button>
-                </div>
-              </div>
+                <Icon
+                  v-if="followLoading"
+                  name="eos-icons:loading"
+                  size="15"
+                  class="animate-spin"
+                />
+                <Icon
+                  v-else
+                  :name="isFollowing ? 'mdi:account-check' : 'mdi:account-plus'"
+                  size="15"
+                />
+                {{ isFollowing ? 'Following' : 'Follow' }}
+              </button>
+              <button
+                class="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                title="Share store"
+                @click="shareStore"
+              >
+                <Icon name="mdi:share-variant-outline" size="18" />
+              </button>
+              <a
+                v-if="seller.store_website"
+                :href="seller.store_website"
+                target="_blank"
+                rel="noopener"
+                class="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                title="Visit website"
+              >
+                <Icon name="mdi:web" size="18" />
+              </a>
             </div>
           </div>
 
-          <!-- Stats Bar -->
-          <div class="grid grid-cols-3 gap-2 py-4 sm:gap-3 sm:py-5">
-            <div
-              class="rounded-xl border border-gray-100 bg-white p-3 text-center shadow-sm sm:p-4 dark:border-neutral-800 dark:bg-neutral-900"
-            >
-              <Icon
-                name="mdi:package-variant"
-                size="22"
-                class="mx-auto mb-1 text-brand"
-              />
-              <div
-                class="text-lg font-bold text-gray-900 sm:text-xl dark:text-neutral-100"
+          <!-- Store name + meta -->
+          <div class="mt-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1
+                class="text-2xl font-black text-gray-900 sm:text-3xl dark:text-neutral-100"
               >
-                {{ total.toLocaleString() }}
-              </div>
-              <div
-                class="mt-0.5 text-[11px] font-medium text-gray-500 sm:text-xs dark:text-neutral-400"
+                {{ seller.store_name }}
+              </h1>
+              <span
+                class="rounded-full bg-brand/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-brand"
+              >
+                {{ (seller as any).default_currency ?? 'NGN' }}
+              </span>
+              <span
+                v-if="seller.is_verified"
+                class="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-black text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+              >
+                <Icon name="mdi:check-decagram" size="11" />
+                Verified
+              </span>
+            </div>
+
+            <p
+              class="mt-0.5 text-sm font-medium text-gray-400 dark:text-neutral-500"
+            >
+              @{{ seller.store_slug }}
+            </p>
+
+            <div
+              v-if="seller.store_description"
+              class="mt-2 line-clamp-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-neutral-400"
+            >
+              {{ seller.store_description }}
+            </div>
+
+            <!-- Meta row -->
+            <div
+              class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-neutral-500"
+            >
+              <span
+                v-if="seller.store_location"
+                class="flex items-center gap-1"
+              >
+                <Icon
+                  name="mdi:map-marker-outline"
+                  size="13"
+                  class="text-brand"
+                />
+                {{ seller.store_location }}
+              </span>
+              <span class="flex items-center gap-1">
+                <Icon
+                  name="mdi:calendar-outline"
+                  size="13"
+                  class="text-brand"
+                />
+                Joined {{ formatDate(seller.created_at) }}
+              </span>
+              <a
+                v-if="seller.store_website"
+                :href="seller.store_website"
+                target="_blank"
+                rel="noopener"
+                class="flex items-center gap-1 text-brand hover:underline sm:hidden"
+              >
+                <Icon name="mdi:web" size="13" />
+                Website
+              </a>
+            </div>
+          </div>
+
+          <!-- Stats strip -->
+          <div class="mt-5 grid grid-cols-3 gap-3">
+            <div
+              class="rounded-2xl border border-gray-100 bg-white px-3 py-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+            >
+              <p
+                class="text-2xl font-black text-gray-900 dark:text-neutral-100"
+              >
+                {{ formatNumber(total) }}
+              </p>
+              <p
+                class="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500"
               >
                 Products
-              </div>
+              </p>
             </div>
             <div
-              class="rounded-xl border border-gray-100 bg-white p-3 text-center shadow-sm sm:p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              class="rounded-2xl border border-gray-100 bg-white px-3 py-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             >
-              <Icon
-                name="mdi:account-group"
-                size="22"
-                class="mx-auto mb-1 text-brand"
-              />
-              <div
-                class="text-lg font-bold text-gray-900 sm:text-xl dark:text-neutral-100"
+              <p
+                class="text-2xl font-black text-gray-900 dark:text-neutral-100"
               >
                 {{ formatNumber(seller.followers_count || 0) }}
-              </div>
-              <div
-                class="mt-0.5 text-[11px] font-medium text-gray-500 sm:text-xs dark:text-neutral-400"
+              </p>
+              <p
+                class="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500"
               >
                 Followers
-              </div>
+              </p>
             </div>
             <div
-              class="rounded-xl border border-gray-100 bg-white p-3 text-center shadow-sm sm:p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              class="rounded-2xl border border-gray-100 bg-white px-3 py-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             >
-              <Icon
-                name="mdi:star"
-                size="22"
-                class="mx-auto mb-1 text-yellow-500"
-              />
-              <div
-                class="text-lg font-bold text-gray-900 sm:text-xl dark:text-neutral-100"
-              >
-                4.8
+              <div class="flex items-center justify-center gap-1">
+                <p
+                  class="text-2xl font-black text-gray-900 dark:text-neutral-100"
+                >
+                  4.8
+                </p>
+                <Icon
+                  name="mdi:star"
+                  size="16"
+                  class="mt-0.5 text-yellow-400"
+                />
               </div>
-              <div
-                class="mt-0.5 text-[11px] font-medium text-gray-500 sm:text-xs dark:text-neutral-400"
+              <p
+                class="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500"
               >
                 Rating
-              </div>
+              </p>
             </div>
           </div>
 
-          <!-- Action Buttons (Mobile) -->
-          <div class="flex gap-2 pb-5 sm:hidden">
+          <!-- Mobile action buttons -->
+          <div class="mt-4 flex gap-2 sm:hidden">
             <button
               v-if="profileStore.isLoggedIn"
-              @click="toggleFollow"
               :disabled="followLoading"
-              class="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold shadow-sm transition-all"
+              class="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all disabled:opacity-60"
               :class="
                 isFollowing
                   ? 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-neutral-200'
-                  : 'bg-brand text-white shadow-brand/20'
+                  : 'bg-brand text-white shadow-lg shadow-brand/25'
               "
+              @click="toggleFollow"
             >
               <Icon
                 v-if="followLoading"
                 name="eos-icons:loading"
-                size="16"
+                size="15"
                 class="animate-spin"
               />
-              <template v-else>
-                <Icon
-                  :name="isFollowing ? 'mdi:check' : 'mdi:plus'"
-                  size="16"
-                />
-                <span>{{ isFollowing ? 'Following' : 'Follow' }}</span>
-              </template>
+              <Icon
+                v-else
+                :name="isFollowing ? 'mdi:account-check' : 'mdi:account-plus'"
+                size="15"
+              />
+              {{ isFollowing ? 'Following' : 'Follow' }}
             </button>
             <button
-              class="flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+              class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-600 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+              @click="shareStore"
             >
-              <Icon name="mdi:message-text-outline" size="18" />
+              <Icon name="mdi:share-variant-outline" size="18" />
             </button>
           </div>
 
-          <!-- Tabs Navigation -->
+          <!-- Tabs -->
           <div
-            class="mb-5 flex gap-1 rounded-xl bg-gray-100 p-1.5 dark:bg-neutral-800/60"
+            class="sticky top-0 z-30 -mx-3 mt-5 border-b border-gray-100 bg-white/90 px-3 pb-0 pt-2 backdrop-blur-md sm:-mx-5 sm:px-5 dark:border-neutral-800 dark:bg-neutral-950/90"
           >
-            <button
-              @click="activeTab = 'products'"
-              class="tab-button"
-              :class="{ active: activeTab === 'products' }"
-            >
-              <Icon name="mdi:grid" size="18" />
-              <span>Products</span>
-            </button>
-            <button
-              @click="activeTab = 'about'"
-              class="tab-button"
-              :class="{ active: activeTab === 'about' }"
-            >
-              <Icon name="mdi:information-outline" size="18" />
-              <span>About</span>
-            </button>
-            <button
-              @click="activeTab = 'reviews'"
-              class="tab-button"
-              :class="{ active: activeTab === 'reviews' }"
-            >
-              <Icon name="mdi:star-outline" size="18" />
-              <span>Reviews</span>
-            </button>
+            <div class="flex gap-0">
+              <button
+                v-for="tab in tabs"
+                :key="tab.key"
+                class="-mb-px flex items-center gap-1.5 border-b-2 px-5 py-3 text-xs font-black uppercase tracking-widest transition-all"
+                :class="
+                  activeTab === tab.key
+                    ? 'border-brand text-brand'
+                    : 'border-transparent text-gray-400 hover:text-gray-700 dark:hover:text-neutral-200'
+                "
+                @click="activeTab = tab.key"
+              >
+                <Icon :name="tab.icon" size="15" />
+                {{ tab.label }}
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- ─── TAB CONTENT ─────────────────────────────────────────────── -->
-        <div class="px-2 pb-4 sm:px-4">
-          <!-- PRODUCTS TAB -->
+        <!-- ── TAB CONTENT ───────────────────────────────────────────────── -->
+        <div class="px-3 pt-5 sm:px-5">
+          <!-- PRODUCTS ──────────────────────────────────────────────────── -->
           <div v-show="activeTab === 'products'">
-            <!-- Skeleton for Products -->
+            <!-- Product skeleton -->
             <div
               v-if="productsLoading && !products.length"
-              class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+              class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
             >
               <div
                 v-for="i in 8"
                 :key="i"
-                class="animate-pulse rounded-2xl border border-gray-100 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-900"
+                class="animate-pulse overflow-hidden rounded-2xl border border-gray-100 bg-white dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <div
-                  class="mb-2 aspect-[4/5] rounded-xl bg-gray-100 dark:bg-neutral-800"
-                />
-                <div class="space-y-2 px-1">
+                <div class="aspect-[3/4] bg-gray-100 dark:bg-neutral-800" />
+                <div class="space-y-2 p-3">
                   <div
-                    class="h-3.5 w-3/4 rounded bg-gray-100 dark:bg-neutral-800"
+                    class="h-3 w-3/4 rounded bg-gray-100 dark:bg-neutral-800"
                   />
                   <div
-                    class="h-3.5 w-1/2 rounded bg-gray-100 dark:bg-neutral-800"
+                    class="h-3 w-1/2 rounded bg-gray-100 dark:bg-neutral-800"
                   />
                 </div>
               </div>
             </div>
 
-            <!-- Empty State -->
+            <!-- Empty -->
             <div
               v-else-if="!productsLoading && !products.length"
-              class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 py-16 dark:border-neutral-800/50 dark:bg-neutral-900/30"
+              class="flex flex-col items-center justify-center gap-3 py-20 text-center"
             >
               <div
-                class="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm dark:bg-neutral-800"
+                class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-neutral-800"
               >
                 <Icon
                   name="mdi:package-variant-closed"
-                  size="32"
+                  size="30"
                   class="text-gray-300 dark:text-neutral-600"
                 />
               </div>
-              <p
-                class="text-[15px] font-semibold text-gray-600 dark:text-neutral-400"
-              >
-                No products listed yet
+              <p class="text-sm font-bold text-gray-500 dark:text-neutral-400">
+                No products yet
               </p>
             </div>
 
@@ -376,139 +416,382 @@
               />
             </div>
 
-            <!-- Infinite Scroll Sentinel -->
-            <div ref="trigger" class="mt-4 h-10" />
+            <!-- Infinite scroll trigger -->
+            <div ref="trigger" class="mt-2 h-12" />
 
-            <!-- Loading More -->
+            <!-- Loading more -->
             <div
-              v-if="productsLoading && products.length > 0"
+              v-if="productsLoading && products.length"
               class="flex items-center justify-center gap-2 py-6"
             >
               <Icon
                 name="eos-icons:loading"
-                size="24"
+                size="20"
                 class="animate-spin text-brand"
               />
-              <span
-                class="text-sm font-medium text-gray-500 dark:text-neutral-400"
-                >Loading more...</span
+              <span class="text-sm text-gray-400 dark:text-neutral-500"
+                >Loading more…</span
               >
             </div>
           </div>
 
-          <!-- ABOUT TAB -->
-          <div
-            v-show="activeTab === 'about'"
-            class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-800 dark:bg-neutral-900"
-          >
-            <h3
-              class="mb-3 text-lg font-bold text-gray-900 dark:text-neutral-100"
-            >
-              About {{ seller.store_name }}
-            </h3>
-            <p
-              class="whitespace-pre-line text-sm leading-relaxed text-gray-600 sm:text-[15px] dark:text-neutral-400"
-            >
-              {{
-                seller.store_description ||
-                'No description provided yet. This store will update their information soon!'
-              }}
-            </p>
-
-            <!-- Contact Info -->
+          <!-- POSTS ──────────────────────────────────────────────────────── -->
+          <div v-show="activeTab === 'posts'">
             <div
-              class="mt-6 space-y-4 border-t border-gray-100 pt-5 dark:border-neutral-800"
+              v-if="storePostsLoading && !storePosts.length"
+              class="grid grid-cols-3 gap-0.5"
             >
-              <div class="flex items-start gap-3">
+              <div
+                v-for="i in 9"
+                :key="i"
+                class="aspect-square animate-pulse rounded-sm bg-gray-100 dark:bg-neutral-800"
+              />
+            </div>
+
+            <div
+              v-else-if="!storePostsLoading && !storePosts.length"
+              class="flex flex-col items-center justify-center gap-3 py-20 text-center"
+            >
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-neutral-800"
+              >
+                <Icon
+                  name="mdi:image-off-outline"
+                  size="28"
+                  class="text-gray-300 dark:text-neutral-600"
+                />
+              </div>
+              <p class="text-sm font-bold text-gray-500 dark:text-neutral-400">
+                No posts yet
+              </p>
+            </div>
+
+            <div v-else class="grid grid-cols-3 gap-0.5">
+              <button
+                v-for="post in storePosts"
+                :key="post.id"
+                @click="selectedPost = post"
+                class="group relative aspect-square overflow-hidden rounded-sm bg-gray-100 dark:bg-neutral-800"
+              >
+                <img
+                  v-if="firstPostMedia(post)?.type === 'IMAGE'"
+                  :src="firstPostMedia(post)!.url"
+                  :alt="post.caption || 'Post'"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <video
+                  v-else-if="firstPostMedia(post)?.type === 'VIDEO'"
+                  :src="firstPostMedia(post)!.url"
+                  class="h-full w-full object-cover"
+                  muted
+                  preload="none"
+                />
                 <div
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand"
+                  v-else
+                  class="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand to-purple-700 p-3"
                 >
-                  <Icon name="mdi:email-outline" size="16" />
+                  <p
+                    class="line-clamp-4 text-center text-[11px] font-medium leading-relaxed text-white"
+                  >
+                    {{ post.caption || post.content || '…' }}
+                  </p>
                 </div>
-                <div class="min-w-0 pt-0.5">
-                  <div
-                    class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-500"
-                  >
-                    Contact Email
+
+                <!-- Hover overlay -->
+                <div
+                  class="absolute inset-0 flex items-center justify-center gap-4 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <div class="flex items-center gap-1 text-white drop-shadow">
+                    <Icon name="mdi:heart" size="18" />
+                    <span class="text-[12px] font-semibold">{{
+                      formatPostNum(post._count?.likes || 0)
+                    }}</span>
                   </div>
-                  <div
-                    class="truncate text-sm font-medium text-gray-900 dark:text-neutral-200"
-                  >
-                    <!-- Assuming email is stored in socials or profile, placeholder for now -->
-                    contact@{{ seller.store_slug }}.com
+                  <div class="flex items-center gap-1 text-white drop-shadow">
+                    <Icon name="mdi:comment" size="18" />
+                    <span class="text-[12px] font-semibold">{{
+                      formatPostNum(post._count?.comments || 0)
+                    }}</span>
                   </div>
+                </div>
+
+                <div
+                  class="pointer-events-none absolute right-1.5 top-1.5 flex flex-col items-end gap-1"
+                >
+                  <Icon
+                    v-if="firstPostMedia(post)?.type === 'VIDEO'"
+                    name="mdi:play-circle"
+                    size="16"
+                    class="text-white drop-shadow-lg"
+                  />
+                  <Icon
+                    v-if="(post.mediaItems?.length || 0) > 1"
+                    name="mdi:layers"
+                    size="16"
+                    class="text-white drop-shadow-lg"
+                  />
+                </div>
+              </button>
+            </div>
+
+            <div v-if="storePostsHasMore" class="mt-4 flex justify-center">
+              <button
+                @click="
+                  () => {
+                    storePostsOffset.value += POSTS_LIMIT
+                    loadStorePosts()
+                  }
+                "
+                :disabled="storePostsLoading"
+                class="rounded-xl px-6 py-2 text-[13px] font-semibold text-brand hover:bg-gray-50 disabled:opacity-50 dark:hover:bg-neutral-800"
+              >
+                {{ storePostsLoading ? 'Loading…' : 'Load more' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- ABOUT ──────────────────────────────────────────────────────── -->
+          <div v-show="activeTab === 'about'" class="max-w-2xl space-y-4">
+            <!-- Description card -->
+            <div
+              class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
+            >
+              <p
+                class="mb-3 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-neutral-500"
+              >
+                About this store
+              </p>
+              <p
+                class="whitespace-pre-line text-sm leading-relaxed text-gray-700 dark:text-neutral-300"
+              >
+                {{
+                  seller.store_description ||
+                  "This store hasn't added a description yet."
+                }}
+              </p>
+            </div>
+
+            <!-- Info grid -->
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div
+                v-if="seller.store_location"
+                class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10"
+                >
+                  <Icon
+                    name="mdi:map-marker-outline"
+                    size="18"
+                    class="text-brand"
+                  />
+                </div>
+                <div>
+                  <p
+                    class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+                  >
+                    Location
+                  </p>
+                  <p
+                    class="text-sm font-bold text-gray-900 dark:text-neutral-100"
+                  >
+                    {{ seller.store_location }}
+                  </p>
                 </div>
               </div>
-              <div v-if="seller.store_phone" class="flex items-start gap-3">
+
+              <div
+                class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              >
                 <div
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10"
                 >
-                  <Icon name="mdi:phone-outline" size="16" />
+                  <Icon
+                    name="mdi:calendar-check-outline"
+                    size="18"
+                    class="text-brand"
+                  />
                 </div>
-                <div class="min-w-0 pt-0.5">
-                  <div
-                    class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-500"
+                <div>
+                  <p
+                    class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-neutral-500"
                   >
-                    Phone Number
-                  </div>
-                  <div
-                    class="text-sm font-medium text-gray-900 dark:text-neutral-200"
+                    Member since
+                  </p>
+                  <p
+                    class="text-sm font-bold text-gray-900 dark:text-neutral-100"
+                  >
+                    {{ formatDate(seller.created_at) }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                v-if="seller.store_phone"
+                class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10"
+                >
+                  <Icon name="mdi:phone-outline" size="18" class="text-brand" />
+                </div>
+                <div>
+                  <p
+                    class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+                  >
+                    Phone
+                  </p>
+                  <p
+                    class="text-sm font-bold text-gray-900 dark:text-neutral-100"
                   >
                     {{ seller.store_phone }}
-                  </div>
+                  </p>
+                </div>
+              </div>
+
+              <div
+                v-if="seller.store_website"
+                class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand/10"
+                >
+                  <Icon name="mdi:web" size="18" class="text-brand" />
+                </div>
+                <div class="min-w-0">
+                  <p
+                    class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+                  >
+                    Website
+                  </p>
+                  <a
+                    :href="seller.store_website"
+                    target="_blank"
+                    rel="noopener"
+                    class="block truncate text-sm font-bold text-brand hover:underline"
+                  >
+                    {{ seller.store_website.replace(/^https?:\/\//, '') }}
+                  </a>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50"
+                >
+                  <Icon
+                    name="mdi:currency-usd"
+                    size="18"
+                    class="text-amber-500"
+                  />
+                </div>
+                <div>
+                  <p
+                    class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+                  >
+                    Currency
+                  </p>
+                  <p
+                    class="text-sm font-bold text-gray-900 dark:text-neutral-100"
+                  >
+                    {{ (seller as any).default_currency ?? 'NGN' }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50"
+                >
+                  <Icon
+                    name="mdi:package-variant"
+                    size="18"
+                    class="text-emerald-500"
+                  />
+                </div>
+                <div>
+                  <p
+                    class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-neutral-500"
+                  >
+                    Total products
+                  </p>
+                  <p
+                    class="text-sm font-bold text-gray-900 dark:text-neutral-100"
+                  >
+                    {{ total.toLocaleString() }} listed
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- REVIEWS TAB -->
-          <div v-show="activeTab === 'reviews'" class="space-y-4">
-            <!-- Review Summary -->
+          <!-- REVIEWS ────────────────────────────────────────────────────── -->
+          <div v-show="activeTab === 'reviews'" class="max-w-2xl">
+            <!-- Rating summary -->
             <div
-              class="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-800 dark:bg-neutral-900"
+              class="mb-4 rounded-2xl border border-gray-100 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900"
             >
-              <div class="text-center">
-                <div
-                  class="text-4xl font-extrabold text-gray-900 dark:text-neutral-100"
-                >
-                  4.8
+              <div class="flex items-center gap-6">
+                <div class="shrink-0 text-center">
+                  <p
+                    class="text-5xl font-black text-gray-900 dark:text-neutral-100"
+                  >
+                    4.8
+                  </p>
+                  <div class="mt-1.5 flex items-center justify-center gap-0.5">
+                    <Icon
+                      v-for="i in 5"
+                      :key="i"
+                      name="mdi:star"
+                      size="14"
+                      class="text-yellow-400"
+                    />
+                  </div>
+                  <p class="mt-1 text-[10px] font-bold text-gray-400">
+                    1,234 reviews
+                  </p>
                 </div>
-                <div class="mt-1 flex items-center justify-center gap-0.5">
-                  <Icon
-                    v-for="i in 5"
+                <div class="flex-1 space-y-1.5">
+                  <div
+                    v-for="(pct, i) in [72, 18, 6, 3, 1]"
                     :key="i"
-                    name="mdi:star"
-                    size="16"
-                    class="text-yellow-500"
-                  />
+                    class="flex items-center gap-2"
+                  >
+                    <span class="w-2 text-[10px] font-bold text-gray-400">{{
+                      5 - i
+                    }}</span>
+                    <div
+                      class="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-neutral-800"
+                    >
+                      <div
+                        class="h-full rounded-full bg-yellow-400 transition-all"
+                        :style="{ width: pct + '%' }"
+                      />
+                    </div>
+                    <span class="w-6 text-right text-[10px] text-gray-400"
+                      >{{ pct }}%</span
+                    >
+                  </div>
                 </div>
-                <div
-                  class="mt-1 text-xs font-medium text-gray-500 dark:text-neutral-400"
-                >
-                  1,234 reviews
-                </div>
-              </div>
-              <div class="h-16 w-px bg-gray-200 dark:bg-neutral-800" />
-              <div class="flex-1">
-                <p class="text-sm italic text-gray-600 dark:text-neutral-400">
-                  "Consistently highly rated by buyers across the platform."
-                </p>
               </div>
             </div>
 
-            <!-- Empty Reviews List -->
+            <!-- Coming soon -->
             <div
-              class="rounded-2xl border border-gray-100 bg-gray-50/50 p-10 text-center dark:border-neutral-800/50 dark:bg-neutral-900/30"
+              class="rounded-2xl border border-gray-100 bg-gray-50/50 p-12 text-center dark:border-neutral-800/50 dark:bg-neutral-900/30"
             >
               <Icon
                 name="mdi:comment-quote-outline"
-                size="40"
+                size="36"
                 class="mb-3 text-gray-300 dark:text-neutral-600"
               />
-              <p
-                class="text-[15px] font-medium text-gray-600 dark:text-neutral-400"
-              >
-                Detailed reviews coming soon!
+              <p class="text-sm font-bold text-gray-500 dark:text-neutral-400">
+                Individual reviews coming soon
               </p>
             </div>
           </div>
@@ -516,7 +799,7 @@
       </div>
     </div>
 
-    <!-- ─── MODALS ──────────────────────────────────────────────────── -->
+    <!-- ── MODALS ─────────────────────────────────────────────────────── -->
     <ProductDetailModal
       :product="selectedProduct"
       @close="selectedProduct = null"
@@ -526,20 +809,26 @@
       :product="marketProduct"
       @close="marketProduct = null"
     />
+    <PostDetailModal
+      v-if="selectedPost"
+      :post="normalizePost(selectedPost)"
+      @close="selectedPost = null"
+    />
   </HomeLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import ProductCardMini from '~/components/shop/ProductCardMini.vue'
-import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
-import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
-
-// Composables & Stores
+import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
+import ProductMarketModal from '~~/layers/commerce/app/components/modals/ProductMarketModal.vue'
+import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue'
+import { normalizePost } from '~~/layers/post/app/composables/usePost'
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
+import { useAffiliate } from '~~/layers/commerce/app/composables/useAffiliate'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useCart } from '~~/layers/commerce/app/composables/useCart'
 import { notify } from '@kyvg/vue3-notification'
@@ -552,7 +841,6 @@ const storeSlug =
 const {
   loadPublicSeller,
   currentSeller,
-  sellerCount,
   getFollowStatus,
   followSeller,
   unfollowSeller,
@@ -561,17 +849,14 @@ const { fetchSellerProducts, isLoading: productsLoading } = useProduct()
 const profileStore = useProfileStore()
 const { addToCart } = useCart()
 
-// Page State
 const pageLoading = ref(true)
 const loadError = ref(false)
 const activeTab = ref('products')
 const seller = computed(() => currentSeller.value)
 
-// Follow State
 const isFollowing = ref(false)
 const followLoading = ref(false)
 
-// Product State
 const products = ref<IProduct[]>([])
 const total = ref(0)
 const offset = ref(0)
@@ -580,12 +865,47 @@ const hasMore = computed(() => products.value.length < total.value)
 
 const selectedProduct = ref<IProduct | null>(null)
 const marketProduct = ref<IProduct | null>(null)
-
-// Infinite Scroll
 const trigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
 
-// ─── METHODS ──────────────────────────────────────────────────────────
+const tabs = [
+  { key: 'products', label: 'Products', icon: 'mdi:grid' },
+  { key: 'posts', label: 'Posts', icon: 'mdi:image-multiple-outline' },
+  { key: 'about', label: 'About', icon: 'mdi:information-outline' },
+  { key: 'reviews', label: 'Reviews', icon: 'mdi:star-outline' },
+]
+
+// ── Store posts ──────────────────────────────────────────────────────────────
+const storePosts = ref<any[]>([])
+const storePostsLoading = ref(false)
+const storePostsHasMore = ref(false)
+const storePostsOffset = ref(0)
+const POSTS_LIMIT = 12
+const selectedPost = ref<any | null>(null)
+
+const loadStorePosts = async () => {
+  storePostsLoading.value = true
+  try {
+    const res: any = await $fetch('/api/posts/by-store', {
+      params: { storeSlug, limit: POSTS_LIMIT, offset: storePostsOffset.value },
+    })
+    storePosts.value.push(...(res?.data ?? []))
+    storePostsHasMore.value = res?.meta?.hasMore ?? false
+  } catch {
+    /* silent */
+  } finally {
+    storePostsLoading.value = false
+  }
+}
+
+const firstPostMedia = (post: any) => {
+  if (post.mediaItems?.length) return post.mediaItems[0]
+  if (Array.isArray(post.media)) return post.media[0] ?? null
+  return post.media ?? null
+}
+
+const formatPostNum = (n: number) =>
+  n >= 1_000 ? `${(n / 1_000).toFixed(1)}k` : String(n)
 
 const loadProducts = async (reset = false) => {
   if (reset) {
@@ -593,44 +913,39 @@ const loadProducts = async (reset = false) => {
     offset.value = 0
   }
   if (productsLoading.value) return
-
   try {
     const result = (await fetchSellerProducts(storeSlug, {
       status: 'PUBLISHED',
       limit: LIMIT,
       offset: offset.value,
     })) as any
-
     const incoming = result?.products ?? result?.data ?? []
     products.value.push(...incoming)
     total.value = result?.total ?? result?.meta?.total ?? 0
     offset.value += incoming.length
   } catch {
-    // silently fail for infinite scroll, or add error handling
+    /* silent */
   }
 }
 
 const toggleFollow = async () => {
   if (followLoading.value) return
   followLoading.value = true
-
   try {
     if (isFollowing.value) {
       await unfollowSeller(storeSlug)
       isFollowing.value = false
-      if (currentSeller.value) {
-        ;(currentSeller.value as any).followers_count = Math.max(
+      if (currentSeller.value)
+        (currentSeller.value as any).followers_count = Math.max(
           0,
           ((currentSeller.value as any).followers_count ?? 0) - 1,
         )
-      }
     } else {
       await followSeller(storeSlug)
       isFollowing.value = true
-      if (currentSeller.value) {
-        ;(currentSeller.value as any).followers_count =
+      if (currentSeller.value)
+        (currentSeller.value as any).followers_count =
           ((currentSeller.value as any).followers_count ?? 0) + 1
-      }
     }
   } catch (e: any) {
     notify({
@@ -652,28 +967,43 @@ const quickAdd = async (product: IProduct) => {
     await addToCart(variant.id, 1)
     notify({ type: 'success', text: `${product.title} added to cart` })
   } catch {
-    /* useCart handles error notification natively */
+    /* useCart handles notification */
   }
 }
 
-// ─── UTILS ────────────────────────────────────────────────────────────
-
-const formatDate = (dateString?: string | Date) => {
-  if (!dateString) return 'Recently'
-  const d = new Date(dateString)
-  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+const shareStore = async () => {
+  const url = window.location.href
+  const name = seller.value?.store_name ?? 'this store'
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: name, url })
+    } catch {
+      /* cancelled */
+    }
+  } else {
+    await navigator.clipboard.writeText(url)
+    notify({ type: 'success', text: 'Store link copied!' })
+  }
 }
 
-const formatNumber = (num: number) => {
-  return new Intl.NumberFormat('en-US', {
+const formatDate = (d?: string | Date) => {
+  if (!d) return 'Recently'
+  return new Date(d).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+const formatNumber = (n: number) =>
+  new Intl.NumberFormat('en-US', {
     notation: 'compact',
     compactDisplay: 'short',
-  }).format(num)
-}
+  }).format(n)
 
-// ─── LIFECYCLE ────────────────────────────────────────────────────────
+const { captureAffiliateRef } = useAffiliate()
 
 onMounted(async () => {
+  captureAffiliateRef()
   try {
     await loadPublicSeller(storeSlug)
   } catch {
@@ -683,28 +1013,19 @@ onMounted(async () => {
   }
 
   if (!loadError.value) {
-    // Load follow status in parallel with products (non-blocking)
     if (profileStore.isLoggedIn) {
-      getFollowStatus(storeSlug).then((status) => {
-        isFollowing.value = status
+      getFollowStatus(storeSlug).then((s) => {
+        isFollowing.value = s
       })
     }
-
     await loadProducts()
-
     observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0]?.isIntersecting &&
-          hasMore.value &&
-          !productsLoading.value
-        ) {
+      ([entry]) => {
+        if (entry?.isIntersecting && hasMore.value && !productsLoading.value)
           loadProducts()
-        }
       },
       { rootMargin: '400px' },
-    ) // 400px ensures smooth preload before hitting bottom
-
+    )
     if (trigger.value) observer.observe(trigger.value)
   }
 })
@@ -712,14 +1033,9 @@ onMounted(async () => {
 onUnmounted(() => {
   observer?.disconnect()
 })
+
+// Lazy-load posts only when the tab is first opened
+watch(activeTab, (tab) => {
+  if (tab === 'posts' && storePosts.value.length === 0) loadStorePosts()
+})
 </script>
-
-<style scoped>
-.tab-button {
-  @apply flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-center text-sm font-bold text-gray-500 transition-all hover:bg-gray-200/50 hover:text-gray-900 dark:text-neutral-400 dark:hover:bg-neutral-700/50 dark:hover:text-neutral-100;
-}
-
-.tab-button.active {
-  @apply border border-gray-200 bg-white text-brand shadow-sm dark:border-neutral-700 dark:bg-neutral-900;
-}
-</style>

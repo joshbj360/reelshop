@@ -11,7 +11,11 @@
  * - Falls back to built-in static rates if the API is unreachable
  */
 
-import { formatProductPrice, formatInCurrency, type SupportedCurrency } from '~/utils/currency'
+import {
+  formatProductPrice,
+  formatInCurrency,
+  type SupportedCurrency,
+} from '~/utils/currency'
 
 // ── Module-level singletons ───────────────────────────────────────────────────
 // Shared across ALL components — rates are fetched once, not per component
@@ -22,11 +26,19 @@ const REFETCH_INTERVAL = 60 * 60 * 1000 // 1 hour
 
 const fetchRates = async () => {
   if (isFetchingRates.value) return
-  if (rates.value && Object.keys(rates.value).length > 0 && Date.now() - ratesFetchedAt < REFETCH_INTERVAL) return
+  if (
+    rates.value &&
+    Object.keys(rates.value).length > 0 &&
+    Date.now() - ratesFetchedAt < REFETCH_INTERVAL
+  )
+    return
 
   isFetchingRates.value = true
   try {
-    const res = await $fetch<{ success: boolean; data: Record<string, number> }>('/api/exchange-rates')
+    const res = await $fetch<{
+      success: boolean
+      data: Record<string, number>
+    }>('/api/exchange-rates')
     if (res?.data) {
       rates.value = res.data
       ratesFetchedAt = Date.now()
@@ -44,7 +56,9 @@ export const useCurrency = () => {
   const { settings } = useSettings()
 
   // The currency the user wants to see prices in
-  const displayCurrency = computed(() => settings.value.currency as SupportedCurrency)
+  const displayCurrency = computed(
+    () => settings.value.currency as SupportedCurrency,
+  )
 
   // Fetch rates on first use, and whenever currency changes
   if (import.meta.client) {
@@ -106,8 +120,14 @@ export const useCurrency = () => {
    */
   const currencySymbol = computed(() => {
     const symbols: Record<string, string> = {
-      NGN: '₦', USD: '$', GBP: '£', EUR: '€',
-      GHS: '₵', KES: 'KSh', ZAR: 'R', CAD: 'C$',
+      NGN: '₦',
+      USD: '$',
+      GBP: '£',
+      EUR: '€',
+      GHS: '₵',
+      KES: 'KSh',
+      ZAR: 'R',
+      CAD: 'C$',
     }
     return symbols[displayCurrency.value] ?? displayCurrency.value
   })

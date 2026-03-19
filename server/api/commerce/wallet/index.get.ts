@@ -41,10 +41,22 @@ export default defineEventHandler(async (event) => {
     )
 
     // Aggregate totals across all stores
-    const totalBalance = storeWallets.reduce((sum, s) => sum + (s.wallet?.balance ?? 0), 0)
-    const totalPending = storeWallets.reduce((sum, s) => sum + (s.wallet?.pending_balance ?? 0), 0)
-    const totalEarned = storeWallets.reduce((sum, s) => sum + (s.stats?.totalEarned ?? 0), 0)
-    const totalSpent = storeWallets.reduce((sum, s) => sum + (s.stats?.totalSpent ?? 0), 0)
+    const totalBalance = storeWallets.reduce(
+      (sum, s) => sum + (s.wallet?.balance ?? 0),
+      0,
+    )
+    const totalPending = storeWallets.reduce(
+      (sum, s) => sum + (s.wallet?.pending_balance ?? 0),
+      0,
+    )
+    const totalEarned = storeWallets.reduce(
+      (sum, s) => sum + (s.stats?.totalEarned ?? 0),
+      0,
+    )
+    const totalSpent = storeWallets.reduce(
+      (sum, s) => sum + (s.stats?.totalSpent ?? 0),
+      0,
+    )
 
     return {
       success: true,

@@ -97,9 +97,9 @@
 <script setup lang="ts">
 import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
 import HomeLayout from '~/layouts/HomeLayout.vue'
-import ProductCardMini from '~/components/shop/ProductCardMini'
-import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
-import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
+import ProductCardMini from '~/components/shop/ProductCardMini.vue'
+import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
+import ProductMarketModal from '~~/layers/commerce/app/components/modals/ProductMarketModal.vue'
 
 const route = useRoute()
 const { fetchProducts, isLoading } = useProduct()

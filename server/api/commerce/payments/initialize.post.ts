@@ -23,6 +23,7 @@ const schema = z.object({
   estimatedDays: z.string().optional(),
   currency: z.string().default('NGN'),
   callback_url: z.string().url().optional(),
+  affiliateCode: z.string().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -45,7 +46,7 @@ export default defineEventHandler(async (event) => {
     )
 
     // 2. Build a unique Paystack reference
-    const reference = `indix_${order.id}_${Date.now()}`
+    const reference = `stylex_${order.id}_${Date.now()}`
 
     // 3. Store the reference on the order
     await prisma.orders.update({

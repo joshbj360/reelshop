@@ -102,7 +102,8 @@ export const useShipping = () => {
           a.amountNGN <= b.amountNGN ? a : b,
         )
       }
-    } catch (err: any) {
+    } catch (e: unknown) {
+      const err = e as Error & { data?: { message?: string } }
       ratesError.value = err?.data?.message ?? 'Could not fetch shipping rates'
     } finally {
       isLoadingRates.value = false

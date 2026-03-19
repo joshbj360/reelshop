@@ -35,8 +35,12 @@ export const useNotificationStore = defineStore('notification', () => {
     notifications.value = notifications.value.filter((n) => n.id !== id)
     updateUnreadCount()
   }
-  const setLoading = (loading: boolean) => { isLoading.value = loading }
-  const setError = (err: string | null) => { error.value = err }
+  const setLoading = (loading: boolean) => {
+    isLoading.value = loading
+  }
+  const setError = (err: string | null) => {
+    error.value = err
+  }
   const clearNotifications = () => {
     notifications.value = []
     unreadCount.value = 0

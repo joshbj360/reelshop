@@ -10,12 +10,22 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const amount = parseInt(String(query.amount ?? '0'))
     if (isNaN(amount) || amount <= 0)
-      throw new UserError('INVALID', 'amount must be a positive integer (kobo)', 400)
+      throw new UserError(
+        'INVALID',
+        'amount must be a positive integer (kobo)',
+        400,
+      )
 
     return { success: true, data: calculatePayout(amount) }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: error.message || 'Server error' })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message || 'Server error',
+    })
   }
 })

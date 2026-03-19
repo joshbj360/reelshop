@@ -24,11 +24,7 @@
 
     <!-- Items -->
     <div class="space-y-3 p-4">
-      <div
-        v-for="item in order.orderItem"
-        :key="item.id"
-        class="flex gap-3"
-      >
+      <div v-for="item in order.orderItem" :key="item.id" class="flex gap-3">
         <img
           :src="item.variant?.product?.media?.[0]?.url || ''"
           :alt="item.variant?.product?.title || 'Product'"
@@ -66,7 +62,8 @@
       class="flex items-start gap-1.5 border-t border-gray-100 px-4 py-2 text-xs text-amber-600 dark:border-neutral-800 dark:text-amber-400"
     >
       <Icon name="mdi:clock-alert-outline" size="14" class="mt-0.5 shrink-0" />
-      Payment will be automatically released to the seller in 7 days. Confirm receipt above to release it now.
+      Payment will be automatically released to the seller in 7 days. Confirm
+      receipt above to release it now.
     </div>
 
     <!-- Footer -->
@@ -76,7 +73,9 @@
       <div class="text-sm">
         <span class="text-gray-500 dark:text-neutral-400">Total:</span>
         <span class="ml-2 font-bold text-gray-900 dark:text-neutral-100">
-          {{ formatPrice((order.totalAmount || 0) + (order.shippingCost || 0)) }}
+          {{
+            formatPrice((order.totalAmount || 0) + (order.shippingCost || 0))
+          }}
         </span>
       </div>
 
@@ -133,7 +132,12 @@ const confirming = ref(false)
 const confirmed = ref(false)
 
 const confirmReceipt = async () => {
-  if (!confirm('Confirm you have received this order? This will release payment to the seller.')) return
+  if (
+    !confirm(
+      'Confirm you have received this order? This will release payment to the seller.',
+    )
+  )
+    return
   confirming.value = true
   try {
     await orderApi.confirmReceipt(props.order.id)
@@ -148,14 +152,14 @@ const confirmReceipt = async () => {
 const statusClasses: Record<string, string> = {
   PENDING:
     'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
-  CONFIRMED:
-    'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400',
+  CONFIRMED: 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400',
   SHIPPED:
     'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
   DELIVERED:
     'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400',
   CANCELLED: 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400',
-  DEFAULT: 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-400',
+  DEFAULT:
+    'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-400',
 }
 
 const formatDate = (dateString: string) => {

@@ -1,16 +1,13 @@
 <template>
   <div class="avatar-container">
-    <!-- Show user uploaded image if available -->
     <img
-      v-if="avatar"
+      v-if="avatar && showImage"
       :src="imgAvatar(avatar)"
       class="avatar-image"
       :class="sizeClass"
       alt="User avatar"
-      @error="handleImageError"
+      @error="showImage = false"
     />
-
-    <!-- Show initials placeholder if no avatar -->
     <div
       v-else
       class="avatar-placeholder"
@@ -22,9 +19,8 @@
   </div>
 </template>
 
-<script setup>
-import { computed } from 'vue'
-import { string } from 'zod'
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { imgAvatar } from '~/utils/cloudinary'
 
 const props = defineProps({
@@ -34,67 +30,58 @@ const props = defineProps({
   },
   avatar: {
     type: String,
-    default: `https://api.dicebear.com/7.x/initials/svg?seed=user`,
+    default: '',
   },
   size: {
     type: String,
-    default: 'md', // sm, md, lg
-    validator: (value) => ['sm', 'md', 'lg'].includes(value),
+    default: 'md',
+    validator: (v: string) => ['sm', 'md', 'lg', 'xl', '2xl'].includes(v),
   },
 })
 
-// Size classes mapping
+// Reset on avatar change so a new valid URL is tried again
+const showImage = ref(true)
+watch(
+  () => props.avatar,
+  () => {
+    showImage.value = true
+  },
+)
+
 const sizeClass = computed(() => {
-  const sizes = {
+  const sizes: Record<string, string> = {
     sm: 'w-8 h-8 text-sm',
     md: 'w-10 h-10 text-base',
     lg: 'w-12 h-12 text-lg',
+    xl: 'w-14 h-14 text-xl',
+    '2xl': 'w-20 h-20 text-2xl',
   }
-  return sizes[props.size] || sizes.md
+  return sizes[props.size] ?? sizes.md
 })
 
-// Get initials from username
-const initials = computed(() => {
-  if (!props.username) return '?'
+const initials = computed(() =>
+  props.username ? props.username.charAt(0).toUpperCase() : '?',
+)
 
-  const name = props.username
-  // Take first letter of username, capitalize it
-  return name.charAt(0).toUpperCase()
-})
-
-// Generate consistent color based on username
 const bgColor = computed(() => {
-  if (!props.username) return '#e2e8f0' // Default gray
-
+  if (!props.username) return '#e2e8f0'
   const colors = [
-    '#f87171', // red
-    '#fb923c', // orange
-    '#fbbf24', // amber
-    '#a3e635', // lime
-    '#4ade80', // green
-    '#2dd4bf', // teal
-    '#38bdf8', // light blue
-    '#818cf8', // indigo
-    '#c084fc', // purple
-    '#e879f9', // fuchsia
+    '#f87171',
+    '#fb923c',
+    '#fbbf24',
+    '#a3e635',
+    '#4ade80',
+    '#2dd4bf',
+    '#38bdf8',
+    '#818cf8',
+    '#c084fc',
+    '#e879f9',
   ]
-
-  // Get consistent index based on username
-  const hash = props.username.split('').reduce((acc, char) => {
-    return char.charCodeAt(0) + ((acc << 5) - acc)
-  }, 0)
-
-  const index = Math.abs(hash) % colors.length
-  return colors[index]
+  const hash = props.username
+    .split('')
+    .reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)
+  return colors[Math.abs(hash) % colors.length]
 })
-
-// Fallback if image fails to load
-const handleImageError = (e) => {
-  console.warn('Avatar image failed to load, showing placeholder')
-  e.target.style.display = 'none'
-  // The v-else will show the placeholder
-  // You might need to force reactivity here in a real app
-}
 </script>
 
 <style scoped>
@@ -112,7 +99,7 @@ const handleImageError = (e) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
+  font-weight: 600;
   color: white;
 }
 </style>

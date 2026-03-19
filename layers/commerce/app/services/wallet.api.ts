@@ -17,6 +17,11 @@ export class WalletApiClient extends BaseApiClient {
       method: 'GET',
     })
   }
+  async getStoreWallet(storeSlug: string) {
+    return this.request(`/api/commerce/wallet/store/${storeSlug}`, {
+      method: 'GET',
+    })
+  }
   async addFunds(amount: number) {
     return this.request('/api/commerce/wallet/add-funds', {
       method: 'POST',

@@ -14,7 +14,10 @@ const productInclude = {
     orderBy: { created_at: 'asc' as const },
   },
   variants: true,
-  offers: { where: { isActive: true }, orderBy: { minQuantity: 'asc' as const } },
+  offers: {
+    where: { isActive: true },
+    orderBy: { minQuantity: 'asc' as const },
+  },
   _count: {
     select: { likes: true, comments: true, shares: true },
   },
@@ -344,7 +347,10 @@ export const productRepository = {
       if (updateData.media?.create) {
         updateData.media.create.push(bgMediaCreate)
       } else {
-        updateData.media = { ...(updateData.media || {}), create: [bgMediaCreate] }
+        updateData.media = {
+          ...(updateData.media || {}),
+          create: [bgMediaCreate],
+        }
       }
     }
 

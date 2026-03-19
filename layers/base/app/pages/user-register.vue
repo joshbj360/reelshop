@@ -8,21 +8,30 @@
         alt="Vibrant Lagos street fashion group in colorful Ankara and modern outfits"
         class="h-full w-full object-cover object-center brightness-[0.78] contrast-[1.08] saturate-[1.15]"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/45 to-black/30" />
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/45 to-black/30"
+      />
     </div>
 
     <!-- Main Content – centered glassmorphism card -->
-    <div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 py-10 sm:px-6 md:py-12 lg:px-8">
+    <div
+      class="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 py-10 sm:px-6 md:py-12 lg:px-8"
+    >
       <div
-        class="fade-in w-full max-w-md rounded-2xl bg-white/88 p-6 shadow-2xl backdrop-blur-xl sm:p-8 md:max-w-lg md:p-10 lg:max-w-md dark:bg-neutral-900/82 dark:shadow-black/40"
+        class="fade-in bg-white/88 dark:bg-neutral-900/82 w-full max-w-md rounded-2xl p-6 shadow-2xl backdrop-blur-xl sm:p-8 md:max-w-lg md:p-10 lg:max-w-md dark:shadow-black/40"
       >
         <!-- Header & Motivational Copy -->
         <div class="mb-7 text-center">
-          <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-            Join {{ $config.public.siteName || 'Indix' }}
+          <h1
+            class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
+          >
+            Join {{ $config.public.siteName || 'stylex' }}
           </h1>
-          <p class="mt-2.5 text-base leading-relaxed text-gray-700 dark:text-gray-300">
-            Create your account to share your style, discover trends, follow creators, and shop what moves you
+          <p
+            class="mt-2.5 text-base leading-relaxed text-gray-700 dark:text-gray-300"
+          >
+            Create your account to share your style, discover trends, follow
+            creators, and shop what moves you
           </p>
         </div>
 
@@ -43,7 +52,7 @@
         </div>
 
         <!-- Social Sign Up – Prominent & First -->
-        <div class="space-y-3.5 mb-8">
+        <div class="mb-8 space-y-3.5">
           <button
             type="button"
             :disabled="isLoading"
@@ -77,10 +86,16 @@
           <!-- Divider -->
           <div class="relative my-5">
             <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-300/60 dark:border-neutral-600/60" />
+              <div
+                class="w-full border-t border-gray-300/60 dark:border-neutral-600/60"
+              />
             </div>
-            <div class="relative flex justify-center text-xs uppercase tracking-wider">
-              <span class="bg-white/88 px-4 text-gray-500 dark:bg-neutral-900/82 dark:text-gray-400">
+            <div
+              class="relative flex justify-center text-xs uppercase tracking-wider"
+            >
+              <span
+                class="bg-white/88 dark:bg-neutral-900/82 px-4 text-gray-500 dark:text-gray-400"
+              >
                 or sign up with email
               </span>
             </div>
@@ -99,7 +114,10 @@
               class="w-full rounded-xl border bg-white/60 px-4 py-3.5 text-base placeholder-gray-500 transition focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-600 dark:bg-neutral-800/50 dark:text-white dark:placeholder-gray-400"
               :class="{ 'border-red-400 dark:border-red-600': errors.username }"
             />
-            <p v-if="errors.username" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            <p
+              v-if="errors.username"
+              class="mt-1.5 text-xs text-red-600 dark:text-red-400"
+            >
               {{ errors.username }}
             </p>
           </div>
@@ -114,7 +132,10 @@
               class="w-full rounded-xl border bg-white/60 px-4 py-3.5 text-base placeholder-gray-500 transition focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-600 dark:bg-neutral-800/50 dark:text-white dark:placeholder-gray-400"
               :class="{ 'border-red-400 dark:border-red-600': errors.email }"
             />
-            <p v-if="errors.email" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            <p
+              v-if="errors.email"
+              class="mt-1.5 text-xs text-red-600 dark:text-red-400"
+            >
               {{ errors.email }}
             </p>
           </div>
@@ -135,9 +156,15 @@
               :disabled="isLoading"
               @click="showPassword = !showPassword"
             >
-              <Icon :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'" class="h-5.5 w-5.5" />
+              <Icon
+                :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
+                class="h-5.5 w-5.5"
+              />
             </button>
-            <p v-if="errors.password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            <p
+              v-if="errors.password"
+              class="mt-1.5 text-xs text-red-600 dark:text-red-400"
+            >
               {{ errors.password }}
             </p>
           </div>
@@ -150,7 +177,9 @@
               placeholder="Confirm password"
               :disabled="isLoading"
               class="w-full rounded-xl border bg-white/60 px-4 py-3.5 pr-12 text-base placeholder-gray-500 transition focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-600 dark:bg-neutral-800/50 dark:text-white dark:placeholder-gray-400"
-              :class="{ 'border-red-400 dark:border-red-600': errors.confirmPassword }"
+              :class="{
+                'border-red-400 dark:border-red-600': errors.confirmPassword,
+              }"
             />
             <button
               type="button"
@@ -158,15 +187,24 @@
               :disabled="isLoading"
               @click="showConfirmPassword = !showConfirmPassword"
             >
-              <Icon :name="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'" class="h-5.5 w-5.5" />
+              <Icon
+                :name="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'"
+                class="h-5.5 w-5.5"
+              />
             </button>
-            <p v-if="errors.confirmPassword" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            <p
+              v-if="errors.confirmPassword"
+              class="mt-1.5 text-xs text-red-600 dark:text-red-400"
+            >
               {{ errors.confirmPassword }}
             </p>
           </div>
 
           <!-- Password Strength Meter -->
-          <PasswordStrengthMeter v-if="form.password" :password="form.password" />
+          <PasswordStrengthMeter
+            v-if="form.password"
+            :password="form.password"
+          />
 
           <!-- Terms Checkbox -->
           <div class="flex items-start gap-3 pt-1">
@@ -177,11 +215,22 @@
               class="mt-1.5 h-5 w-5 rounded border-gray-300 text-brand focus:ring-brand/40 dark:bg-neutral-700"
               :disabled="isLoading"
             />
-            <label for="terms" class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            <label
+              for="terms"
+              class="text-sm leading-relaxed text-gray-600 dark:text-gray-400"
+            >
               I agree to the
-              <a href="#" class="font-medium text-brand hover:text-brand/80 transition">Terms of Service</a>
+              <a
+                href="#"
+                class="font-medium text-brand transition hover:text-brand/80"
+                >Terms of Service</a
+              >
               and
-              <a href="#" class="font-medium text-brand hover:text-brand/80 transition">Privacy Policy</a>
+              <a
+                href="#"
+                class="font-medium text-brand transition hover:text-brand/80"
+                >Privacy Policy</a
+              >
             </label>
           </div>
 
@@ -189,10 +238,15 @@
           <button
             type="submit"
             :disabled="isLoading || !agreedToTerms"
-            class="w-full rounded-xl bg-brand py-3.5 text-base font-semibold text-white shadow transition hover:bg-brand/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-60 mt-2"
+            class="mt-2 w-full rounded-xl bg-brand py-3.5 text-base font-semibold text-white shadow transition hover:bg-brand/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <span v-if="isLoading" class="flex items-center justify-center gap-2.5">
-              <div class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <span
+              v-if="isLoading"
+              class="flex items-center justify-center gap-2.5"
+            >
+              <div
+                class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              />
               Creating account...
             </span>
             <span v-else>Create Account</span>
@@ -201,10 +255,10 @@
 
         <!-- Sign In Link -->
         <p class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          Already on {{ $config.public.siteName || 'Indix' }}?
+          Already on {{ $config.public.siteName || 'stylex' }}?
           <NuxtLink
             to="/user-login"
-            class="font-semibold text-brand hover:text-brand/80 transition"
+            class="font-semibold text-brand transition hover:text-brand/80"
           >
             Sign in
           </NuxtLink>
@@ -224,7 +278,12 @@ definePageMeta({
   middleware: 'guest',
 })
 
-const { register: authRegister, isLoading: authLoading, error: authError, message: authMessage } = useAuth()
+const {
+  register: authRegister,
+  isLoading: authLoading,
+  error: authError,
+  message: authMessage,
+} = useAuth()
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -309,7 +368,7 @@ const handleSubmit = async () => {
       form.email.trim(),
       form.username.trim(),
       form.password,
-      form.confirmPassword
+      form.confirmPassword,
     )
     // Navigation handled in useAuth
   } catch (err) {
@@ -329,7 +388,13 @@ const showComingSoon = (provider: string) => {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

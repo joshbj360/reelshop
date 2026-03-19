@@ -7,51 +7,35 @@
       class="mb-6 flex items-center justify-center gap-2.5 xl:justify-start"
     >
       <div
-        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f02c56] to-purple-600 shadow-md"
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand shadow-lg shadow-brand/25"
       >
-        <Icon name="mdi:hanger" class="h-6 w-6 text-white" />
+        <span class="text-sm font-black italic text-white">sX</span>
       </div>
       <span
-        class="hidden text-2xl font-extrabold tracking-tight text-gray-900 xl:inline dark:text-white"
+        class="hidden text-xl font-black tracking-tight text-gray-900 xl:inline dark:text-white"
       >
-        {{ $config.public.siteName || 'Indix' }}
+        {{ $config.public.siteName || 'styleX' }}
       </span>
     </NuxtLink>
 
     <!-- Navigation Links -->
     <nav class="flex flex-col space-y-1.5 xl:space-y-2">
-      <NuxtLink
-        to="/"
-        class="nav-button group"
-        active-class="active"
-      >
+      <NuxtLink to="/" class="nav-button group" active-class="active">
         <Icon name="mdi:home" size="26" />
         <span class="nav-text">{{ $t('nav.home') }}</span>
       </NuxtLink>
 
-      <NuxtLink
-        to="/discover"
-        class="nav-button group"
-        active-class="active"
-      >
+      <NuxtLink to="/discover" class="nav-button group" active-class="active">
         <Icon name="mdi:magnify" size="26" />
         <span class="nav-text">{{ $t('nav.discover') }}</span>
       </NuxtLink>
 
-      <NuxtLink
-        to="/reels"
-        class="nav-button group"
-        active-class="active"
-      >
+      <NuxtLink to="/reels" class="nav-button group" active-class="active">
         <Icon name="mdi:play-box-multiple-outline" size="26" />
         <span class="nav-text">{{ $t('nav.reels') }}</span>
       </NuxtLink>
 
-      <NuxtLink
-        to="/thrift"
-        class="nav-button group"
-        active-class="active"
-      >
+      <NuxtLink to="/thrift" class="nav-button group" active-class="active">
         <Icon name="mdi:tshirt-crew" size="26" />
         <span class="nav-text">{{ $t('nav.thrift') }}</span>
       </NuxtLink>
@@ -110,10 +94,7 @@
       </ClientOnly>
 
       <!-- Cart -->
-      <button
-        @click="$emit('open-cart')"
-        class="nav-button group relative"
-      >
+      <button @click="$emit('open-cart')" class="nav-button group relative">
         <div class="relative">
           <Icon name="mdi:cart-outline" size="26" />
           <span
@@ -144,24 +125,22 @@
               size="md"
               class="ring-2 ring-gray-200 dark:ring-neutral-700"
             />
-            <span class="hidden xl:inline font-medium text-gray-900 dark:text-white truncate max-w-[140px]">
+            <span
+              class="hidden max-w-[140px] truncate font-medium text-gray-900 xl:inline dark:text-white"
+            >
               {{ profileStore.me?.username || 'Profile' }}
             </span>
           </div>
           <Icon
             name="mdi:chevron-up"
             size="20"
-            class="hidden xl:block text-gray-500 transition-transform"
+            class="hidden text-gray-500 transition-transform xl:block"
             :class="{ 'rotate-180': menuOpen }"
           />
         </button>
 
         <!-- Not logged in: sign in prompt -->
-        <NuxtLink
-          v-else
-          to="/user-login"
-          class="nav-button group"
-        >
+        <NuxtLink v-else to="/user-login" class="nav-button group">
           <Icon name="mdi:login" size="26" />
           <span class="nav-text">{{ $t('nav.signIn') }}</span>
         </NuxtLink>
@@ -201,7 +180,7 @@
             <span>My Stores</span>
           </NuxtLink>
 
-          <div class="my-1.5 mx-4 h-px bg-gray-100 dark:bg-neutral-800" />
+          <div class="mx-4 my-1.5 h-px bg-gray-100 dark:bg-neutral-800" />
 
           <NuxtLink
             to="/settings"
@@ -212,11 +191,11 @@
             <span>Settings</span>
           </NuxtLink>
 
-          <div class="my-1.5 mx-4 h-px bg-gray-100 dark:bg-neutral-800" />
+          <div class="mx-4 my-1.5 h-px bg-gray-100 dark:bg-neutral-800" />
 
           <button
             @click="logout"
-            class="menu-item w-full text-left text-red-600 hover:bg-red-50/80 dark:text-red-400 dark:hover:bg-red-950/30 group"
+            class="menu-item group w-full text-left text-red-600 hover:bg-red-50/80 dark:text-red-400 dark:hover:bg-red-950/30"
           >
             <Icon name="mdi:logout-variant" size="20" />
             <span>Log Out</span>
@@ -232,7 +211,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
-
 
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 
@@ -279,7 +257,7 @@ onUnmounted(() => {
 }
 
 .nav-text {
-  @apply hidden xl:inline text-base;
+  @apply hidden text-base xl:inline;
 }
 
 .menu-item {

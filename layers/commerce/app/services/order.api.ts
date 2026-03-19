@@ -62,7 +62,9 @@ export class OrderApiClient extends BaseApiClient {
     })
   }
   async confirmReceipt(id: number) {
-    return this.request(`/api/commerce/orders/${id}/confirm-receipt`, { method: 'POST' })
+    return this.request(`/api/commerce/orders/${id}/confirm-receipt`, {
+      method: 'POST',
+    })
   }
 }
 

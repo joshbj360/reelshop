@@ -36,14 +36,17 @@
 
     <!-- Info -->
     <div class="p-3">
-      <p class="truncate text-sm font-semibold text-gray-900 dark:text-neutral-100">
+      <p
+        class="truncate text-sm font-semibold text-gray-900 dark:text-neutral-100"
+      >
         {{ product.title }}
       </p>
       <p class="mt-1 font-bold text-brand">
         {{ formatPrice(product.price) }}
       </p>
       <p class="mt-1 text-xs text-gray-500 dark:text-neutral-400">
-        {{ product._count?.variants ?? product.variants?.length ?? 0 }} variant(s)
+        {{ product._count?.variants ?? product.variants?.length ?? 0 }}
+        variant(s)
       </p>
 
       <!-- Tags -->

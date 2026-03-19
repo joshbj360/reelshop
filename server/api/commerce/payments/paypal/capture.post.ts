@@ -10,8 +10,8 @@ import { notificationService } from '../../../../layers/profile/services/notific
 import { walletService } from '../../../../layers/commerce/services/wallet.service'
 
 const schema = z.object({
-  orderId: z.number().int().positive(),         // internal order ID
-  paypalOrderId: z.string().min(1),             // token from PayPal return URL
+  orderId: z.number().int().positive(), // internal order ID
+  paypalOrderId: z.string().min(1), // token from PayPal return URL
 })
 
 async function notifySellers(orderId: number) {
@@ -49,7 +49,8 @@ export default defineEventHandler(async (event) => {
     // 1. Load order and verify ownership
     const order = await prisma.orders.findUnique({ where: { id: orderId } })
     if (!order) throw new UserError('NOT_FOUND', 'Order not found', 404)
-    if (order.userId !== user.id) throw new UserError('FORBIDDEN', 'Access denied', 403)
+    if (order.userId !== user.id)
+      throw new UserError('FORBIDDEN', 'Access denied', 403)
 
     // 2. Idempotent — already paid
     if (order.paymentStatus === 'PAID') {
@@ -65,7 +66,9 @@ export default defineEventHandler(async (event) => {
         data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
       })
       notifySellers(order.id).catch((e) => console.error('[paypal notify]', e))
-      walletService.creditSellersOnPayment(order.id).catch((e) => console.error('[paypal wallet]', e))
+      walletService
+        .creditSellersOnPayment(order.id)
+        .catch((e) => console.error('[paypal wallet]', e))
       return { success: true, data: { status: 'paid', orderId } }
     }
 
@@ -74,10 +77,16 @@ export default defineEventHandler(async (event) => {
       where: { id: order.id },
       data: { paymentStatus: 'FAILED' },
     })
-    return { success: true, data: { status: result.status.toLowerCase(), orderId } }
+    return {
+      success: true,
+      data: { status: result.status.toLowerCase(), orderId },
+    }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
     throw createError({
       statusCode: 500,
       statusMessage: error.message || 'PayPal capture failed',

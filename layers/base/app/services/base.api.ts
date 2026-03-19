@@ -13,8 +13,8 @@ import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 
 export interface ApiServiceOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-  body?: Record<string, any> | BodyInit | null
-  params?: Record<string, any>
+  body?: Record<string, unknown> | BodyInit | null
+  params?: Record<string, unknown>
   headers?: Record<string, string>
   skipAuth?: boolean
   skipCsrf?: boolean
@@ -107,7 +107,13 @@ export class BaseApiClient {
         ...options,
         headers,
       })) as T
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as {
+        status?: number
+        statusCode?: number
+        data?: unknown
+        response?: { data?: unknown }
+      }
       // Auto-refresh on 401 (client only, non-skipAuth)
       const statusCode = error.status || error.statusCode
       if (statusCode === 401 && !options.skipAuth && import.meta.client) {
@@ -121,8 +127,13 @@ export class BaseApiClient {
               ...options,
               headers,
             })) as T
-          } catch (retryError: any) {
-            this.handleError(retryError, endpoint, options.skipAuth, options.silent)
+          } catch (retryError: unknown) {
+            this.handleError(
+              retryError,
+              endpoint,
+              options.skipAuth,
+              options.silent,
+            )
           }
         }
       }
@@ -147,7 +158,7 @@ export class BaseApiClient {
         `${this.baseURL}/api/auth/refresh-token`,
         { method: 'POST' },
       )
-      const newToken = (result as any)?.accessToken
+      const newToken = (result as { accessToken: string })?.accessToken
       if (!newToken) throw new Error('No token in response')
       useAuthStore().setAccessToken(newToken)
       BaseApiClient.onRefreshed(newToken)
@@ -219,35 +230,42 @@ export class BaseApiClient {
   }
 
   private handleError(
-    error: any,
+    error: unknown,
     endpoint: string,
     skipAuth?: boolean,
     silent?: boolean,
   ): never {
     const isClient = import.meta.client
+    const errorObj = error as {
+      status?: number
+      statusCode?: number
+      message?: string
+      data?: unknown
+      response?: { data?: unknown }
+    }
 
     // Network error (no response)
-    if (!error.status && !error.statusCode && error.message) {
+    if (!errorObj.status && !errorObj.statusCode && errorObj.message) {
       const msg = 'Network error. Please check your connection.'
       if (isClient && !silent) notify({ type: 'error', text: msg })
-      throw new ApiError(msg, 0, { originalError: error })
+      throw new ApiError(msg, 0, { originalError: errorObj })
     }
 
     // HTTP error
-    const statusCode = error.status || error.statusCode || 500
-    const data = error.data || error.response?.data || {}
+    const statusCode = errorObj.status || errorObj.statusCode || 500
+    const data = errorObj.data || errorObj.response?.data || {}
     const serverMessage =
       data.message ||
       data.statusMessage ||
-      error.message ||
+      errorObj.message ||
       'An unexpected error occurred.'
     const safeMessage = this.getSafeErrorMessage(statusCode, serverMessage)
 
     if (isClient) {
       if (statusCode === 401 && !skipAuth) {
         // Only 401 (expired/invalid token) should trigger logout
-        try { useAuthStore().clearAuth() } catch {}
-        try { useProfileStore().clearStore() } catch {}
+        useAuthStore().clearAuth()
+        useProfileStore().clearStore()
         notify({
           type: 'error',
           title: 'Session expired',
@@ -284,8 +302,10 @@ export class BaseApiClient {
     return errorMap[statusCode] || originalMessage
   }
 
-  protected cleanParams(params: Record<string, any>): Record<string, any> {
-    const cleaned: Record<string, any> = {}
+  protected cleanParams(
+    params: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const cleaned: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null && value !== '') {
         cleaned[key] = value

@@ -51,7 +51,10 @@ export const useChatStore = defineStore('chat', () => {
   const bumpConversation = (id: string, lastMsg: IMessage) => {
     const idx = conversations.value.findIndex((c) => c.id === id)
     if (idx === -1) return
-    const conv = { ...conversations.value[idx], lastMessageAt: lastMsg.createdAt }
+    const conv = {
+      ...conversations.value[idx],
+      lastMessageAt: lastMsg.createdAt,
+    }
     conversations.value.splice(idx, 1)
     conversations.value.unshift(conv)
   }

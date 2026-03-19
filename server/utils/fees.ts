@@ -10,7 +10,9 @@
  */
 export function calculatePayout(grossKobo: number) {
   const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT ?? '5')
-  const transferFeeKobo = parseInt(process.env.PAYSTACK_TRANSFER_FEE_KOBO ?? '5000')
+  const transferFeeKobo = parseInt(
+    process.env.PAYSTACK_TRANSFER_FEE_KOBO ?? '5000',
+  )
 
   const platformFee = Math.round(grossKobo * (platformFeePercent / 100))
   const transferFee = transferFeeKobo

@@ -11,8 +11,16 @@ export const orderService = {
     ipAddress: string,
     userAgent: string,
   ) {
-    const { items, name, address, zipcode, county, country, paymentMethod } =
-      data
+    const {
+      items,
+      name,
+      address,
+      zipcode,
+      county,
+      country,
+      paymentMethod,
+      affiliateCode,
+    } = data
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new UserError(
@@ -22,12 +30,37 @@ export const orderService = {
       )
     }
 
-    // Validate stock for all items
+    // Resolve affiliate code → profileId (if provided)
+    let affiliateUserId: string | undefined
+    if (affiliateCode) {
+      const affiliateProfile = await prisma.profile.findUnique({
+        where: { affiliateCode },
+        select: { id: true },
+      })
+      // Ignore self-referral
+      if (affiliateProfile && affiliateProfile.id !== userId) {
+        affiliateUserId = affiliateProfile.id
+      }
+    }
+
+    // Validate stock for all items and compute prices + affiliate cuts
     let totalAmount = 0
+    let totalAffiliateCut = 0
+    const enrichedItems: any[] = []
+
     for (const item of items) {
       const variant = await prisma.productVariant.findUnique({
         where: { id: item.variantId },
-        include: { product: { select: { price: true, discount: true } } },
+        include: {
+          product: {
+            include: {
+              offers: {
+                where: { isActive: true },
+                orderBy: { minQuantity: 'desc' },
+              },
+            },
+          },
+        },
       })
       if (!variant)
         throw new UserError(
@@ -42,11 +75,37 @@ export const orderService = {
           400,
         )
       }
-      const price = variant.price ?? variant.product.price
-      const discount = variant.product.discount ?? 0
-      totalAmount += Math.round(
-        price * (1 - discount / 100) * item.quantity * 100,
-      ) // in cents
+
+      const basePrice = variant.price ?? variant.product.price
+      const productDiscount = variant.product.discount ?? 0
+      let unitPrice = basePrice * (1 - productDiscount / 100)
+
+      // Apply best active offer that the ordered quantity qualifies for
+      const bestOffer = (variant.product.offers ?? [])
+        .filter((o) => o.isActive && item.quantity >= o.minQuantity)
+        .sort((a, b) => b.minQuantity - a.minQuantity)[0]
+
+      if (bestOffer) {
+        unitPrice = unitPrice * (1 - bestOffer.discount / 100)
+      }
+
+      const lineTotalKobo = Math.round(unitPrice * item.quantity * 100)
+      totalAmount += lineTotalKobo
+
+      // Affiliate cut for this line item — affiliateCommission is a fixed Naira
+      // amount (not a percentage), so convert directly to kobo
+      let itemAffiliateCut = 0
+      if (affiliateUserId && variant.product.affiliateCommission) {
+        itemAffiliateCut = Math.round(variant.product.affiliateCommission * 100)
+        totalAffiliateCut += itemAffiliateCut
+      }
+
+      enrichedItems.push({
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: lineTotalKobo,
+        affiliateCut: itemAffiliateCut,
+      })
     }
 
     // Create order
@@ -58,11 +117,13 @@ export const orderService = {
       country,
       totalAmount,
       paymentMethod: paymentMethod || 'card',
-      items,
+      affiliateUserId,
+      affiliateCut: totalAffiliateCut,
+      items: enrichedItems,
     })
 
     // Decrement stock
-    for (const item of items) {
+    for (const item of enrichedItems) {
       await prisma.productVariant.update({
         where: { id: item.variantId },
         data: { stock: { decrement: item.quantity } },
@@ -78,7 +139,11 @@ export const orderService = {
       resource: 'Orders',
       resourceId: String(order.id),
       reason: 'Placed new order',
-      changes: { totalAmount, itemCount: items.length },
+      changes: {
+        totalAmount,
+        itemCount: enrichedItems.length,
+        affiliateUserId,
+      },
       ipAddress,
       userAgent,
     })

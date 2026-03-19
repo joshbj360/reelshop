@@ -4,13 +4,10 @@
     :disabled="isCreating"
     @click="$emit('select')"
   >
-    <img
-      :src="
-        user.avatar ||
-        `https://ui-avatars.com/api/?name=${user.username}&background=f02c56&color=fff`
-      "
-      :alt="user.username"
-      class="h-11 w-11 shrink-0 rounded-full object-cover"
+    <Avatar
+      :username="user.username ?? 'User'"
+      :avatar="user.avatar ?? ''"
+      size="lg"
     />
     <div class="min-w-0 flex-1">
       <p

@@ -5,7 +5,10 @@
     <ShareModal
       :is-open="showShareModal"
       :url="shareUrl"
-      :title="post.caption || `Check out this post on ${$config.public.siteName || 'Indix'}`"
+      :title="
+        post.caption ||
+        `Check out this post on ${$config.public.siteName || 'stylex'}`
+      "
       @close="showShareModal = false"
     />
 
@@ -17,7 +20,9 @@
     />
 
     <!-- Author Header -->
-    <div class="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3.5 dark:border-neutral-800">
+    <div
+      class="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3.5 dark:border-neutral-800"
+    >
       <NuxtLink :to="`/profile/${post.author?.username}`" class="shrink-0">
         <Avatar
           :username="post.author?.username ?? 'User'"
@@ -90,8 +95,12 @@
               v-if="post.contentType === 'INSPIRATION'"
               class="rounded-xl border-l-4 border-amber-400 bg-amber-50/70 px-4 py-3 dark:bg-amber-950/20"
             >
-              <p class="text-sm italic leading-relaxed text-gray-900 dark:text-neutral-100">
-                <span class="mr-1.5 font-semibold not-italic">{{ post.author?.username }}</span>
+              <p
+                class="text-sm italic leading-relaxed text-gray-900 dark:text-neutral-100"
+              >
+                <span class="mr-1.5 font-semibold not-italic">{{
+                  post.author?.username
+                }}</span>
                 {{ cleanCaption || post.content }}
               </p>
             </div>
@@ -101,7 +110,9 @@
               v-else
               class="text-sm leading-relaxed text-gray-900 dark:text-neutral-100"
             >
-              <span class="mr-1.5 font-semibold">{{ post.author?.username }}</span>
+              <span class="mr-1.5 font-semibold">{{
+                post.author?.username
+              }}</span>
               {{ cleanCaption || post.content }}
             </p>
 
@@ -136,8 +147,14 @@
           class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/20"
         >
           <div class="mb-3 flex items-center gap-2">
-            <Icon name="mdi:shopping-outline" size="16" class="text-emerald-600 dark:text-emerald-400" />
-            <span class="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            <Icon
+              name="mdi:shopping-outline"
+              size="16"
+              class="text-emerald-600 dark:text-emerald-400"
+            />
+            <span
+              class="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300"
+            >
               {{ $t('post.shopThisPost') }}
             </span>
           </div>
@@ -157,7 +174,9 @@
 
         <!-- Loading Comments -->
         <div v-if="isLoadingComments" class="flex justify-center py-6">
-          <div class="h-6 w-6 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          <div
+            class="h-6 w-6 animate-spin rounded-full border-2 border-brand border-t-transparent"
+          />
         </div>
 
         <!-- Comments List -->
@@ -173,7 +192,9 @@
           />
 
           <div class="min-w-0 flex-1">
-            <p class="text-sm leading-relaxed text-gray-900 dark:text-neutral-100">
+            <p
+              class="text-sm leading-relaxed text-gray-900 dark:text-neutral-100"
+            >
               <NuxtLink
                 :to="`/profile/${comment.author?.username}`"
                 class="mr-1.5 font-semibold transition-opacity hover:opacity-80"
@@ -187,7 +208,9 @@
               <span class="text-gray-500 dark:text-neutral-400">
                 {{ timeAgo(comment.createdAt || comment.created_at) }}
               </span>
-              <button class="font-medium text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-300">
+              <button
+                class="font-medium text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+              >
                 {{ $t('post.reply') }}
               </button>
             </div>
@@ -201,9 +224,16 @@
             <Icon
               :name="comment._liked ? 'mdi:heart' : 'mdi:heart-outline'"
               size="16"
-              :class="comment._liked ? 'text-red-500' : 'text-gray-500 dark:text-neutral-400'"
+              :class="
+                comment._liked
+                  ? 'text-red-500'
+                  : 'text-gray-500 dark:text-neutral-400'
+              "
             />
-            <span v-if="(comment._likeCount ?? 0) > 0" class="text-[10px] text-gray-500">
+            <span
+              v-if="(comment._likeCount ?? 0) > 0"
+              class="text-[10px] text-gray-500"
+            >
               {{ comment._likeCount }}
             </span>
           </button>
@@ -211,10 +241,19 @@
 
         <!-- No Comments / Empty State -->
         <div
-          v-if="!isLoadingComments && !comments.length && !cleanCaption && !post.content"
+          v-if="
+            !isLoadingComments &&
+            !comments.length &&
+            !cleanCaption &&
+            !post.content
+          "
           class="flex flex-col items-center justify-center py-12 text-center"
         >
-          <Icon name="mdi:comment-outline" size="40" class="mb-3 text-gray-300 dark:text-neutral-600" />
+          <Icon
+            name="mdi:comment-outline"
+            size="40"
+            class="mb-3 text-gray-300 dark:text-neutral-600"
+          />
           <p class="text-sm font-medium text-gray-500 dark:text-neutral-400">
             {{ $t('post.noComments') }}
           </p>
@@ -240,9 +279,13 @@
               :name="isLiked ? 'mdi:heart' : 'mdi:heart-outline'"
               size="24"
               class="transition-transform group-active:scale-90"
-              :class="isLiked ? 'text-red-500' : 'text-gray-900 dark:text-neutral-100'"
+              :class="
+                isLiked ? 'text-red-500' : 'text-gray-900 dark:text-neutral-100'
+              "
             />
-            <span class="text-sm font-medium text-gray-700 dark:text-neutral-300">
+            <span
+              class="text-sm font-medium text-gray-700 dark:text-neutral-300"
+            >
               {{ likeCount.toLocaleString() }}
             </span>
           </button>
@@ -252,8 +295,14 @@
             @click="focusCommentInput"
             class="group flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
           >
-            <Icon name="mdi:comment-outline" size="22" class="text-gray-900 dark:text-neutral-100" />
-            <span class="text-sm font-medium text-gray-700 dark:text-neutral-300">
+            <Icon
+              name="mdi:comment-outline"
+              size="22"
+              class="text-gray-900 dark:text-neutral-100"
+            />
+            <span
+              class="text-sm font-medium text-gray-700 dark:text-neutral-300"
+            >
               {{ post.commentCount }}
             </span>
           </button>
@@ -280,17 +329,25 @@
             :name="isSaved ? 'mdi:bookmark' : 'mdi:bookmark-outline'"
             size="24"
             class="transition-transform group-active:scale-90"
-            :class="isSaved ? 'text-brand' : 'text-gray-900 dark:text-neutral-100'"
+            :class="
+              isSaved ? 'text-brand' : 'text-gray-900 dark:text-neutral-100'
+            "
           />
         </button>
       </div>
 
       <!-- Like Count + Date -->
       <div class="px-5 pb-2 text-sm">
-        <p v-if="likeCount > 0" class="font-semibold text-gray-900 dark:text-white">
-          {{ likeCount.toLocaleString() }} {{ likeCount === 1 ? $t('post.like') : $t('post.likes') }}
+        <p
+          v-if="likeCount > 0"
+          class="font-semibold text-gray-900 dark:text-white"
+        >
+          {{ likeCount.toLocaleString() }}
+          {{ likeCount === 1 ? $t('post.like') : $t('post.likes') }}
         </p>
-        <p class="mt-1 text-xs uppercase tracking-wide text-gray-500 dark:text-neutral-500">
+        <p
+          class="mt-1 text-xs uppercase tracking-wide text-gray-500 dark:text-neutral-500"
+        >
           {{ formatDate(post.created_at) }}
         </p>
       </div>
@@ -366,7 +423,7 @@ import FollowButton from '~~/layers/profile/app/components/FollowButton.vue'
 import TaggedProductsDisplay from './TaggedProductsDisplay.vue'
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 import AudioPlayer from './AudioPlayer.vue'
-import ProductDetailModal from '~~/app/components/modals/ProductDetailModal.vue'
+import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
 import ShareModal from '~/components/modals/ShareModal.vue'
 import { notify } from '@kyvg/vue3-notification'
 import type { IFeedItem } from '~~/layers/feed/app/types/feed.types'
@@ -379,7 +436,8 @@ const props = defineProps<{ post: IFeedItem }>()
 const emit = defineEmits(['close'])
 
 const { likePost, unlikePost, savePost, unsavePost } = usePost()
-const { fetchPostComments, createComment, likeComment, unlikeComment } = useComment()
+const { fetchPostComments, createComment, likeComment, unlikeComment } =
+  useComment()
 const postStore = usePostStore()
 const profileStore = useProfileStore()
 
@@ -394,31 +452,94 @@ const commentInputRef = ref<HTMLInputElement | null>(null)
 const showEmojiPicker = ref(false)
 const showShareModal = ref(false)
 
-const shareUrl = computed(() => `${window.location.origin}/post/${props.post.id}`)
+const shareUrl = computed(
+  () => `${window.location.origin}/post/${props.post.id}`,
+)
 
 const EMOJIS = [
-  '😂', '❤️', '🔥', '😍', '👏', '😭', '🙏', '💯', '✨', '😎',
-  '🥰', '😊', '🤣', '😅', '💪', '🤩', '😩', '🥺', '😤', '👀',
-  '💀', '🫶', '🤍', '💕', '🎉', '👑', '💃', '🛍️', '✅', '🤯'
+  '😂',
+  '❤️',
+  '🔥',
+  '😍',
+  '👏',
+  '😭',
+  '🙏',
+  '💯',
+  '✨',
+  '😎',
+  '🥰',
+  '😊',
+  '🤣',
+  '😅',
+  '💪',
+  '🤩',
+  '😩',
+  '🥺',
+  '😤',
+  '👀',
+  '💀',
+  '🫶',
+  '🤍',
+  '💕',
+  '🎉',
+  '👑',
+  '💃',
+  '🛍️',
+  '✅',
+  '🤯',
 ]
 
 const isLiked = computed(() => postStore.isPostLiked(props.post.id))
 
 // Content Type Mapping (consistent with PostCard / modal)
-const CONTENT_TYPE_MAP: Record<string, { label: string; icon: string; accent: string; badge: string }> = {
-  EXPERIENCE: { label: 'Experience', icon: 'mdi:star-outline', accent: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' },
-  INSPIRATION: { label: 'Inspire', icon: 'mdi:lightbulb-outline', accent: 'bg-amber-400', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' },
-  COMMERCE: { label: 'Shop', icon: 'mdi:shopping-outline', accent: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' },
-  EDUCATIONAL: { label: 'Learn', icon: 'mdi:school-outline', accent: 'bg-orange-500', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300' },
-  ENTERTAINMENT: { label: 'Fun', icon: 'mdi:music-note', accent: 'bg-pink-500', badge: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300' },
+const CONTENT_TYPE_MAP: Record<
+  string,
+  { label: string; icon: string; accent: string; badge: string }
+> = {
+  EXPERIENCE: {
+    label: 'Experience',
+    icon: 'mdi:star-outline',
+    accent: 'bg-blue-500',
+    badge: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+  },
+  INSPIRATION: {
+    label: 'Inspire',
+    icon: 'mdi:lightbulb-outline',
+    accent: 'bg-amber-400',
+    badge: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  },
+  COMMERCE: {
+    label: 'Shop',
+    icon: 'mdi:shopping-outline',
+    accent: 'bg-emerald-500',
+    badge:
+      'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+  },
+  EDUCATIONAL: {
+    label: 'Learn',
+    icon: 'mdi:school-outline',
+    accent: 'bg-orange-500',
+    badge:
+      'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+  },
+  ENTERTAINMENT: {
+    label: 'Fun',
+    icon: 'mdi:music-note',
+    accent: 'bg-pink-500',
+    badge: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+  },
 }
 
-const contentTypeDef = computed(() => CONTENT_TYPE_MAP[props.post.contentType] ?? {
-  label: props.post.contentType || 'Post',
-  icon: 'mdi:tag-outline',
-  accent: 'bg-gray-400',
-  badge: 'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-neutral-400'
-})
+const contentTypeDef = computed(
+  () =>
+    CONTENT_TYPE_MAP[props.post.contentType] ?? {
+      label: props.post.contentType || 'Post',
+      icon: 'mdi:tag-outline',
+      accent: 'bg-gray-400',
+      badge:
+        'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-neutral-400',
+    },
+)
 
 const contentTypeLabel = computed(() => contentTypeDef.value.label)
 const badgeIcon = computed(() => contentTypeDef.value.icon)
@@ -431,7 +552,9 @@ const cleanCaption = computed(() => {
   if (typeof document !== 'undefined') {
     const tmp = document.createElement('div')
     tmp.innerHTML = stripped
-    stripped = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim()
+    stripped = (tmp.textContent || tmp.innerText || '')
+      .replace(/\s+/g, ' ')
+      .trim()
   }
   return stripped
 })
@@ -439,14 +562,14 @@ const cleanCaption = computed(() => {
 const hashtags = computed(() => props.post.caption?.match(/#\w+/g) || [])
 
 // Tagged Products
-const taggedProducts = computed(() => 
+const taggedProducts = computed(() =>
   (props.post.taggedProducts || []).map((t: any) => ({
     id: t.productId ?? t.id,
     title: t.product?.title ?? t.title,
     price: t.product?.price ?? t.price,
     slug: t.product?.slug ?? t.slug,
-    image: t.product?.media?.[0]?.url ?? t.image ?? null
-  }))
+    image: t.product?.media?.[0]?.url ?? t.image ?? null,
+  })),
 )
 
 const hasTaggedProducts = computed(() => taggedProducts.value.length > 0)
@@ -468,8 +591,8 @@ onMounted(async () => {
   try {
     const result = await fetchPostComments(props.post.id)
     comments.value = [...(result?.data || [])]
-  } catch {}
-  finally {
+  } catch {
+  } finally {
     isLoadingComments.value = false
   }
 })
@@ -527,7 +650,10 @@ const addComment = async () => {
     comments.value.push(newComment)
     commentText.value = ''
     await nextTick()
-    commentsContainer.value?.scrollTo({ top: commentsContainer.value.scrollHeight, behavior: 'smooth' })
+    commentsContainer.value?.scrollTo({
+      top: commentsContainer.value.scrollHeight,
+      behavior: 'smooth',
+    })
   } catch {
     notify({ type: 'error', text: t('errors.failedComment') })
   } finally {
@@ -562,12 +688,14 @@ const handleCommentLike = async (comment: any) => {
 // Share
 const sharePost = () => {
   if (navigator.share) {
-    navigator.share({
-      url: shareUrl.value,
-      title: props.post.caption || `Check out this post on ${BRAND.name}`,
-    }).catch(() => {
-      showShareModal.value = true
-    })
+    navigator
+      .share({
+        url: shareUrl.value,
+        title: props.post.caption || `Check out this post on ${BRAND.name}`,
+      })
+      .catch(() => {
+        showShareModal.value = true
+      })
   } else {
     showShareModal.value = true
   }
@@ -588,7 +716,7 @@ const formatDate = (date: Date | string) => {
   return new Date(date).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   })
 }
 </script>
@@ -596,6 +724,6 @@ const formatDate = (date: Date | string) => {
 <style scoped>
 /* Optional: subtle scroll shadow when scrolled */
 .comments-scroll-shadow {
-  box-shadow: inset 0 10px 10px -10px rgba(0,0,0,0.1);
+  box-shadow: inset 0 10px 10px -10px rgba(0, 0, 0, 0.1);
 }
 </style>

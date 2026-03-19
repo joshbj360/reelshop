@@ -20,11 +20,10 @@ export default defineEventHandler(async (event) => {
       data: sellers,
       total: sellers.length,
     }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('SellerError')) {
-      const sellerError = error as any
+  } catch (error: any) {
+    if (error.name === 'SellerError') {
       throw createError({
-        statusCode: sellerError.statusCode || 404,
+        statusCode: error.statusCode || 404,
         statusMessage: error.message,
       })
     }

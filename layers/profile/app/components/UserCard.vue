@@ -6,10 +6,10 @@
       :to="`/profile/${user.username}`"
       class="flex min-w-0 flex-1 items-center gap-3"
     >
-      <img
-        :src="user.avatar || formatAvatarUrl(user.username)"
-        :alt="user.username"
-        class="h-12 w-12 rounded-full object-cover"
+      <Avatar
+        :username="user.username ?? 'User'"
+        :avatar="user.avatar ?? ''"
+        size="lg"
       />
       <div class="min-w-0 flex-1">
         <p class="truncate font-semibold text-gray-900 dark:text-neutral-100">

@@ -26,8 +26,7 @@ export const useSeo = () => {
   }
 
   const setHomePage = () => {
-    const desc =
-      `Discover fashion, thrift, and lifestyle products from African creators on ${siteName}.`
+    const desc = `Discover fashion, thrift, and lifestyle products from African creators on ${siteName}.`
     useSeoMeta({
       title: siteName,
       description: desc,
@@ -53,8 +52,7 @@ export const useSeo = () => {
   }
 
   const setThriftPage = () => {
-    const desc =
-      `Find pre-loved fashion and thrift items at unbeatable prices on ${siteName}.`
+    const desc = `Find pre-loved fashion and thrift items at unbeatable prices on ${siteName}.`
     useSeoMeta({
       title: 'Thrift Store',
       description: desc,

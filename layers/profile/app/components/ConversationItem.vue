@@ -6,13 +6,10 @@
   >
     <!-- Avatar -->
     <div class="relative shrink-0">
-      <img
-        :src="
-          conversation.otherUser?.avatar ||
-          `https://ui-avatars.com/api/?name=${conversation.otherUser?.username}&background=f02c56&color=fff`
-        "
-        :alt="conversation.otherUser?.username"
-        class="h-14 w-14 rounded-full object-cover"
+      <Avatar
+        :username="conversation.otherUser?.username ?? 'User'"
+        :avatar="conversation.otherUser?.avatar ?? ''"
+        size="xl"
       />
     </div>
 

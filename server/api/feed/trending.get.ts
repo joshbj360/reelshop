@@ -2,7 +2,11 @@ import { prisma } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   // Trending data refreshes slowly — cache for 5 minutes
-  setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=120')
+  setHeader(
+    event,
+    'Cache-Control',
+    'public, max-age=300, s-maxage=300, stale-while-revalidate=120',
+  )
   const [trendingProducts, trendingTags, featuredSellers] = await Promise.all([
     // Trending: most liked published products
     prisma.products.findMany({
@@ -21,7 +25,9 @@ export default defineEventHandler(async (event) => {
           select: { id: true, url: true, type: true, isBgMusic: true },
           orderBy: { created_at: 'asc' },
         },
-        variants: { select: { id: true, stock: true, price: true, size: true } },
+        variants: {
+          select: { id: true, stock: true, price: true, size: true },
+        },
         _count: { select: { likes: true, comments: true } },
       },
       orderBy: { likes: { _count: 'desc' } },

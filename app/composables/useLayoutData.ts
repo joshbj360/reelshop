@@ -1,3 +1,6 @@
+import type { Seller } from '~/app/types/seller'
+import type { Category } from '~/app/types/category'
+
 /**
  * Fetch global layout data (top sellers, categories)
  * Cached across all pages via useLazyAsyncData key 'layout-data'
@@ -7,8 +10,8 @@ export const useLayoutData = () => {
     'layout-data',
     async () => {
       const [sellersRes, categoriesRes] = await Promise.allSettled([
-        $fetch<any>('/api/seller/featured'),
-        $fetch<any>('/api/commerce/categories'),
+        $fetch<{ data: Seller[] }>('/api/seller/featured'),
+        $fetch<{ data: Category[] }>('/api/commerce/categories'),
       ])
       return {
         topSellers:
@@ -21,7 +24,10 @@ export const useLayoutData = () => {
     },
     {
       server: false,
-      default: () => ({ topSellers: [] as any[], categories: [] as any[] }),
+      default: () => ({
+        topSellers: [] as Seller[],
+        categories: [] as Category[],
+      }),
     },
   )
 }

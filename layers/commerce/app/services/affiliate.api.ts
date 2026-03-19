@@ -21,7 +21,23 @@ export class AffiliateApiClient extends BaseApiClient {
     })
   }
   async getSellerProducts() {
-    return this.request('/api/commerce/affiliate/seller-products', { method: 'GET' })
+    return this.request('/api/commerce/affiliate/seller-products', {
+      method: 'GET',
+    })
+  }
+
+  async getAvailableProducts(params?: { limit?: number; offset?: number }) {
+    const query = params
+      ? '?' +
+        new URLSearchParams(
+          Object.entries(params)
+            .filter(([, v]) => v != null)
+            .map(([k, v]) => [k, String(v)]),
+        ).toString()
+      : ''
+    return this.request(`/api/commerce/affiliate/available-products${query}`, {
+      method: 'GET',
+    })
   }
 }
 

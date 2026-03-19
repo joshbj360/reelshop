@@ -180,7 +180,7 @@
                     <Icon name="mdi:storefront" size="22" class="text-white" />
                   </div>
                 </div>
-                <div class="min-w-0 w-full">
+                <div class="w-full min-w-0">
                   <p
                     class="truncate text-xs font-bold text-gray-900 transition-colors group-hover:text-brand dark:text-neutral-100"
                   >
@@ -196,7 +196,11 @@
 
           <!-- Empty trending -->
           <div
-            v-if="!trendingProducts.length && !trendingTags.length && !featuredSellers.length"
+            v-if="
+              !trendingProducts.length &&
+              !trendingTags.length &&
+              !featuredSellers.length
+            "
             class="py-24 text-center"
           >
             <Icon
@@ -406,9 +410,7 @@
             size="56"
             class="mx-auto mb-3 text-gray-300 dark:text-neutral-600"
           />
-          <p
-            class="text-sm font-medium text-gray-500 dark:text-neutral-400"
-          >
+          <p class="text-sm font-medium text-gray-500 dark:text-neutral-400">
             Search by username or name
           </p>
           <p class="mt-1 text-xs text-gray-400 dark:text-neutral-500">
@@ -498,7 +500,11 @@
         <div v-if="selectedTag">
           <div class="mb-4 flex items-center gap-3">
             <button
-              @click="selectedTag = null; tagProducts = []; tagTotal = 0"
+              @click="
+                selectedTag = null
+                tagProducts = []
+                tagTotal = 0
+              "
               class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
             >
               <Icon name="mdi:arrow-left" size="18" />
@@ -554,10 +560,7 @@
         <!-- Tag browser -->
         <div v-else>
           <!-- Loading -->
-          <div
-            v-if="tagsLoading"
-            class="flex flex-wrap gap-2"
-          >
+          <div v-if="tagsLoading" class="flex flex-wrap gap-2">
             <div
               v-for="n in 20"
               :key="n"
@@ -567,10 +570,7 @@
           </div>
 
           <!-- Empty tags -->
-          <div
-            v-else-if="!allTags.length"
-            class="py-24 text-center"
-          >
+          <div v-else-if="!allTags.length" class="py-24 text-center">
             <Icon
               name="mdi:tag-outline"
               size="48"
@@ -617,7 +617,7 @@
 import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import ProductCardMini from '~/components/shop/ProductCardMini.vue'
-import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
+import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
 
 const { setDiscoverPage } = useSeo()
 setDiscoverPage()
@@ -849,9 +849,7 @@ watch(activeTab, (tab) => {
 const productHasMore = computed(
   () => products.value.length < productsTotal.value,
 )
-const sellerHasMore = computed(
-  () => sellers.value.length < sellersTotal.value,
-)
+const sellerHasMore = computed(() => sellers.value.length < sellersTotal.value)
 
 onMounted(async () => {
   // Handle deep-link from search overlay (?tab=tags&tagId=N)
@@ -873,8 +871,7 @@ onMounted(async () => {
   const observer = new IntersectionObserver(
     (entries) => {
       if (!entries[0]?.isIntersecting) return
-      if (activeTab.value === 'products' && productHasMore.value)
-        loadProducts()
+      if (activeTab.value === 'products' && productHasMore.value) loadProducts()
       else if (activeTab.value === 'sellers' && sellerHasMore.value)
         loadSellers()
     },

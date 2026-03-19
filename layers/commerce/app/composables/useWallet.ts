@@ -18,7 +18,11 @@ export const useWallet = () => {
     store.setError(null)
     try {
       const result: any = await api.getWallet()
-      store.setWallet(result.data?.wallet, result.data?.stats, result.data?.stores)
+      store.setWallet(
+        result.data?.wallet,
+        result.data?.stats,
+        result.data?.stores,
+      )
       return result.data
     } catch (e: any) {
       store.setError(e.message || 'Failed to fetch wallet')

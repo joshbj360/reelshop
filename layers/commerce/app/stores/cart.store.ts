@@ -1,3 +1,24 @@
+/** Returns the effective unit price for a cart item after all discounts.
+ *  1. product.discount  — general sale % (always applied)
+ *  2. best active offer — bulk % applied on top when minQuantity is met
+ */
+export function effectiveUnitPrice(item: any): number {
+  const base = item.variant?.price ?? item.variant?.product?.price ?? 0
+  const productDiscount = item.variant?.product?.discount ?? 0
+  let price = base * (1 - productDiscount / 100)
+
+  const offers: any[] = item.variant?.product?.offers ?? []
+  const bestOffer = offers
+    .filter((o) => o.isActive && item.quantity >= o.minQuantity)
+    .sort((a, b) => b.minQuantity - a.minQuantity)[0]
+
+  if (bestOffer) {
+    price = price * (1 - bestOffer.discount / 100)
+  }
+
+  return price
+}
+
 export const useCartStore = defineStore(
   'cart',
   () => {
@@ -9,10 +30,10 @@ export const useCartStore = defineStore(
       items.value.reduce((sum, item) => sum + item.quantity, 0),
     )
     const cartTotal = computed(() =>
-      items.value.reduce((sum, item) => {
-        const price = item.variant?.price ?? item.variant?.product?.price ?? 0
-        return sum + price * item.quantity
-      }, 0),
+      items.value.reduce(
+        (sum, item) => sum + effectiveUnitPrice(item) * item.quantity,
+        0,
+      ),
     )
 
     const setItems = (newItems: any[]) => {

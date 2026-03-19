@@ -41,8 +41,19 @@ const DB_KEY_MAP: Record<keyof AppSettings, string> = {
   language: 'language',
 }
 
+interface DbSettings {
+  auto_mute: boolean
+  text_size: 'small' | 'medium' | 'large'
+  compact_feed: boolean
+  show_like_counts: boolean
+  show_captions: boolean
+  currency: string
+  theme: string
+  language: string
+}
+
 // Map DB snake_case → camelCase
-const fromDb = (db: Record<string, any>): Partial<AppSettings> => ({
+const fromDb = (db: Partial<DbSettings>): Partial<AppSettings> => ({
   autoMute: db.auto_mute ?? defaults.autoMute,
   textSize: db.text_size ?? defaults.textSize,
   compactFeed: db.compact_feed ?? defaults.compactFeed,
@@ -70,13 +81,17 @@ const save = () => {
 
 const applyTextSize = (size: AppSettings['textSize']) => {
   if (!import.meta.client) return
-  document.documentElement.classList.remove('text-size-small', 'text-size-large')
-  if (size !== 'medium') document.documentElement.classList.add(`text-size-${size}`)
+  document.documentElement.classList.remove(
+    'text-size-small',
+    'text-size-large',
+  )
+  if (size !== 'medium')
+    document.documentElement.classList.add(`text-size-${size}`)
 }
 
 // Debounced server sync — batches rapid changes into one request
 let syncTimer: ReturnType<typeof setTimeout> | null = null
-const pendingPatch: Record<string, any> = {}
+const pendingPatch: Partial<DbSettings> = {}
 
 const flushToServer = async () => {
   if (!import.meta.client || Object.keys(pendingPatch).length === 0) return
@@ -84,7 +99,9 @@ const flushToServer = async () => {
   if (!profileStore.isLoggedIn) return
 
   const payload = { ...pendingPatch }
-  Object.keys(pendingPatch).forEach((k) => delete pendingPatch[k])
+  Object.keys(pendingPatch).forEach(
+    (k) => delete pendingPatch[k as keyof DbSettings],
+  )
 
   try {
     const profileApi = useProfileApi()
@@ -94,8 +111,8 @@ const flushToServer = async () => {
   }
 }
 
-const scheduleSync = (dbKey: string, value: any) => {
-  pendingPatch[dbKey] = value
+const scheduleSync = (dbKey: string, value: AppSettings[keyof AppSettings]) => {
+  pendingPatch[dbKey as keyof DbSettings] = value
   if (syncTimer) clearTimeout(syncTimer)
   syncTimer = setTimeout(flushToServer, 800)
 }
@@ -107,7 +124,10 @@ export const useSettings = () => {
     applyTextSize(settings.value.textSize)
   }
 
-  const update = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+  const update = <K extends keyof AppSettings>(
+    key: K,
+    value: AppSettings[K],
+  ) => {
     settings.value[key] = value
     save()
     if (key === 'textSize') applyTextSize(value as AppSettings['textSize'])
@@ -120,7 +140,7 @@ export const useSettings = () => {
     applyTextSize(defaults.textSize)
     // Sync all defaults to server
     for (const [k, v] of Object.entries(defaults)) {
-      pendingPatch[DB_KEY_MAP[k as keyof AppSettings]] = v
+      pendingPatch[DB_KEY_MAP[k as keyof AppSettings] as keyof DbSettings] = v
     }
     if (syncTimer) clearTimeout(syncTimer)
     syncTimer = setTimeout(flushToServer, 800)
@@ -130,7 +150,7 @@ export const useSettings = () => {
    * Called by the auth flow after login/init.
    * Merges server settings on top of localStorage (server wins).
    */
-  const hydrateFromServer = (serverSettings: Record<string, any>) => {
+  const hydrateFromServer = (serverSettings: Partial<DbSettings>) => {
     const mapped = fromDb(serverSettings)
     Object.assign(settings.value, mapped)
     save()

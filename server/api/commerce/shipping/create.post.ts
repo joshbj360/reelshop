@@ -12,10 +12,15 @@ import type { ICreateShipmentPayload } from '~~/server/utils/shipping'
 export default defineEventHandler(async (event) => {
   const user = await requireAuth(event)
 
-  const body = await readBody<ICreateShipmentPayload & { orderId: number }>(event)
+  const body = await readBody<ICreateShipmentPayload & { orderId: number }>(
+    event,
+  )
 
   if (!body?.orderId || !body?.rateId || !body?.from || !body?.to) {
-    throw createError({ statusCode: 400, message: 'orderId, rateId, from, and to are required' })
+    throw createError({
+      statusCode: 400,
+      message: 'orderId, rateId, from, and to are required',
+    })
   }
 
   // Verify order belongs to this user (or seller managing the order)

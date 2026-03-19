@@ -1,4 +1,8 @@
 import { BaseApiClient } from './base.api'
+import type { User } from '../types/user'
+import type { Product } from '~/app/types/product'
+import type { Post } from '~/app/types/post'
+import type { Tag } from '~/app/types/tag'
 
 export class SearchApiClient extends BaseApiClient {
   // FIXED: Added 'stores' to the acceptable types
@@ -9,7 +13,13 @@ export class SearchApiClient extends BaseApiClient {
     offset = 0,
   ): Promise<{
     success: boolean
-    data: { users: any[]; products: any[]; posts: any[]; stores: any[] }
+    data: {
+      users: User[]
+      products: Product[]
+      posts: Post[]
+      stores: User[]
+      tags: Tag[]
+    }
   }> {
     const params = new URLSearchParams({
       q: query,

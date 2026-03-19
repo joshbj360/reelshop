@@ -15,7 +15,8 @@ const AUTO_RELEASE_DAYS = 7
 export default defineTask({
   meta: {
     name: 'releaseShippedOrders',
-    description: 'Auto-release seller funds for orders shipped 7+ days ago with no buyer confirmation',
+    description:
+      'Auto-release seller funds for orders shipped 7+ days ago with no buyer confirmation',
   },
   async run() {
     const cutoff = new Date()
@@ -64,12 +65,14 @@ export default defineTask({
         await walletService.releaseFundsOnDelivery(order.id)
 
         // Notify buyer
-        notificationService.createNotification({
-          userId: order.userId,
-          type: 'ORDER',
-          actorId: order.userId,
-          message: `Order #${order.id} has been automatically marked as delivered and payment released to the seller after 7 days.`,
-        }).catch(() => {})
+        notificationService
+          .createNotification({
+            userId: order.userId,
+            type: 'ORDER',
+            actorId: order.userId,
+            message: `Order #${order.id} has been automatically marked as delivered and payment released to the seller after 7 days.`,
+          })
+          .catch(() => {})
 
         // Notify each unique seller
         const seen = new Set<string>()
@@ -77,12 +80,14 @@ export default defineTask({
           const sellerId = item.variant?.product?.seller?.profileId
           if (!sellerId || seen.has(sellerId)) continue
           seen.add(sellerId)
-          notificationService.createNotification({
-            userId: sellerId,
-            type: 'ORDER',
-            actorId: sellerId,
-            message: `Order #${order.id} auto-confirmed after 7 days. Funds have been released to your wallet.`,
-          }).catch(() => {})
+          notificationService
+            .createNotification({
+              userId: sellerId,
+              type: 'ORDER',
+              actorId: sellerId,
+              message: `Order #${order.id} auto-confirmed after 7 days. Funds have been released to your wallet.`,
+            })
+            .catch(() => {})
         }
 
         released++
@@ -91,6 +96,8 @@ export default defineTask({
       }
     }
 
-    return { result: `Released funds for ${released}/${overdueOrders.length} orders` }
+    return {
+      result: `Released funds for ${released}/${overdueOrders.length} orders`,
+    }
   },
 })

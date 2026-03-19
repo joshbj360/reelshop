@@ -16,12 +16,24 @@
 
       <!-- Seller: Pending Store Orders -->
       <template v-if="hasSellers && pendingSellerOrders.length">
-        <div class="mb-6 overflow-hidden rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10">
-          <div class="flex items-center justify-between border-b border-amber-200 px-5 py-3 dark:border-amber-800">
+        <div
+          class="mb-6 overflow-hidden rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/10"
+        >
+          <div
+            class="flex items-center justify-between border-b border-amber-200 px-5 py-3 dark:border-amber-800"
+          >
             <div class="flex items-center gap-2">
-              <Icon name="mdi:store-clock" size="18" class="text-amber-600 dark:text-amber-400" />
-              <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                {{ pendingSellerOrders.length }} store {{ pendingSellerOrders.length === 1 ? 'order' : 'orders' }} need attention
+              <Icon
+                name="mdi:store-clock"
+                size="18"
+                class="text-amber-600 dark:text-amber-400"
+              />
+              <span
+                class="text-sm font-semibold text-amber-800 dark:text-amber-300"
+              >
+                {{ pendingSellerOrders.length }} store
+                {{ pendingSellerOrders.length === 1 ? 'order' : 'orders' }} need
+                attention
               </span>
             </div>
             <NuxtLink
@@ -49,9 +61,16 @@
                   />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-gray-900 dark:text-neutral-100">
+                  <p
+                    class="text-sm font-medium text-gray-900 dark:text-neutral-100"
+                  >
                     Order #{{ order.id }}
-                    <span v-if="order.orderItem.length > 2" class="text-xs text-gray-400"> +{{ order.orderItem.length - 2 }} more</span>
+                    <span
+                      v-if="order.orderItem.length > 2"
+                      class="text-xs text-gray-400"
+                    >
+                      +{{ order.orderItem.length - 2 }} more</span
+                    >
                   </p>
                   <p class="text-xs text-gray-500 dark:text-neutral-400">
                     {{ order.name }} · {{ formatDate(order.created_at) }}
@@ -59,8 +78,14 @@
                 </div>
               </div>
               <div class="text-right">
-                <p class="text-sm font-bold text-gray-900 dark:text-neutral-100">
-                  {{ formatPrice((order.totalAmount || 0) + (order.shippingCost || 0)) }}
+                <p
+                  class="text-sm font-bold text-gray-900 dark:text-neutral-100"
+                >
+                  {{
+                    formatPrice(
+                      (order.totalAmount || 0) + (order.shippingCost || 0),
+                    )
+                  }}
                 </p>
                 <NuxtLink
                   :to="`/seller/${order._storeSlug}/orders`"
@@ -72,7 +97,10 @@
             </div>
           </div>
 
-          <div v-if="pendingSellerOrders.length > 5" class="px-5 py-2 text-center text-xs text-amber-600 dark:text-amber-400">
+          <div
+            v-if="pendingSellerOrders.length > 5"
+            class="px-5 py-2 text-center text-xs text-amber-600 dark:text-amber-400"
+          >
             + {{ pendingSellerOrders.length - 5 }} more pending orders
           </div>
         </div>
@@ -100,8 +128,14 @@
 
       <!-- My Purchases label -->
       <div class="mb-3 flex items-center gap-2">
-        <Icon name="mdi:shopping-outline" size="16" class="text-gray-400 dark:text-neutral-500" />
-        <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-neutral-500">
+        <Icon
+          name="mdi:shopping-outline"
+          size="16"
+          class="text-gray-400 dark:text-neutral-500"
+        />
+        <h2
+          class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-neutral-500"
+        >
           My Purchases
         </h2>
       </div>
@@ -191,7 +225,9 @@
                 {{ order.orderItem.length }} item{{
                   order.orderItem.length !== 1 ? 's' : ''
                 }}
-                <span v-if="order.shippingZone"> · {{ order.shippingZone }}</span>
+                <span v-if="order.shippingZone">
+                  · {{ order.shippingZone }}</span
+                >
               </p>
               <p class="text-sm font-bold text-gray-900 dark:text-neutral-100">
                 {{ formatPrice(order.totalAmount + (order.shippingCost || 0)) }}
@@ -214,8 +250,14 @@
             class="border-t border-amber-100 bg-amber-50 px-5 py-3 dark:border-amber-900/30 dark:bg-amber-900/10"
           >
             <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400">
-                <Icon name="mdi:clock-alert-outline" size="14" class="shrink-0" />
+              <div
+                class="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400"
+              >
+                <Icon
+                  name="mdi:clock-alert-outline"
+                  size="14"
+                  class="shrink-0"
+                />
                 Payment auto-releases to seller in 7 days
               </div>
               <button
@@ -223,7 +265,11 @@
                 :disabled="confirmingIds.has(order.id)"
                 class="shrink-0 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
               >
-                {{ confirmingIds.has(order.id) ? 'Confirming…' : 'Confirm Receipt' }}
+                {{
+                  confirmingIds.has(order.id)
+                    ? 'Confirming…'
+                    : 'Confirm Receipt'
+                }}
               </button>
             </div>
           </div>
@@ -296,12 +342,24 @@ const fetchPendingSellerOrders = async () => {
   try {
     const results = await Promise.allSettled([
       ...sellers.value.map((s: any) =>
-        orderApi.getSellerOrders(s.store_slug, { status: 'PENDING', limit: 20 })
-          .then((r: any) => (r?.data?.orders ?? []).map((o: any) => ({ ...o, _storeSlug: s.store_slug }))),
+        orderApi
+          .getSellerOrders(s.store_slug, { status: 'PENDING', limit: 20 })
+          .then((r: any) =>
+            (r?.data?.orders ?? []).map((o: any) => ({
+              ...o,
+              _storeSlug: s.store_slug,
+            })),
+          ),
       ),
       ...sellers.value.map((s: any) =>
-        orderApi.getSellerOrders(s.store_slug, { status: 'CONFIRMED', limit: 20 })
-          .then((r: any) => (r?.data?.orders ?? []).map((o: any) => ({ ...o, _storeSlug: s.store_slug }))),
+        orderApi
+          .getSellerOrders(s.store_slug, { status: 'CONFIRMED', limit: 20 })
+          .then((r: any) =>
+            (r?.data?.orders ?? []).map((o: any) => ({
+              ...o,
+              _storeSlug: s.store_slug,
+            })),
+          ),
       ),
     ])
     const all: any[] = []
@@ -309,7 +367,8 @@ const fetchPendingSellerOrders = async () => {
       if (r.status === 'fulfilled') all.push(...r.value)
     }
     pendingSellerOrders.value = all.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
   } catch {
     // non-critical
@@ -320,7 +379,12 @@ const confirmingIds = ref<Set<number>>(new Set())
 const confirmedIds = ref<Set<number>>(new Set())
 
 const confirmReceipt = async (orderId: number) => {
-  if (!confirm('Confirm you have received this order? This will release payment to the seller.')) return
+  if (
+    !confirm(
+      'Confirm you have received this order? This will release payment to the seller.',
+    )
+  )
+    return
   confirmingIds.value = new Set([...confirmingIds.value, orderId])
   try {
     await orderApi.confirmReceipt(orderId)
@@ -328,7 +392,10 @@ const confirmReceipt = async (orderId: number) => {
     const order = orders.value.find((o) => o.id === orderId)
     if (order) order.status = 'DELIVERED'
   } catch (e: any) {
-    notify({ type: 'error', text: e?.data?.statusMessage || e?.message || 'Failed to confirm receipt' })
+    notify({
+      type: 'error',
+      text: e?.data?.statusMessage || e?.message || 'Failed to confirm receipt',
+    })
   } finally {
     confirmingIds.value.delete(orderId)
     confirmingIds.value = new Set(confirmingIds.value)
@@ -344,7 +411,11 @@ onMounted(async () => {
   // Paystack redirect
   const ref = route.query.reference as string
   if (ref) {
-    try { await orderApi.verifyPayment(ref) } catch { /* silent */ }
+    try {
+      await orderApi.verifyPayment(ref)
+    } catch {
+      /* silent */
+    }
   }
 
   // PayPal redirect — ?paypal=success&token={paypalOrderId}&orderId={internalId}
@@ -358,7 +429,9 @@ onMounted(async () => {
         paypalOrderId: ppToken,
       })
       paymentSuccess.value = true
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   }
 
   await loadOrders()

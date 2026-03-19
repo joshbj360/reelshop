@@ -2,7 +2,8 @@ import { prisma } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(getRouterParam(event, 'id') || '0')
-  if (!id) throw createError({ statusCode: 400, statusMessage: 'Invalid tag ID' })
+  if (!id)
+    throw createError({ statusCode: 400, statusMessage: 'Invalid tag ID' })
 
   const query = getQuery(event)
   const limit = Math.min(Number(query.limit) || 20, 50)
@@ -12,7 +13,8 @@ export default defineEventHandler(async (event) => {
     where: { id },
     select: { id: true, name: true },
   })
-  if (!tag) throw createError({ statusCode: 404, statusMessage: 'Tag not found' })
+  if (!tag)
+    throw createError({ statusCode: 404, statusMessage: 'Tag not found' })
 
   const [products, total] = await Promise.all([
     prisma.products.findMany({

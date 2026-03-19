@@ -17,7 +17,9 @@ import { sendboxProvider } from './sendbox'
 import { shippoProvider } from './shippo'
 import type { IShippingProvider } from './types'
 
-export function getShippingProvider(destinationCountry: string): IShippingProvider {
+export function getShippingProvider(
+  destinationCountry: string,
+): IShippingProvider {
   if (destinationCountry?.toUpperCase() === 'NG') {
     return sendboxProvider
   }

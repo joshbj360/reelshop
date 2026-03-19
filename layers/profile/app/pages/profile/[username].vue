@@ -1,5 +1,9 @@
 <template>
   <HomeLayout>
+    <template #right-sidebar>
+      <RightSideNavProfile />
+    </template>
+
     <div class="mx-auto max-w-5xl space-y-4 pb-20">
       <!-- Loading -->
       <div
@@ -141,6 +145,7 @@ import type { IProfile } from '../../types/profile.types'
 
 // Components
 import HomeLayout from '~/layouts/HomeLayout.vue'
+import RightSideNavProfile from '~/layouts/children/RightSideNavProfile.vue'
 import ProfileHeader from '../../components/profile/ProfileHeader.vue'
 import PostsTab from '../../components/profile/tabs/PostTab.vue'
 import LikesTab from '../../components/profile/tabs/LikesTab.vue'

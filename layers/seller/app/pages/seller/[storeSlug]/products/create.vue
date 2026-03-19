@@ -391,8 +391,12 @@
         >
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Variants</h2>
-              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Sizes, colours, or any option that changes price or stock.</p>
+              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+                Variants
+              </h2>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                Sizes, colours, or any option that changes price or stock.
+              </p>
             </div>
             <button
               type="button"
@@ -412,7 +416,10 @@
             >
               <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Size / Name *</label>
+                  <label
+                    class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                    >Size / Name *</label
+                  >
                   <input
                     v-model="variant.size"
                     placeholder="e.g. M, Red, 42"
@@ -420,7 +427,13 @@
                   />
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Price (₦) <span class="font-normal opacity-60">— blank = base price</span></label>
+                  <label
+                    class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                    >Price (₦)
+                    <span class="font-normal opacity-60"
+                      >— blank = base price</span
+                    ></label
+                  >
                   <input
                     v-model.number="variant.price"
                     type="number"
@@ -430,7 +443,10 @@
                   />
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Stock</label>
+                  <label
+                    class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                    >Stock</label
+                  >
                   <input
                     v-model.number="variant.stock"
                     type="number"
@@ -457,9 +473,18 @@
             @click="addVariant"
             class="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-8 transition-colors hover:border-brand hover:bg-brand/5 dark:border-neutral-700"
           >
-            <Icon name="mdi:tag-multiple-outline" size="28" class="text-gray-400 dark:text-neutral-500" />
-            <span class="text-sm font-medium text-gray-500 dark:text-neutral-400">Click to add your first variant</span>
-            <span class="text-xs text-gray-400 dark:text-neutral-500">e.g. Small / Medium / Large or Red / Blue</span>
+            <Icon
+              name="mdi:tag-multiple-outline"
+              size="28"
+              class="text-gray-400 dark:text-neutral-500"
+            />
+            <span
+              class="text-sm font-medium text-gray-500 dark:text-neutral-400"
+              >Click to add your first variant</span
+            >
+            <span class="text-xs text-gray-400 dark:text-neutral-500"
+              >e.g. Small / Medium / Large or Red / Blue</span
+            >
           </button>
         </div>
 
@@ -469,8 +494,12 @@
         >
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Volume Offers</h2>
-              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Reward buyers who purchase more. e.g. "Buy 3, get 10% off"</p>
+              <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+                Volume Offers
+              </h2>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                Reward buyers who purchase more. e.g. "Buy 3, get 10% off"
+              </p>
             </div>
             <button
               type="button"
@@ -489,7 +518,10 @@
             >
               <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Min. Quantity *</label>
+                  <label
+                    class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                    >Min. Quantity *</label
+                  >
                   <input
                     v-model.number="offer.minQuantity"
                     type="number"
@@ -499,7 +531,10 @@
                   />
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Discount % *</label>
+                  <label
+                    class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                    >Discount % *</label
+                  >
                   <input
                     v-model.number="offer.discount"
                     type="number"
@@ -510,7 +545,13 @@
                   />
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Label <span class="font-normal opacity-60">— shown to buyer</span></label>
+                  <label
+                    class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                    >Label
+                    <span class="font-normal opacity-60"
+                      >— shown to buyer</span
+                    ></label
+                  >
                   <input
                     v-model="offer.label"
                     placeholder="e.g. Bundle Deal"
@@ -543,8 +584,15 @@
             @click="addOffer"
             class="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-6 transition-colors hover:border-emerald-400 hover:bg-emerald-50/50 dark:border-neutral-700"
           >
-            <Icon name="mdi:percent-outline" size="26" class="text-gray-400 dark:text-neutral-500" />
-            <span class="text-sm font-medium text-gray-500 dark:text-neutral-400">No offers yet — add a volume deal</span>
+            <Icon
+              name="mdi:percent-outline"
+              size="26"
+              class="text-gray-400 dark:text-neutral-500"
+            />
+            <span
+              class="text-sm font-medium text-gray-500 dark:text-neutral-400"
+              >No offers yet — add a volume deal</span
+            >
           </button>
         </div>
 
@@ -817,7 +865,11 @@ const form = reactive({
   isThrift: false,
   isAccessory: false,
   variants: [] as Array<{ size: string; price: number | null; stock: number }>,
-  offers: [] as Array<{ minQuantity: number | null; discount: number | null; label: string }>,
+  offers: [] as Array<{
+    minQuantity: number | null
+    discount: number | null
+    label: string
+  }>,
   categoryIds: [] as number[],
   tagNames: [] as string[],
   // Added social captions to hold AI outputs
@@ -860,8 +912,8 @@ const autoFillWithAI = async () => {
   isGeneratingAI.value = true
   try {
     // 1. Get the first image (cover image)
-    const coverFile = mediaItems.value[0]?.file;
-    if (!coverFile) return;
+    const coverFile = mediaItems.value[0]?.file
+    if (!coverFile) return
 
     const base64Image = await fileToBase64(coverFile)
     // 2. Call AI service
@@ -927,7 +979,12 @@ const toggleCategory = (id: number) => {
 const tagInput = ref('')
 const addTag = () => {
   const name = tagInput.value.trim().toLowerCase().replace(/,/g, '')
-  if (name && name.length <= 50 && !form.tagNames.includes(name) && form.tagNames.length < 10) {
+  if (
+    name &&
+    name.length <= 50 &&
+    !form.tagNames.includes(name) &&
+    form.tagNames.length < 10
+  ) {
     form.tagNames.push(name)
   }
   tagInput.value = ''
@@ -982,7 +1039,8 @@ const handleSubmit = async () => {
     }
 
     const validOffers = form.offers.filter(
-      (o) => o.minQuantity && o.minQuantity >= 2 && o.discount && o.discount > 0,
+      (o) =>
+        o.minQuantity && o.minQuantity >= 2 && o.discount && o.discount > 0,
     )
     if (validOffers.length) {
       payload.offers = validOffers.map((o) => ({

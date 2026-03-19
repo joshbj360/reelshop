@@ -1,9 +1,10 @@
-// layers/auth/app/plugins/auth-init.ts
-
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useAuthStore } from '../stores/auth.store'
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
 import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
+import { useChat } from '~~/layers/profile/app/composables/useChat'
+import type { Seller } from '~/app/types/seller'
+import type { IProfile } from '~~/layers/profile/app/types/profile.types'
 
 /**
  * Auth Initialization Plugin
@@ -19,7 +20,7 @@ const hydrateSellerStore = async (
   sellerStore: ReturnType<typeof useSellerStore>,
 ) => {
   try {
-    const sellerRes = await $fetch<{ success: boolean; data: any[] }>(
+    const sellerRes = await $fetch<{ success: boolean; data: Seller[] }>(
       '/api/seller/list',
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -62,7 +63,7 @@ export default defineNuxtPlugin(async () => {
   // Only attempt profile restoration on the client and when a token exists
   if (import.meta.client && authStore.accessToken) {
     try {
-      const response = await $fetch<{ success: boolean; data: any }>(
+      const response = await $fetch<{ success: boolean; data: IProfile }>(
         '/api/profile',
         {
           headers: {
@@ -85,6 +86,10 @@ export default defineNuxtPlugin(async () => {
         hydrateSellerStore(authStore.accessToken, sellerStore),
         hydrateNotificationCount(authStore.accessToken, notificationStore),
       ])
+
+      // Re-open WebSocket and SSE streams after a hard refresh
+      notificationStore.connectStream()
+      useChat().connectSocket()
     }
   }
 

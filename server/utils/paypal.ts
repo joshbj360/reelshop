@@ -22,7 +22,9 @@ function getCredentials() {
 /** Exchange client credentials for an access token */
 async function getAccessToken(): Promise<string> {
   const { clientId, clientSecret } = getCredentials()
-  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
+    'base64',
+  )
   const res: any = await $fetch(`${getBase()}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
@@ -37,7 +39,10 @@ async function getAccessToken(): Promise<string> {
 
 async function authHeaders() {
   const token = await getAccessToken()
-  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  }
 }
 
 export const paypal = {
@@ -60,8 +65,9 @@ export const paypal = {
         intent: 'CAPTURE',
         purchase_units: [
           {
-            reference_id: `indix_${params.internalOrderId}`,
-            description: params.description ?? `Order #${params.internalOrderId}`,
+            reference_id: `stylex_${params.internalOrderId}`,
+            description:
+              params.description ?? `Order #${params.internalOrderId}`,
             amount: {
               currency_code: 'USD',
               value: params.amountUSD.toFixed(2),
@@ -69,7 +75,7 @@ export const paypal = {
           },
         ],
         application_context: {
-          brand_name: 'Indix',
+          brand_name: 'stylex',
           landing_page: 'LOGIN',
           user_action: 'PAY_NOW',
           return_url: params.returnUrl,
@@ -77,7 +83,9 @@ export const paypal = {
         },
       },
     })
-    const approvalUrl = (res.links as any[])?.find((l: any) => l.rel === 'approve')?.href
+    const approvalUrl = (res.links as any[])?.find(
+      (l: any) => l.rel === 'approve',
+    )?.href
     if (!approvalUrl) throw new Error('PayPal did not return an approval URL')
     return { id: res.id as string, approvalUrl }
   },
@@ -86,13 +94,18 @@ export const paypal = {
    * Capture a PayPal order after buyer approval.
    * paypalOrderId is the token/order ID from the return URL query param.
    */
-  async captureOrder(paypalOrderId: string): Promise<{ status: string; captureId: string }> {
+  async captureOrder(
+    paypalOrderId: string,
+  ): Promise<{ status: string; captureId: string }> {
     const headers = await authHeaders()
-    const res: any = await $fetch(`${getBase()}/v2/checkout/orders/${paypalOrderId}/capture`, {
-      method: 'POST',
-      headers,
-      body: {},
-    })
+    const res: any = await $fetch(
+      `${getBase()}/v2/checkout/orders/${paypalOrderId}/capture`,
+      {
+        method: 'POST',
+        headers,
+        body: {},
+      },
+    )
     const captureId = res.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? ''
     return { status: res.status as string, captureId }
   },

@@ -23,8 +23,16 @@ export default defineEventHandler(async (event): Promise<IFeedResponse> => {
           include: {
             product: {
               select: {
-                id: true, title: true, price: true, discount: true, slug: true,
-                media: { take: 1, where: { isBgMusic: false }, select: { url: true, type: true } },
+                id: true,
+                title: true,
+                price: true,
+                discount: true,
+                slug: true,
+                media: {
+                  take: 1,
+                  where: { isBgMusic: false },
+                  select: { url: true, type: true },
+                },
               },
             },
           },

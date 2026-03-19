@@ -25,7 +25,8 @@ export const useMediaUpload = () => {
     try {
       const response = await mediaApi.upload(media)
       return response.data as ICloudinaryUploadResult
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & { data?: { statusMessage?: string } }
       console.error('Upload failed:', error)
       const message =
         error?.data?.statusMessage || error?.message || 'Failed to upload media'

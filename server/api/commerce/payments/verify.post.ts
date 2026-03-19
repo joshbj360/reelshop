@@ -16,7 +16,9 @@ async function notifySellers(orderId: number, buyerName: string) {
       variant: {
         include: {
           product: {
-            include: { seller: { select: { profileId: true, store_name: true } } },
+            include: {
+              seller: { select: { profileId: true, store_name: true } },
+            },
           },
         },
       },
@@ -74,12 +76,13 @@ export default defineEventHandler(async (event) => {
         data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
       })
       // Non-blocking — notify sellers and credit wallets in background
-      notifySellers(order.id, user.username || user.email || 'a customer').catch(
-        (e) => console.error('[notify sellers]', e),
-      )
-      walletService.creditSellersOnPayment(order.id).catch(
-        (e) => console.error('[wallet credit]', e),
-      )
+      notifySellers(
+        order.id,
+        user.username || user.email || 'a customer',
+      ).catch((e) => console.error('[notify sellers]', e))
+      walletService
+        .creditSellersOnPayment(order.id)
+        .catch((e) => console.error('[wallet credit]', e))
       return { success: true, data: { status: 'paid', orderId: order.id } }
     }
 

@@ -7,8 +7,8 @@
         <Icon name="mdi:home" size="26" />
       </NuxtLink>
 
-      <NuxtLink to="/discover" class="nav-item" active-class="active">
-        <Icon name="mdi:compass-outline" size="26" />
+      <NuxtLink to="/thrift" class="nav-item" active-class="active">
+        <Icon name="mdi:tshirt-crew" size="26" />
       </NuxtLink>
 
       <!-- Create button — gradient pill -->
@@ -16,7 +16,7 @@
         <button
           v-if="profileStore.isLoggedIn"
           @click="$emit('create')"
-          class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f02c56] to-purple-600 shadow-md transition-transform active:scale-95"
+          class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand shadow-lg shadow-brand/30 transition-transform active:scale-95"
           aria-label="Create"
         >
           <Icon name="mdi:plus" size="26" class="text-white" />
@@ -26,18 +26,35 @@
         </template>
       </ClientOnly>
 
-      <NuxtLink to="/reels" class="nav-item" active-class="active">
-        <Icon name="mdi:play-box-outline" size="26" />
-      </NuxtLink>
+      <ClientOnly>
+        <NuxtLink
+          v-if="profileStore.isLoggedIn"
+          to="/messages"
+          class="nav-item"
+          active-class="active"
+        >
+          <Icon name="mdi:message-outline" size="26" />
+        </NuxtLink>
+        <NuxtLink v-else to="/discover" class="nav-item" active-class="active">
+          <Icon name="mdi:magnify" size="26" />
+        </NuxtLink>
+        <template #fallback>
+          <NuxtLink to="/discover" class="nav-item" active-class="active">
+            <Icon name="mdi:magnify" size="26" />
+          </NuxtLink>
+        </template>
+      </ClientOnly>
 
       <!-- Profile / Login -->
       <ClientOnly>
         <div v-if="profileStore.isLoggedIn" class="relative" ref="menuRef">
           <!-- Avatar button — tap to open popup -->
           <button @click="menuOpen = !menuOpen" class="nav-item">
-            <img
-              :src="profileStore.me?.avatar || ''"
-              class="h-7 w-7 rounded-full ring-2 transition-all"
+            <Avatar
+              :username="profileStore.me?.username ?? 'User'"
+              :avatar="profileStore.me?.avatar ?? ''"
+              size="sm"
+              class="ring-2 transition-all"
               :class="isProfileActive ? 'ring-brand' : 'ring-transparent'"
             />
           </button>
@@ -101,6 +118,7 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 
 defineEmits(['create'])
 

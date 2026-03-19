@@ -45,11 +45,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (error instanceof Error && error.message.includes('SellerError')) {
-      const sellerError = error as any
+    if ((error as any).name === 'SellerError') {
       throw createError({
-        statusCode: sellerError.statusCode || 400,
-        statusMessage: error.message,
+        statusCode: (error as any).statusCode || 400,
+        statusMessage: (error as Error).message,
       })
     }
 

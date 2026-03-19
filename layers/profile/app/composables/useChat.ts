@@ -121,7 +121,7 @@ export const useChat = () => {
     chatStore.setError(null)
     try {
       const res = await chatApi.getConversations()
-      const raw: any[] = res?.data?.conversations ?? []
+      const raw: any[] = res?.data?.conversations ?? res?.conversations ?? []
       const userId = profileStore.userId ?? ''
       const normalized = raw.map((c) => normalizeConversation(c, userId))
       chatStore.setConversations(normalized)
@@ -139,7 +139,7 @@ export const useChat = () => {
     chatStore.setError(null)
     try {
       const res = await chatApi.getMessages(conversationId)
-      const msgs: IMessage[] = res?.data?.messages ?? []
+      const msgs: IMessage[] = res?.data?.messages ?? res?.messages ?? []
       chatStore.setConversationMessages(conversationId, msgs)
       return msgs
     } catch (err: any) {

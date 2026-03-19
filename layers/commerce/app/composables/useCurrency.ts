@@ -2,7 +2,6 @@ import {
   type SupportedCurrency,
   DEFAULT_RATES_TO_NGN,
   getCurrencyForCountry,
-  convertNGNKobo,
   formatInCurrency,
   formatProductPrice,
 } from '~~/app/utils/currency'
@@ -27,16 +26,17 @@ export const useCurrency = () => {
   )
 
   /** Format a product price (major NGN units) in the given display currency. */
-  const formatProduct = (majorNGN: number, currency: SupportedCurrency): string =>
-    formatProductPrice(majorNGN, currency, rates.value)
+  const formatProduct = (
+    majorNGN: number,
+    currency: SupportedCurrency,
+  ): string => formatProductPrice(majorNGN, currency, rates.value)
 
   /** Format a kobo amount (shipping, order total) in the given display currency. */
   const format = (kobo: number, currency: SupportedCurrency): string =>
     formatInCurrency(kobo, currency, rates.value)
 
   /** Format a kobo amount as NGN (always). */
-  const formatNGN = (kobo: number): string =>
-    formatInCurrency(kobo, 'NGN')
+  const formatNGN = (kobo: number): string => formatInCurrency(kobo, 'NGN')
 
   /** Format a product price as NGN (always). */
   const formatProductNGN = (majorNGN: number): string =>

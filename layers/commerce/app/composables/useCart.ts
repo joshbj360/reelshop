@@ -1,6 +1,7 @@
 import { notify } from '@kyvg/vue3-notification'
 import { useCartApi } from '../services/cart.api'
 import { useCartStore } from '../stores/cart.store'
+import type { CartItem } from '../types/cart'
 
 export const useCart = () => {
   const api = useCartApi()
@@ -16,11 +17,12 @@ export const useCart = () => {
     store.setLoading(true)
     store.setError(null)
     try {
-      const result: any = await api.getCart()
+      const result: { data: { items: CartItem[] } } = await api.getCart()
       store.setItems(result.data?.items || [])
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to fetch cart')
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to fetch cart')
       throw e
     } finally {
       store.setLoading(false)
@@ -31,12 +33,16 @@ export const useCart = () => {
     store.setLoading(true)
     store.setError(null)
     try {
-      const result: any = await api.addToCart(variantId, quantity)
+      const result: { data: CartItem } = await api.addToCart(
+        variantId,
+        quantity,
+      )
       store.addItem(result.data)
       return result.data
-    } catch (e: any) {
-      store.setError(e.message || 'Failed to add to cart')
-      notify({ type: 'error', text: e.message || 'Failed to add to cart' })
+    } catch (e: unknown) {
+      const error = e as Error
+      store.setError(error.message || 'Failed to add to cart')
+      notify({ type: 'error', text: error.message || 'Failed to add to cart' })
       throw e
     } finally {
       store.setLoading(false)
@@ -46,12 +52,16 @@ export const useCart = () => {
   const updateQuantity = async (variantId: number, quantity: number) => {
     store.updateItem(variantId, quantity) // optimistic
     try {
-      const result: any = await api.updateQuantity(variantId, quantity)
+      const result: { data: CartItem } = await api.updateQuantity(
+        variantId,
+        quantity,
+      )
       return result.data
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const error = e as Error
       await fetchCart() // revert on error
-      store.setError(e.message || 'Failed to update cart')
-      notify({ type: 'error', text: e.message || 'Failed to update cart' })
+      store.setError(error.message || 'Failed to update cart')
+      notify({ type: 'error', text: error.message || 'Failed to update cart' })
       throw e
     }
   }
@@ -60,10 +70,14 @@ export const useCart = () => {
     store.removeItem(variantId) // optimistic
     try {
       await api.removeFromCart(variantId)
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const error = e as Error
       await fetchCart() // revert on error
-      store.setError(e.message || 'Failed to remove from cart')
-      notify({ type: 'error', text: e.message || 'Failed to remove from cart' })
+      store.setError(error.message || 'Failed to remove from cart')
+      notify({
+        type: 'error',
+        text: error.message || 'Failed to remove from cart',
+      })
       throw e
     }
   }

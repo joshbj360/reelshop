@@ -47,7 +47,11 @@ export function cloudinaryUrl(
   const after = url.slice(idx + uploadMarker.length)
 
   // Don't double-insert transforms if they're already present
-  if (after.startsWith('w_') || after.startsWith('f_') || after.startsWith('q_')) {
+  if (
+    after.startsWith('w_') ||
+    after.startsWith('f_') ||
+    after.startsWith('q_')
+  ) {
     return url
   }
 

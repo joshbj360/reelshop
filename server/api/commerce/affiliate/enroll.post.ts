@@ -1,35 +1,50 @@
 // POST /api/commerce/affiliate/enroll
 import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { UserError } from '../../../layers/profile/types/user.types'
-import { auditService } from '../../../layers/shared/audit/audit.service'
-import { getClientIP } from '../../../layers/shared/utils/security'
+import { prisma } from '../../../utils/db'
+import { randomBytes } from 'node:crypto'
 
 export default defineEventHandler(async (event) => {
   try {
     const user = await requireAuth(event)
-    const ipAddress =
-      getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
-    const userAgent = getHeader(event, 'user-agent') || 'unknown'
 
-    // Affiliate enrollment is pending full model migration
-    // For now, log the intent and return a pending state
-    await auditService.logUserAction({
-      userId: user.id,
-      action: 'AFFILIATE_ENROLL_REQUESTED',
-      resource: 'AffiliateProfile',
-      resourceId: user.id,
-      reason: 'User requested affiliate enrollment',
-      ipAddress,
-      userAgent,
+    const profile = await prisma.profile.findUnique({
+      where: { id: user.id },
+      select: { id: true, username: true, affiliateCode: true },
+    })
+
+    if (!profile) throw new UserError('NOT_FOUND', 'Profile not found', 404)
+
+    // Already enrolled — return existing code
+    if (profile.affiliateCode) {
+      return {
+        success: true,
+        data: { isEnrolled: true, affiliateCode: profile.affiliateCode },
+      }
+    }
+
+    // Generate unique code: username prefix + 6-char hex
+    const base = (profile.username ?? 'user')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .slice(0, 12)
+    const suffix = randomBytes(3).toString('hex')
+    let code = `${base}_${suffix}`
+
+    // Ensure uniqueness (retry once if collision)
+    const exists = await prisma.profile.findUnique({
+      where: { affiliateCode: code },
+    })
+    if (exists) code = `${base}_${randomBytes(3).toString('hex')}`
+
+    await prisma.profile.update({
+      where: { id: user.id },
+      data: { affiliateCode: code },
     })
 
     return {
       success: true,
-      data: {
-        isEnrolled: false,
-        message:
-          'Affiliate enrollment is being processed. You will be notified when approved.',
-      },
+      data: { isEnrolled: true, affiliateCode: code },
     }
   } catch (error: any) {
     if (error instanceof UserError)

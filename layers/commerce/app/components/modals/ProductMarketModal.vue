@@ -85,7 +85,7 @@
                 You earn
               </p>
               <p class="text-4xl font-extrabold tracking-tight">
-                {{ formatPrice(product.affiliateCommission!) }}
+                {{ formatPrice(product.affiliateCommission ?? 0) }}
               </p>
               <p class="mt-1 text-sm opacity-80">for every sale you drive</p>
             </div>
@@ -126,7 +126,7 @@
                 <p class="text-sm text-gray-600 dark:text-neutral-300">
                   Earn
                   <strong>{{
-                    formatPrice(product.affiliateCommission!)
+                    formatPrice(product.affiliateCommission ?? 0)
                   }}</strong>
                   when someone buys through your link
                 </p>

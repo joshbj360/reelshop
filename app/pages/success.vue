@@ -1,5 +1,9 @@
 <template>
   <HomeLayout>
+    <template #right-sidebar>
+      <RightSideNavBuyerOrders />
+    </template>
+
     <div id="SuccessPage" class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <div
         class="flex flex-col items-center rounded-2xl bg-white p-8 text-center shadow-xl sm:p-12"
@@ -77,6 +81,7 @@
 
 <script setup lang="ts">
 import HomeLayout from '~/layouts/HomeLayout.vue'
+import RightSideNavBuyerOrders from '~/layouts/children/RightSideNavBuyerOrders.vue'
 import { useCartStore } from '~~/layers/commerce/app/stores/cart.store'
 
 const cartStore = useCartStore()

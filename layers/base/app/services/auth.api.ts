@@ -7,6 +7,7 @@
  */
 
 import { BaseApiClient } from './base.api'
+import type { User, LoginResponse } from '../types/user'
 
 export class AuthApiClient extends BaseApiClient {
   // ==================== REGISTER ====================
@@ -16,7 +17,7 @@ export class AuthApiClient extends BaseApiClient {
     username: string
     password: string
     confirmPassword: string
-  }): Promise<any> {
+  }): Promise<User> {
     return this.request('/api/auth/register', {
       method: 'POST',
       body: data,
@@ -25,7 +26,10 @@ export class AuthApiClient extends BaseApiClient {
 
   // ==================== LOGIN ====================
 
-  async login(data: { email: string; password: string }): Promise<any> {
+  async login(data: {
+    email: string
+    password: string
+  }): Promise<LoginResponse> {
     return this.request('/api/auth/login', {
       method: 'POST',
       body: data,
@@ -34,7 +38,7 @@ export class AuthApiClient extends BaseApiClient {
 
   // ==================== LOGOUT ====================
 
-  async logout(): Promise<any> {
+  async logout(): Promise<{ success: boolean; message: string }> {
     return this.request('/api/auth/logout', {
       method: 'POST',
     })
@@ -42,14 +46,18 @@ export class AuthApiClient extends BaseApiClient {
 
   // ==================== EMAIL VERIFICATION ====================
 
-  async verifyEmail(token: string): Promise<any> {
+  async verifyEmail(
+    token: string,
+  ): Promise<{ success: boolean; message: string }> {
     return this.request('/api/auth/verify-email', {
       method: 'POST',
       body: { token },
     })
   }
 
-  async resendVerificationEmail(email: string): Promise<any> {
+  async resendVerificationEmail(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
     return this.request('/api/auth/send-verification-email', {
       method: 'POST',
       body: { email },
@@ -58,14 +66,19 @@ export class AuthApiClient extends BaseApiClient {
 
   // ==================== PASSWORD RESET ====================
 
-  async requestPasswordReset(email: string): Promise<any> {
+  async requestPasswordReset(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
     return this.request('/api/auth/forgot-password', {
       method: 'POST',
       body: { email },
     })
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<any> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message: string }> {
     return this.request('/api/auth/reset-password', {
       method: 'POST',
       body: { token, newPassword },
@@ -74,7 +87,7 @@ export class AuthApiClient extends BaseApiClient {
 
   // ==================== REFRESH TOKEN ====================
 
-  async refreshAccessToken(): Promise<any> {
+  async refreshAccessToken(): Promise<{ accessToken: string }> {
     return this.request('/api/auth/refresh-token', {
       method: 'POST',
     })

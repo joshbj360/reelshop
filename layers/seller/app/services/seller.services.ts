@@ -49,7 +49,6 @@ export class SellerApiClient extends BaseApiClient {
   async getSellerBySlug(slug: string): Promise<any> {
     return this.request(`/api/seller/${slug}`, {
       method: 'GET',
-      skipAuth: true, // Public endpoint
     })
   }
 

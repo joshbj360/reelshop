@@ -112,5 +112,8 @@ export interface IShippingProvider {
   /** Book a shipment and get a label */
   createShipment(payload: ICreateShipmentPayload): Promise<IShipmentResult>
   /** Get real-time tracking for an existing shipment */
-  trackShipment(trackingNumber: string, carrier?: string): Promise<ITrackingResult>
+  trackShipment(
+    trackingNumber: string,
+    carrier?: string,
+  ): Promise<ITrackingResult>
 }

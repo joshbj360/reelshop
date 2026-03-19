@@ -22,7 +22,8 @@ export default defineEventHandler(async (event) => {
     const seller = await prisma.sellerProfile.findFirst({
       where: { id: body.sellerId, profileId: user.id, is_active: true },
     })
-    if (!seller) throw new UserError('FORBIDDEN', 'Store not found or access denied', 403)
+    if (!seller)
+      throw new UserError('FORBIDDEN', 'Store not found or access denied', 403)
 
     // If setting as default, unset all other defaults for this seller
     if (body.isDefault) {
@@ -33,7 +34,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // If this is the first account, make it default automatically
-    const existingCount = await prisma.bankAccount.count({ where: { sellerId: body.sellerId } })
+    const existingCount = await prisma.bankAccount.count({
+      where: { sellerId: body.sellerId },
+    })
     const makeDefault = body.isDefault || existingCount === 0
 
     const account = await prisma.bankAccount.create({
@@ -50,7 +53,13 @@ export default defineEventHandler(async (event) => {
     return { success: true, data: account }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: error.message || 'Server error' })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message || 'Server error',
+    })
   }
 })

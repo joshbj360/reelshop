@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     const pp = await paypal.createOrder({
       amountUSD,
       internalOrderId: order.id,
-      description: `Indix Order #${order.id}`,
+      description: `stylex Order #${order.id}`,
       returnUrl,
       cancelUrl,
     })
@@ -75,7 +75,10 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
     throw createError({
       statusCode: 500,
       statusMessage: error.message || 'PayPal order creation failed',

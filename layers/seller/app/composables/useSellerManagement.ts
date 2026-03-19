@@ -55,7 +55,9 @@ export function useSellerManagement() {
         Array.isArray(error.data) ? error.data : undefined
       if (zodErrors?.length) {
         // Build a human-readable list of field errors
-        const messages = zodErrors.map((e) => `${e.path.join('.') || 'field'}: ${e.message}`)
+        const messages = zodErrors.map(
+          (e) => `${e.path.join('.') || 'field'}: ${e.message}`,
+        )
         const message = messages.join(' · ')
         sellerStore.setError(message)
         const fieldMap: Record<string, string> = {}
@@ -104,7 +106,8 @@ export function useSellerManagement() {
 
     try {
       const result = await sellerApi.getSellerBySlug(slug)
-      sellerStore.setCurrentSeller(result.data)
+      const seller = result?.data ?? result
+      sellerStore.setCurrentSeller(seller)
       return result
     } catch (error: any) {
       const message =

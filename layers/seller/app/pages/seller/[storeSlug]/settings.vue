@@ -193,7 +193,9 @@
             <div
               class="w-full select-none rounded-xl border border-gray-200 bg-gray-100 px-4 py-2.5 text-[14px] text-gray-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400"
             >
-              {{ $config.public.brandDomain || 'indix.app' }}/sellers/profile/{{ storeSlug }}
+              {{
+                $config.public.brandDomain || 'stylex.indicestech.com'
+              }}/sellers/profile/{{ storeSlug }}
             </div>
           </div>
 
@@ -367,7 +369,11 @@
                 v-model="form.shipFromCountry"
                 class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[13px] text-gray-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
               >
-                <option v-for="c in SHIP_FROM_COUNTRIES" :key="c.code" :value="c.code">
+                <option
+                  v-for="c in SHIP_FROM_COUNTRIES"
+                  :key="c.code"
+                  :value="c.code"
+                >
                   {{ c.name }}
                 </option>
               </select>

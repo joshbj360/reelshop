@@ -62,19 +62,21 @@ export default defineEventHandler(async (event) => {
 
     // Notify buyer when order is shipped
     if (body.status === 'SHIPPED') {
-      notificationService.createNotification({
-        userId: order.userId,
-        type: 'ORDER',
-        actorId: user.id,
-        message: `Your order #${id} has been shipped${body.trackingNumber ? ` · Tracking: ${body.trackingNumber}` : ''}. Funds will be released to the seller in 7 days if not confirmed.`,
-      }).catch((e) => console.error('[notify buyer shipped]', e))
+      notificationService
+        .createNotification({
+          userId: order.userId,
+          type: 'ORDER',
+          actorId: user.id,
+          message: `Your order #${id} has been shipped${body.trackingNumber ? ` · Tracking: ${body.trackingNumber}` : ''}. Funds will be released to the seller in 7 days if not confirmed.`,
+        })
+        .catch((e) => console.error('[notify buyer shipped]', e))
     }
 
     // Release held funds to seller available balance on delivery
     if (body.status === 'DELIVERED' && order.paymentStatus === 'PAID') {
-      walletService.releaseFundsOnDelivery(id).catch(
-        (e) => console.error('[wallet release]', e),
-      )
+      walletService
+        .releaseFundsOnDelivery(id)
+        .catch((e) => console.error('[wallet release]', e))
     }
 
     return { success: true, data: updated }

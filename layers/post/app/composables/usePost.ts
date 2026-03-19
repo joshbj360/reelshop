@@ -10,7 +10,15 @@ import type { IFeedItem } from '../../../feed/app/types/feed.types'
  * All components that open PostDetailModal must use IFeedItem.
  */
 export function normalizePost(post: IPost | any): IFeedItem {
-  const rawMedia = Array.isArray(post.media) ? post.media[0] : post.media
+  const mediaArr = Array.isArray(post.media)
+    ? post.media
+    : post.media
+      ? [post.media]
+      : []
+  const contentMedia = mediaArr.filter((m: any) => !m.isBgMusic)
+  const bgMusicRaw = mediaArr.find((m: any) => m.isBgMusic)
+  const rawMedia = contentMedia[0] ?? null
+
   return {
     id: post.id,
     type: 'POST',
@@ -30,6 +38,14 @@ export function normalizePost(post: IPost | any): IFeedItem {
           type: rawMedia.type,
           thumbnailUrl: rawMedia.thumbnailUrl,
         }
+      : undefined,
+    mediaItems: contentMedia.map((m: any) => ({
+      id: m.id,
+      url: m.url,
+      type: m.type,
+    })),
+    bgMusic: bgMusicRaw
+      ? { id: bgMusicRaw.id, url: bgMusicRaw.url }
       : undefined,
     caption: post.caption ?? '',
     content: post.content ?? null,

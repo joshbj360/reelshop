@@ -79,7 +79,7 @@
         >
           <!-- Banner -->
           <div
-            class="relative h-20 overflow-hidden bg-gradient-to-br from-[#f02c56] to-purple-600"
+            class="relative h-20 overflow-hidden bg-gradient-to-br from-brand to-brand-dark"
           >
             <img
               v-if="seller.store_banner"
@@ -102,7 +102,7 @@
               />
               <div
                 v-else
-                class="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f02c56] to-purple-600"
+                class="flex h-full w-full items-center justify-center bg-brand"
               >
                 <Icon name="mdi:storefront" size="20" class="text-white" />
               </div>

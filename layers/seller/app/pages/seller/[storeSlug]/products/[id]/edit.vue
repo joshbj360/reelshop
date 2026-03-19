@@ -130,7 +130,11 @@
                   v-if="img.uploading"
                   class="absolute inset-0 flex items-center justify-center bg-black/50"
                 >
-                  <Icon name="mdi:loading" size="20" class="animate-spin text-white" />
+                  <Icon
+                    name="mdi:loading"
+                    size="20"
+                    class="animate-spin text-white"
+                  />
                 </div>
                 <div
                   v-if="visibleExistingMedia.length === 0 && i === 0"
@@ -157,7 +161,9 @@
                   size="24"
                   class="mb-1 text-gray-400 dark:text-neutral-500"
                 />
-                <span class="text-xs text-gray-400 dark:text-neutral-500">Add</span>
+                <span class="text-xs text-gray-400 dark:text-neutral-500"
+                  >Add</span
+                >
                 <input
                   type="file"
                   accept="image/*,video/*"
@@ -169,8 +175,12 @@
             </div>
 
             <!-- Background Music -->
-            <div class="mt-4 border-t border-gray-100 pt-4 dark:border-neutral-700">
-              <h3 class="mb-2 text-sm font-medium text-gray-700 dark:text-neutral-300">
+            <div
+              class="mt-4 border-t border-gray-100 pt-4 dark:border-neutral-700"
+            >
+              <h3
+                class="mb-2 text-sm font-medium text-gray-700 dark:text-neutral-300"
+              >
                 Background Music (optional)
               </h3>
 
@@ -179,15 +189,22 @@
                 v-if="existingBgMusic && !bgMusicRemoved && !newBgMusic"
                 class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-neutral-900"
               >
-                <Icon name="mdi:music-note" size="20" class="flex-shrink-0 text-brand" />
-                <span class="flex-1 truncate text-sm text-gray-700 dark:text-neutral-300">
+                <Icon
+                  name="mdi:music-note"
+                  size="20"
+                  class="flex-shrink-0 text-brand"
+                />
+                <span
+                  class="flex-1 truncate text-sm text-gray-700 dark:text-neutral-300"
+                >
                   Current background music
                 </span>
                 <a
                   :href="existingBgMusic.url"
                   target="_blank"
                   class="flex-shrink-0 text-xs text-brand hover:underline"
-                >Preview</a>
+                  >Preview</a
+                >
                 <button
                   type="button"
                   @click="bgMusicRemoved = true"
@@ -202,12 +219,22 @@
                 v-else-if="newBgMusic"
                 class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-neutral-900"
               >
-                <Icon name="mdi:music-note" size="20" class="flex-shrink-0 text-brand" />
-                <span class="flex-1 truncate text-sm text-gray-700 dark:text-neutral-300">
+                <Icon
+                  name="mdi:music-note"
+                  size="20"
+                  class="flex-shrink-0 text-brand"
+                />
+                <span
+                  class="flex-1 truncate text-sm text-gray-700 dark:text-neutral-300"
+                >
                   {{ newBgMusic.name }}
                 </span>
                 <div v-if="bgMusicUploading" class="flex-shrink-0">
-                  <Icon name="mdi:loading" size="16" class="animate-spin text-brand" />
+                  <Icon
+                    name="mdi:loading"
+                    size="16"
+                    class="animate-spin text-brand"
+                  />
                 </div>
                 <button
                   type="button"
@@ -223,11 +250,24 @@
                 v-else
                 class="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2.5 transition-colors hover:border-brand hover:bg-brand/5 dark:border-neutral-600"
               >
-                <Icon name="mdi:music-plus" size="18" class="text-gray-400 dark:text-neutral-500" />
+                <Icon
+                  name="mdi:music-plus"
+                  size="18"
+                  class="text-gray-400 dark:text-neutral-500"
+                />
                 <span class="text-sm text-gray-500 dark:text-neutral-400">
-                  {{ bgMusicRemoved ? 'Add new background music' : 'Add background music' }}
+                  {{
+                    bgMusicRemoved
+                      ? 'Add new background music'
+                      : 'Add background music'
+                  }}
                 </span>
-                <input type="file" accept="audio/*" class="hidden" @change="onBgMusicSelected" />
+                <input
+                  type="file"
+                  accept="audio/*"
+                  class="hidden"
+                  @change="onBgMusicSelected"
+                />
               </label>
             </div>
           </div>
@@ -364,8 +404,12 @@
           >
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Variants</h2>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Sizes, colours, or any option that changes price or stock.</p>
+                <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+                  Variants
+                </h2>
+                <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                  Sizes, colours, or any option that changes price or stock.
+                </p>
               </div>
               <button
                 type="button"
@@ -384,7 +428,10 @@
               >
                 <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
                   <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Size / Name *</label>
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                      >Size / Name *</label
+                    >
                     <input
                       v-model="variant.size"
                       placeholder="e.g. M, Red, 42"
@@ -392,7 +439,13 @@
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Price (₦) <span class="font-normal opacity-60">— blank = base price</span></label>
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                      >Price (₦)
+                      <span class="font-normal opacity-60"
+                        >— blank = base price</span
+                      ></label
+                    >
                     <input
                       v-model.number="variant.price"
                       type="number"
@@ -402,7 +455,10 @@
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Stock</label>
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                      >Stock</label
+                    >
                     <input
                       v-model.number="variant.stock"
                       type="number"
@@ -428,9 +484,18 @@
               @click="addVariant"
               class="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-8 transition-colors hover:border-brand hover:bg-brand/5 dark:border-neutral-700"
             >
-              <Icon name="mdi:tag-multiple-outline" size="28" class="text-gray-400 dark:text-neutral-500" />
-              <span class="text-sm font-medium text-gray-500 dark:text-neutral-400">Click to add your first variant</span>
-              <span class="text-xs text-gray-400 dark:text-neutral-500">e.g. Small / Medium / Large or Red / Blue</span>
+              <Icon
+                name="mdi:tag-multiple-outline"
+                size="28"
+                class="text-gray-400 dark:text-neutral-500"
+              />
+              <span
+                class="text-sm font-medium text-gray-500 dark:text-neutral-400"
+                >Click to add your first variant</span
+              >
+              <span class="text-xs text-gray-400 dark:text-neutral-500"
+                >e.g. Small / Medium / Large or Red / Blue</span
+              >
             </button>
           </div>
 
@@ -440,8 +505,12 @@
           >
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="font-semibold text-gray-900 dark:text-neutral-100">Volume Offers</h2>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">Reward buyers who purchase more. e.g. "Buy 3, get 10% off"</p>
+                <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+                  Volume Offers
+                </h2>
+                <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+                  Reward buyers who purchase more. e.g. "Buy 3, get 10% off"
+                </p>
               </div>
               <button
                 type="button"
@@ -460,7 +529,10 @@
               >
                 <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
                   <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Min. Quantity *</label>
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                      >Min. Quantity *</label
+                    >
                     <input
                       v-model.number="offer.minQuantity"
                       type="number"
@@ -470,7 +542,10 @@
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Discount % *</label>
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                      >Discount % *</label
+                    >
                     <input
                       v-model.number="offer.discount"
                       type="number"
@@ -481,7 +556,13 @@
                     />
                   </div>
                   <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400">Label <span class="font-normal opacity-60">— shown to buyer</span></label>
+                    <label
+                      class="mb-1 block text-xs font-medium text-gray-500 dark:text-neutral-400"
+                      >Label
+                      <span class="font-normal opacity-60"
+                        >— shown to buyer</span
+                      ></label
+                    >
                     <input
                       v-model="offer.label"
                       placeholder="e.g. Bundle Deal"
@@ -513,8 +594,15 @@
               @click="addOffer"
               class="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-6 transition-colors hover:border-emerald-400 hover:bg-emerald-50/50 dark:border-neutral-700"
             >
-              <Icon name="mdi:percent-outline" size="26" class="text-gray-400 dark:text-neutral-500" />
-              <span class="text-sm font-medium text-gray-500 dark:text-neutral-400">No offers yet — add a volume deal</span>
+              <Icon
+                name="mdi:percent-outline"
+                size="26"
+                class="text-gray-400 dark:text-neutral-500"
+              />
+              <span
+                class="text-sm font-medium text-gray-500 dark:text-neutral-400"
+                >No offers yet — add a volume deal</span
+              >
             </button>
           </div>
 
@@ -565,19 +653,29 @@
           >
             <h2 class="mb-1 font-semibold text-gray-900 dark:text-neutral-100">
               Tags
-              <span class="ml-1 text-sm font-normal text-gray-400 dark:text-neutral-500">(optional, max 10)</span>
+              <span
+                class="ml-1 text-sm font-normal text-gray-400 dark:text-neutral-500"
+                >(optional, max 10)</span
+              >
             </h2>
             <p class="mb-3 text-xs text-gray-500 dark:text-neutral-400">
               Tags help shoppers discover your product
             </p>
-            <div v-if="form.tagNames.length" class="mb-2 flex flex-wrap gap-1.5">
+            <div
+              v-if="form.tagNames.length"
+              class="mb-2 flex flex-wrap gap-1.5"
+            >
               <span
                 v-for="(tag, i) in form.tagNames"
                 :key="i"
                 class="flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-sm font-medium text-brand"
               >
                 #{{ tag }}
-                <button type="button" @click="form.tagNames.splice(i, 1)" class="ml-0.5 rounded-full hover:bg-brand/20">
+                <button
+                  type="button"
+                  @click="form.tagNames.splice(i, 1)"
+                  class="ml-0.5 rounded-full hover:bg-brand/20"
+                >
                   <Icon name="mdi:close" size="13" />
                 </button>
               </span>
@@ -647,7 +745,13 @@
               :disabled="isLoading || isAnyUploading"
               class="flex-1 rounded-xl bg-brand py-3 font-semibold text-white transition-colors hover:bg-[#d81b36] disabled:opacity-50"
             >
-              {{ isAnyUploading ? 'Uploading...' : isLoading ? 'Saving...' : 'Save Changes' }}
+              {{
+                isAnyUploading
+                  ? 'Uploading...'
+                  : isLoading
+                    ? 'Saving...'
+                    : 'Save Changes'
+              }}
             </button>
           </div>
         </form>
@@ -781,7 +885,10 @@ const isAnyUploading = computed(
 
 const onImagesSelected = async (e: Event) => {
   const input = e.target as HTMLInputElement
-  const files = Array.from(input.files || []).slice(0, 5 - totalImageCount.value)
+  const files = Array.from(input.files || []).slice(
+    0,
+    5 - totalImageCount.value,
+  )
   input.value = ''
 
   for (const file of files) {
@@ -850,7 +957,11 @@ const form = reactive({
   categoryIds: [] as number[],
   tagNames: [] as string[],
   variants: [] as Array<{ size: string; price: number | null; stock: number }>,
-  offers: [] as Array<{ minQuantity: number | null; discount: number | null; label: string }>,
+  offers: [] as Array<{
+    minQuantity: number | null
+    discount: number | null
+    label: string
+  }>,
 })
 
 const socialCaptions = reactive({
@@ -879,7 +990,8 @@ const toggleCategory = (id: number) => {
 
 const addVariant = () => form.variants.push({ size: '', price: null, stock: 0 })
 const removeVariant = (i: number) => form.variants.splice(i, 1)
-const addOffer = () => form.offers.push({ minQuantity: null, discount: null, label: '' })
+const addOffer = () =>
+  form.offers.push({ minQuantity: null, discount: null, label: '' })
 const removeOffer = (i: number) => form.offers.splice(i, 1)
 
 onMounted(async () => {
@@ -902,18 +1014,22 @@ onMounted(async () => {
           form.isThrift = product.isThrift ?? false
           form.isAccessory = product.isAccessory ?? false
           form.affiliateCommission = product.affiliateCommission ?? null
-          form.categoryIds = (product.category || []).map((c: any) => c.category.id)
+          form.categoryIds = (product.category || []).map(
+            (c: any) => c.category.id,
+          )
           form.tagNames = (product.tags || [])
             .map((t: any) => t.tag?.name ?? t.name)
             .filter(Boolean)
 
           // Load existing media
-          const allMedia: ExistingMedia[] = (product.media || []).map((m: any) => ({
-            id: m.id,
-            url: m.url,
-            type: m.type,
-            isBgMusic: m.isBgMusic,
-          }))
+          const allMedia: ExistingMedia[] = (product.media || []).map(
+            (m: any) => ({
+              id: m.id,
+              url: m.url,
+              type: m.type,
+              isBgMusic: m.isBgMusic,
+            }),
+          )
           existingMedia.value = allMedia.filter((m) => !m.isBgMusic)
           existingBgMusic.value = allMedia.find((m) => m.isBgMusic) ?? null
 
@@ -986,7 +1102,8 @@ const handleSubmit = async () => {
 
     // Offers (replace all)
     const validOffers = form.offers.filter(
-      (o) => o.minQuantity && o.minQuantity >= 2 && o.discount && o.discount > 0,
+      (o) =>
+        o.minQuantity && o.minQuantity >= 2 && o.discount && o.discount > 0,
     )
     payload.offers = validOffers.map((o) => ({
       minQuantity: o.minQuantity!,
@@ -1024,7 +1141,9 @@ const handleSubmit = async () => {
 
     await updateProduct(productId.value, payload)
     successMsg.value = 'Product updated successfully!'
-    setTimeout(() => { successMsg.value = null }, 3000)
+    setTimeout(() => {
+      successMsg.value = null
+    }, 3000)
   } catch {
     // error is reactive from composable
   }
@@ -1033,7 +1152,9 @@ const handleSubmit = async () => {
 // ── AI Magic on the Promote tab ───────────────────────────────────────────────
 const isGeneratingAI = ref(false)
 
-const fileToBase64 = (url: string): Promise<{ base64: string; mimeType: string }> => {
+const fileToBase64 = (
+  url: string,
+): Promise<{ base64: string; mimeType: string }> => {
   return new Promise((resolve, reject) => {
     fetch(url)
       .then((r) => r.blob())
@@ -1066,7 +1187,10 @@ const runAiMagic = async () => {
       socialCaptions.instagram = sc.instagram || ''
       socialCaptions.facebook = sc.facebook || ''
       socialCaptions.pinterest = sc.pinterest || ''
-      notify({ type: 'success', text: '✨ Captions regenerated! Review and save.' })
+      notify({
+        type: 'success',
+        text: '✨ Captions regenerated! Review and save.',
+      })
     }
   } catch {
     notify({ type: 'error', text: 'AI generation failed. Please try again.' })

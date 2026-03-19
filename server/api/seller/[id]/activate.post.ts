@@ -26,11 +26,10 @@ export default defineEventHandler(async (event) => {
       message: 'Seller profile activated successfully',
       data: seller,
     }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('SellerError')) {
-      const sellerError = error as any
+  } catch (error: any) {
+    if (error.name === 'SellerError') {
       throw createError({
-        statusCode: sellerError.statusCode || 400,
+        statusCode: error.statusCode || 400,
         statusMessage: error.message,
       })
     }

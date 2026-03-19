@@ -121,7 +121,7 @@
           <NuxtLink
             to="/about"
             class="transition-colors hover:text-gray-800 dark:hover:text-gray-300"
-            >About {{ config.public.siteName || 'Indix' }}</NuxtLink
+            >About {{ config.public.siteName || 'styleX' }}</NuxtLink
           >
           <NuxtLink
             to="/support"
@@ -134,7 +134,7 @@
         >
           <p>
             © {{ new Date().getFullYear() }}
-            {{ config.public.siteName || 'Indix' }}. All rights reserved.
+            {{ config.public.siteName || 'styleX' }}. All rights reserved.
           </p>
         </div>
       </div>
@@ -159,7 +159,7 @@
           Our team typically responds in under 24hrs.
         </p>
         <a
-          :href="`mailto:${config.public.supportEmail || 'support@indix.app'}`"
+          :href="`mailto:${config.public.supportEmail || 'support@stylex.indicestech.com'}`"
           class="block w-full rounded-xl bg-brand py-2.5 text-xs font-bold text-white transition-all hover:bg-[#d81b36] hover:shadow-md active:scale-95"
         >
           Contact Support

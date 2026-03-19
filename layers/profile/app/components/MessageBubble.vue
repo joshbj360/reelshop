@@ -4,14 +4,12 @@
     :class="isOwnMessage ? 'justify-end' : 'justify-start'"
   >
     <!-- Other User Avatar -->
-    <img
+    <Avatar
       v-if="!isOwnMessage && showAvatar"
-      :src="
-        message.sender?.avatar ||
-        `https://ui-avatars.com/api/?name=${message.sender?.username}&background=f02c56&color=fff`
-      "
-      :alt="message.sender?.username"
-      class="mr-2 h-8 w-8 shrink-0 rounded-full object-cover"
+      :username="message.sender?.username ?? 'User'"
+      :avatar="message.sender?.avatar ?? ''"
+      size="sm"
+      class="mr-2 shrink-0"
     />
     <div v-else-if="!isOwnMessage" class="mr-2 w-8"></div>
 

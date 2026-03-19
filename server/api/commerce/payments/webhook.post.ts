@@ -69,7 +69,9 @@ export default defineEventHandler(async (event) => {
         data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
       })
       notifySellers(order.id).catch((e) => console.error('[webhook notify]', e))
-      walletService.creditSellersOnPayment(order.id).catch((e) => console.error('[webhook wallet]', e))
+      walletService
+        .creditSellersOnPayment(order.id)
+        .catch((e) => console.error('[webhook wallet]', e))
     }
   }
 

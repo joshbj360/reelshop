@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
     if (!amount || isNaN(Number(amount)))
       throw new UserError('INVALID_INPUT', 'amount is required', 400)
     if (!bankAccount)
-      throw new UserError('INVALID_INPUT', 'bankAccount details are required', 400)
+      throw new UserError(
+        'INVALID_INPUT',
+        'bankAccount details are required',
+        400,
+      )
 
     // Resolve which seller's wallet to withdraw from via the bank account record
     let sellerId: string | null = null
@@ -35,7 +39,12 @@ export default defineEventHandler(async (event) => {
         where: { profileId: user.id, is_active: true },
         select: { id: true },
       })
-      if (!first) throw new UserError('SELLER_REQUIRED', 'No active seller profile found', 403)
+      if (!first)
+        throw new UserError(
+          'SELLER_REQUIRED',
+          'No active seller profile found',
+          403,
+        )
       sellerId = first.id
     }
 
@@ -43,7 +52,8 @@ export default defineEventHandler(async (event) => {
     const gross = Number(amount)
     const { net, platformFee, transferFee } = calculatePayout(gross)
 
-    const ipAddress = getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
+    const ipAddress =
+      getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
     const userAgent = getHeader(event, 'user-agent') || 'unknown'
 
     // Withdraw the gross from wallet; seller receives net after fees
@@ -55,10 +65,19 @@ export default defineEventHandler(async (event) => {
       userAgent,
     )
 
-    return { success: true, data: { ...result, breakdown: { gross, net, platformFee, transferFee } } }
+    return {
+      success: true,
+      data: { ...result, breakdown: { gross, net, platformFee, transferFee } },
+    }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: error.message || 'Internal server error' })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message || 'Internal server error',
+    })
   }
 })

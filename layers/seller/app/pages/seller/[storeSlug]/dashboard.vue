@@ -63,13 +63,19 @@
       </div>
 
       <!-- Wallet balance card -->
-      <div class="mb-6 rounded-xl bg-gradient-to-br from-brand to-[#d81b36] p-5 text-white">
+      <div
+        class="mb-6 rounded-xl bg-gradient-to-br from-brand to-[#d81b36] p-5 text-white"
+      >
         <div class="flex items-start justify-between">
           <div>
             <p class="text-xs text-white/70">Available Balance</p>
-            <p class="text-3xl font-bold">{{ formatAmount(storeWallet.balance) }}</p>
+            <p class="text-3xl font-bold">
+              {{ formatKobo(storeWallet.balance) }}
+            </p>
             <p class="mt-1 text-xs text-white/70">
-              <span class="font-semibold text-white/90">{{ formatAmount(storeWallet.pendingBalance) }}</span>
+              <span class="font-semibold text-white/90">{{
+                formatKobo(storeWallet.pendingBalance)
+              }}</span>
               pending (releases on delivery)
             </p>
           </div>
@@ -78,11 +84,15 @@
         <div class="mt-4 grid grid-cols-2 gap-3 border-t border-white/20 pt-4">
           <div>
             <p class="text-[11px] text-white/60">Total Earned</p>
-            <p class="text-sm font-bold">{{ formatAmount(storeWallet.totalEarned) }}</p>
+            <p class="text-sm font-bold">
+              {{ formatKobo(storeWallet.totalEarned) }}
+            </p>
           </div>
           <div>
             <p class="text-[11px] text-white/60">Total Paid Out</p>
-            <p class="text-sm font-bold">{{ formatAmount(storeWallet.totalSpent) }}</p>
+            <p class="text-sm font-bold">
+              {{ formatKobo(storeWallet.totalSpent) }}
+            </p>
           </div>
         </div>
       </div>
@@ -113,17 +123,72 @@
             Followers
           </p>
         </div>
-        <div
-          class="rounded-xl border border-gray-200 bg-white p-4 text-center dark:border-neutral-800 dark:bg-neutral-900"
+        <NuxtLink
+          :to="`/seller/${storeSlug}/orders`"
+          class="rounded-xl border border-gray-200 bg-white p-4 text-center transition-colors hover:border-brand/30 dark:border-neutral-800 dark:bg-neutral-900"
         >
           <p
-            class="text-xl font-bold text-gray-500 sm:text-2xl dark:text-neutral-500"
+            class="text-xl font-bold text-gray-900 sm:text-2xl dark:text-neutral-100"
           >
-            0
+            {{ orderCount }}
           </p>
           <p class="mt-0.5 text-[12px] text-gray-500 dark:text-neutral-400">
             Orders
           </p>
+          <div v-if="pendingOrderCount > 0" class="mt-1">
+            <span
+              class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+            >
+              {{ pendingOrderCount }} pending
+            </span>
+          </div>
+        </NuxtLink>
+      </div>
+
+      <!-- Recent Orders -->
+      <div
+        v-if="recentOrders.length"
+        class="mb-6 rounded-xl border border-gray-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="font-semibold text-gray-900 dark:text-neutral-100">
+            Recent Orders
+          </h2>
+          <NuxtLink
+            :to="`/seller/${storeSlug}/orders`"
+            class="text-[13px] font-medium text-brand hover:underline"
+          >
+            View all
+          </NuxtLink>
+        </div>
+        <div class="space-y-3">
+          <div
+            v-for="order in recentOrders"
+            :key="order.id"
+            class="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2.5 dark:border-neutral-800"
+          >
+            <div class="min-w-0 flex-1">
+              <p
+                class="truncate text-[13px] font-semibold text-gray-900 dark:text-neutral-100"
+              >
+                {{ order.user?.username ?? order.name ?? 'Customer' }}
+              </p>
+              <p class="text-[11px] text-gray-400 dark:text-neutral-500">
+                {{ itemsLabel(order) }} · #{{ order.id }}
+              </p>
+            </div>
+            <div class="ml-3 shrink-0 text-right">
+              <p class="text-[13px] font-bold text-gray-900 dark:text-white">
+                {{ formatKobo(order.totalAmount) }}
+              </p>
+              <span
+                class="rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                :class="orderStatusClass(order.status)"
+              >
+                {{ order.status }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -228,62 +293,129 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
 import { useProduct } from '~~/layers/commerce/app/composables/useProduct'
-import { BaseApiClient } from '~~/layers/base/app/services/base.api'
+import { useOrderApi } from '~~/layers/commerce/app/services/order.api'
+import { useCurrency } from '~~/layers/commerce/app/composables/useCurrency'
+import { useWalletApi } from '~~/layers/commerce/app/services/wallet.api'
 
 definePageMeta({ middleware: 'auth', layout: 'store-layout' })
 
 const route = useRoute()
 const storeSlug = computed(() => route.params.storeSlug as string)
 
-const { loadPublicSeller, currentSeller: seller } = useSellerManagement()
+const { loadPublicSeller, loadUserSellers, sellers, currentSeller } =
+  useSellerManagement()
+const seller = computed(
+  () =>
+    currentSeller.value ??
+    sellers.value.find((s) => s.store_slug === storeSlug.value) ??
+    null,
+)
 const { fetchSellerProducts } = useProduct()
+const orderApi = useOrderApi()
+const walletApi = useWalletApi()
+const { formatNGN: formatKobo } = useCurrency()
 
 const isPageLoading = ref(true)
 const productsLoading = ref(false)
-const recentProducts = ref<any[]>([])
+const recentProducts = ref<Record<string, unknown>[]>([])
 const productCount = ref(0)
-const storeWallet = ref({ balance: 0, pendingBalance: 0, totalEarned: 0, totalSpent: 0 })
+const orderCount = ref(0)
+const pendingOrderCount = ref(0)
+const recentOrders = ref<Record<string, unknown>[]>([])
+const storeWallet = ref({
+  balance: 0,
+  pendingBalance: 0,
+  totalEarned: 0,
+  totalSpent: 0,
+})
 
-const formatAmount = (kobo: number) =>
-  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(kobo / 100)
+const orderStatusClass = (status: string) => {
+  const map: Record<string, string> = {
+    PENDING:
+      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    CONFIRMED:
+      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    PAID: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    SHIPPED:
+      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    DELIVERED:
+      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    CANCELLED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    CANCELED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  }
+  return (
+    map[status] ??
+    'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-neutral-400'
+  )
+}
+
+const itemsLabel = (order: Record<string, unknown>) => {
+  const count = (order.orderItem as unknown[])?.length ?? 0
+  return `${count} item${count !== 1 ? 's' : ''}`
+}
 
 const loadData = async (slug: string) => {
-  try {
-    await loadPublicSeller(slug)
-  } catch {}
+  await Promise.allSettled([loadPublicSeller(slug), loadUserSellers()])
 
-  // Load products and wallet in parallel
   productsLoading.value = true
-  const api = new BaseApiClient()
-  const [productsRes, walletRes]: any[] = await Promise.allSettled([
+
+  const results = await Promise.allSettled([
     fetchSellerProducts(slug, { limit: 4 }),
-    api.request(`/api/commerce/wallet/store/${slug}`, { method: 'GET' }),
+    walletApi.getStoreWallet(slug),
+    orderApi.getSellerOrders(slug, { limit: 5 }),
   ])
 
+  const [productsRes, walletRes, ordersRes] = results
+
+  // Products
   if (productsRes.status === 'fulfilled') {
-    recentProducts.value = productsRes.value?.products ?? []
-    productCount.value = productsRes.value?.meta?.total ?? 0
-  } else {
-    recentProducts.value = []
+    const val = productsRes.value as Record<string, unknown>
+    recentProducts.value = (val?.products as Record<string, unknown>[]) ?? []
+    productCount.value =
+      (val?.meta as Record<string, number>)?.total ??
+      recentProducts.value.length
   }
   productsLoading.value = false
 
-  if (walletRes.status === 'fulfilled' && walletRes.value?.data) {
-    const w = walletRes.value.data
-    storeWallet.value = {
-      balance: w.balance ?? 0,
-      pendingBalance: w.pendingBalance ?? 0,
-      totalEarned: w.totalEarned ?? 0,
-      totalSpent: w.totalSpent ?? 0,
+  // Wallet
+  if (walletRes.status === 'fulfilled') {
+    const w = (walletRes.value as Record<string, unknown>)?.data as Record<
+      string,
+      number
+    >
+    if (w) {
+      storeWallet.value = {
+        balance: w.balance ?? 0,
+        pendingBalance: w.pendingBalance ?? 0,
+        totalEarned: w.totalEarned ?? 0,
+        totalSpent: w.totalSpent ?? 0,
+      }
     }
+  }
+
+  // Orders
+  if (ordersRes.status === 'fulfilled') {
+    const ordersData = (ordersRes.value as Record<string, unknown>)
+      ?.data as Record<string, unknown>
+    recentOrders.value = (ordersData?.orders as Record<string, unknown>[]) ?? []
+    orderCount.value = (ordersData?.total as number) ?? 0
+    pendingOrderCount.value = recentOrders.value.filter(
+      (o) => o.status === 'PENDING' || o.status === 'CONFIRMED',
+    ).length
   }
 }
 
-onMounted(async () => {
-  await loadData(storeSlug.value)
-  isPageLoading.value = false
+onMounted(() => {
+  loadData(storeSlug.value)
+    .catch((e) => {
+      console.error('[dashboard] loadData error:', e)
+    })
+    .finally(() => {
+      isPageLoading.value = false
+    })
 })
 
 watch(storeSlug, (slug) => {

@@ -6,17 +6,11 @@
       class="flex w-full items-center gap-2.5 rounded-xl p-2 text-left transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
     >
       <!-- Store logo / icon -->
-      <div
-        class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#f02c56] to-purple-600"
-      >
-        <img
-          v-if="activeSeller?.store_logo"
-          :src="activeSeller.store_logo"
-          :alt="activeSeller.store_name"
-          class="h-full w-full object-cover"
-        />
-        <Icon v-else name="mdi:store" size="16" class="text-white" />
-      </div>
+      <StoreAvatar
+        :store-name="activeSeller?.store_name ?? ''"
+        :logo="activeSeller?.store_logo ?? ''"
+        size="md"
+      />
 
       <!-- Name + slug (only visible at xl) -->
       <div class="hidden min-w-0 flex-1 flex-col xl:flex">
@@ -59,17 +53,11 @@
               'bg-gray-50 dark:bg-neutral-800': activeSeller?.id === seller.id,
             }"
           >
-            <div
-              class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#f02c56] to-purple-600"
-            >
-              <img
-                v-if="seller.store_logo"
-                :src="seller.store_logo"
-                class="h-full w-full object-cover"
-                :alt="seller.store_name"
-              />
-              <Icon v-else name="mdi:store" size="14" class="text-white" />
-            </div>
+            <StoreAvatar
+              :store-name="seller.store_name ?? ''"
+              :logo="seller.store_logo ?? ''"
+              size="sm"
+            />
             <div class="flex min-w-0 flex-1 flex-col text-left">
               <span
                 class="truncate text-[12px] font-semibold text-gray-900 dark:text-neutral-100"
@@ -105,6 +93,7 @@
 
 <script setup lang="ts">
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
+import StoreAvatar from '~~/layers/profile/app/components/StoreAvatar.vue'
 
 const route = useRoute()
 const router = useRouter()

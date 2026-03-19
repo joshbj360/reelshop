@@ -11,7 +11,13 @@ export default defineEventHandler(async (event) => {
     return { success: true, data: product }
   } catch (error: any) {
     if (error instanceof UserError)
-      throw createError({ statusCode: error.status, statusMessage: error.message })
-    throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
+      throw createError({
+        statusCode: error.status,
+        statusMessage: error.message,
+      })
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+    })
   }
 })

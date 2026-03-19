@@ -163,7 +163,9 @@
                 >
                   <span class="text-gray-400 dark:text-neutral-500">#</span>
                   {{ tag.name }}
-                  <span class="text-xs text-gray-400 dark:text-neutral-500">{{ tag._count?.products ?? '' }}</span>
+                  <span class="text-xs text-gray-400 dark:text-neutral-500">{{
+                    tag._count?.products ?? ''
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -293,7 +295,13 @@ const searchQuery = ref('')
 const isSearching = ref(false)
 const results = ref<{
   success: boolean
-  data: { users: any[]; products: any[]; posts: any[]; stores: any[]; tags: any[] }
+  data: {
+    users: any[]
+    products: any[]
+    posts: any[]
+    stores: any[]
+    tags: any[]
+  }
 }>({
   success: false,
   data: { users: [], products: [], posts: [], stores: [], tags: [] },

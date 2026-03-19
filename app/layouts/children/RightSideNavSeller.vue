@@ -37,7 +37,7 @@
                 <template v-if="!sellerStore.hasSellers">
                   Ready to shop or
                   <NuxtLink
-                    to="/seller/create"
+                    to="/sellers/create"
                     class="font-medium text-brand hover:underline"
                     >open a store?</NuxtLink
                   >
@@ -219,7 +219,7 @@
         >
           <p>
             © {{ new Date().getFullYear() }}
-            {{ useRuntimeConfig().public.siteName || 'Indix' }}. All rights
+            {{ useRuntimeConfig().public.siteName || 'styleX' }}. All rights
             reserved.
           </p>
         </div>

@@ -244,7 +244,9 @@
           </div>
           <select
             :value="settings.currency"
-            @change="update('currency', ($event.target as HTMLSelectElement).value)"
+            @change="
+              update('currency', ($event.target as HTMLSelectElement).value)
+            "
             class="rounded-xl border-0 bg-gray-100 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:bg-neutral-800 dark:text-neutral-300"
           >
             <option v-for="c in CURRENCIES" :key="c.code" :value="c.code">
@@ -374,9 +376,12 @@ const CURRENCIES = [
 ]
 
 // Sync theme preference to settings composable when colorMode changes
-watch(() => colorMode.preference, (val) => {
-  update('theme', val)
-})
+watch(
+  () => colorMode.preference,
+  (val) => {
+    update('theme', val)
+  },
+)
 
 // Sync language preference to settings composable when locale changes
 watch(locale, (val) => {

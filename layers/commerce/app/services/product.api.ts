@@ -21,7 +21,7 @@ export class ProductApiClient extends BaseApiClient {
     return this.request(`/api/commerce/products${query}`, { method: 'GET' })
   }
 
-  async getProductById(id: number): Promise<{success: boolean; data: any}> {
+  async getProductById(id: number): Promise<{ success: boolean; data: any }> {
     return this.request(`/api/commerce/products/${id}`, { method: 'GET' })
   }
 
@@ -67,6 +67,20 @@ export class ProductApiClient extends BaseApiClient {
   async unlikeProduct(id: number) {
     return this.request(`/api/commerce/products/${id}/like`, {
       method: 'DELETE',
+    })
+  }
+
+  async getLikedProducts(params?: { limit?: number; offset?: number }) {
+    const query = params
+      ? '?' +
+        new URLSearchParams(
+          Object.entries(params)
+            .filter(([, v]) => v != null)
+            .map(([k, v]) => [k, String(v)]),
+        ).toString()
+      : ''
+    return this.request(`/api/commerce/products/liked${query}`, {
+      method: 'GET',
     })
   }
 

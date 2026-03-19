@@ -11,12 +11,12 @@
           class="flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
           <div
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f02c56] to-purple-600"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand shadow-sm shadow-brand/20"
           >
-            <Icon name="mdi:hanger" class="h-5 w-5 text-white" />
+            <span class="text-xs font-black italic text-white">sX</span>
           </div>
           <span class="text-sm font-bold text-gray-500 dark:text-neutral-400"
-            >← Back to {{ $config.public.siteName || 'Indix' }}</span
+            >← Back to {{ $config.public.siteName || 'styleX' }}</span
           >
         </NuxtLink>
       </div>
@@ -96,9 +96,9 @@
         >
           <Icon name="mdi:arrow-left" size="20" />
           <div
-            class="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#f02c56] to-purple-600"
+            class="flex h-7 w-7 items-center justify-center rounded-lg bg-brand"
           >
-            <Icon name="mdi:hanger" class="h-4 w-4 text-white" />
+            <span class="text-[9px] font-black italic text-white">sX</span>
           </div>
         </NuxtLink>
         <div class="min-w-0 flex-1">

@@ -37,7 +37,7 @@
           <div
             class="shrink-0 border-b border-gray-200 dark:border-neutral-800"
           >
-            <div class="flex items-center justify-between px-4 pt-4 pb-0">
+            <div class="flex items-center justify-between px-4 pb-0 pt-4">
               <div class="flex gap-1">
                 <button
                   @click="activeTab = 'messages'"
@@ -87,9 +87,12 @@
           </div>
 
           <!-- ── Messages tab ─────────────────────────────────────────────── -->
-          <div v-if="activeTab === 'messages'" class="flex flex-1 flex-col overflow-hidden">
+          <div
+            v-if="activeTab === 'messages'"
+            class="flex flex-1 flex-col overflow-hidden"
+          >
             <!-- Search + new message -->
-            <div class="shrink-0 flex items-center gap-2 px-4 py-3">
+            <div class="flex shrink-0 items-center gap-2 px-4 py-3">
               <div class="relative flex-1">
                 <Icon
                   name="mdi:magnify"
@@ -159,7 +162,9 @@
                       {{ formatTime(c.updated_at) }}
                     </p>
                   </div>
-                  <p class="truncate text-xs text-gray-500 dark:text-neutral-400">
+                  <p
+                    class="truncate text-xs text-gray-500 dark:text-neutral-400"
+                  >
                     Tap to open conversation
                   </p>
                 </div>

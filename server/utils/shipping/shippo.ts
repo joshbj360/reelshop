@@ -133,7 +133,9 @@ export const shippoProvider: IShippingProvider = {
       }))
   },
 
-  async createShipment(payload: ICreateShipmentPayload): Promise<IShipmentResult> {
+  async createShipment(
+    payload: ICreateShipmentPayload,
+  ): Promise<IShipmentResult> {
     const { rateId, from, to, parcel, orderId, description, valueNGN } = payload
 
     // Book the rate → creates a transaction with label
@@ -164,7 +166,10 @@ export const shippoProvider: IShippingProvider = {
     }
   },
 
-  async trackShipment(trackingNumber: string, carrier?: string): Promise<ITrackingResult> {
+  async trackShipment(
+    trackingNumber: string,
+    carrier?: string,
+  ): Promise<ITrackingResult> {
     // Shippo tracking endpoint: GET /tracks/:carrier/:trackingNumber
     const carrierSlug = carrier?.toLowerCase() ?? 'usps'
     const res: any = await $fetch(

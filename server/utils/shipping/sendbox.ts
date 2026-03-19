@@ -54,42 +54,30 @@ export const sendboxProvider: IShippingProvider = {
     const { from, to, parcel } = payload
 
     const body = {
-      sender: {
-        name: from.name,
-        address: from.street1,
-        city: from.city,
-        state: from.state,
-        country: from.country,
-        phone: from.phone,
-      },
-      recipient: {
-        name: to.name,
-        address: to.street1,
-        city: to.city,
-        state: to.state,
-        country: to.country,
-        phone: to.phone,
-      },
-      package: {
-        weight: kgToGrams(parcel.weightKg),
-        length: parcel.lengthCm,
-        width: parcel.widthCm,
-        height: parcel.heightCm,
-      },
+      pickup_address: from.street1,
+      pickup_state: from.state,
+      pickup_country: from.country ?? 'NG',
+      delivery_address: to.street1,
+      delivery_state: to.state,
+      delivery_country: to.country ?? 'NG',
+      weight: kgToGrams(parcel.weightKg),
+      length: parcel.lengthCm,
+      width: parcel.widthCm,
+      height: parcel.heightCm,
     }
 
-    const res: any = await $fetch(`${BASE}/v2/shipments/rates`, {
+    const res: any = await $fetch(`${BASE}/v2/couriers/quotes`, {
       method: 'POST',
       headers: headers(),
       body,
     })
 
-    const rates: any[] = res?.data?.rates ?? res?.rates ?? []
+    const rates: any[] = res?.data ?? res?.couriers ?? res?.rates ?? []
     return rates.map((r) => ({
-      rateId: r.id ?? r.rate_id ?? r.service_code,
-      carrier: r.carrier ?? r.courier ?? 'Sendbox',
-      service: r.service ?? r.service_name ?? 'Standard',
-      amountNGN: Math.round((r.amount ?? r.price ?? 0) * 100) / 100,
+      rateId: r.id ?? r.courier_id ?? r.rate_id ?? r.service_code,
+      carrier: r.courier_name ?? r.carrier ?? r.courier ?? 'Sendbox',
+      service: r.service_type ?? r.service ?? r.service_name ?? 'Standard',
+      amountNGN: Math.round((r.fee ?? r.amount ?? r.price ?? 0) * 100) / 100,
       estimatedDays: r.estimated_days
         ? `${r.estimated_days} business day(s)`
         : '2-5 business days',
@@ -97,7 +85,9 @@ export const sendboxProvider: IShippingProvider = {
     }))
   },
 
-  async createShipment(payload: ICreateShipmentPayload): Promise<IShipmentResult> {
+  async createShipment(
+    payload: ICreateShipmentPayload,
+  ): Promise<IShipmentResult> {
     const { rateId, from, to, parcel, orderId, description, valueNGN } = payload
 
     const body = {

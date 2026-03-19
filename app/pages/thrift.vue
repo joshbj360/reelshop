@@ -177,8 +177,8 @@ import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import ProductCardMini from '~/components/shop/ProductCardMini.vue'
 import CartSidebar from '~/components/shop/CartSidebar.vue'
-import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
-import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
+import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
+import ProductMarketModal from '~~/layers/commerce/app/components/modals/ProductMarketModal.vue'
 import { notify } from '@kyvg/vue3-notification'
 
 const { setThriftPage } = useSeo()

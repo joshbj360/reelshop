@@ -23,7 +23,7 @@ function verify(rawBody: string, signature: string): boolean {
 }
 
 export default defineEventHandler(async (event) => {
-  const rawBody = await readRawBody(event) ?? ''
+  const rawBody = (await readRawBody(event)) ?? ''
   const signature = getHeader(event, 'x-sendbox-signature') ?? ''
 
   if (!verify(rawBody, signature)) {
@@ -58,7 +58,8 @@ export default defineEventHandler(async (event) => {
       orderId: order.id,
       trackingNumber,
       status: newStatus,
-      description: payload?.data?.description ?? `Package ${newStatus.toLowerCase()}`,
+      description:
+        payload?.data?.description ?? `Package ${newStatus.toLowerCase()}`,
     })
   }
 

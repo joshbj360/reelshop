@@ -38,8 +38,14 @@
           class="flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-2.5 text-xs text-blue-700 dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-300"
         >
           <Icon name="mdi:swap-horizontal" size="15" />
-          Prices shown in <strong>{{ activeCurrency }}</strong
-          >. Payment is charged in NGN via Paystack.
+          <template v-if="paymentMethod === 'paypal'">
+            Prices shown in <strong>{{ activeCurrency }}</strong
+            >. Payment is charged in <strong>USD</strong> via PayPal.
+          </template>
+          <template v-else>
+            Prices shown in <strong>{{ activeCurrency }}</strong
+            >. Payment is charged in NGN via Paystack.
+          </template>
         </div>
 
         <!-- Order Items -->
@@ -75,20 +81,24 @@
                 <p
                   class="text-sm font-semibold text-gray-900 dark:text-neutral-100"
                 >
-                  {{
-                    fmtP(
-                      (item.variant?.price ??
-                        item.variant?.product?.price ??
-                        0) * item.quantity,
-                    )
-                  }}
+                  {{ fmtP(effectiveUnitPrice(item) * item.quantity) }}
                 </p>
                 <p
                   v-if="activeCurrency !== 'NGN'"
                   class="text-[11px] text-gray-400 dark:text-neutral-500"
                 >
+                  {{ fmtPNGN(effectiveUnitPrice(item) * item.quantity) }}
+                </p>
+                <!-- Crossed-out original if discounted -->
+                <p
+                  v-if="
+                    (item.variant?.price ?? item.variant?.product?.price ?? 0) >
+                    effectiveUnitPrice(item)
+                  "
+                  class="text-[10px] text-gray-400 line-through dark:text-neutral-500"
+                >
                   {{
-                    fmtPNGN(
+                    fmtP(
                       (item.variant?.price ??
                         item.variant?.product?.price ??
                         0) * item.quantity,
@@ -387,7 +397,7 @@
             <!-- Live carrier rates -->
             <div v-else-if="liveRates.length" class="space-y-2">
               <button
-                v-for="rate in liveRates as any[]"
+                v-for="rate in liveRates"
                 :key="rate.rateId"
                 type="button"
                 :class="
@@ -631,11 +641,13 @@ import { useShipping } from '~~/layers/commerce/app/composables/useShipping'
 import { useRuntimeConfig } from '#app'
 import { useCurrency } from '~~/layers/commerce/app/composables/useCurrency'
 import { useOrderApi } from '~~/layers/commerce/app/services/order.api'
+import { useAffiliate } from '~~/layers/commerce/app/composables/useAffiliate'
 import { useSeo } from '~~/app/composables/useSeo'
 import type {
   ICartItem,
   IProduct,
 } from '~~/layers/commerce/app/types/commerce.types'
+import { effectiveUnitPrice } from '~~/layers/commerce/app/stores/cart.store'
 import {
   useAddressApi,
   type ISavedAddress,
@@ -666,6 +678,7 @@ const {
 } = useCurrency()
 const orderApi = useOrderApi()
 const addressApi = useAddressApi()
+const { getStoredRef, clearStoredRef, captureAffiliateRef } = useAffiliate()
 const config = useRuntimeConfig()
 
 const isSubmitting = ref(false)
@@ -698,7 +711,8 @@ const activeCurrency = computed(() => getCurrencyForCountry(form.country))
 const primarySellerSlug = computed(() => {
   const counts = new Map<string, number>()
   for (const item of items.value) {
-    const slug = (item as ICartItem & { variant?: { product?: IProduct } }).variant?.product?.seller?.store_slug
+    const slug = (item as ICartItem & { variant?: { product?: IProduct } })
+      .variant?.product?.seller?.store_slug
     if (slug) counts.set(slug, (counts.get(slug) || 0) + (item.quantity || 1))
   }
   let max = 0
@@ -862,25 +876,41 @@ const handleCheckout = async () => {
     ? selectedRate.value.estimatedDays
     : shippingCalculation.value?.estimatedDays
 
+  const affiliateCode = getStoredRef() || undefined
+
+  const orderPayload = {
+    items: items.value.map((i) => ({
+      variantId: i.variantId,
+      quantity: i.quantity,
+    })),
+    name: form.name,
+    address: form.address,
+    county: form.county,
+    zipcode: form.zipcode,
+    country: form.country,
+    shippingCost,
+    shippingZone,
+    estimatedDays,
+    ...(affiliateCode ? { affiliateCode } : {}),
+  }
+
   try {
-    const callbackUrl = `${config.public.baseURL}/buyer/orders?payment=success`
-    const result: any = await orderApi.initializePayment({
-      items: items.value.map((i) => ({
-        variantId: i.variantId,
-        quantity: i.quantity,
-      })),
-      name: form.name,
-      address: form.address,
-      county: form.county,
-      zipcode: form.zipcode,
-      country: form.country,
-      shippingCost,
-      shippingZone,
-      estimatedDays,
-      currency: 'NGN', // Always charge in NGN via Paystack
-      callback_url: callbackUrl,
-    })
-    window.location.href = result.data.authorizationUrl
+    if (paymentMethod.value === 'paypal') {
+      const result: any = await orderApi.initializePayPal(orderPayload)
+      if (!result?.data?.approvalUrl)
+        throw new Error('PayPal did not return an approval URL')
+      clearStoredRef()
+      window.location.href = result.data.approvalUrl
+    } else {
+      const callbackUrl = `${config.public.baseURL}/buyer/orders?payment=success`
+      const result: any = await orderApi.initializePayment({
+        ...orderPayload,
+        currency: 'NGN', // Always charge in NGN via Paystack
+        callback_url: callbackUrl,
+      })
+      clearStoredRef()
+      window.location.href = result.data.authorizationUrl
+    }
   } catch (e: any) {
     checkoutError.value =
       e.message || 'Failed to initialize payment. Please try again.'
@@ -890,6 +920,7 @@ const handleCheckout = async () => {
 }
 
 onMounted(async () => {
+  captureAffiliateRef()
   await fetchCart()
   try {
     const result = await addressApi.getAddresses()

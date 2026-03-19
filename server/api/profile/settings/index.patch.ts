@@ -26,7 +26,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (Object.keys(data).length === 0) {
-    throw createError({ statusCode: 400, statusMessage: 'No valid fields provided' })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'No valid fields provided',
+    })
   }
 
   const settings = await prisma.userSettings.upsert({

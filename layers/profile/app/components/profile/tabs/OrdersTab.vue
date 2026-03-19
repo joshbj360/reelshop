@@ -9,8 +9,14 @@
           class="flex items-center justify-between border-b border-amber-200 px-4 py-3 dark:border-amber-800"
         >
           <div class="flex items-center gap-2">
-            <Icon name="mdi:store-clock" size="20" class="text-amber-600 dark:text-amber-400" />
-            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">
+            <Icon
+              name="mdi:store-clock"
+              size="20"
+              class="text-amber-600 dark:text-amber-400"
+            />
+            <span
+              class="text-sm font-semibold text-amber-800 dark:text-amber-300"
+            >
               {{ pendingSellerOrders.length }} Pending Store
               {{ pendingSellerOrders.length === 1 ? 'Order' : 'Orders' }}
             </span>
@@ -41,12 +47,16 @@
                 />
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-neutral-100">
+                <p
+                  class="text-sm font-medium text-gray-900 dark:text-neutral-100"
+                >
                   Order #{{ order.id }}
                   <span
                     v-if="order.orderItem.length > 2"
                     class="text-xs text-gray-400"
-                  > +{{ order.orderItem.length - 2 }} more</span>
+                  >
+                    +{{ order.orderItem.length - 2 }} more</span
+                  >
                 </p>
                 <p class="text-xs text-gray-500 dark:text-neutral-400">
                   {{ order.name }} · {{ formatDate(order.created_at) }}
@@ -55,7 +65,11 @@
             </div>
             <div class="text-right">
               <p class="text-sm font-bold text-gray-900 dark:text-neutral-100">
-                {{ formatPrice((order.totalAmount || 0) + (order.shippingCost || 0)) }}
+                {{
+                  formatKobo(
+                    (order.totalAmount || 0) + (order.shippingCost || 0),
+                  )
+                }}
               </p>
               <span
                 class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
@@ -77,8 +91,14 @@
 
     <!-- My Purchases header -->
     <div class="flex items-center gap-2">
-      <Icon name="mdi:shopping-outline" size="18" class="text-gray-400 dark:text-neutral-500" />
-      <h3 class="text-sm font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">
+      <Icon
+        name="mdi:shopping-outline"
+        size="18"
+        class="text-gray-400 dark:text-neutral-500"
+      />
+      <h3
+        class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-neutral-400"
+      >
         My Purchases
       </h3>
     </div>
@@ -103,7 +123,11 @@
 
     <!-- Loading State -->
     <div v-if="isLoading" class="py-12 text-center">
-      <Icon name="eos-icons:loading" size="32" class="animate-spin text-brand" />
+      <Icon
+        name="eos-icons:loading"
+        size="32"
+        class="animate-spin text-brand"
+      />
     </div>
 
     <!-- Empty State -->
@@ -151,8 +175,10 @@ import OrderCard from '../cards/OrderCard.vue'
 import { useOrder } from '~~/layers/commerce/app/composables/useOrder'
 import { useOrderApi } from '~~/layers/commerce/app/services/order.api'
 import { useSellerManagement } from '~~/layers/seller/app/composables/useSellerManagement'
+import { useCurrency } from '~~/app/composables/useCurrency'
 
 const router = useRouter()
+const { formatKobo } = useCurrency()
 const {
   orders: storeOrders,
   isLoading,
@@ -212,7 +238,10 @@ const fetchPendingSellerOrders = async () => {
   try {
     const results = await Promise.allSettled(
       sellers.value.map((s: any) =>
-        orderApi.getSellerOrders(s.store_slug, { status: 'PENDING', limit: 20 }),
+        orderApi.getSellerOrders(s.store_slug, {
+          status: 'PENDING',
+          limit: 20,
+        }),
       ),
     )
     const all: any[] = []
@@ -224,7 +253,10 @@ const fetchPendingSellerOrders = async () => {
     // Also fetch CONFIRMED orders
     const confirmedResults = await Promise.allSettled(
       sellers.value.map((s: any) =>
-        orderApi.getSellerOrders(s.store_slug, { status: 'CONFIRMED', limit: 20 }),
+        orderApi.getSellerOrders(s.store_slug, {
+          status: 'CONFIRMED',
+          limit: 20,
+        }),
       ),
     )
     for (const r of confirmedResults) {
@@ -234,7 +266,8 @@ const fetchPendingSellerOrders = async () => {
     }
     // Sort newest first
     pendingSellerOrders.value = all.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
   } catch {
     // non-critical
@@ -266,15 +299,15 @@ const loadMore = async () => {
 }
 
 const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })
-
-const formatPrice = (kobo: number) =>
-  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
-    kobo / 100,
-  )
+  new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
 </script>
 
 <style scoped>
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 </style>

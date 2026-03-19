@@ -4,7 +4,7 @@
  *
  * Usage in composables/script setup:
  *   const brand = useBrand()
- *   brand.name        // "Indix"
+ *   brand.name        // "stylex"
  *
  * Usage in templates:
  *   {{ $brand.name }}  — if you inject it
@@ -12,7 +12,7 @@
  *
  * Usage in server-side code:
  *   import { BRAND } from '~/utils/brand'
- *   BRAND.name   // "Indix"
+ *   BRAND.name   // "stylex"
  */
 
 /** Static brand constants — use in server-side code or where composables can't run */

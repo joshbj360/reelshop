@@ -23,7 +23,7 @@ function verify(rawBody: string, signature: string): boolean {
 }
 
 export default defineEventHandler(async (event) => {
-  const rawBody = await readRawBody(event) ?? ''
+  const rawBody = (await readRawBody(event)) ?? ''
   const signature = getHeader(event, 'x-shippo-signature') ?? ''
 
   if (!verify(rawBody, signature)) {
@@ -36,8 +36,10 @@ export default defineEventHandler(async (event) => {
   // { event: "track_updated", data: { tracking_number, carrier, tracking_status: { status } } }
   const trackingNumber: string = payload?.data?.tracking_number
   const carrier: string = payload?.data?.carrier
-  const rawStatus: string = payload?.data?.tracking_status?.status?.toUpperCase()
-  const description: string = payload?.data?.tracking_status?.status_details ?? rawStatus
+  const rawStatus: string =
+    payload?.data?.tracking_status?.status?.toUpperCase()
+  const description: string =
+    payload?.data?.tracking_status?.status_details ?? rawStatus
 
   if (!trackingNumber) {
     return { received: true }

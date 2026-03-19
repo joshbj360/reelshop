@@ -163,7 +163,10 @@ const extractWebsite = (links: any) => {
 const formData = reactive({
   avatar: props.profile.avatar,
   bio: props.profile.bio || '',
-  websiteUrl: extractWebsite(props.profile.links) || (props.profile.profileUrl as string) || '',
+  websiteUrl:
+    extractWebsite(props.profile.links) ||
+    (props.profile.profileUrl as string) ||
+    '',
   location: props.profile.location || props.profile.stateOfResidence || '',
 })
 
@@ -226,7 +229,8 @@ const handleClose = () => {
   const hasChanges =
     formData.bio !== (props.profile.bio || '') ||
     formData.websiteUrl !== extractWebsite(props.profile.links) ||
-    formData.location !== (props.profile.location || props.profile.stateOfResidence || '') ||
+    formData.location !==
+      (props.profile.location || props.profile.stateOfResidence || '') ||
     formData.avatar !== props.profile.avatar
 
   if (hasChanges) {

@@ -4,7 +4,11 @@ export default defineEventHandler(async (event) => {
   // Tags list changes slowly — cache for 5 minutes
   const query = getQuery(event)
   if (!query.search) {
-    setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=120')
+    setHeader(
+      event,
+      'Cache-Control',
+      'public, max-age=300, s-maxage=300, stale-while-revalidate=120',
+    )
   }
   const limit = Math.min(Number(query.limit) || 50, 100)
   const search = String(query.search || '').trim()

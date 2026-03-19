@@ -46,27 +46,33 @@ Return ONLY this JSON structure:
 }`
 
   try {
-    const response: any = await $fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+    const response: any = await $fetch(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: {
+          model: 'gpt-4o',
+          max_tokens: 1024,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: { url: dataUrl, detail: 'low' },
+                },
+                { type: 'text', text: userPrompt },
+              ],
+            },
+          ],
+        },
       },
-      body: {
-        model: 'gpt-4o',
-        max_tokens: 1024,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content: [
-              { type: 'image_url', image_url: { url: dataUrl, detail: 'low' } },
-              { type: 'text', text: userPrompt },
-            ],
-          },
-        ],
-      },
-    })
+    )
 
     const rawText: string = response.choices?.[0]?.message?.content || ''
 
@@ -80,8 +86,15 @@ Return ONLY this JSON structure:
     return { success: true, data }
   } catch (err: any) {
     const status = err?.status || err?.statusCode || 500
-    const detail = err?.data?.error?.message || err?.data?.message || err?.message || 'Unknown error'
-    console.error(`[POST /api/ai/generate-listing] ${status}: ${detail}`, err?.data || '')
+    const detail =
+      err?.data?.error?.message ||
+      err?.data?.message ||
+      err?.message ||
+      'Unknown error'
+    console.error(
+      `[POST /api/ai/generate-listing] ${status}: ${detail}`,
+      err?.data || '',
+    )
     throw createError({
       statusCode: status,
       statusMessage: `AI generation failed: ${detail}`,

@@ -7,6 +7,10 @@ const cartInclude = {
         include: {
           seller: { select: { store_slug: true, store_name: true } },
           media: { select: { id: true, url: true, type: true } },
+          offers: {
+            where: { isActive: true },
+            orderBy: { minQuantity: 'desc' as const },
+          },
         },
       },
     },

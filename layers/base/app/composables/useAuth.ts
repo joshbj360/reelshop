@@ -17,8 +17,9 @@ import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
 import { useCartStore } from '~~/layers/commerce/app/stores/cart.store'
 import { useSettings } from '~/composables/useSettings'
 import { useChat } from '~~/layers/profile/app/composables/useChat'
-import type { IProduct } from '~~/layers/post/app/types/post.types'
 import type { IProfile } from '~~/layers/profile/app/types/profile.types'
+import type { User } from '~~/layers/base/app/types/user'
+
 export const useAuth = () => {
   const authStore = useAuthStore()
   const profileStore = useProfileStore()
@@ -62,7 +63,10 @@ export const useAuth = () => {
       }, 2000)
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       const errorMessage =
         error.response?.data?.statusMessage ||
         error.message ||
@@ -105,7 +109,10 @@ export const useAuth = () => {
       }, 1000)
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       const errorMessage =
         error.response?.data?.statusMessage || error.message || 'Login failed'
 
@@ -149,7 +156,7 @@ export const useAuth = () => {
    * Sync authenticated user to profile store
    * Fetches full profile data from user API
    */
-  const syncUserToProfile = async (user: any) => {
+  const syncUserToProfile = async (user: User) => {
     try {
       const [profileData, settingsData] = await Promise.allSettled([
         profileApi.getPrivateProfile(),
@@ -159,10 +166,21 @@ export const useAuth = () => {
       if (profileData.status === 'fulfilled') {
         profileStore.setPrivateProfile(profileData.value.data)
         try {
-          const stats = await profileApi.getProfileStats(profileData.value.data.username as string)
-          if (stats) profileStore.setProfileStats(profileData.value.data.username as string, stats.data)
-        } catch { /* stats are non-critical */ }
-        console.log('✅ User synced via Profile Service:', profileData.value.data.username)
+          const stats = await profileApi.getProfileStats(
+            profileData.value.data.username as string,
+          )
+          if (stats)
+            profileStore.setProfileStats(
+              profileData.value.data.username as string,
+              stats.data,
+            )
+        } catch {
+          /* stats are non-critical */
+        }
+        console.log(
+          '✅ User synced via Profile Service:',
+          profileData.value.data.username,
+        )
       }
 
       if (settingsData.status === 'fulfilled') {
@@ -212,7 +230,7 @@ export const useAuth = () => {
       // Fetch current user from API
       const userData = await profileApi.getPrivateProfile()
 
-      await syncUserToProfile(userData)
+      await syncUserToProfile(userData.data)
 
       console.log('✅ User initialized via API Service')
     } catch (error) {
@@ -237,7 +255,10 @@ export const useAuth = () => {
       }, 2000)
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       const errorMessage =
         error.response?.data?.statusMessage ||
         error.message ||
@@ -262,7 +283,10 @@ export const useAuth = () => {
       authStore.setMessage('Verification email sent! Check your inbox.')
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       const errorMessage =
         error.response?.data?.statusMessage ||
         error.message ||
@@ -289,7 +313,10 @@ export const useAuth = () => {
       )
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       const errorMessage =
         error.response?.data?.statusMessage ||
         error.message ||
@@ -327,7 +354,10 @@ export const useAuth = () => {
       }, 2000)
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       const errorMessage =
         error.response?.data?.statusMessage ||
         error.message ||
@@ -349,7 +379,10 @@ export const useAuth = () => {
       authStore.setAccessToken(result.accessToken)
 
       return result
-    } catch (error: any) {
+    } catch (e: unknown) {
+      const error = e as Error & {
+        response?: { data?: { statusMessage?: string } }
+      }
       console.error('Token refresh failed:', error)
       // Clear auth on refresh failure
       authStore.clearAuth()

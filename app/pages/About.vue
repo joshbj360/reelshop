@@ -20,7 +20,7 @@
         <p
           class="mx-auto max-w-2xl text-lg leading-relaxed text-gray-500 sm:text-xl dark:text-neutral-400"
         >
-          {{ config.public.siteName || 'Indix' }} isn't just another
+          {{ config.public.siteName || 'styleX' }} isn't just another
           marketplace. We are a complete Creative Management System built to
           automate your growth, eliminate borders, and turn every scroll into a
           sale.
@@ -161,7 +161,7 @@
             class="flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
             <NuxtLink
-              to="/seller/create"
+              to="/sellers/create"
               class="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-8 py-3.5 font-bold text-white shadow-lg shadow-brand/20 transition-colors hover:bg-[#d81b36] sm:w-auto"
             >
               <Icon name="mdi:store-plus" size="20" />
@@ -193,7 +193,7 @@ import RightSideNavLinks from '~/layouts/children/RightSideNavLinks.vue'
 const config = useRuntimeConfig()
 
 useSeoMeta({
-  title: `Our Story · ${useRuntimeConfig().public.siteName || 'Indix'}`,
+  title: `Our Story · ${useRuntimeConfig().public.siteName || 'styleX'}`,
   description:
     'Learn how we are revolutionizing commerce by empowering sellers with AI, automated social reach, and cross-border logistics.',
 })

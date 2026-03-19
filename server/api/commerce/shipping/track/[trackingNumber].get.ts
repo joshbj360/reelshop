@@ -8,7 +8,10 @@ import { getShippingProvider } from '~~/server/utils/shipping'
 export default defineEventHandler(async (event) => {
   const trackingNumber = getRouterParam(event, 'trackingNumber')
   if (!trackingNumber) {
-    throw createError({ statusCode: 400, message: 'trackingNumber is required' })
+    throw createError({
+      statusCode: 400,
+      message: 'trackingNumber is required',
+    })
   }
 
   const query = getQuery(event)

@@ -40,8 +40,13 @@ export const walletService = {
       if (!sellerId) continue
       const price = item.variant.price ?? product.price
       const discount = product.discount ?? 0
-      const amountKobo = Math.round(price * (1 - discount / 100) * item.quantity * 100)
-      sellerAmounts.set(sellerId, (sellerAmounts.get(sellerId) ?? 0) + amountKobo)
+      const amountKobo = Math.round(
+        price * (1 - discount / 100) * item.quantity * 100,
+      )
+      sellerAmounts.set(
+        sellerId,
+        (sellerAmounts.get(sellerId) ?? 0) + amountKobo,
+      )
     }
 
     for (const [sellerId, amount] of sellerAmounts) {
@@ -62,6 +67,7 @@ export const walletService = {
    * Called when order status moves to DELIVERED.
    * Finds the CREDIT_PENDING transactions for this order and releases the
    * exact same amounts — no recalculation, no floating-point drift.
+   * Also credits the affiliate wallet if this order had a referral.
    */
   async releaseFundsOnDelivery(orderId: number) {
     // Idempotency guard — skip if already released
@@ -76,7 +82,9 @@ export const walletService = {
     })
 
     if (!pendingCredits.length) {
-      console.warn(`[wallet] No CREDIT_PENDING transactions found for order #${orderId} — skipping release`)
+      console.warn(
+        `[wallet] No CREDIT_PENDING transactions found for order #${orderId} — skipping release`,
+      )
       return
     }
 
@@ -102,6 +110,45 @@ export const walletService = {
           description: `Order #${orderId} — delivered, funds released to balance`,
         },
       })
+    }
+
+    // Credit affiliate wallet if this order had a referral
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      select: { affiliateUserId: true, affiliateCut: true },
+    })
+
+    if (order?.affiliateUserId && order.affiliateCut > 0) {
+      // Affiliate must have a seller profile to receive a wallet credit
+      const sellerProfile = await prisma.sellerProfile.findFirst({
+        where: { profileId: order.affiliateUserId },
+        select: { id: true },
+      })
+
+      if (sellerProfile) {
+        const wallet = await walletRepository.getOrCreateWallet(
+          sellerProfile.id,
+        )
+        // Idempotency: don't double-credit if called again
+        const existingAffiliate = await prisma.transaction.findFirst({
+          where: { walletId: wallet.id, orderId, type: 'AFFILIATE_CREDIT' },
+        })
+        if (!existingAffiliate) {
+          await walletRepository.incrementBalance(wallet.id, order.affiliateCut)
+          await walletRepository.createTransaction(wallet.id, {
+            amount: order.affiliateCut,
+            type: 'AFFILIATE_CREDIT',
+            description: `Affiliate commission — Order #${orderId}`,
+            orderId,
+          })
+        }
+      } else {
+        // Non-seller affiliate: store as a buyer-wallet credit using a lightweight transaction log
+        // (for now, log it — a dedicated buyer wallet can be added later)
+        console.info(
+          `[affiliate] Non-seller affiliate ${order.affiliateUserId} earned ${order.affiliateCut} kobo on order #${orderId} — buyer wallet not yet implemented`,
+        )
+      }
     }
   },
 

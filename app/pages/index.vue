@@ -1,7 +1,7 @@
 <!-- pages/index.vue -->
 <template>
   <HomeLayout :narrow-feed="true">
-    <div class="w-full space-y-8 px-2 sm:px-4">
+    <div class="w-full space-y-4 px-2 sm:px-4">
       <!-- Loading Skeleton -->
       <HomepageSkeleton v-if="pending && !mainFeed.length" />
 
@@ -11,7 +11,11 @@
         class="flex flex-col items-center justify-center gap-5 py-32 text-center"
       >
         <div class="rounded-full bg-red-50/80 p-5 dark:bg-red-950/30">
-          <Icon name="mdi:wifi-off" size="48" class="text-red-500 dark:text-red-400" />
+          <Icon
+            name="mdi:wifi-off"
+            size="48"
+            class="text-red-500 dark:text-red-400"
+          />
         </div>
         <div>
           <p class="text-lg font-semibold text-gray-800 dark:text-neutral-200">
@@ -32,8 +36,10 @@
       <!-- Main Content -->
       <div v-else class="space-y-8">
         <!-- Stories Section (Logged-in users only) -->
-        <section v-if="profileStore.isLoggedIn" class="pb-4">
-          <h2 class="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-500">
+        <section v-if="profileStore.isLoggedIn" class="pb-1">
+          <h2
+            class="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-500"
+          >
             {{ $t('feed.todayInspo') }}
           </h2>
 
@@ -42,17 +48,25 @@
             <button
               v-if="storiesScrollLeft > 0"
               @click="scrollStories('left')"
-              class="absolute -left-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900/90 dark:hover:bg-neutral-800"
+              class="absolute -left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900/90 dark:hover:bg-neutral-800"
             >
-              <Icon name="mdi:chevron-left" size="20" class="text-gray-600 dark:text-neutral-300" />
+              <Icon
+                name="mdi:chevron-left"
+                size="20"
+                class="text-gray-600 dark:text-neutral-300"
+              />
             </button>
 
             <button
               v-if="storiesCanScrollRight"
               @click="scrollStories('right')"
-              class="absolute -right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900/90 dark:hover:bg-neutral-800"
+              class="absolute -right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-md backdrop-blur-sm transition-all hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900/90 dark:hover:bg-neutral-800"
             >
-              <Icon name="mdi:chevron-right" size="20" class="text-gray-600 dark:text-neutral-300" />
+              <Icon
+                name="mdi:chevron-right"
+                size="20"
+                class="text-gray-600 dark:text-neutral-300"
+              />
             </button>
 
             <!-- Stories Scroller -->
@@ -68,11 +82,15 @@
                   aria-label="Add your story"
                   class="story-ring flex h-[70px] w-[70px] items-center justify-center rounded-full p-1 transition-all hover:scale-105 active:scale-95"
                 >
-                  <div class="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-neutral-900">
+                  <div
+                    class="flex h-full w-full items-center justify-center rounded-full bg-white dark:bg-neutral-900"
+                  >
                     <Icon name="mdi:plus" size="28" class="text-brand" />
                   </div>
                 </button>
-                <span class="text-xs font-medium text-gray-500 dark:text-neutral-400">
+                <span
+                  class="text-xs font-medium text-gray-500 dark:text-neutral-400"
+                >
                   {{ $t('feed.yourStory') }}
                 </span>
               </div>
@@ -93,14 +111,42 @@
                     class="h-full w-full rounded-full object-cover ring-2 ring-white dark:ring-neutral-950"
                   />
                 </div>
-                <span class="w-[70px] truncate text-center text-xs font-medium text-gray-500 dark:text-neutral-400">
+                <span
+                  class="w-[70px] truncate text-center text-xs font-medium text-gray-500 dark:text-neutral-400"
+                >
                   {{ story.author?.username || 'User' }}
                 </span>
               </div>
             </div>
           </div>
+        </section>
 
-          <div class="mt-5 border-t border-gray-100 dark:border-neutral-800" />
+        <!-- Affiliate Program Banner (logged-in only) -->
+        <section v-if="profileStore.isLoggedIn">
+          <NuxtLink
+            :to="`/profile/${profileStore.me?.username}?tab=affiliate`"
+            class="group flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 p-4 shadow-md transition-all hover:shadow-lg hover:brightness-105 active:scale-[0.99]"
+          >
+            <div
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20"
+            >
+              <Icon name="mdi:cash-multiple" size="26" class="text-white" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-bold text-white">
+                {{ $t('affiliate.joinTitle') }}
+              </p>
+              <p class="truncate text-[12px] text-white/80">
+                {{ $t('affiliate.joinSubtitle') }}
+              </p>
+            </div>
+            <div
+              class="shrink-0 rounded-xl bg-white/20 px-3 py-1.5 text-[12px] font-bold text-white transition-colors group-hover:bg-white/30"
+            >
+              {{ $t('affiliate.enrollNow') }}
+              <Icon name="mdi:arrow-right" size="14" class="ml-0.5 inline" />
+            </div>
+          </NuxtLink>
         </section>
 
         <!-- Main Feed -->
@@ -132,7 +178,9 @@
           v-if="feedStore.isLoading && mainFeed.length > 0"
           class="flex items-center justify-center gap-3 py-8"
         >
-          <div class="h-5 w-5 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          <div
+            class="h-5 w-5 animate-spin rounded-full border-2 border-brand border-t-transparent"
+          />
           <span class="text-sm text-gray-500 dark:text-neutral-400">
             {{ $t('common.loadingMore') }}
           </span>
@@ -140,7 +188,11 @@
 
         <!-- End of Feed Message -->
         <div
-          v-if="!feedStore.canLoadMore && mainFeed.length > 0 && !feedStore.isLoading"
+          v-if="
+            !feedStore.canLoadMore &&
+            mainFeed.length > 0 &&
+            !feedStore.isLoading
+          "
           class="py-12 text-center text-sm text-gray-500 dark:text-neutral-400"
         >
           You've reached the end ✨ Keep exploring!
@@ -170,7 +222,10 @@
       v-if="selectedProduct"
       :product="selectedProduct"
       @close="selectedProduct = null"
-      @open-comments="commentProduct = $event; selectedProduct = null"
+      @open-comments="
+        commentProduct = $event
+        selectedProduct = null
+      "
     />
 
     <ProductMarketModal
@@ -196,15 +251,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 
-
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import HomepageSkeleton from '~/components/skeletons/HomePageSkeleton.vue'
 import StoryUploadModal from '~/components/modals/StoryUploadModal.vue'
-import ProductDetailModal from '~/components/modals/ProductDetailModal.vue'
+import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
 import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue'
-import ProductMarketModal from '~/components/modals/ProductMarketModal.vue'
-import PostCommentModal from '~/components/modals/PostCommentModal.vue'
-import ProductCommentModal from '~/components/modals/ProductCommentModal.vue'
+import ProductMarketModal from '~~/layers/commerce/app/components/modals/ProductMarketModal.vue'
+import PostCommentModal from '~~/layers/post/app/components/modals/PostCommentModal.vue'
+import ProductCommentModal from '~~/layers/commerce/app/components/modals/ProductCommentModal.vue'
 import ShopProductCard from '~/components/shop/ShopProductCard.vue'
 import PostCard from '~~/layers/post/app/components/PostCard.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue'
@@ -262,16 +316,22 @@ const {
 } = useLazyAsyncData(
   'homepage-main',
   () => useFeedApi().getHomeFeed({ limit: 20 }),
-  { server: false }
+  { server: false },
 )
 
-watch(feedData, (val) => {
-  if (val?.items?.length) {
-    feedStore.setInitialFeed(val.items, val.meta, 'main')
-  }
-}, { immediate: true })
+watch(
+  feedData,
+  (val) => {
+    if (val?.items?.length) {
+      feedStore.setInitialFeed(val.items, val.meta, 'main')
+    }
+  },
+  { immediate: true },
+)
 
-const mainFeed = computed(() => feedStore.mainFeed?.length ? feedStore.mainFeed : feedData.value?.items ?? [])
+const mainFeed = computed(() =>
+  feedStore.mainFeed?.length ? feedStore.mainFeed : feedData.value?.items ?? [],
+)
 
 // Infinite scroll
 const loadMoreTrigger = ref<HTMLElement | null>(null)
@@ -284,12 +344,14 @@ const loadMore = async () => {
 
 onMounted(() => {
   if (profileStore.isLoggedIn) {
-    fetchStories().catch(() => {}).then(() => nextTick(onStoriesScroll))
+    fetchStories()
+      .catch(() => {})
+      .then(() => nextTick(onStoriesScroll))
   }
 
   observer.value = new IntersectionObserver(
     (entries) => entries[0]?.isIntersecting && loadMore(),
-    { rootMargin: '300px' }
+    { rootMargin: '300px' },
   )
 
   if (loadMoreTrigger.value) observer.value.observe(loadMoreTrigger.value)
@@ -323,10 +385,7 @@ const removeFromFeed = (postId: string) => {
 
 const handleStoryPosted = async () => {
   showUploadModal.value = false
-  await Promise.all([
-    refresh(),
-    fetchStories().catch(() => {})
-  ])
+  await Promise.all([refresh(), fetchStories().catch(() => {})])
 }
 </script>
 

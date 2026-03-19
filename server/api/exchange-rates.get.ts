@@ -39,13 +39,13 @@ export default defineEventHandler(async (event) => {
     // so the app never breaks — prices just show approximate values
     const fallback: Record<string, number> = {
       NGN: 1,
-      USD: 0.000625,   // 1 NGN ≈ 0.000625 USD  (≈ 1600 NGN/USD)
-      GBP: 0.000488,   // 1 NGN ≈ 0.000488 GBP  (≈ 2050 NGN/GBP)
-      EUR: 0.000571,   // 1 NGN ≈ 0.000571 EUR  (≈ 1750 NGN/EUR)
-      GHS: 0.00952,    // 1 NGN ≈ 0.00952 GHS   (≈ 105  NGN/GHS)
-      KES: 0.0833,     // 1 NGN ≈ 0.0833 KES    (≈ 12   NGN/KES)
-      ZAR: 0.01136,    // 1 NGN ≈ 0.01136 ZAR   (≈ 88   NGN/ZAR)
-      CAD: 0.000856,   // 1 NGN ≈ 0.000856 CAD  (≈ 1168 NGN/CAD)
+      USD: 0.000625, // 1 NGN ≈ 0.000625 USD  (≈ 1600 NGN/USD)
+      GBP: 0.000488, // 1 NGN ≈ 0.000488 GBP  (≈ 2050 NGN/GBP)
+      EUR: 0.000571, // 1 NGN ≈ 0.000571 EUR  (≈ 1750 NGN/EUR)
+      GHS: 0.00952, // 1 NGN ≈ 0.00952 GHS   (≈ 105  NGN/GHS)
+      KES: 0.0833, // 1 NGN ≈ 0.0833 KES    (≈ 12   NGN/KES)
+      ZAR: 0.01136, // 1 NGN ≈ 0.01136 ZAR   (≈ 88   NGN/ZAR)
+      CAD: 0.000856, // 1 NGN ≈ 0.000856 CAD  (≈ 1168 NGN/CAD)
     }
     return { success: true, data: fallback, cached: false, fallback: true }
   }

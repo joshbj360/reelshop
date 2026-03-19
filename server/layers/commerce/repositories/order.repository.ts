@@ -30,10 +30,16 @@ export const orderRepository = {
         country: data.country,
         totalAmount: data.totalAmount,
         paymentMethod: data.paymentMethod || 'card',
+        ...(data.affiliateUserId
+          ? { affiliateUserId: data.affiliateUserId }
+          : {}),
+        ...(data.affiliateCut ? { affiliateCut: data.affiliateCut } : {}),
         orderItem: {
           create: data.items.map((item: any) => ({
             variantId: item.variantId,
             quantity: item.quantity,
+            price: item.price ?? 0,
+            affiliateCut: item.affiliateCut ?? 0,
           })),
         },
       },

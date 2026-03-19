@@ -55,6 +55,9 @@ export default defineEventHandler(async (event) => {
           user: {
             select: { id: true, username: true, avatar: true, email: true },
           },
+          affiliate: {
+            select: { id: true, username: true, avatar: true },
+          },
         },
         orderBy: { created_at: 'desc' },
         take: limit,
@@ -63,7 +66,29 @@ export default defineEventHandler(async (event) => {
       prisma.orders.count({ where }),
     ])
 
-    return { success: true, data: { orders, total, limit, offset } }
+    // Enrich each order with seller-specific financial breakdown
+    const enriched = orders.map((order) => {
+      const sellerItems = order.orderItem.filter(
+        (oi) => oi.variant.product.sellerId === seller.id,
+      )
+      const grossKobo = sellerItems.reduce((s, oi) => s + (oi.price || 0), 0)
+      const affiliateCutKobo = sellerItems.reduce(
+        (s, oi) => s + (oi.affiliateCut || 0),
+        0,
+      )
+      const netKobo = grossKobo - affiliateCutKobo
+      return {
+        ...order,
+        sellerBreakdown: {
+          gross: grossKobo / 100,
+          affiliateCut: affiliateCutKobo / 100,
+          net: netKobo / 100,
+          currency: 'NGN',
+        },
+      }
+    })
+
+    return { success: true, data: { orders: enriched, total, limit, offset } }
   } catch (error: any) {
     if (error instanceof UserError)
       throw createError({

@@ -58,14 +58,25 @@
                   @click.stop="currentIndex--"
                   class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 shadow-sm backdrop-blur-md transition-colors hover:bg-black/60"
                 >
-                  <Icon name="mdi:chevron-left" size="24" class="pr-0.5 text-white" />
+                  <Icon
+                    name="mdi:chevron-left"
+                    size="24"
+                    class="pr-0.5 text-white"
+                  />
                 </button>
                 <button
-                  v-if="mediaItems.length > 1 && currentIndex < mediaItems.length - 1"
+                  v-if="
+                    mediaItems.length > 1 &&
+                    currentIndex < mediaItems.length - 1
+                  "
                   @click.stop="currentIndex++"
                   class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 shadow-sm backdrop-blur-md transition-colors hover:bg-black/60"
                 >
-                  <Icon name="mdi:chevron-right" size="24" class="pl-0.5 text-white" />
+                  <Icon
+                    name="mdi:chevron-right"
+                    size="24"
+                    class="pl-0.5 text-white"
+                  />
                 </button>
 
                 <!-- Mobile: Pagination Dots -->
@@ -78,7 +89,11 @@
                     :key="i"
                     @click.stop="currentIndex = i"
                     class="h-1.5 rounded-full transition-all"
-                    :class="i === currentIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'"
+                    :class="
+                      i === currentIndex
+                        ? 'w-5 bg-white'
+                        : 'w-1.5 bg-white/50 hover:bg-white/80'
+                    "
                   />
                 </div>
 
@@ -92,15 +107,29 @@
                     :key="i"
                     @click="currentIndex = i"
                     class="h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-white transition-all dark:bg-neutral-800"
-                    :class="i === currentIndex ? 'border-brand shadow-sm shadow-brand/20' : 'border-transparent opacity-60 hover:opacity-100'"
+                    :class="
+                      i === currentIndex
+                        ? 'border-brand shadow-sm shadow-brand/20'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    "
                   >
-                    <img :src="imgThumb(m.url)" class="h-full w-full object-contain" />
+                    <img
+                      :src="imgThumb(m.url)"
+                      class="h-full w-full object-contain"
+                    />
                   </button>
                 </div>
               </template>
 
-              <div v-else class="flex h-full w-full items-center justify-center">
-                <Icon name="mdi:image-outline" size="64" class="text-gray-300 dark:text-neutral-600" />
+              <div
+                v-else
+                class="flex h-full w-full items-center justify-center"
+              >
+                <Icon
+                  name="mdi:image-outline"
+                  size="64"
+                  class="text-gray-300 dark:text-neutral-600"
+                />
               </div>
             </div>
 
@@ -154,16 +183,12 @@
                   <div class="mt-2.5 flex items-baseline gap-2.5">
                     <span
                       class="text-2xl font-black tracking-tight text-gray-900 md:text-3xl dark:text-neutral-100"
-                      >{{
-                        formatPrice(discountedPrice)
-                      }}</span
+                      >{{ formatPrice(discountedPrice) }}</span
                     >
                     <span
                       v-if="discountPercent > 0"
                       class="text-[14px] font-medium text-gray-400 line-through dark:text-neutral-500"
-                      >{{
-                        formatPrice(product.price)
-                      }}</span
+                      >{{ formatPrice(product.price) }}</span
                     >
                     <span
                       v-if="discountPercent > 0"
@@ -238,7 +263,9 @@
                   >
                     {{ descExpanded ? 'Show less' : 'Read more' }}
                     <Icon
-                      :name="descExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                      :name="
+                        descExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'
+                      "
                       size="14"
                     />
                   </button>
@@ -278,7 +305,7 @@
                         variant.stock === 0
                           ? 'cursor-not-allowed border-gray-200 bg-white/60 text-gray-300 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-600'
                           : selectedVariant?.id === variant.id
-                            ? 'border-brand bg-white text-brand shadow-sm shadow-brand/10 dark:bg-neutral-900 dark:bg-brand/10'
+                            ? 'border-brand bg-white text-brand shadow-sm shadow-brand/10 dark:bg-brand/10 dark:bg-neutral-900'
                             : 'border-gray-200 bg-white text-gray-700 hover:border-brand/40 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300',
                       ]"
                     >
@@ -324,9 +351,15 @@
                         <Icon
                           name="mdi:tag-multiple-outline"
                           size="15"
-                          :class="activeOffer?.id === offer.id ? 'text-brand' : 'text-gray-400 dark:text-neutral-500'"
+                          :class="
+                            activeOffer?.id === offer.id
+                              ? 'text-brand'
+                              : 'text-gray-400 dark:text-neutral-500'
+                          "
                         />
-                        <span class="text-[13px] font-semibold text-gray-700 dark:text-neutral-300">
+                        <span
+                          class="text-[13px] font-semibold text-gray-700 dark:text-neutral-300"
+                        >
                           {{ offer.label || `Buy ${offer.minQuantity}+` }}
                         </span>
                       </div>
@@ -346,7 +379,8 @@
                     v-if="activeOffer"
                     class="mt-2 flex items-center gap-1 text-[12px] font-semibold text-brand"
                   >
-                    <Icon name="mdi:check-circle" size="14" /> Deal applied at qty {{ qty }}!
+                    <Icon name="mdi:check-circle" size="14" /> Deal applied at
+                    qty {{ qty }}!
                   </p>
                   <p
                     v-else
@@ -611,7 +645,11 @@
             :key="i"
             @click="currentIndex = i"
             class="h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 bg-white/5 transition-all"
-            :class="i === currentIndex ? 'border-white scale-110' : 'border-white/30 opacity-50 hover:opacity-90'"
+            :class="
+              i === currentIndex
+                ? 'scale-110 border-white'
+                : 'border-white/30 opacity-50 hover:opacity-90'
+            "
           >
             <img :src="m.url" class="h-full w-full object-contain" />
           </button>
@@ -674,9 +712,16 @@ watch(
 // Keyboard navigation for lightbox
 const onKeydown = (e: KeyboardEvent) => {
   if (!isZoomed.value) return
-  if (e.key === 'Escape') { isZoomed.value = false; return }
+  if (e.key === 'Escape') {
+    isZoomed.value = false
+    return
+  }
   if (e.key === 'ArrowLeft' && currentIndex.value > 0) currentIndex.value--
-  if (e.key === 'ArrowRight' && currentIndex.value < mediaItems.value.length - 1) currentIndex.value++
+  if (
+    e.key === 'ArrowRight' &&
+    currentIndex.value < mediaItems.value.length - 1
+  )
+    currentIndex.value++
 }
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))

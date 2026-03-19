@@ -1,5 +1,7 @@
 import { defineEventHandler } from 'h3'
 import { sellerService } from '../../../layers/seller/services/seller.services'
+import { optionalAuth } from '../../../layers/shared/middleware/requireAuth'
+import { prisma } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,7 +14,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get seller profile by slug (public endpoint)
+    // Check if the requester owns this store — owners see it even when inactive
+    const user = await optionalAuth(event)
+    if (user) {
+      const owned = await prisma.sellerProfile.findFirst({
+        where: { store_slug: slug, profileId: user.id },
+      })
+      if (owned) {
+        return {
+          success: true,
+          message: 'Seller profile retrieved successfully',
+          data: owned,
+        }
+      }
+    }
+
+    // Public path: only active stores
     const seller = await sellerService.getSellerBySlug(slug)
 
     return {
@@ -20,11 +37,10 @@ export default defineEventHandler(async (event) => {
       message: 'Seller profile retrieved successfully',
       data: seller,
     }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('SellerError')) {
-      const sellerError = error as any
+  } catch (error: any) {
+    if (error.name === 'SellerError') {
       throw createError({
-        statusCode: sellerError.statusCode || 404,
+        statusCode: error.statusCode || 404,
         statusMessage: error.message,
       })
     }

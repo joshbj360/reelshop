@@ -2,7 +2,7 @@
 <template>
   <!-- ─── MOBILE HEADER ─────────────────────────────────────────────────────── -->
   <HeaderNavMobile
-    class="fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out"
+    class="fixed left-0 right-0 top-0 z-30 transition-transform duration-300 ease-in-out"
     :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-full'"
     @open-search="showSearchOverlay = true"
     @open-notifications="showNotificationOverlay = true"
@@ -12,11 +12,13 @@
   <!-- ─── MOBILE CATEGORY BAR ──────────────────────────────────────────────── -->
   <CategoryListMobile
     v-if="showCategoryBar"
-    class="fixed top-[3.5rem] left-0 right-0 z-20 transition-transform duration-300 ease-in-out"
+    class="fixed left-0 right-0 top-[3.5rem] z-20 transition-transform duration-300 ease-in-out"
     :class="mobileNavVisible ? 'translate-y-0' : '-translate-y-full'"
   />
 
-  <div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-neutral-100">
+  <div
+    class="min-h-screen bg-gray-50 text-gray-900 dark:bg-neutral-950 dark:text-neutral-100"
+  >
     <!-- ─── DESKTOP LEFT SIDEBAR ─────────────────────────────────────────────── -->
     <aside
       class="scrollbar-hide fixed left-0 top-0 z-20 hidden h-full w-20 border-r border-gray-200 bg-white md:block xl:w-72 dark:border-neutral-800 dark:bg-neutral-900"
@@ -38,7 +40,9 @@
           class="main-scroll scrollbar-hide h-[100dvh] min-w-0 flex-1 overflow-y-auto px-2 py-6 transition-all duration-200 sm:px-4"
           :class="[
             mainContentClasses,
-            hasScrolled ? 'shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.06)] dark:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.07)]' : ''
+            hasScrolled
+              ? 'shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.06)] dark:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.07)]'
+              : '',
           ]"
           @scroll.passive="onMainScroll"
         >
@@ -72,7 +76,11 @@
     <!-- ─── FLOATING ACTION BUTTONS & BANNERS ────────────────────────────────── -->
     <MobileAIChatButton
       :is-open="showAI"
-      :banner-visible="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
+      :banner-visible="
+        !dismissSellerBanner &&
+        profileStore.isLoggedIn &&
+        !sellerStore.hasSellers
+      "
       @open="showAI = true"
       @close="showAI = false"
     />
@@ -80,25 +88,35 @@
     <ClientOnly>
       <Transition name="seller-banner">
         <div
-          v-if="!dismissSellerBanner && profileStore.isLoggedIn && !sellerStore.hasSellers"
+          v-if="
+            !dismissSellerBanner &&
+            profileStore.isLoggedIn &&
+            !sellerStore.hasSellers
+          "
           class="fixed bottom-16 left-0 right-0 z-20 px-3 pb-2 md:hidden"
         >
           <div
-            class="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#f02c56] to-purple-600 px-3 py-2.5 shadow-xl"
+            class="flex items-center gap-2.5 rounded-2xl bg-brand px-3 py-2.5 shadow-xl shadow-brand/30"
           >
-            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
-              <Icon name="mdi:store-plus-outline" size="16" class="text-white" />
+            <div
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20"
+            >
+              <Icon
+                name="mdi:store-plus-outline"
+                size="16"
+                class="text-white"
+              />
             </div>
             <div class="min-w-0 flex-1">
               <p class="text-[12px] font-bold leading-tight text-white">
-                Start selling on {{ $config.public.siteName || 'Indix' }}
+                Start selling on {{ $config.public.siteName || 'styleX' }}
               </p>
               <p class="text-[10px] text-white/70">
                 Turn your passion into profit
               </p>
             </div>
             <NuxtLink
-              to="/seller/create"
+              to="/sellers/create"
               class="shrink-0 whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-[11px] font-bold text-brand shadow-sm transition-colors hover:bg-gray-50"
             >
               Start →
@@ -172,7 +190,7 @@ import RightSideNav from '~/layouts/children/RightSideNav.vue'
 import CreateModal from '~/components/modals/CreateModal.vue'
 import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
 import StoryUploadModal from '../components/modals/StoryUploadModal.vue'
-import QuickProductModal from '../components/modals/QuickProductModal.vue'
+import QuickProductModal from '~~/layers/commerce/app/components/modals/QuickProductModal.vue'
 
 import SearchOverlay from '~/components/search/SearchOverLay.vue'
 import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue'
@@ -203,12 +221,17 @@ const props = defineProps<{
 // ─── Layout Detection ───────────────────────────────────────────────────────
 const isNarrowFeed = computed(() => {
   if (props.narrowFeed !== undefined) return props.narrowFeed
-  return ['index', 'reels', 'profile-username', 'post-id'].includes(route.name as string)
+  return ['index', 'reels', 'profile-username', 'post-id'].includes(
+    route.name as string,
+  )
 })
 
 const showCategoryBar = computed(() => {
   if (props.hideCategoryBar) return false
-  return isNarrowFeed.value && ['index', 'discover', 'thrift'].includes(route.name as string)
+  return (
+    isNarrowFeed.value &&
+    ['index', 'discover', 'thrift'].includes(route.name as string)
+  )
 })
 
 const showRightSidebar = computed(() => {
@@ -218,7 +241,9 @@ const showRightSidebar = computed(() => {
 
 const mainContentClasses = computed(() => {
   if (props.customPadding) return ''
-  return showCategoryBar.value ? 'pt-28 md:pt-6 lg:px-4' : 'pt-16 md:pt-6 lg:px-4'
+  return showCategoryBar.value
+    ? 'pt-28 md:pt-6 lg:px-4'
+    : 'pt-16 md:pt-6 lg:px-4'
 })
 
 // ─── Scroll / Nav-hide Behavior ─────────────────────────────────────────────
@@ -325,7 +350,8 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(() => {
   // Persist banner dismiss
-  dismissSellerBanner.value = localStorage.getItem('dismissedSellerBanner') === 'true'
+  dismissSellerBanner.value =
+    localStorage.getItem('dismissedSellerBanner') === 'true'
 
   // Window scroll — catches document-level scroll (desktop fallback)
   window.addEventListener('scroll', onWindowScroll, { passive: true })
@@ -375,14 +401,10 @@ watch(dismissSellerBanner, (val) => {
   opacity: 0;
 }
 
-/* Safe area insets for mobile */
+/* Safe area insets for mobile bottom only — top padding handled by Tailwind pt-16/pt-28 */
 @media (max-width: 767px) {
   .main-scroll {
-    padding-top: max(4rem, calc(3.5rem + env(safe-area-inset-top, 0px)));
     padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-  }
-  .main-scroll.has-category {
-    padding-top: max(7rem, calc(7rem + env(safe-area-inset-top, 0px)));
   }
 }
 </style>

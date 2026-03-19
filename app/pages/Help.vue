@@ -152,7 +152,10 @@
               We couldn't find any articles matching "{{ searchQuery }}"
             </p>
             <button
-              @click="searchQuery = ''; activeCategory = 'all'"
+              @click="
+                searchQuery = ''
+                activeCategory = 'all'
+              "
               class="mt-4 font-semibold text-brand hover:underline"
             >
               Clear Search
@@ -210,7 +213,8 @@
                   Terms of Service
                 </h3>
                 <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-500">
-                  Rules and guidelines for using {{ $config.public.siteName || 'Indix' }}
+                  Rules and guidelines for using
+                  {{ $config.public.siteName || 'styleX' }}
                 </p>
               </div>
             </div>
@@ -337,7 +341,7 @@
             class="flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
             <a
-              :href="`mailto:${config.public.supportEmail || 'support@indix.app'}`"
+              :href="`mailto:${config.public.supportEmail || 'support@stylex.indicestech.com'}`"
               class="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-8 py-3.5 font-bold text-white transition-all hover:bg-[#d81b36] hover:shadow-lg hover:shadow-brand/20 active:scale-95 sm:w-auto"
             >
               <Icon name="mdi:email-fast-outline" size="20" />
@@ -375,7 +379,11 @@ const activeCategory = ref('all')
 const categories = [
   { id: 'all', label: 'All Topics', icon: 'mdi:view-grid-outline' },
   { id: 'shopping', label: 'Shopping & Orders', icon: 'mdi:shopping-outline' },
-  { id: 'selling', label: `Selling on ${config.public.siteName || 'Indix'}`, icon: 'mdi:storefront-outline' },
+  {
+    id: 'selling',
+    label: `Selling on ${config.public.siteName || 'styleX'}`,
+    icon: 'mdi:storefront-outline',
+  },
   {
     id: 'account',
     label: 'Account & Security',
