@@ -152,10 +152,7 @@
               We couldn't find any articles matching "{{ searchQuery }}"
             </p>
             <button
-              @click="
-                searchQuery = ''
-                activeCategory = 'all'
-              "
+              @click="searchQuery = ''; activeCategory = 'all'"
               class="mt-4 font-semibold text-brand hover:underline"
             >
               Clear Search
