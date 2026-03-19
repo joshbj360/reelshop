@@ -223,8 +223,10 @@
       :product="selectedProduct"
       @close="selectedProduct = null"
       @open-comments="
-        commentProduct = $event
-        selectedProduct = null
+        (p) => {
+          commentProduct = p
+          selectedProduct = null
+        }
       "
     />
 
@@ -249,7 +251,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter, useLazyAsyncData } from '#imports'
 
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import HomepageSkeleton from '~/components/skeletons/HomePageSkeleton.vue'

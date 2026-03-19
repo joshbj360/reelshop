@@ -21,10 +21,7 @@
       <button
         v-for="tab in STATUS_TABS"
         :key="tab.value"
-        @click="
-          activeStatus = tab.value
-          loadOrders()
-        "
+        @click="activeStatus = tab.value; loadOrders()"
         class="shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors"
         :class="
           activeStatus === tab.value

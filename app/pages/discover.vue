@@ -500,11 +500,7 @@
         <div v-if="selectedTag">
           <div class="mb-4 flex items-center gap-3">
             <button
-              @click="
-                selectedTag = null
-                tagProducts = []
-                tagTotal = 0
-              "
+              @click="selectedTag = null; tagProducts = []; tagTotal = 0"
               class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
             >
               <Icon name="mdi:arrow-left" size="18" />
