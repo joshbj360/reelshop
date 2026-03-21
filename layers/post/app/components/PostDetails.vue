@@ -1,6 +1,6 @@
 <!-- layers/post/app/components/PostDetails.vue -->
 <template>
-  <div class="flex h-full flex-col overflow-hidden">
+  <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
     <!-- Share Modal Trigger -->
     <ShareModal
       :is-open="showShareModal"
@@ -210,16 +210,38 @@
               </span>
               <button
                 class="font-medium text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+                @click="startReply(comment)"
               >
                 {{ $t('post.reply') }}
               </button>
+            </div>
+            <!-- Inline replies -->
+            <div
+              v-if="comment._replies?.length"
+              class="mt-2 space-y-2 border-l-2 border-gray-100 pl-3 dark:border-neutral-800"
+            >
+              <div
+                v-for="reply in comment._replies"
+                :key="reply.id"
+                class="flex items-start gap-2"
+              >
+                <Avatar
+                  :username="reply.author?.username ?? 'User'"
+                  :avatar="reply.author?.avatar ?? undefined"
+                  size="xs"
+                />
+                <p class="text-xs leading-relaxed text-gray-800 dark:text-neutral-200">
+                  <span class="mr-1 font-semibold">{{ reply.author?.username }}</span>
+                  {{ reply.text }}
+                </p>
+              </div>
             </div>
           </div>
 
           <!-- Comment Like -->
           <button
             @click="handleCommentLike(comment)"
-            class="flex shrink-0 flex-col items-center gap-0.5 pt-1 opacity-0 transition-opacity group-hover/comment:opacity-100"
+            class="flex shrink-0 flex-col items-center gap-0.5 pt-1 transition-opacity"
           >
             <Icon
               :name="comment._liked ? 'mdi:heart' : 'mdi:heart-outline'"
@@ -267,25 +289,23 @@
     <!-- Bottom Action Bar + Comment Input -->
     <div class="shrink-0 border-t border-gray-100 dark:border-neutral-800">
       <!-- Actions: Like / Comment / Share / Bookmark -->
-      <div class="flex items-center justify-between px-4 py-3">
-        <div class="flex items-center gap-1">
+      <div class="flex items-center justify-between px-3 py-2.5">
+        <div class="flex items-center gap-0.5">
           <!-- Like -->
           <button
             @click="handleLike"
-            class="group flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+            class="group flex items-center gap-1 rounded-full px-2.5 py-2 transition-colors hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-neutral-800"
             :aria-label="isLiked ? 'Unlike' : 'Like'"
           >
             <Icon
               :name="isLiked ? 'mdi:heart' : 'mdi:heart-outline'"
-              size="24"
+              size="22"
               class="transition-transform group-active:scale-90"
               :class="
                 isLiked ? 'text-red-500' : 'text-gray-900 dark:text-neutral-100'
               "
             />
-            <span
-              class="text-sm font-medium text-gray-700 dark:text-neutral-300"
-            >
+            <span class="text-sm font-medium text-gray-700 dark:text-neutral-300">
               {{ likeCount.toLocaleString() }}
             </span>
           </button>
@@ -293,16 +313,14 @@
           <!-- Comment -->
           <button
             @click="focusCommentInput"
-            class="group flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+            class="group flex items-center gap-1 rounded-full px-2.5 py-2 transition-colors hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-neutral-800"
           >
             <Icon
               name="mdi:comment-outline"
-              size="22"
+              size="20"
               class="text-gray-900 dark:text-neutral-100"
             />
-            <span
-              class="text-sm font-medium text-gray-700 dark:text-neutral-300"
-            >
+            <span class="text-sm font-medium text-gray-700 dark:text-neutral-300">
               {{ post.commentCount }}
             </span>
           </button>
@@ -310,11 +328,11 @@
           <!-- Share -->
           <button
             @click="sharePost"
-            class="group rounded-full px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+            class="group rounded-full px-2.5 py-2 transition-colors hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-neutral-800"
           >
             <Icon
               name="mdi:send-outline"
-              size="22"
+              size="20"
               class="-rotate-12 text-gray-900 transition-transform group-active:scale-90 dark:text-neutral-100"
             />
           </button>
@@ -323,11 +341,11 @@
         <!-- Bookmark -->
         <button
           @click="handleSave"
-          class="group rounded-full px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+          class="group rounded-full px-2.5 py-2 transition-colors hover:bg-gray-100 active:bg-gray-100 dark:hover:bg-neutral-800"
         >
           <Icon
             :name="isSaved ? 'mdi:bookmark' : 'mdi:bookmark-outline'"
-            size="24"
+            size="22"
             class="transition-transform group-active:scale-90"
             :class="
               isSaved ? 'text-brand' : 'text-gray-900 dark:text-neutral-100'
@@ -360,10 +378,28 @@
         @close="showLikes = false"
       />
 
+      <!-- Reply context banner -->
+      <div
+        v-if="replyingTo"
+        class="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 dark:border-neutral-800 dark:bg-neutral-800/50"
+      >
+        <span class="text-xs text-gray-500 dark:text-neutral-400">
+          Replying to <span class="font-semibold text-brand">@{{ replyingTo.username }}</span>
+        </span>
+        <button
+          type="button"
+          @click="replyingTo = null"
+          class="text-gray-400 hover:text-gray-600 dark:hover:text-neutral-300"
+        >
+          <Icon name="mdi:close" size="14" />
+        </button>
+      </div>
+
       <!-- Comment Input -->
       <form
         @submit.prevent="addComment"
         class="flex items-start gap-3 border-t border-gray-100 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900"
+        style="padding-bottom: max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))"
       >
         <Avatar
           :username="profileStore.me?.username ?? 'User'"
@@ -429,6 +465,7 @@ const profileStore = useProfileStore()
 
 const comments = ref<any[]>([])
 const commentText = ref('')
+const replyingTo = ref<{ id: string; username: string } | null>(null)
 const isSaved = ref(postStore.savedPostIds.includes(props.post.id))
 const isLoadingComments = ref(false)
 const isPostingComment = ref(false)
@@ -589,6 +626,11 @@ const handleSave = async () => {
   }
 }
 
+const startReply = (comment: any) => {
+  replyingTo.value = { id: comment.id, username: comment.author?.username ?? 'user' }
+  commentInputRef.value?.focus()
+}
+
 // Add Comment
 const addComment = async () => {
   const text = commentText.value.trim()
@@ -599,10 +641,21 @@ const addComment = async () => {
   }
 
   isPostingComment.value = true
+  const parentId = replyingTo.value?.id ?? null
   try {
-    const newComment = await createComment(props.post.id, { text })
-    comments.value.push(newComment)
+    const newComment = await createComment(props.post.id, { text, parentId })
+    if (parentId) {
+      // Attach reply under the parent comment
+      const parent = comments.value.find((c) => c.id === parentId)
+      if (parent) {
+        if (!parent._replies) parent._replies = []
+        parent._replies.push(newComment)
+      }
+    } else {
+      comments.value.push(newComment)
+    }
     commentText.value = ''
+    replyingTo.value = null
     await nextTick()
     commentsContainer.value?.scrollTo({
       top: commentsContainer.value.scrollHeight,

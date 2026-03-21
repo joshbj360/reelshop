@@ -250,18 +250,23 @@ const mainContentClasses = computed(() => {
 const mainScrollRef = ref<HTMLElement | null>(null)
 const hasScrolled = ref(false)
 const mobileNavVisible = ref(true)
-const bottomNavVisible = ref(true)
+const _bottomNavVisible = ref(true)
+
+// Always hide bottom nav on reels page (full-screen TikTok-style scroll)
+const bottomNavVisible = computed(
+  () => route.name !== 'reels' && _bottomNavVisible.value,
+)
 
 let pauseTimer: ReturnType<typeof setTimeout> | null = null
 const AUTO_REVEAL_AFTER_PAUSE = 1500 // ms of stillness → bring navs back
 
 const revealNav = () => {
   mobileNavVisible.value = true
-  bottomNavVisible.value = true
+  _bottomNavVisible.value = true
 }
 const hideNav = () => {
   mobileNavVisible.value = false
-  bottomNavVisible.value = false
+  _bottomNavVisible.value = false
 }
 const scheduleReveal = () => {
   if (pauseTimer) clearTimeout(pauseTimer)

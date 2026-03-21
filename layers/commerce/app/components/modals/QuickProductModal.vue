@@ -398,6 +398,7 @@
           <!-- Footer -->
           <div
             class="flex shrink-0 gap-3 border-t border-gray-200 px-4 py-3 dark:border-neutral-800"
+            style="padding-bottom: max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))"
           >
             <button
               @click="close"

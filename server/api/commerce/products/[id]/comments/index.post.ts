@@ -19,7 +19,11 @@ export default defineEventHandler(async (event) => {
 
   const product = await prisma.products.findUnique({
     where: { id },
-    select: { id: true, title: true, seller: { select: { userId: true } } },
+    select: {
+      id: true,
+      title: true,
+      seller: { select: { profile: { select: { userId: true } } } },
+    },
   })
   if (!product)
     throw createError({ statusCode: 404, statusMessage: 'Product not found' })
@@ -39,7 +43,7 @@ export default defineEventHandler(async (event) => {
   })
 
   // Notify product owner (non-blocking, skip self-notifications)
-  const ownerId = product.seller?.userId
+  const ownerId = product.seller?.profile?.userId
   if (ownerId && ownerId !== user.id) {
     notificationService
       .createNotification({

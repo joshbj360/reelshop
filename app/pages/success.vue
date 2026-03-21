@@ -4,7 +4,7 @@
       <RightSideNavBuyerOrders />
     </template>
 
-    <div id="SuccessPage" class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+    <div id="SuccessPage" class="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
       <div
         class="flex flex-col items-center rounded-2xl bg-white p-8 text-center shadow-xl sm:p-12"
       >
@@ -60,16 +60,16 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+        <div class="mt-8 flex w-full flex-col gap-4 sm:flex-row">
           <NuxtLink
             to="/"
-            class="rounded-lg bg-brand px-6 py-3 font-semibold text-white shadow-md transition-transform hover:scale-105 hover:bg-brand-light"
+            class="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-brand px-6 py-3 font-semibold text-white shadow-md transition-transform hover:scale-105 hover:bg-brand-light sm:w-auto"
           >
             Continue Shopping
           </NuxtLink>
           <NuxtLink
             to="/buyer/orders"
-            class="rounded-lg bg-gray-100 px-6 py-3 font-semibold text-gray-800 transition-colors hover:bg-gray-200"
+            class="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gray-100 px-6 py-3 font-semibold text-gray-800 transition-colors hover:bg-gray-200 sm:w-auto"
           >
             View My Orders
           </NuxtLink>

@@ -439,7 +439,8 @@
 
           <!-- ── Footer Actions (Sticky at bottom always) ── -->
           <div
-            class="relative z-20 shrink-0 space-y-3 border-t border-gray-100 bg-white px-4 pb-6 pt-4 md:px-8 md:pb-8 dark:border-neutral-800 dark:bg-neutral-900"
+            class="relative z-20 shrink-0 space-y-3 border-t border-gray-100 bg-white px-4 pt-4 md:px-8 md:pb-8 dark:border-neutral-800 dark:bg-neutral-900"
+            style="padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))"
           >
             <!-- Quantity and Add to Cart Row -->
             <div class="flex items-center gap-2 md:gap-3">

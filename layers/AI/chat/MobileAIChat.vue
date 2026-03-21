@@ -11,7 +11,7 @@
           ? 'bg-brand text-white'
           : 'bg-gradient-to-br from-purple-500 to-pink-500 text-white',
       ]"
-      :aria-label="unreadMessages > 0 ? 'Messages' : 'AI Assistant'"
+      aria-label="Messages & AI"
     >
       <!-- Badge for unread messages -->
       <span
@@ -20,10 +20,7 @@
       >
         {{ unreadMessages > 9 ? '9+' : unreadMessages }}
       </span>
-      <Icon
-        :name="unreadMessages > 0 ? 'mdi:message-text' : 'mdi:robot-outline'"
-        size="28"
-      />
+      <Icon name="mdi:message-text" size="28" />
     </button>
 
     <!-- ── Full-screen bottom sheet ───────────────────────────────────────── -->

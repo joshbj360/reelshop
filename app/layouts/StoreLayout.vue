@@ -115,14 +115,15 @@
       </header>
 
       <!-- Main content -->
-      <main class="flex-1 overflow-y-auto pb-16 xl:pb-0">
+      <main class="flex-1 overflow-y-auto xl:pb-0" style="padding-bottom: max(5rem, calc(env(safe-area-inset-bottom, 0px) + 4rem))">
         <slot />
       </main>
 
       <!-- Mobile bottom tab bar (< xl) -->
       <nav
         v-if="storeSlug"
-        class="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-around border-t border-gray-200 bg-white px-2 xl:hidden dark:border-neutral-800 dark:bg-neutral-900"
+        class="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-gray-200 bg-white px-2 xl:hidden dark:border-neutral-800 dark:bg-neutral-900"
+        style="height: calc(4rem + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px)"
       >
         <NuxtLink
           :to="`/seller/${storeSlug}/dashboard`"
@@ -169,7 +170,8 @@
       <!-- Mobile bottom tab bar — no store context -->
       <nav
         v-else
-        class="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center justify-around border-t border-gray-200 bg-white px-2 xl:hidden dark:border-neutral-800 dark:bg-neutral-900"
+        class="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-gray-200 bg-white px-2 xl:hidden dark:border-neutral-800 dark:bg-neutral-900"
+        style="height: calc(4rem + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px)"
       >
         <NuxtLink
           to="/seller/dashboard"

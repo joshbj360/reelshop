@@ -211,6 +211,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useNotificationStore } from '~~/layers/profile/app/stores/notification.store'
 import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
+import { useChatStore } from '~~/layers/profile/app/stores/chat.store'
 
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 
@@ -222,8 +223,14 @@ const notificationStore = useNotificationStore()
 const sellerStore = useSellerStore()
 const { cartCount } = useCart()
 
+const chatStore = useChatStore()
 const unreadCount = computed(() => notificationStore.unreadCount)
-const messageCount = computed(() => 0) // replace with real message store if you have one
+const messageCount = computed(() =>
+  chatStore.conversations.reduce(
+    (sum, c: any) => sum + (c.unreadCount ?? c.unread_count ?? 0),
+    0,
+  ),
+)
 
 const menuOpen = ref(false)
 const menuRef = ref<HTMLElement | null>(null)

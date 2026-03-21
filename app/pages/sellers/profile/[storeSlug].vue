@@ -1,13 +1,15 @@
 <template>
   <HomeLayout :narrow-feed="false" :hide-right-sidebar="false">
-    <div class="pb-20 md:pb-6">
+    <div
+      class="pb-[max(5rem,_calc(1.5rem_+_env(safe-area-inset-bottom)))] md:pb-6"
+    >
       <!-- ── SKELETON ──────────────────────────────────────────────────── -->
       <div v-if="pageLoading" class="animate-pulse">
         <div class="-mx-2 h-56 bg-gray-200 sm:-mx-6 dark:bg-neutral-800" />
         <div class="px-3 sm:px-5">
           <div class="-mt-14 flex items-end gap-4">
             <div
-              class="h-24 w-24 shrink-0 rounded-2xl border-4 border-white bg-gray-200 dark:border-neutral-950 dark:bg-neutral-700"
+              class="h-20 w-20 shrink-0 rounded-2xl border-4 border-white bg-gray-200 dark:border-neutral-950 dark:bg-neutral-700"
             />
             <div class="flex-1 space-y-2 pb-2">
               <div
@@ -66,7 +68,7 @@
       <!-- ── PROFILE ────────────────────────────────────────────────────── -->
       <div v-else>
         <!-- Banner -->
-        <div class="group relative -mx-2 h-52 overflow-hidden sm:-mx-6 sm:h-64">
+        <div class="group relative -mx-4 h-44 overflow-hidden sm:-mx-6 sm:h-56">
           <img
             v-if="seller.store_banner"
             :src="cloudinaryUrl(seller.store_banner, { width: 1200, height: 400, crop: 'fill' })"
@@ -100,11 +102,13 @@
 
         <!-- Header -->
         <div class="px-3 sm:px-5">
-          <div class="relative -mt-16 flex items-end justify-between gap-3">
+          <div
+            class="relative -mt-10 flex items-end justify-between gap-3 sm:-mt-16"
+          >
             <!-- Logo -->
             <div class="relative shrink-0">
               <div
-                class="h-24 w-24 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl sm:h-28 sm:w-28 dark:border-neutral-950 dark:bg-neutral-900"
+                class="h-20 w-20 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-xl sm:h-24 sm:w-24 dark:border-neutral-950 dark:bg-neutral-900"
               >
                 <img
                   v-if="seller.store_logo"
@@ -190,7 +194,7 @@
           <div class="mt-3">
             <div class="flex flex-wrap items-center gap-2">
               <h1
-                class="text-2xl font-black text-gray-900 sm:text-3xl dark:text-neutral-100"
+                class="text-xl font-black text-gray-900 sm:text-3xl dark:text-neutral-100"
               >
                 {{ seller.store_name }}
               </h1>
@@ -263,7 +267,7 @@
               class="rounded-2xl border border-gray-100 bg-white px-3 py-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             >
               <p
-                class="text-2xl font-black text-gray-900 dark:text-neutral-100"
+                class="text-xl font-black text-gray-900 sm:text-2xl dark:text-neutral-100"
               >
                 {{ formatNumber(total) }}
               </p>
@@ -277,7 +281,7 @@
               class="rounded-2xl border border-gray-100 bg-white px-3 py-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             >
               <p
-                class="text-2xl font-black text-gray-900 dark:text-neutral-100"
+                class="text-xl font-black text-gray-900 sm:text-2xl dark:text-neutral-100"
               >
                 {{ formatNumber(seller.followers_count || 0) }}
               </p>
@@ -292,7 +296,7 @@
             >
               <div class="flex items-center justify-center gap-1">
                 <p
-                  class="text-2xl font-black text-gray-900 dark:text-neutral-100"
+                  class="text-xl font-black text-gray-900 sm:text-2xl dark:text-neutral-100"
                 >
                   4.8
                 </p>
@@ -315,9 +319,9 @@
             <!-- Message Store (mobile) -->
             <button
               v-if="profileStore.isLoggedIn && !isOwnStore"
+              class="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
               :disabled="messageLoading"
               @click="messageStore"
-              class="flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
             >
               <Icon v-if="messageLoading" name="eos-icons:loading" size="15" class="animate-spin" />
               <Icon v-else name="mdi:message-outline" size="15" />
@@ -359,11 +363,11 @@
           <div
             class="sticky top-0 z-30 -mx-3 mt-5 border-b border-gray-100 bg-white/90 px-3 pb-0 pt-2 backdrop-blur-md sm:-mx-5 sm:px-5 dark:border-neutral-800 dark:bg-neutral-950/90"
           >
-            <div class="flex gap-0">
+            <div class="scrollbar-hide flex gap-0 overflow-x-auto">
               <button
                 v-for="tab in tabs"
                 :key="tab.key"
-                class="-mb-px flex items-center gap-1.5 border-b-2 px-5 py-3 text-xs font-black uppercase tracking-widest transition-all"
+                class="-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-3 text-xs font-black uppercase tracking-widest transition-all sm:px-5"
                 :class="
                   activeTab === tab.key
                     ? 'border-brand text-brand'

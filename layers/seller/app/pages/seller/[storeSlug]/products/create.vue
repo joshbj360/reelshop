@@ -60,7 +60,7 @@
               <button
                 type="button"
                 @click="removeMediaItem(i)"
-                class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
               >
                 <Icon name="mdi:close" size="12" />
               </button>

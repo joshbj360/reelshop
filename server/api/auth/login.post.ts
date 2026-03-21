@@ -10,10 +10,11 @@ export default defineEventHandler(async (event) => {
     const validation = loginSchema.safeParse(body)
 
     if (!validation.success) {
+      const first = validation.error.errors[0]
+      const field = first?.path?.[0] ? `${first.path[0]}: ` : ''
       throw createError({
         statusCode: 400,
-        statusMessage: 'Validation Error',
-        data: validation.error.errors,
+        statusMessage: `${field}${first?.message ?? 'Invalid input'}`,
       })
     }
 
@@ -73,7 +74,7 @@ export default defineEventHandler(async (event) => {
     console.error('[Login API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error',
+      statusMessage: 'Login failed. Please try again.',
     })
   }
 })

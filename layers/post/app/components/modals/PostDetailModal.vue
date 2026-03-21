@@ -25,19 +25,19 @@
         v-if="post"
         class="pointer-events-none fixed inset-x-0 bottom-0 z-50 sm:inset-0 sm:flex sm:items-center sm:justify-center"
       >
-        <!-- Mobile floating close button -->
+        <!-- Mobile: back arrow (left) + close (right) -->
         <button
           @click.stop="$emit('close')"
-          class="pointer-events-auto absolute right-3 top-3 z-[60] flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80 sm:hidden"
-          aria-label="Close"
+          class="pointer-events-auto absolute left-3 top-3 z-[60] flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80 sm:hidden"
+          aria-label="Back"
         >
-          <Icon name="mdi:close" size="18" />
+          <Icon name="mdi:arrow-left" size="20" />
         </button>
 
         <div
           @click.stop
           class="pointer-events-auto flex w-full flex-col overflow-hidden bg-white shadow-2xl sm:max-w-3xl sm:flex-row sm:rounded-xl dark:bg-neutral-900"
-          :style="{ maxHeight: '92vh' }"
+          style="max-height: 92dvh"
         >
           <!-- Content-type accent stripe (top on mobile, left on desktop) -->
           <div
@@ -111,10 +111,10 @@
               </div>
             </template>
 
-            <!-- Background music mini-player -->
+            <!-- Background music mini-player — TikTok style at bottom -->
             <div
               v-if="post.bgMusic"
-              class="absolute left-3 right-3 top-3 flex items-center gap-2 rounded-xl bg-black/60 px-3 py-2 backdrop-blur-sm"
+              class="absolute bottom-10 left-3 right-3 flex items-center gap-2 rounded-xl bg-black/60 px-3 py-2 backdrop-blur-sm"
             >
               <div
                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-600"
@@ -143,12 +143,11 @@
           </div>
 
           <!-- ── RIGHT: Details panel ────────────────────────────── -->
-          <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <!-- Mobile: media carousel stacked on top -->
             <div
               v-if="hasMedia && currentMedia?.url"
-              class="relative shrink-0 bg-black sm:hidden"
-              style="aspect-ratio: 4/5; max-height: 38vh"
+              class="relative h-[44vh] min-h-[200px] shrink-0 bg-black sm:hidden"
             >
               <video
                 v-if="currentMedia.type === 'VIDEO'"
@@ -166,7 +165,7 @@
                 :key="currentMedia.url + '-mob-img'"
                 :src="currentMedia.url"
                 :alt="post?.caption || 'Post'"
-                class="h-full w-full object-contain"
+                class="h-full w-full object-cover"
               />
 
               <!-- Mobile prev/next -->
@@ -207,10 +206,10 @@
                 </div>
               </template>
 
-              <!-- Mobile bg music pill -->
+              <!-- Mobile bg music pill — TikTok style at bottom -->
               <div
                 v-if="post.bgMusic"
-                class="absolute left-2 right-2 top-2 flex items-center gap-2 rounded-lg bg-black/60 px-2.5 py-1.5 backdrop-blur-sm"
+                class="absolute bottom-10 left-2 right-2 flex items-center gap-2 rounded-lg bg-black/60 px-2.5 py-1.5 backdrop-blur-sm"
               >
                 <Icon
                   name="mdi:music-note"

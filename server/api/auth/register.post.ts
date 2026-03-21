@@ -33,10 +33,12 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     if (error instanceof ZodError) {
+      // Use the first field error message directly so the client can show it
+      const first = error.errors[0]
+      const field = first?.path?.[0] ? `${first.path[0]}: ` : ''
       throw createError({
         statusCode: 400,
-        statusMessage: 'Validation Error',
-        data: error.errors,
+        statusMessage: `${field}${first?.message ?? 'Invalid input'}`,
       })
     }
 
@@ -47,10 +49,27 @@ export default defineEventHandler(async (event) => {
         statusMessage: error.message,
       })
     }
+
+    // Surface known business errors (e.g. "Email already in use") directly
+    if (error instanceof Error && error.message) {
+      const msg = error.message.toLowerCase()
+      if (
+        msg.includes('already') ||
+        msg.includes('taken') ||
+        msg.includes('exists') ||
+        msg.includes('invalid') ||
+        msg.includes('not found') ||
+        msg.includes('banned') ||
+        msg.includes('suspended')
+      ) {
+        throw createError({ statusCode: 400, statusMessage: error.message })
+      }
+    }
+
     console.error('[Register API] Error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error',
+      statusMessage: 'Registration failed. Please try again.',
     })
   }
 })

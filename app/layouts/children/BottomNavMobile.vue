@@ -3,48 +3,33 @@
     v-bind="$attrs"
     class="bottom-nav fixed bottom-0 left-0 right-0 z-30 border-t border-gray-200/60 bg-white/90 backdrop-blur-md dark:border-neutral-800/60 dark:bg-neutral-900/90"
   >
-    <div class="flex h-16 items-center justify-around px-2">
+    <div class="flex h-16 items-center justify-around px-1">
       <NuxtLink to="/" class="nav-item" active-class="active">
-        <Icon name="mdi:home" size="26" />
+        <Icon name="mdi:home" size="24" />
       </NuxtLink>
 
-      <NuxtLink to="/thrift" class="nav-item" active-class="active">
-        <Icon name="mdi:tshirt-crew" size="26" />
+      <NuxtLink to="/reels" class="nav-item" active-class="active">
+        <Icon name="mdi:play-circle-outline" size="24" />
       </NuxtLink>
 
-      <!-- Create button — gradient pill -->
+      <!-- Create button — smaller to fit 6 items -->
       <ClientOnly>
         <button
           v-if="profileStore.isLoggedIn"
           @click="$emit('create')"
-          class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand shadow-lg shadow-brand/30 transition-transform active:scale-95"
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand shadow-lg shadow-brand/30 transition-transform active:scale-95"
           aria-label="Create"
         >
-          <Icon name="mdi:plus" size="26" class="text-white" />
+          <Icon name="mdi:plus" size="22" class="text-white" />
         </button>
         <template #fallback>
-          <div class="h-12 w-12" />
+          <div class="h-10 w-10" />
         </template>
       </ClientOnly>
 
-      <ClientOnly>
-        <NuxtLink
-          v-if="profileStore.isLoggedIn"
-          to="/messages"
-          class="nav-item"
-          active-class="active"
-        >
-          <Icon name="mdi:message-outline" size="26" />
-        </NuxtLink>
-        <NuxtLink v-else to="/discover" class="nav-item" active-class="active">
-          <Icon name="mdi:magnify" size="26" />
-        </NuxtLink>
-        <template #fallback>
-          <NuxtLink to="/discover" class="nav-item" active-class="active">
-            <Icon name="mdi:magnify" size="26" />
-          </NuxtLink>
-        </template>
-      </ClientOnly>
+      <NuxtLink to="/thrift" class="nav-item" active-class="active">
+        <Icon name="mdi:tshirt-crew" size="24" />
+      </NuxtLink>
 
       <!-- Profile / Login -->
       <ClientOnly>
@@ -169,7 +154,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside, true))
 }
 
 .nav-item {
-  @apply flex h-12 w-12 items-center justify-center rounded-xl text-gray-500 transition-colors hover:text-gray-900 dark:text-neutral-500 dark:hover:text-neutral-100;
+  @apply flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:text-gray-900 dark:text-neutral-500 dark:hover:text-neutral-100;
 }
 
 .nav-item.active {

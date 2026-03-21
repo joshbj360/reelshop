@@ -286,20 +286,38 @@ export class BaseApiClient {
     statusCode: number,
     originalMessage: string,
   ): string {
-    const errorMap: Record<number, string> = {
-      0: 'Network error. Please check your connection.',
-      400: 'Bad request. Please check your input.',
-      401: 'Unauthorized. Please log in again.',
-      403: 'You do not have permission to access this.',
-      404: 'Resource not found.',
-      409: 'Conflict. This resource already exists.',
-      422: 'Validation error. Please check your input.',
-      429: 'Too many requests. Please try again later.',
-      500: 'Server error. Please try again later.',
-      503: 'Service unavailable. Please try again later.',
+    // Generic/internal messages that should be replaced with friendlier text
+    const OPAQUE = new Set([
+      'internal server error',
+      'server error',
+      'bad request',
+      'unknown error',
+      'an unexpected error occurred.',
+      'an error occurred',
+      'error',
+      '',
+    ])
+
+    // If the server sent a specific, useful message — show it as-is
+    if (originalMessage && !OPAQUE.has(originalMessage.toLowerCase())) {
+      return originalMessage
     }
 
-    return errorMap[statusCode] || originalMessage
+    // Fall back to friendly generic messages only when the server message is useless
+    const fallbacks: Record<number, string> = {
+      0: 'Network error. Please check your connection.',
+      400: 'Something went wrong. Please check your input.',
+      401: 'Please log in to continue.',
+      403: "You don't have permission to do that.",
+      404: 'Not found.',
+      409: 'This already exists.',
+      422: 'Please check your input.',
+      429: 'Too many requests. Please try again in a moment.',
+      500: 'Something went wrong on our end. Please try again.',
+      503: 'Service temporarily unavailable. Please try again later.',
+    }
+
+    return fallbacks[statusCode] || originalMessage || 'Something went wrong.'
   }
 
   protected cleanParams(

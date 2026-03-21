@@ -4,11 +4,58 @@ import type { INotification } from '../types/profile.types'
 // SSE EventSource singleton — one stream per logged-in user
 let eventSource: EventSource | null = null
 
+// ─── Notification sound (Web Audio API) ─────────────────────────────────────
+function playNotificationChime() {
+  if (!import.meta.client) return
+  try {
+    const ctx = new AudioContext()
+    // Two-note chime: C6 → E6
+    const notes = [
+      { freq: 1047, start: 0, duration: 0.18 },
+      { freq: 1319, start: 0.14, duration: 0.28 },
+    ]
+    for (const note of notes) {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.start)
+      gain.gain.setValueAtTime(0, ctx.currentTime + note.start)
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + note.start + 0.01)
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        ctx.currentTime + note.start + note.duration,
+      )
+      osc.start(ctx.currentTime + note.start)
+      osc.stop(ctx.currentTime + note.start + note.duration)
+    }
+    // Auto-close AudioContext after chime finishes
+    setTimeout(() => ctx.close(), 700)
+  } catch {
+    // AudioContext may be blocked by browser until user interaction — silent fail
+  }
+}
+
 export const useNotificationStore = defineStore('notification', () => {
   const notifications = ref<INotification[]>([])
   const unreadCount = ref(0)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+
+  // Sound preference — persisted in localStorage
+  const soundEnabled = ref(
+    import.meta.client
+      ? localStorage.getItem('notificationSoundEnabled') !== 'false'
+      : true,
+  )
+
+  const setSoundEnabled = (val: boolean) => {
+    soundEnabled.value = val
+    if (import.meta.client) {
+      localStorage.setItem('notificationSoundEnabled', String(val))
+    }
+  }
 
   const getUnreadNotifications = computed(() =>
     notifications.value.filter((n) => !n.read),
@@ -23,6 +70,7 @@ export const useNotificationStore = defineStore('notification', () => {
     if (notifications.value.some((n) => n.id === notification.id)) return
     notifications.value.unshift(notification)
     updateUnreadCount()
+    if (soundEnabled.value) playNotificationChime()
   }
   const markAsRead = (id: number) => {
     const n = notifications.value.find((n) => n.id === id)
@@ -101,6 +149,7 @@ export const useNotificationStore = defineStore('notification', () => {
     unreadCount,
     isLoading,
     error,
+    soundEnabled,
     getUnreadNotifications,
     setNotifications,
     addNotification,
@@ -110,6 +159,7 @@ export const useNotificationStore = defineStore('notification', () => {
     setLoading,
     setError,
     clearNotifications,
+    setSoundEnabled,
     connectStream,
     disconnectStream,
   }

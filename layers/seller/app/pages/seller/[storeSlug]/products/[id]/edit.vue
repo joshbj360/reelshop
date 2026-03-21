@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="px-4 py-6 sm:px-6">
     <div class="mb-6 flex items-center gap-3">
       <NuxtLink
         :to="`/seller/${storeSlug}/products`"
@@ -113,7 +113,7 @@
                 <button
                   type="button"
                   @click="removeExistingMedia(img.id)"
-                  class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                  class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
                 >
                   <Icon name="mdi:close" size="12" />
                 </button>
@@ -145,7 +145,7 @@
                 <button
                   type="button"
                   @click="removeNewMedia(i)"
-                  class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                  class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
                 >
                   <Icon name="mdi:close" size="12" />
                 </button>
