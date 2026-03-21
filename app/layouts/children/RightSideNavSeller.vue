@@ -173,7 +173,7 @@
               >Thrift Store</span
             >
           </NuxtLink>
-          <NuxtLink to="/trending" class="quick-link group">
+          <NuxtLink to="/discover" class="quick-link group">
             <div
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 group-hover:text-brand dark:border-neutral-700 dark:bg-neutral-900"
             >

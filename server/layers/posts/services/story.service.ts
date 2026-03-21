@@ -1,5 +1,6 @@
 import { storyRepository } from '../repositories/story.repository'
 import { auditService } from '../../shared/audit/audit.service'
+import { auditQueue } from '../../../queues/audit.queue'
 import { UserError } from '../../profile/types/user.types'
 
 export const storyService = {
@@ -16,7 +17,7 @@ export const storyService = {
       productId,
     )
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId: authorId,
       action: 'STORY_CREATED',
       resource: 'Story',
@@ -57,7 +58,7 @@ export const storyService = {
 
     await storyRepository.deleteStory(id)
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId: authorId,
       action: 'STORY_DELETED',
       resource: 'Story',

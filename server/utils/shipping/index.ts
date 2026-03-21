@@ -3,13 +3,13 @@
  *
  * Single point of truth for provider selection.
  * ─────────────────────────────────────────────────────────────
- *  Nigeria (NG) → Sendbox   (interim, swap for own platform later)
+ *  Nigeria (NG) → Sendbox   (domestic Nigerian logistics)
  *  Everything else → Shippo (international)
  * ─────────────────────────────────────────────────────────────
  *
- * To swap Sendbox for your own logistics platform:
+ * To swap providers:
  *   1. Implement IShippingProvider in a new file
- *   2. Replace `sendboxProvider` with your implementation below
+ *   2. Replace the import below and update the condition
  *   3. Done — zero other changes needed
  */
 

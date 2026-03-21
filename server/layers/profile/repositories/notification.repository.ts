@@ -5,24 +5,52 @@
  * Database queries for notifications
  */
 
+import type { NotificationType } from '@prisma/client'
+
+export interface CreateNotificationData {
+  userId: string
+  type: NotificationType | string
+  actorId?: string | null
+  message: string
+  postId?: string | null
+  commentId?: string | null
+  conversationId?: string | null
+  orderId?: number | null
+  productId?: number | null
+  read?: boolean
+}
+
+// Shared include block so every query returns the same shape
+const notificationInclude = {
+  actor: { select: { id: true, username: true, avatar: true } },
+  product: { select: { id: true, slug: true, title: true } },
+  order: { select: { id: true } },
+  conversation: { select: { id: true } },
+} as const
+
 export const notificationRepository = {
-  async createNotification(data: any) {
+  async createNotification(data: CreateNotificationData) {
     return await prisma.notification.create({
       data: {
         userId: data.userId,
-        type: data.type,
-        actorId: data.actorId,
-        postId: data.resourceId,
+        type: data.type as NotificationType,
+        actorId: data.actorId ?? undefined,
         message: data.message,
-        read: data.read || false,
+        postId: data.postId ?? undefined,
+        commentId: data.commentId ?? undefined,
+        conversationId: data.conversationId ?? undefined,
+        orderId: data.orderId ?? undefined,
+        productId: data.productId ?? undefined,
+        read: data.read ?? false,
       },
+      include: notificationInclude,
     })
   },
 
   async getNotificationById(notificationId: number) {
     return await prisma.notification.findUnique({
       where: { id: notificationId },
-      include: { actor: true },
+      include: notificationInclude,
     })
   },
 
@@ -33,7 +61,7 @@ export const notificationRepository = {
   ) {
     return await prisma.notification.findMany({
       where: { userId },
-      include: { actor: true },
+      include: notificationInclude,
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' },
@@ -52,11 +80,11 @@ export const notificationRepository = {
     })
   },
 
-  async updateNotification(notificationId: number, data: any) {
+  async updateNotification(notificationId: number, data: { read?: boolean }) {
     return await prisma.notification.update({
       where: { id: notificationId },
       data,
-      include: { actor: true },
+      include: notificationInclude,
     })
   },
 

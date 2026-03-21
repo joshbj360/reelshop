@@ -2,14 +2,28 @@ import { prisma } from '../../../utils/db'
 
 const cartInclude = {
   variant: {
-    include: {
+    select: {
+      id: true,
+      size: true,
+      stock: true,
+      price: true,
       product: {
-        include: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          price: true,
+          discount: true,
           seller: { select: { store_slug: true, store_name: true } },
-          media: { select: { id: true, url: true, type: true } },
+          media: {
+            take: 1,
+            where: { isBgMusic: false },
+            select: { id: true, url: true, type: true },
+          },
           offers: {
             where: { isActive: true },
             orderBy: { minQuantity: 'desc' as const },
+            select: { id: true, minQuantity: true, discount: true, label: true },
           },
         },
       },

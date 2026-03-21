@@ -8,8 +8,11 @@
 import { UserError } from '../types/user.types'
 import { chatRepository } from '../repositories/chat.repository'
 import { notificationService } from './notification.service'
+import { notificationQueue } from '../../../queues/notification.queue'
 import { profileRepository } from '../repositories/profile.repository'
 import { auditService } from '../../shared/audit/audit.service'
+import { auditQueue } from '../../../queues/audit.queue'
+import { triggerUserEvent } from '~~/server/utils/pusher'
 
 export const chatService = {
   // ==================== CONVERSATIONS ====================
@@ -37,7 +40,7 @@ export const chatService = {
 
     // ALIGNED: Audit Log
     if (ipAddress && userAgent) {
-      await auditService.logUserAction({
+      auditQueue.enqueue({
         userId,
         action: 'CONVERSATION_STARTED',
         resource: 'Conversation',
@@ -50,6 +53,57 @@ export const chatService = {
     }
 
     return conversation
+  },
+
+  // ── Store conversation (buyer → store) ────────────────────────────────────
+  async createStoreConversation(
+    buyerId: string,
+    sellerId: string,
+    productId?: number,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    // Return existing conversation if one already exists
+    const existing = await chatRepository.getConversationByBuyerAndSeller(
+      buyerId,
+      sellerId,
+    )
+    if (existing) return existing
+
+    const conversation = await chatRepository.createConversation({
+      participant1Id: buyerId,
+      sellerId,
+      currentProductId: productId,
+    })
+
+    if (ipAddress && userAgent) {
+      auditQueue.enqueue({
+        userId: buyerId,
+        action: 'STORE_CONVERSATION_STARTED',
+        resource: 'Conversation',
+        resourceId: conversation.id,
+        reason: 'Buyer started a chat with a store',
+        changes: { sellerId, productId },
+        ipAddress,
+        userAgent,
+      })
+    }
+
+    return conversation
+  },
+
+  async getStoreConversations(
+    sellerId: string,
+    limit = 20,
+    offset = 0,
+  ) {
+    const conversations = await chatRepository.getConversationsBySellerId(
+      sellerId,
+      limit,
+      offset,
+    )
+    const total = await chatRepository.getConversationCountBySellerId(sellerId)
+    return { conversations, total, limit, offset }
   },
 
   async getConversations(userId: string, limit = 20, offset = 0) {
@@ -72,11 +126,12 @@ export const chatService = {
         404,
       )
 
-    // Security: Only participants can view
-    if (
-      conversation.participant1Id !== userId &&
-      conversation.participant2Id !== userId
-    ) {
+    // Security: buyer, the other user, OR the store owner can view
+    const isParticipant =
+      conversation.participant1Id === userId ||
+      conversation.participant2Id === userId ||
+      (conversation as any).seller?.profileId === userId
+    if (!isParticipant) {
       throw new UserError('FORBIDDEN', 'Access denied', 403)
     }
 
@@ -97,7 +152,7 @@ export const chatService = {
     })
 
     // ALIGNED: Audit Log
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'CONVERSATION_PRODUCT_UPDATED',
       resource: 'Conversation',
@@ -122,7 +177,7 @@ export const chatService = {
     await chatRepository.deleteConversation(conversationId)
 
     // ALIGNED: Audit Log
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'CONVERSATION_DELETED',
       resource: 'Conversation',
@@ -161,7 +216,7 @@ export const chatService = {
 
     // 3. ALIGNED: Audit Log
     if (ipAddress && userAgent) {
-      await auditService.logUserAction({
+      auditQueue.enqueue({
         userId,
         action: 'MESSAGE_SENT',
         resource: 'Message',
@@ -172,16 +227,46 @@ export const chatService = {
       })
     }
 
-    // 4. ALIGNED: Notification
-    const recipientId =
-      conversation.participant1Id === userId
-        ? conversation.participant2Id
-        : conversation.participant1Id
+    // 4. Real-time delivery via Soketi
+    //    For store conversations: recipient is the store owner (seller.userId)
+    //    For user conversations: recipient is the other participant
+    let recipientId: string | null = null
+    const conv = conversation as any
 
+    if (conv.sellerId) {
+      // Store conversation — push to store owner if they're not the sender
+      const storeOwnerUserId = conv.seller?.profileId
+      if (storeOwnerUserId && storeOwnerUserId !== userId) {
+        recipientId = storeOwnerUserId
+      } else if (storeOwnerUserId === userId) {
+        // Owner is replying → push to the buyer
+        recipientId = conv.participant1Id
+      }
+    } else {
+      recipientId =
+        conv.participant1Id === userId
+          ? conv.participant2Id
+          : conv.participant1Id
+    }
+
+    if (recipientId) {
+      await triggerUserEvent(recipientId, 'new_message', {
+        conversationId,
+        message,
+      })
+    }
+
+    // Also echo back to the sender (other tabs / devices)
+    await triggerUserEvent(userId, 'message_sent', {
+      conversationId,
+      message,
+    })
+
+    // 5. ALIGNED: Notification
     if (recipientId !== 'ai-bot') {
       const sender = await profileRepository.findById(userId)
 
-      await notificationService.createNotification({
+      notificationQueue.enqueue({
         userId: recipientId as string,
         type: 'MESSAGE',
         actorId: userId,
@@ -232,7 +317,7 @@ export const chatService = {
     await chatRepository.deleteMessage(messageId)
 
     // ALIGNED: Audit Log
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'MESSAGE_DELETED',
       resource: 'Message',

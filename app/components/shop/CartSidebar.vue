@@ -108,7 +108,7 @@
                 >
                   <img
                     v-if="item.variant?.product?.media?.length"
-                    :src="item.variant.product.media[0].url"
+                    :src="imgThumb(item.variant.product.media[0].url)"
                     :alt="item.variant?.product?.title"
                     class="h-full w-full object-cover"
                   />
@@ -234,6 +234,7 @@
 <script setup lang="ts">
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { effectiveUnitPrice } from '~~/layers/commerce/app/stores/cart.store'
+import { imgThumb } from '~/utils/cloudinary'
 
 const props = defineProps<{ isOpen: boolean }>()
 defineEmits(['close'])

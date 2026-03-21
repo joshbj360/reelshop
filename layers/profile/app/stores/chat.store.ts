@@ -53,8 +53,8 @@ export const useChatStore = defineStore('chat', () => {
     if (idx === -1) return
     const conv = {
       ...conversations.value[idx],
-      lastMessageAt: lastMsg.createdAt,
-    }
+      created_at: lastMsg.sentAt,
+    } as IConversation
     conversations.value.splice(idx, 1)
     conversations.value.unshift(conv)
   }

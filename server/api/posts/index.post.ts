@@ -3,6 +3,7 @@ import { getClientIP } from '../../layers/shared/utils/security'
 import { requireAuth } from '../../layers/shared/middleware/requireAuth'
 import { contentService } from '../../layers/posts/services/post.service'
 import { UserError } from '../../layers/profile/types/user.types'
+import { bust, setCreatorBypass } from '../../utils/cache'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -22,6 +23,15 @@ export default defineEventHandler(async (event) => {
       ipAddress,
       userAgent,
     )
+
+    // Bust discover feed pages + set creator bypass so they see post immediately
+    await Promise.all([
+      bust('feed:home:page:*'),
+      bust('feed:discover:page:*'),
+      bust(`feed:following:user:${user.id}:page:*`),
+      setCreatorBypass(user.id),
+    ])
+
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) {

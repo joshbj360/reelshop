@@ -1,5 +1,6 @@
 import { walletRepository } from '../repositories/wallet.repository'
 import { auditService } from '../../shared/audit/audit.service'
+import { auditQueue } from '../../../queues/audit.queue'
 import { UserError } from '../../profile/types/user.types'
 import { prisma } from '../../../utils/db'
 
@@ -188,7 +189,7 @@ export const walletService = {
       description: 'Funds added to wallet',
     })
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId: sellerId,
       action: 'WALLET_FUNDED',
       resource: 'SellerWallet',
@@ -236,7 +237,7 @@ export const walletService = {
       description: `Withdrawal request #${payout.id.slice(0, 8)}`,
     })
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId: sellerId,
       action: 'WALLET_WITHDRAWAL',
       resource: 'SellerWallet',

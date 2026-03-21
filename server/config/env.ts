@@ -14,14 +14,14 @@ interface RequiredEnvVar {
 }
 
 const requiredVars: RequiredEnvVar[] = [
-  // Database
+  // ─── Database ────────────────────────────────────────────────────────────────
   {
     name: 'DATABASE_URL',
     required: true,
-    description: 'PostgreSQL connection string',
+    description: 'PostgreSQL connection string (Neon)',
   },
 
-  // JWT Secrets
+  // ─── JWT ─────────────────────────────────────────────────────────────────────
   {
     name: 'JWT_SECRET',
     required: true,
@@ -33,23 +33,161 @@ const requiredVars: RequiredEnvVar[] = [
     description: 'Secret key for signing JWT refresh tokens (min 32 chars)',
   },
 
-  // Environment
+  // ─── Environment ─────────────────────────────────────────────────────────────
   {
     name: 'NODE_ENV',
     required: false,
     default: 'development',
     description: 'Node environment (development, staging, production)',
   },
-
-  // App URL
   {
-    name: 'APP_URL',
+    name: 'NUXT_PUBLIC_BASE_URL',
     required: false,
     default: 'http://localhost:3000',
-    description: 'Application base URL for email links',
+    description: 'Application base URL for email links and redirects',
   },
 
-  // Rate Limiting - Register
+  // ─── Cloudinary ──────────────────────────────────────────────────────────────
+  {
+    name: 'CLOUDINARY_CLOUD_NAME',
+    required: true,
+    description: 'Cloudinary cloud name for media uploads',
+  },
+  {
+    name: 'CLOUDINARY_API_KEY',
+    required: true,
+    description: 'Cloudinary API key',
+  },
+  {
+    name: 'CLOUDINARY_API_SECRET',
+    required: true,
+    description: 'Cloudinary API secret',
+  },
+  {
+    name: 'CLOUDINARY_UPLOAD_PRESET',
+    required: true,
+    description: 'Cloudinary unsigned upload preset',
+  },
+
+  // ─── Email ───────────────────────────────────────────────────────────────────
+  {
+    name: 'RESEND_API_KEY',
+    required: true,
+    description: 'Resend API key for transactional emails',
+  },
+  {
+    name: 'SENDER_EMAIL',
+    required: true,
+    description: 'From address for outgoing emails',
+  },
+
+  // ─── Payments ────────────────────────────────────────────────────────────────
+  {
+    name: 'PAYSTACK_SECRET_KEY',
+    required: true,
+    description: 'Paystack secret key for payment processing',
+  },
+  {
+    name: 'PAYSTACK_PUBLIC_KEY',
+    required: true,
+    description: 'Paystack public key (client-side)',
+  },
+
+  // ─── Cache (Upstash Redis — REST) ────────────────────────────────────────────
+  {
+    name: 'UPSTASH_REDIS_REST_URL',
+    required: false,
+    description: 'Upstash Redis REST URL for caching (optional — disables cache if unset)',
+  },
+  {
+    name: 'UPSTASH_REDIS_REST_TOKEN',
+    required: false,
+    description: 'Upstash Redis REST token',
+  },
+
+  // ─── Job Queues (BullMQ — standard Redis TCP) ────────────────────────────────
+  {
+    name: 'QUEUE_REDIS_URL',
+    required: false,
+    description: 'Standard Redis URL for BullMQ queues (Railway/Redis Cloud — NOT Upstash). Jobs run inline if unset.',
+  },
+
+  // ─── Real-time (Soketi) ───────────────────────────────────────────────────────
+  {
+    name: 'SOKETI_APP_ID',
+    required: false,
+    default: '1',
+    description: 'Soketi app ID',
+  },
+  {
+    name: 'SOKETI_KEY',
+    required: false,
+    default: 'app-key',
+    description: 'Soketi app key (public)',
+  },
+  {
+    name: 'SOKETI_SECRET',
+    required: false,
+    default: 'app-secret',
+    description: 'Soketi app secret (server-side only)',
+  },
+  {
+    name: 'SOKETI_HOST',
+    required: false,
+    default: '127.0.0.1',
+    description: 'Soketi server host (use Railway domain in production)',
+  },
+  {
+    name: 'SOKETI_PORT',
+    required: false,
+    default: '6001',
+    description: 'Soketi server port (443 in production with TLS)',
+  },
+  {
+    name: 'SOKETI_USE_TLS',
+    required: false,
+    default: 'false',
+    description: 'Enable TLS for Soketi (true in production)',
+  },
+
+  // ─── Shipping ────────────────────────────────────────────────────────────────
+  {
+    name: 'SHIPPO_API_KEY',
+    required: false,
+    description: 'Shippo API key for international shipping rates',
+  },
+  {
+    name: 'SENDBOX_ACCESS_TOKEN',
+    required: false,
+    description: 'SendBox Bearer access token (JWT) for Nigeria domestic shipping',
+  },
+  {
+    name: 'SENDBOX_CLIENT_SECRET',
+    required: false,
+    description: 'SendBox client secret (used to refresh the access token)',
+  },
+
+  // ─── AI ──────────────────────────────────────────────────────────────────────
+  {
+    name: 'ANTHROPIC_API_KEY',
+    required: false,
+    description: 'Anthropic Claude API key',
+  },
+  {
+    name: 'OPENAI_API_KEY',
+    required: false,
+    description: 'OpenAI API key',
+  },
+
+  // ─── Platform ────────────────────────────────────────────────────────────────
+  {
+    name: 'PLATFORM_COMMISSION_RATE',
+    required: false,
+    default: '0.10',
+    description: 'Platform commission rate (0.10 = 10%)',
+  },
+
+  // ─── Rate Limiting ───────────────────────────────────────────────────────────
   {
     name: 'RATE_LIMIT_REGISTER_MAX',
     required: false,
@@ -62,8 +200,6 @@ const requiredVars: RequiredEnvVar[] = [
     default: '3600000',
     description: 'Registration rate limit window (ms)',
   },
-
-  // Rate Limiting - Login
   {
     name: 'RATE_LIMIT_LOGIN_MAX',
     required: false,
@@ -76,8 +212,6 @@ const requiredVars: RequiredEnvVar[] = [
     default: '900000',
     description: 'Login rate limit window (ms)',
   },
-
-  // Rate Limiting - Forgot Password
   {
     name: 'RATE_LIMIT_FORGOT_PASSWORD_MAX',
     required: false,
@@ -90,8 +224,6 @@ const requiredVars: RequiredEnvVar[] = [
     default: '3600000',
     description: 'Forgot password rate limit window (ms)',
   },
-
-  // Rate Limiting - Verify Email Send
   {
     name: 'RATE_LIMIT_VERIFY_EMAIL_SEND_MAX',
     required: false,
@@ -104,8 +236,6 @@ const requiredVars: RequiredEnvVar[] = [
     default: '900000',
     description: 'Verify email send rate limit window (ms)',
   },
-
-  // Rate Limiting - Verify Email Token
   {
     name: 'RATE_LIMIT_VERIFY_EMAIL_TOKEN_MAX',
     required: false,
@@ -118,8 +248,6 @@ const requiredVars: RequiredEnvVar[] = [
     default: '900000',
     description: 'Verify email token rate limit window (ms)',
   },
-
-  // Rate Limiting - Refresh Token
   {
     name: 'RATE_LIMIT_REFRESH_TOKEN_MAX',
     required: false,

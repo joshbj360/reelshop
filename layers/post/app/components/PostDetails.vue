@@ -56,7 +56,7 @@
         </p>
       </div>
 
-      <div class="flex shrink-0 items-center gap-1">
+      <div class="flex shrink-0 items-center gap-2">
         <!-- Follow Button (if not own post) -->
         <FollowButton
           v-if="profileStore.userId && profileStore.userId !== post.author?.id"
@@ -65,10 +65,10 @@
           size="sm"
         />
 
-        <!-- Close -->
+        <!-- Close — desktop only (mobile uses the floating button in PostDetailModal) -->
         <button
           @click="$emit('close')"
-          class="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+          class="hidden rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 sm:flex dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
           aria-label="Close post"
         >
           <Icon name="mdi:close" size="20" />
@@ -338,13 +338,14 @@
 
       <!-- Like Count + Date -->
       <div class="px-5 pb-2 text-sm">
-        <p
+        <button
           v-if="likeCount > 0"
-          class="font-semibold text-gray-900 dark:text-white"
+          class="font-semibold text-gray-900 transition-opacity hover:opacity-70 dark:text-white"
+          @click="showLikes = true"
         >
           {{ likeCount.toLocaleString() }}
           {{ likeCount === 1 ? $t('post.like') : $t('post.likes') }}
-        </p>
+        </button>
         <p
           class="mt-1 text-xs uppercase tracking-wide text-gray-500 dark:text-neutral-500"
         >
@@ -352,58 +353,41 @@
         </p>
       </div>
 
-      <!-- Emoji Picker Panel -->
-      <div
-        v-if="showEmojiPicker"
-        class="flex flex-wrap gap-2 border-t border-gray-100 bg-gray-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/50"
-      >
-        <button
-          v-for="e in EMOJIS"
-          :key="e"
-          @click="commentText += e"
-          class="text-xl transition-transform hover:scale-125 active:scale-95"
-        >
-          {{ e }}
-        </button>
-      </div>
+      <LikesModal
+        :is-open="showLikes"
+        type="post"
+        :target-id="post.id"
+        @close="showLikes = false"
+      />
 
       <!-- Comment Input -->
       <form
         @submit.prevent="addComment"
-        class="flex items-center gap-3 border-t border-gray-100 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900"
+        class="flex items-start gap-3 border-t border-gray-100 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900"
       >
         <Avatar
           :username="profileStore.me?.username ?? 'User'"
           :avatar="profileStore.me?.avatar ?? undefined"
           size="sm"
+          class="mt-0.5 shrink-0"
         />
 
-        <input
-          ref="commentInputRef"
-          v-model="commentText"
-          type="text"
-          :placeholder="$t('post.addComment')"
-          class="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none dark:text-neutral-100 dark:placeholder-neutral-500"
-        />
-
-        <!-- Emoji Toggle -->
-        <button
-          type="button"
-          @click="showEmojiPicker = !showEmojiPicker"
-          class="shrink-0 text-gray-400 transition-colors hover:text-yellow-500"
-          aria-label="Add emoji"
-        >
-          <Icon
-            :name="showEmojiPicker ? 'mdi:emoticon' : 'mdi:emoticon-outline'"
-            size="22"
+        <div class="min-w-0 flex-1">
+          <TextEditor
+            ref="commentInputRef"
+            v-model="commentText"
+            :placeholder="$t('post.addComment')"
+            :max-length="500"
+            :submit-on-enter="true"
+            @submit="addComment"
           />
-        </button>
+        </div>
 
         <!-- Post Comment -->
         <button
           type="submit"
           :disabled="!commentText.trim() || isPostingComment"
-          class="shrink-0 text-sm font-semibold text-brand transition-opacity disabled:opacity-50"
+          class="mt-1 shrink-0 text-sm font-semibold text-brand transition-opacity disabled:opacity-50"
         >
           {{ isPostingComment ? '…' : $t('post.post') }}
         </button>
@@ -423,8 +407,10 @@ import FollowButton from '~~/layers/profile/app/components/FollowButton.vue'
 import TaggedProductsDisplay from './TaggedProductsDisplay.vue'
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 import AudioPlayer from './AudioPlayer.vue'
+import TextEditor from './TextEditor.vue'
 import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
 import ShareModal from '~/components/modals/ShareModal.vue'
+import LikesModal from '~/components/modals/LikesModal.vue'
 import { notify } from '@kyvg/vue3-notification'
 import type { IFeedItem } from '~~/layers/feed/app/types/feed.types'
 import { useProductApi } from '~~/layers/commerce/app/services/product.api'
@@ -447,47 +433,15 @@ const isSaved = ref(postStore.savedPostIds.includes(props.post.id))
 const isLoadingComments = ref(false)
 const isPostingComment = ref(false)
 const likeCount = ref(props.post.likeCount ?? 0)
+const showLikes = ref(false)
 const commentsContainer = ref<HTMLElement | null>(null)
-const commentInputRef = ref<HTMLInputElement | null>(null)
-const showEmojiPicker = ref(false)
+const commentInputRef = ref<InstanceType<typeof TextEditor> | null>(null)
 const showShareModal = ref(false)
 
 const shareUrl = computed(
   () => `${window.location.origin}/post/${props.post.id}`,
 )
 
-const EMOJIS = [
-  '😂',
-  '❤️',
-  '🔥',
-  '😍',
-  '👏',
-  '😭',
-  '🙏',
-  '💯',
-  '✨',
-  '😎',
-  '🥰',
-  '😊',
-  '🤣',
-  '😅',
-  '💪',
-  '🤩',
-  '😩',
-  '🥺',
-  '😤',
-  '👀',
-  '💀',
-  '🫶',
-  '🤍',
-  '💕',
-  '🎉',
-  '👑',
-  '💃',
-  '🛍️',
-  '✅',
-  '🤯',
-]
 
 const isLiked = computed(() => postStore.isPostLiked(props.post.id))
 
@@ -663,7 +617,6 @@ const addComment = async () => {
 
 const focusCommentInput = () => {
   commentInputRef.value?.focus()
-  showEmojiPicker.value = false
 }
 
 // Comment Like

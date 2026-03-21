@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useFollow } from '../composables/useFollow'
 import { useFollowStore } from '../stores/follow.store'
 import { useProfileStore } from '../stores/profile.store'
@@ -28,7 +28,7 @@ const props = defineProps<{
 
 const followStore = useFollowStore()
 const profileStore = useProfileStore()
-const { followUser, unfollowUser, isLoading } = useFollow()
+const { followUser, unfollowUser, checkIfFollowing, isLoading } = useFollow()
 
 const isProcessing = ref(false)
 
@@ -38,6 +38,13 @@ const following = computed(() => followStore.isFollowing(props.username))
 const label = computed(() => {
   if (isProcessing.value || isLoading.value) return '…'
   return following.value ? t('post.following') : t('post.follow')
+})
+
+// Hydrate follow status on mount if not already cached
+onMounted(() => {
+  if (profileStore.userId && !followStore.followStatusCache.has(props.username)) {
+    checkIfFollowing(props.username)
+  }
 })
 
 const handleFollow = async () => {
@@ -53,7 +60,7 @@ const handleFollow = async () => {
       await followUser(props.username)
     }
   } catch (err: any) {
-    notify({ type: 'error', text: err.message || t('errors.failedFollow') })
+    notify({ type: 'error', text: err?.data?.statusMessage || err?.message || t('errors.failedFollow') })
   } finally {
     isProcessing.value = false
   }

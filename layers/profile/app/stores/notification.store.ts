@@ -1,10 +1,11 @@
 import { useAuthStore } from '~~/layers/base/app/stores/auth.store'
+import type { INotification } from '../types/profile.types'
 
 // SSE EventSource singleton — one stream per logged-in user
 let eventSource: EventSource | null = null
 
 export const useNotificationStore = defineStore('notification', () => {
-  const notifications = ref<any[]>([])
+  const notifications = ref<INotification[]>([])
   const unreadCount = ref(0)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -13,17 +14,17 @@ export const useNotificationStore = defineStore('notification', () => {
     notifications.value.filter((n) => !n.read),
   )
 
-  const setNotifications = (newNotifications: any[]) => {
+  const setNotifications = (newNotifications: INotification[]) => {
     notifications.value = newNotifications
     updateUnreadCount()
   }
-  const addNotification = (notification: any) => {
+  const addNotification = (notification: INotification) => {
     // Deduplicate
     if (notifications.value.some((n) => n.id === notification.id)) return
     notifications.value.unshift(notification)
     updateUnreadCount()
   }
-  const markAsRead = (id: string) => {
+  const markAsRead = (id: number) => {
     const n = notifications.value.find((n) => n.id === id)
     if (n) n.read = true
     updateUnreadCount()
@@ -31,7 +32,7 @@ export const useNotificationStore = defineStore('notification', () => {
   const updateUnreadCount = () => {
     unreadCount.value = notifications.value.filter((n) => !n.read).length
   }
-  const deleteNotification = (id: string) => {
+  const deleteNotification = (id: number) => {
     notifications.value = notifications.value.filter((n) => n.id !== id)
     updateUnreadCount()
   }

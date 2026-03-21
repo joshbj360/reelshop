@@ -1,73 +1,62 @@
 import { requireAuth } from '../../layers/shared/middleware/requireAuth'
 import { normalizePost } from '~~/server/layers/feed/utils/feed.utils'
 import type { IFeedResponse } from '~~/layers/feed/app/types/feed.types'
+import { remember } from '~~/server/utils/cache'
 
 export default defineEventHandler(async (event): Promise<IFeedResponse> => {
   const user = await requireAuth(event)
   const query = getQuery(event)
   const limit = Number(query.limit) || 20
   const offset = Number(query.offset) || 0
+  const page = Math.floor(offset / limit)
+
+  // Per-user cache key — busted only when this user creates content
+  const cacheKey = `feed:following:user:${user.id}:page:${page}`
 
   try {
-    // Get IDs of users/sellers this user follows
-    const follows = await prisma.follow.findMany({
-      where: { followerId: user.id },
-      select: { followingId: true },
-    })
+    return await remember(cacheKey, 120, async () => {
+      const follows = await prisma.follow.findMany({
+        where: { followerId: user.id },
+        select: { followingId: true },
+      })
 
-    if (follows.length === 0) {
-      return {
-        items: [],
-        meta: { total: 0, limit, offset, hasMore: false },
+      if (follows.length === 0) {
+        return { items: [], meta: { total: 0, limit, offset, hasMore: false } }
       }
-    }
 
-    const followingIds = follows.map((f) => f.followingId)
+      const followingIds = follows.map((f) => f.followingId)
 
-    // Fetch posts from followed users
-    const posts = await prisma.post.findMany({
-      where: { authorId: { in: followingIds } },
-      take: limit,
-      skip: offset,
-      orderBy: { created_at: 'desc' },
-      include: {
-        author: true,
-        media: true,
-        _count: { select: { likes: true, comments: true, shares: true } },
-        taggedProducts: {
+      const [posts, total] = await Promise.all([
+        prisma.post.findMany({
+          where: { authorId: { in: followingIds } },
+          take: limit,
+          skip: offset,
+          orderBy: { created_at: 'desc' },
           include: {
-            product: {
-              select: {
-                id: true,
-                title: true,
-                price: true,
-                discount: true,
-                slug: true,
-                media: {
-                  take: 1,
-                  where: { isBgMusic: false },
-                  select: { url: true, type: true },
+            author: true,
+            media: true,
+            _count: { select: { likes: true, comments: true, shares: true } },
+            taggedProducts: {
+              include: {
+                product: {
+                  select: {
+                    id: true, title: true, price: true, discount: true, slug: true,
+                    media: { take: 1, where: { isBgMusic: false }, select: { url: true, type: true } },
+                  },
                 },
               },
             },
           },
-        },
-      },
-    })
+        }),
+        prisma.post.count({ where: { authorId: { in: followingIds } } }),
+      ])
 
-    const items = posts.map(normalizePost)
-    const total = await prisma.post.count({
-      where: { authorId: { in: followingIds } },
+      return {
+        items: posts.map(normalizePost),
+        meta: { total, limit, offset, hasMore: posts.length === limit },
+      }
     })
-
-    return {
-      items,
-      meta: { total, limit, offset, hasMore: items.length === limit },
-    }
   } catch (error) {
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch following feed',
-    })
+    throw createError({ statusCode: 500, message: 'Failed to fetch following feed' })
   }
 })

@@ -118,8 +118,11 @@ export const sellerRepository = {
     return prisma.sellerProfile.findUnique({
       where: { id: sellerProfileId },
       include: {
-        profile: true,
-        products: { take: 5 },
+        profile: { select: { id: true, username: true, avatar: true, role: true } },
+        products: {
+          take: 5,
+          select: { id: true, title: true, slug: true, price: true, status: true },
+        },
         wallet: true,
         shippingZones: true,
         verificationDocuments: true,

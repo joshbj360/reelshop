@@ -31,6 +31,7 @@ export default defineNuxtConfig({
   i18n: {
     defaultLocale: 'en',
     langDir: 'locales/',
+    lazy: true,
     strategy: 'no_prefix',
     locales: [
       { code: 'en', name: 'English', file: 'en.json' },
@@ -57,16 +58,33 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    plugins: ['plugins/monitoring'],
+    plugins: ['plugins/monitoring', 'plugins/workers'],
+    compressPublicAssets: true,
+    minify: true,
     experimental: {
       websocket: true,
       tasks: true,
     },
     scheduledTasks: {
+      // Every minute: drain audit, notification, and email queues
+      '* * * * *': ['processQueues'],
       // Every 6 hours: auto-release funds for orders shipped 7+ days ago
       '0 */6 * * *': ['releaseShippedOrders'],
     },
   },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-vue': ['vue', 'vue-router', 'pinia'],
+            'vendor-ui': ['@vueuse/core'],
+          },
+        },
+      },
+    },
+  },
+
   colorMode: {
     preference: 'system', // default preference: 'system' | 'light' | 'dark'
     fallback: 'light', // fallback if no preference detected/stored
@@ -82,16 +100,25 @@ export default defineNuxtConfig({
     grokApiKey: process.env.GROK_API_KEY,
     googleApiKey: process.env.GOOGLE_API_KEY,
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
+    upstashRedisUrl: process.env.UPSTASH_REDIS_REST_URL,
+    upstashRedisToken: process.env.UPSTASH_REDIS_REST_TOKEN,
     platformCommissionRate: process.env.PLATFORM_COMMISSION_RATE,
-    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
     resendApiKey: process.env.RESEND_API_KEY,
     // Shipping providers
     shippoApiKey: process.env.SHIPPO_API_KEY,
     shippoWebhookSecret: process.env.SHIPPO_WEBHOOK_SECRET,
-    sendboxApiKey: process.env.SENDBOX_API_KEY,
+    sendboxAccessToken: process.env.SENDBOX_ACCESS_TOKEN,
+    sendboxClientSecret: process.env.SENDBOX_CLIENT_SECRET,
     sendboxWebhookSecret: process.env.SENDBOX_WEBHOOK_SECRET,
     paypalClientId: process.env.PAYPAL_CLIENT_ID,
     paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
+    // Soketi / Pusher (server-side: app secret + host)
+    soketiAppId: process.env.SOKETI_APP_ID || '1',
+    soketiKey: process.env.SOKETI_KEY || 'app-key',
+    soketiSecret: process.env.SOKETI_SECRET || 'app-secret',
+    soketiHost: process.env.SOKETI_HOST || '127.0.0.1',
+    soketiPort: process.env.SOKETI_PORT || '6001',
+    soketiUseTLS: process.env.SOKETI_USE_TLS || 'false',
     public: {
       siteName: process.env.NUXT_PUBLIC_SITE_NAME,
       baseURL: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
@@ -100,6 +127,11 @@ export default defineNuxtConfig({
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
       senderEmail: process.env.SENDER_EMAIL,
+      // Soketi / Pusher (client-side: public key + host only — no secret)
+      soketiKey: process.env.SOKETI_KEY || 'app-key',
+      soketiHost: process.env.SOKETI_HOST || '127.0.0.1',
+      soketiPort: process.env.SOKETI_PORT || '6001',
+      soketiUseTLS: process.env.SOKETI_USE_TLS || 'false',
     },
     private: {
       cloudinary: {

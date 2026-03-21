@@ -1,3 +1,4 @@
+import Pusher from 'pusher-js'
 import { useChatApi } from '../services/chat.api'
 import { useChatStore } from '../stores/chat.store'
 import { useProfileStore } from '../stores/profile.store'
@@ -5,21 +6,38 @@ import { useAuthStore } from '~~/layers/base/app/stores/auth.store'
 import type { IConversation, IMessage } from '../types/profile.types'
 
 // Normalize a raw server conversation into IConversation with `otherUser`
+// Works for both user-to-user and user-to-store conversations.
 function normalizeConversation(raw: any, currentUserId: string): IConversation {
-  const otherUser =
-    raw.participant1Id === currentUserId
-      ? raw.participant2 ?? null
-      : raw.participant1 ?? null
+  let otherUser = null
+
+  if (raw.sellerId) {
+    // Store conversation — represent the store as the "other party"
+    // The UI will use otherUser.isStore + otherUser.storeName + otherUser.avatar
+    otherUser = raw.seller
+      ? {
+          id: raw.seller.id,
+          username: raw.seller.store_name || raw.seller.storeSlug,
+          name: raw.seller.store_name,
+          avatar: raw.seller.store_logo || null,
+          isStore: true,
+          storeSlug: raw.seller.storeSlug,
+        }
+      : null
+  } else {
+    otherUser =
+      raw.participant1Id === currentUserId
+        ? raw.participant2 ?? null
+        : raw.participant1 ?? null
+  }
+
   return { ...raw, otherUser }
 }
 
-// ─── WebSocket singleton ──────────────────────────────────────────────────────
-// One socket shared across the whole app. We don't want a new socket every time
-// a component uses useChat().
-let socket: WebSocket | null = null
-let pingInterval: ReturnType<typeof setInterval> | null = null
-let reconnectTimer: ReturnType<typeof setTimeout> | null = null
-let isIntentionallyClosed = false
+// ─── Pusher singleton ─────────────────────────────────────────────────────────
+// One Pusher client shared across the whole app.
+// Soketi is Pusher-compatible — we just point it at our self-hosted host.
+let pusherClient: Pusher | null = null
+let currentUserId: string | null = null
 
 export const useChat = () => {
   const chatApi = useChatApi()
@@ -31,90 +49,88 @@ export const useChat = () => {
   const error = computed(() => chatStore.error)
   const conversations = computed(() => chatStore.conversations)
 
-  // ─── WebSocket connection ─────────────────────────────────────────────────
+  // ─── Pusher connection ────────────────────────────────────────────────────
 
   /**
-   * Open the WebSocket connection to the server.
-   * Call this once when the user logs in (from the messages page or layout).
+   * Connect to Soketi via pusher-js and subscribe to the user's private channel.
+   * Call once after login / on page load (auth-init plugin handles this).
    */
   const connectSocket = () => {
     if (!import.meta.client) return
-    if (socket?.readyState === WebSocket.OPEN) return // already connected
 
     const token = authStore.accessToken
-    if (!token) return
+    const userId = profileStore.userId
+    if (!token || !userId) return
 
-    isIntentionallyClosed = false
+    // Already subscribed for this user
+    if (pusherClient && currentUserId === userId) return
 
-    // Build the WebSocket URL — same host, different protocol (ws:// or wss://)
-    const base = window.location.origin.replace(/^http/, 'ws')
-    const url = `${base}/api/chat/ws?token=${encodeURIComponent(token)}`
+    // Tear down any previous connection (e.g. user switched accounts)
+    disconnectSocket()
 
-    socket = new WebSocket(url)
+    currentUserId = userId
 
-    // ── Connected ────────────────────────────────────────────────────────────
-    socket.onopen = () => {
-      console.log('[Chat] WebSocket connected')
-      // Send a ping every 20s to prevent idle timeout
-      pingInterval = setInterval(() => {
-        if (socket?.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({ type: 'ping' }))
-        }
-      }, 20_000)
-    }
+    const config = useRuntimeConfig()
+    const soketiKey = (config.public as any).soketiKey || 'app-key'
+    const soketiHost = (config.public as any).soketiHost || '127.0.0.1'
+    const soketiPort = Number((config.public as any).soketiPort || '6001')
+    const soketiUseTLS = (config.public as any).soketiUseTLS === 'true'
 
-    // ── Incoming message from server ─────────────────────────────────────────
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
+    pusherClient = new Pusher(soketiKey, {
+      cluster: 'mt1', // required by pusher-js v8 validation; overridden by wsHost below
+      wsHost: soketiHost,
+      wsPort: soketiUseTLS ? undefined : soketiPort,
+      wssPort: soketiUseTLS ? soketiPort : undefined,
+      forceTLS: soketiUseTLS,
+      enabledTransports: ['ws', 'wss'],
+      // Private channels need authentication — point to our auth endpoint
+      authEndpoint: '/api/pusher/auth',
+      auth: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    })
 
-        if (data.type === 'new_message') {
-          // Someone sent US a message → add it to the store immediately
-          chatStore.addConversationMessage(data.conversationId, data.message)
-          // Also bump the conversation to the top of the list
-          chatStore.bumpConversation(data.conversationId, data.message)
-        }
+    pusherClient.connection.bind('connected', () => {
+      console.log('[Chat] Pusher connected to Soketi')
+    })
 
-        if (data.type === 'message_sent') {
-          // Echo from our own message on another device/tab — ignore if already added
-          const existing = chatStore.getMessageById(data.message.id)
-          if (!existing) {
-            chatStore.addConversationMessage(data.conversationId, data.message)
-          }
-        }
-      } catch {
-        // Ignore malformed frames
+    pusherClient.connection.bind('error', (err: any) => {
+      console.error('[Chat] Pusher connection error:', err)
+    })
+
+    // Subscribe to our private channel to receive incoming messages
+    const channel = pusherClient.subscribe(`private-user-${userId}`)
+
+    channel.bind('new_message', (data: { conversationId: string; message: IMessage }) => {
+      chatStore.addConversationMessage(data.conversationId, data.message)
+      chatStore.bumpConversation(data.conversationId, data.message)
+    })
+
+    channel.bind('message_sent', (data: { conversationId: string; message: IMessage }) => {
+      // Echo from our own message on another device/tab — skip if already added
+      const existing = chatStore.getMessageById(data.message.id)
+      if (!existing) {
+        chatStore.addConversationMessage(data.conversationId, data.message)
       }
-    }
-
-    // ── Disconnected ─────────────────────────────────────────────────────────
-    socket.onclose = () => {
-      if (pingInterval) clearInterval(pingInterval)
-      socket = null
-
-      // Auto-reconnect after 3 seconds unless we deliberately closed it
-      if (!isIntentionallyClosed && authStore.accessToken) {
-        reconnectTimer = setTimeout(connectSocket, 3_000)
-      }
-    }
-
-    socket.onerror = () => {
-      socket?.close()
-    }
+    })
   }
 
   /**
-   * Close the WebSocket when the user logs out.
+   * Disconnect Pusher when the user logs out.
    */
   const disconnectSocket = () => {
-    isIntentionallyClosed = true
-    if (pingInterval) clearInterval(pingInterval)
-    if (reconnectTimer) clearTimeout(reconnectTimer)
-    socket?.close()
-    socket = null
+    if (pusherClient) {
+      pusherClient.unbind_all()
+      pusherClient.unsubscribe(`private-user-${currentUserId ?? ''}`)
+      pusherClient.disconnect()
+      pusherClient = null
+    }
+    currentUserId = null
   }
 
-  // ─── Existing HTTP methods (unchanged) ───────────────────────────────────
+  // ─── HTTP methods (unchanged) ─────────────────────────────────────────────
 
   const fetchConversations = async () => {
     chatStore.setLoading(true)
@@ -180,6 +196,22 @@ export const useChat = () => {
     }
   }
 
+  const createStoreConversation = async (storeId: string, productId?: number) => {
+    try {
+      const res = await chatApi.createStoreConversation(storeId, productId)
+      const raw = res?.data ?? res
+      const userId = profileStore.userId ?? ''
+      const normalized = normalizeConversation(raw, userId)
+      if (!chatStore.getConversationById(normalized.id)) {
+        chatStore.addConversation(normalized)
+      }
+      return normalized
+    } catch (err: any) {
+      chatStore.setError(err.message || 'Failed to create store conversation')
+      throw err
+    }
+  }
+
   return {
     isLoading,
     error,
@@ -190,5 +222,6 @@ export const useChat = () => {
     fetchMessages,
     sendMessage,
     createConversation,
+    createStoreConversation,
   }
 }

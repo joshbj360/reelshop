@@ -1,5 +1,5 @@
 /**
- * Sendbox Shipping Provider (Nigeria interim)
+ * Sendbox Shipping Provider (Nigeria domestic)
  *
  * Docs: https://developer.sendbox.co
  * Auth: Bearer token via SENDBOX_API_KEY env var
@@ -19,13 +19,13 @@ import type {
   TrackingStatus,
 } from './types'
 
-const BASE = 'https://api.sendbox.co'
+const BASE = 'https://live.sendbox.co'
 
 function headers() {
-  const key = useRuntimeConfig().sendboxApiKey
-  if (!key) throw new Error('SENDBOX_API_KEY is not set')
+  const token = useRuntimeConfig().sendboxAccessToken
+  if (!token) throw new Error('SENDBOX_ACCESS_TOKEN is not set')
   return {
-    Authorization: `Bearer ${key}`,
+    'Authorization-key': token,
     'Content-Type': 'application/json',
   }
 }
@@ -54,30 +54,54 @@ export const sendboxProvider: IShippingProvider = {
     const { from, to, parcel } = payload
 
     const body = {
-      pickup_address: from.street1,
-      pickup_state: from.state,
-      pickup_country: from.country ?? 'NG',
-      delivery_address: to.street1,
-      delivery_state: to.state,
-      delivery_country: to.country ?? 'NG',
-      weight: kgToGrams(parcel.weightKg),
-      length: parcel.lengthCm,
-      width: parcel.widthCm,
-      height: parcel.heightCm,
+      origin: {
+        name: from.name,
+        address: from.street1,
+        city: from.city,
+        state: from.state,
+        country: from.country ?? 'NG',
+        phone: from.phone,
+      },
+      destination: {
+        name: to.name,
+        address: to.street1,
+        city: to.city,
+        state: to.state,
+        country: to.country ?? 'NG',
+        phone: to.phone,
+      },
+      weight: parcel.weightKg,
+      service_code: to.country === 'NG' ? 'local' : 'international',
+      channel_code: 'api',
     }
 
-    const res: any = await $fetch(`${BASE}/v2/couriers/quotes`, {
+    const res: any = await $fetch(`${BASE}/shipping/shipment_delivery_quote`, {
       method: 'POST',
       headers: headers(),
       body,
     })
 
-    const rates: any[] = res?.data ?? res?.couriers ?? res?.rates ?? []
+    const rates: any[] = res?.data ?? res?.rates ?? res?.quotes ?? []
+    if (!Array.isArray(rates) || rates.length === 0) {
+      // Single quote response
+      const q = res?.data ?? res
+      if (q?.total_cost ?? q?.amount) {
+        return [{
+          rateId: q.service_code ?? 'sendbox-standard',
+          carrier: 'Sendbox',
+          service: q.service_name ?? q.service_code ?? 'Standard',
+          amountNGN: Math.round((q.total_cost ?? q.amount ?? 0) * 100) / 100,
+          estimatedDays: q.estimated_days ? `${q.estimated_days} business day(s)` : '2-5 business days',
+          provider: 'sendbox',
+        }]
+      }
+      return []
+    }
     return rates.map((r) => ({
-      rateId: r.id ?? r.courier_id ?? r.rate_id ?? r.service_code,
-      carrier: r.courier_name ?? r.carrier ?? r.courier ?? 'Sendbox',
-      service: r.service_type ?? r.service ?? r.service_name ?? 'Standard',
-      amountNGN: Math.round((r.fee ?? r.amount ?? r.price ?? 0) * 100) / 100,
+      rateId: r.id ?? r.service_code ?? 'sendbox-standard',
+      carrier: r.carrier ?? r.courier_name ?? 'Sendbox',
+      service: r.service_name ?? r.service_type ?? 'Standard',
+      amountNGN: Math.round((r.total_cost ?? r.fee ?? r.amount ?? r.price ?? 0) * 100) / 100,
       estimatedDays: r.estimated_days
         ? `${r.estimated_days} business day(s)`
         : '2-5 business days',
@@ -91,37 +115,43 @@ export const sendboxProvider: IShippingProvider = {
     const { rateId, from, to, parcel, orderId, description, valueNGN } = payload
 
     const body = {
-      rate_id: rateId,
-      sender: {
+      origin: {
         name: from.name,
         address: from.street1,
         city: from.city,
         state: from.state,
-        country: from.country,
+        country: from.country ?? 'NG',
         phone: from.phone,
         email: from.email,
       },
-      recipient: {
+      destination: {
         name: to.name,
         address: to.street1,
         city: to.city,
         state: to.state,
-        country: to.country,
+        country: to.country ?? 'NG',
         phone: to.phone,
         email: to.email,
       },
-      package: {
-        weight: kgToGrams(parcel.weightKg),
-        length: parcel.lengthCm,
-        width: parcel.widthCm,
-        height: parcel.heightCm,
-        description: description ?? 'Merchandise',
-        value: valueNGN ?? 0,
-      },
-      reference: `ORDER-${orderId}`,
+      weight: parcel.weightKg,
+      items: [
+        {
+          name: description ?? 'Merchandise',
+          weight: parcel.weightKg,
+          quantity: 1,
+          value: valueNGN ?? 0,
+          description: description ?? 'Merchandise',
+        },
+      ],
+      total_value: valueNGN ?? 0,
+      service_code: to.country === 'NG' ? 'local' : 'international',
+      incoming_option: 'pickup',
+      channel_code: 'api',
+      package_type: 'parcel',
+      callback_url: `${useRuntimeConfig().public.baseURL}/api/commerce/shipping/webhook/sendbox`,
     }
 
-    const res: any = await $fetch(`${BASE}/v2/shipments`, {
+    const res: any = await $fetch(`${BASE}/shipping/shipments`, {
       method: 'POST',
       headers: headers(),
       body,
@@ -141,7 +171,7 @@ export const sendboxProvider: IShippingProvider = {
 
   async trackShipment(trackingNumber: string): Promise<ITrackingResult> {
     const res: any = await $fetch(
-      `${BASE}/v2/shipments/tracking/${trackingNumber}`,
+      `${BASE}/shipping/shipments/${trackingNumber}`,
       { headers: headers() },
     )
 

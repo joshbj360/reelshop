@@ -13,8 +13,8 @@
             Create Story
           </h3>
           <button
-            @click="$emit('close')"
             class="text-gray-500 hover:text-gray-700 dark:text-neutral-400"
+            @click="$emit('close')"
           >
             <Icon name="mdi:close" class="h-6 w-6" />
           </button>
@@ -33,8 +33,8 @@
           />
           <img v-else :src="mediaPreview" class="max-h-full object-contain" />
           <button
-            @click="clearMedia"
             class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white"
+            @click="clearMedia"
           >
             <Icon name="mdi:close" size="16" />
           </button>
@@ -43,8 +43,8 @@
         <!-- Upload Area -->
         <div
           v-else
-          @click="fileInput?.click()"
           class="mb-4 cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-8 text-center transition-colors hover:border-brand dark:border-neutral-700"
+          @click="fileInput?.click()"
         >
           <Icon
             name="mdi:image-plus"
@@ -91,15 +91,15 @@
         <!-- Actions -->
         <div class="flex gap-3">
           <button
-            @click="$emit('close')"
             class="flex-1 rounded-lg border border-gray-200 py-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            @click="$emit('close')"
           >
             Cancel
           </button>
           <button
-            @click="handlePost"
             :disabled="!selectedFile || isUploading"
             class="flex-1 rounded-lg bg-brand py-2 font-semibold text-white transition-colors hover:bg-[#d81b36] disabled:cursor-not-allowed disabled:opacity-50"
+            @click="handlePost"
           >
             {{ isUploading ? 'Uploading...' : 'Share Story' }}
           </button>
@@ -110,6 +110,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useMediaUpload } from '~~/layers/base/app/composables/useMediaUpload'
 import { useStory } from '~~/layers/feed/app/composables/useStory'
 

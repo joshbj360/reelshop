@@ -69,7 +69,7 @@
         <div class="group relative -mx-2 h-52 overflow-hidden sm:-mx-6 sm:h-64">
           <img
             v-if="seller.store_banner"
-            :src="seller.store_banner"
+            :src="cloudinaryUrl(seller.store_banner, { width: 1200, height: 400, crop: 'fill' })"
             :alt="`${seller.store_name} banner`"
             class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -108,7 +108,7 @@
               >
                 <img
                   v-if="seller.store_logo"
-                  :src="seller.store_logo"
+                  :src="imgAvatar(seller.store_logo)"
                   :alt="seller.store_name"
                   class="h-full w-full object-cover"
                 />
@@ -131,6 +131,17 @@
 
             <!-- Desktop action buttons (right-aligned, bottom of banner) -->
             <div class="hidden items-center gap-2 pb-1 sm:flex">
+              <!-- Message Store button — only for logged-in non-owners -->
+              <button
+                v-if="profileStore.isLoggedIn && !isOwnStore"
+                :disabled="messageLoading"
+                @click="messageStore"
+                class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              >
+                <Icon v-if="messageLoading" name="eos-icons:loading" size="15" class="animate-spin" />
+                <Icon v-else name="mdi:message-outline" size="15" />
+                Message
+              </button>
               <button
                 v-if="profileStore.isLoggedIn"
                 :disabled="followLoading"
@@ -301,6 +312,17 @@
 
           <!-- Mobile action buttons -->
           <div class="mt-4 flex gap-2 sm:hidden">
+            <!-- Message Store (mobile) -->
+            <button
+              v-if="profileStore.isLoggedIn && !isOwnStore"
+              :disabled="messageLoading"
+              @click="messageStore"
+              class="flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+            >
+              <Icon v-if="messageLoading" name="eos-icons:loading" size="15" class="animate-spin" />
+              <Icon v-else name="mdi:message-outline" size="15" />
+              Message
+            </button>
             <button
               v-if="profileStore.isLoggedIn"
               :disabled="followLoading"
@@ -475,14 +497,14 @@
               >
                 <img
                   v-if="firstPostMedia(post)?.type === 'IMAGE'"
-                  :src="firstPostMedia(post)!.url"
+                  :src="imgThumb(firstPostMedia(post)!.url)"
                   :alt="post.caption || 'Post'"
                   class="h-full w-full object-cover"
                   loading="lazy"
                 />
                 <video
                   v-else-if="firstPostMedia(post)?.type === 'VIDEO'"
-                  :src="firstPostMedia(post)!.url"
+                  :src="imgThumb(firstPostMedia(post)!.url)"
                   class="h-full w-full object-cover"
                   muted
                   preload="none"
@@ -823,6 +845,7 @@ import { useRoute } from 'vue-router'
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import ProductCardMini from '~/components/shop/ProductCardMini.vue'
 import ProductDetailModal from '~~/layers/commerce/app/components/modals/ProductDetailModal.vue'
+import { imgAvatar, imgThumb, cloudinaryUrl } from '~/utils/cloudinary'
 import ProductMarketModal from '~~/layers/commerce/app/components/modals/ProductMarketModal.vue'
 import PostDetailModal from '~~/layers/post/app/components/modals/PostDetailModal.vue'
 import { normalizePost } from '~~/layers/post/app/composables/usePost'
@@ -833,6 +856,7 @@ import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import { useCart } from '~~/layers/commerce/app/composables/useCart'
 import { notify } from '@kyvg/vue3-notification'
 import type { IProduct } from '~~/layers/commerce/app/types/commerce.types'
+import { useSellerStore } from '~~/layers/seller/app/store/seller.store'
 
 const route = useRoute()
 const storeSlug =
@@ -856,6 +880,14 @@ const seller = computed(() => currentSeller.value)
 
 const isFollowing = ref(false)
 const followLoading = ref(false)
+const messageLoading = ref(false)
+
+const sellerStore = useSellerStore()
+
+// True when the logged-in user owns this store
+const isOwnStore = computed(() =>
+  sellerStore.sellers?.some((s: any) => s.storeSlug === storeSlug.value),
+)
 
 const products = ref<IProduct[]>([])
 const total = ref(0)
@@ -925,6 +957,25 @@ const loadProducts = async (reset = false) => {
     offset.value += incoming.length
   } catch {
     /* silent */
+  }
+}
+
+const messageStore = async () => {
+  if (!seller.value?.id) return
+  messageLoading.value = true
+  try {
+    const res = await $fetch<any>('/api/posts/chat/conversations', {
+      method: 'POST',
+      body: { storeId: seller.value.id },
+    })
+    const conversationId = res?.data?.id
+    if (conversationId) {
+      await navigateTo(`/messages/${conversationId}`)
+    }
+  } catch {
+    notify({ type: 'error', text: 'Could not open conversation' })
+  } finally {
+    messageLoading.value = false
   }
 }
 

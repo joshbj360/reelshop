@@ -75,7 +75,7 @@
                 >
                   <img
                     v-if="user.avatar"
-                    :src="user.avatar"
+                    :src="imgAvatar(user.avatar)"
                     :alt="user.username"
                     class="h-10 w-10 rounded-full object-cover"
                   />
@@ -120,7 +120,7 @@
                   >
                     <img
                       v-if="store.store_logo"
-                      :src="store.store_logo"
+                      :src="imgAvatar(store.store_logo)"
                       :alt="store.store_name"
                       class="h-full w-full object-cover"
                     />
@@ -189,7 +189,7 @@
                   >
                     <img
                       v-if="product.media?.[0]?.url"
-                      :src="product.media[0].url"
+                      :src="imgThumb(product.media[0].url)"
                       :alt="product.title"
                       class="h-full w-full object-cover"
                     />
@@ -238,7 +238,7 @@
                   >
                     <img
                       v-if="post.media?.[0]?.url"
-                      :src="post.media[0].url"
+                      :src="imgThumb(post.media[0].url)"
                       :alt="post.caption || 'Post'"
                       class="h-full w-full object-cover"
                     />
@@ -258,7 +258,7 @@
                     <div class="mt-1 flex items-center gap-2">
                       <img
                         v-if="post.author?.avatar"
-                        :src="post.author.avatar"
+                        :src="imgAvatar(post.author.avatar)"
                         class="h-4 w-4 rounded-full object-cover"
                       />
                       <p class="text-xs text-gray-400 dark:text-neutral-500">
@@ -284,6 +284,7 @@
 
 <script setup lang="ts">
 import { useSearchApi } from '~~/layers/base/app/services/search.api'
+import { imgAvatar, imgThumb } from '~/utils/cloudinary'
 
 defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close'])

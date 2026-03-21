@@ -4,6 +4,7 @@ import { getClientIP } from '../../../layers/shared/utils/security'
 import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { productService } from '../../../layers/commerce/services/product.service'
 import { UserError } from '../../../layers/profile/types/user.types'
+import { bust, setCreatorBypass } from '../../../utils/cache'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -22,6 +23,7 @@ export default defineEventHandler(async (event) => {
           profileId: user.id,
           is_active: true,
         },
+        select: { id: true, store_slug: true, profileId: true },
       })
       if (!match)
         throw new UserError(
@@ -29,7 +31,7 @@ export default defineEventHandler(async (event) => {
           'Seller profile not found or not active',
           404,
         )
-      sellerProfile = match as any
+      sellerProfile = match
     }
     if (!sellerProfile)
       throw new UserError(
@@ -47,8 +49,18 @@ export default defineEventHandler(async (event) => {
       userAgent,
       user.id,
     )
+
+    // Bust product + discover feed caches, set creator bypass
+    await Promise.all([
+      bust('feed:home:page:*'),
+      bust('feed:discover:page:*'),
+      bust('products:list:page:*'),
+      bust('feed:trending'),
+      setCreatorBypass(user.id),
+    ])
+
     return { success: true, data: result }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof UserError)
       throw createError({
         statusCode: error.status,

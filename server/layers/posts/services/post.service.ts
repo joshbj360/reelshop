@@ -10,6 +10,8 @@ import { auditService } from '../../shared/audit/audit.service'
 import { createPostSchema, updatePostSchema } from '../schemas/post.schema'
 import { UserError } from '../../profile/types/user.types'
 import { notificationService } from '../../profile/services/notification.service'
+import { auditQueue } from '../../../queues/audit.queue'
+import { notificationQueue } from '../../../queues/notification.queue'
 
 export const contentService = {
   // ==================== POSTS ====================
@@ -23,16 +25,13 @@ export const contentService = {
     const validated = createPostSchema.parse(data)
     const post = await postRepository.createPost(userId, validated)
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_CREATED',
       resource: 'Post',
       resourceId: post.id,
       reason: 'Created new post',
-      changes: {
-        caption: validated.caption,
-        contentType: validated.contentType,
-      },
+      changes: { caption: validated.caption, contentType: validated.contentType },
       ipAddress,
       userAgent,
     })
@@ -98,7 +97,7 @@ export const contentService = {
       throw new UserError('FORBIDDEN', 'You can only edit your own posts', 403)
 
     const updated = await postRepository.updatePost(postId, validated)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_UPDATED',
       resource: 'Post',
@@ -136,7 +135,7 @@ export const contentService = {
       )
 
     await postRepository.deletePost(postId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_DELETED',
       resource: 'Post',
@@ -158,7 +157,7 @@ export const contentService = {
     if (!post) throw new UserError('POST_NOT_FOUND', 'Post not found', 404)
     // savePost handles idempotency internally (findFirst + create)
     const saved = await postRepository.savePost(userId, postId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_SAVED',
       resource: 'Post',
@@ -177,7 +176,7 @@ export const contentService = {
     const post = await postRepository.getPostById(postId)
     if (!post) throw new UserError('POST_NOT_FOUND', 'Post not found', 404)
     const saved = await postRepository.unsavePost(userId, postId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'SAVE_POST_DELETED',
       resource: 'Post',
@@ -211,7 +210,7 @@ export const contentService = {
     }
 
     const comment = await postRepository.createComment(userId, postId, data)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'COMMENT_CREATED',
       resource: 'Comment',
@@ -222,7 +221,7 @@ export const contentService = {
       userAgent,
     })
 
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: post.authorId,
       type: 'POST_COMMENT',
       actorId: userId,
@@ -264,7 +263,7 @@ export const contentService = {
       )
 
     const updated = await postRepository.updateComment(commentId, data)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'COMMENT_UPDATED',
       resource: 'Comment',
@@ -294,7 +293,7 @@ export const contentService = {
       )
 
     await postRepository.deleteComment(commentId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'COMMENT_DELETED',
       resource: 'Comment',
@@ -321,7 +320,7 @@ export const contentService = {
       throw new UserError('ALREADY_LIKED', 'Already liked this post', 400)
 
     const like = await postRepository.createPostLike(userId, postId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_LIKED',
       resource: 'Post',
@@ -330,7 +329,7 @@ export const contentService = {
       userAgent,
     })
 
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: post.authorId,
       type: 'POST_LIKE',
       actorId: userId,
@@ -351,7 +350,7 @@ export const contentService = {
     if (!post) throw new UserError('POST_NOT_FOUND', 'Post not found', 404)
 
     await postRepository.deletePostLike(userId, postId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_UNLIKED',
       resource: 'Post',
@@ -396,7 +395,7 @@ export const contentService = {
       throw new UserError('ALREADY_LIKED', 'Already liked this comment', 400)
 
     const like = await postRepository.createCommentLike(userId, commentId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'COMMENT_LIKED',
       resource: 'Comment',
@@ -405,7 +404,7 @@ export const contentService = {
       userAgent,
     })
 
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: comment.authorId,
       type: 'COMMENT_LIKE',
       actorId: userId,
@@ -427,7 +426,7 @@ export const contentService = {
       throw new UserError('COMMENT_NOT_FOUND', 'Comment not found', 404)
 
     await postRepository.deleteCommentLike(userId, commentId)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'COMMENT_UNLIKED',
       resource: 'Comment',
@@ -460,7 +459,7 @@ export const contentService = {
     )
 
     // 3. ALIGNED: Audit Log (Object Pattern)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'POST_SHARED',
       resource: 'Post',
@@ -474,7 +473,7 @@ export const contentService = {
     // 4. ALIGNED: Notification (Object Pattern)
     // Only notify if someone else shares the post
     if (post.authorId !== userId) {
-      await notificationService.createNotification({
+      notificationQueue.enqueue({
         userId: post.authorId,
         type: 'POST_SHARE', // Maps to PRODUCT_SHARE or GENERAL in your typeMap
         actorId: userId,

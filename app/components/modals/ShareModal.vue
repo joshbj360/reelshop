@@ -34,8 +34,8 @@
               <button
                 v-for="p in platforms"
                 :key="p.id"
-                @click="share(p)"
                 class="flex flex-col items-center gap-1.5 rounded-xl p-2 transition-colors hover:bg-gray-50 active:scale-95 dark:hover:bg-neutral-800"
+                @click="share(p)"
               >
                 <div
                   class="flex h-12 w-12 items-center justify-center rounded-2xl"
@@ -64,13 +64,13 @@
                 >{{ url }}</span
               >
               <button
-                @click="copyLink"
-                class="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-bold transition-colors"
                 :class="
                   copied
                     ? 'bg-green-500 text-white'
                     : 'bg-brand text-white hover:bg-[#d81b36]'
                 "
+                class="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-bold transition-colors"
+                @click="copyLink"
               >
                 {{ copied ? 'Copied!' : 'Copy' }}
               </button>
@@ -84,6 +84,7 @@
 
 <script setup lang="ts">
 import { notify } from '@kyvg/vue3-notification'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   isOpen: boolean

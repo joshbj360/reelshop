@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: { ...result, breakdown: { gross, net, platformFee, transferFee } },
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof UserError)
       throw createError({
         statusCode: error.status,
@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
       })
     throw createError({
       statusCode: 500,
-      statusMessage: error.message || 'Internal server error',
+      statusMessage: error instanceof Error ? error.message : 'Internal server error',
     })
   }
 })

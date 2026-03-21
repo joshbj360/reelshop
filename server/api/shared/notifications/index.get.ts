@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
       offset,
     )
     return { success: true, data: result }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    console.error('[GET /notifications]', error)
     throw createError({ statusCode: 500, statusMessage: 'Server error' })
   }
 })

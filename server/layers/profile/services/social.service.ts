@@ -3,6 +3,8 @@
 import { UserError } from '../types/user.types'
 import { socialRepository } from '../repositories/social.repository'
 import { notificationService } from './notification.service'
+import { auditQueue } from '../../../queues/audit.queue'
+import { notificationQueue } from '../../../queues/notification.queue'
 import { auditService } from '../../shared/audit/audit.service'
 import { sellerRepository } from '../../seller/repositories/seller.repository'
 
@@ -44,7 +46,7 @@ export const socialService = {
       'USER',
     )
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'USER_FOLLOWED',
       resource: 'Follow',
@@ -55,7 +57,7 @@ export const socialService = {
       userAgent,
     })
 
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: target.id,
       type: 'FOLLOW',
       actorId: userId,
@@ -105,7 +107,7 @@ export const socialService = {
     // Update denormalized counter (non-blocking)
     sellerRepository.incrementFollowers(seller.id).catch(() => {})
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'SELLER_FOLLOWED',
       resource: 'Follow',
@@ -116,7 +118,7 @@ export const socialService = {
       userAgent,
     })
 
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: seller.profileId,
       type: 'FOLLOW',
       actorId: userId,
@@ -145,7 +147,7 @@ export const socialService = {
 
     await socialRepository.deleteFollow(userId, target.id, 'USER')
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'USER_UNFOLLOWED',
       resource: 'Follow',
@@ -178,7 +180,7 @@ export const socialService = {
     // Update denormalized counter (non-blocking)
     sellerRepository.decrementFollowers(seller.id).catch(() => {})
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'SELLER_UNFOLLOWED',
       resource: 'Follow',

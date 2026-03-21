@@ -16,9 +16,9 @@ export const useNotifications = () => {
       const result = await notificationApi.getNotifications()
       notificationStore.setNotifications(result.data)
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       notificationStore.setError(
-        error.message || 'Failed to fetch notifications',
+        error instanceof Error ? error.message : 'Failed to fetch notifications',
       )
       throw error
     } finally {
@@ -26,13 +26,13 @@ export const useNotifications = () => {
     }
   }
 
-  const markAsRead = async (id: string) => {
+  const markAsRead = async (id: number) => {
     try {
       await notificationApi.markAsRead(id)
       notificationStore.markAsRead(id)
       return true
-    } catch (error: any) {
-      notificationStore.setError(error.message || 'Failed to mark as read')
+    } catch (error: unknown) {
+      notificationStore.setError(error instanceof Error ? error.message : 'Failed to mark as read')
       throw error
     }
   }

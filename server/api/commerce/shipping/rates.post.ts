@@ -68,7 +68,15 @@ export default defineEventHandler(async (event) => {
 
   const payload: IGetRatesPayload = { from, to: body.to, parcel: body.parcel }
   const provider = getShippingProvider(body.to.country)
-  const rates = await provider.getRates(payload)
 
-  return { success: true, data: rates }
+  try {
+    const rates = await provider.getRates(payload)
+    return { success: true, data: rates }
+  } catch (err: any) {
+    // Provider API unavailable or not configured — fall back to flat rates
+    console.warn(
+      `[shipping/rates] ${provider.name} failed (${err?.message ?? err}), falling back to GlobalShippingZone`,
+    )
+    return { success: true, data: [], fallback: true }
+  }
 })

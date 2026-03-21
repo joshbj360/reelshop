@@ -1,6 +1,7 @@
 // POST /api/commerce/payments/verify
 // Called by the client after Paystack redirect to confirm payment.
 import { z } from 'zod'
+import { notificationQueue } from '../../../queues/notification.queue'
 import { requireAuth } from '../../../layers/shared/middleware/requireAuth'
 import { paystack } from '../../../utils/paystack'
 import { prisma } from '../../../utils/db'
@@ -30,7 +31,7 @@ async function notifySellers(orderId: number, buyerName: string) {
     const sellerId = item.variant?.product?.seller?.profileId
     if (!sellerId || seen.has(sellerId)) continue
     seen.add(sellerId)
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: sellerId,
       type: 'ORDER',
       actorId: sellerId,

@@ -3,11 +3,11 @@
   <HomeLayout :narrow-feed="true">
     <div class="w-full space-y-4 px-2 sm:px-4">
       <!-- Loading Skeleton -->
-      <HomepageSkeleton v-if="pending && !mainFeed.length" />
+      <HomepageSkeleton v-if="hasMounted && pending && !mainFeed.length" />
 
       <!-- Error State -->
       <div
-        v-else-if="error"
+        v-else-if="hasMounted && error"
         class="flex flex-col items-center justify-center gap-5 py-32 text-center"
       >
         <div class="rounded-full bg-red-50/80 p-5 dark:bg-red-950/30">
@@ -269,12 +269,14 @@ import { useProductApi } from '~~/layers/commerce/app/services/product.api'
 import { useFeedApi } from '~~/layers/feed/app/services/feed.api'
 import { useFeedStore } from '~~/layers/feed/app/stores/feed.stores'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
+import { useFollow } from '~~/layers/profile/app/composables/useFollow'
 import type { IFeedItem } from '~~/layers/feed/app/types/feed.types'
 import type { IProduct } from '~~/layers/post/app/types/post.types'
 
 const router = useRouter()
 const feedStore = useFeedStore()
 const profileStore = useProfileStore()
+const { checkFollowingBatch } = useFollow()
 const { stories, fetchStories } = useStory()
 
 // SEO
@@ -324,8 +326,22 @@ const {
 watch(
   feedData,
   (val) => {
-    if (val?.items?.length) {
-      feedStore.setInitialFeed(val.items, val.meta, 'main')
+    if (!val?.items?.length) return
+    feedStore.setInitialFeed(val.items, val.meta, 'main')
+
+    // Pre-populate follow status cache for all post authors in one batch call.
+    // This prevents each FollowButton from firing its own individual API request.
+    if (profileStore.userId) {
+      const authorIds: string[] = []
+      const idToUsername: Record<string, string> = {}
+      for (const item of val.items) {
+        if (item.author?.id && item.author?.username) {
+          authorIds.push(item.author.id)
+          idToUsername[item.author.id] = item.author.username
+        }
+      }
+      const unique = [...new Set(authorIds)]
+      if (unique.length) checkFollowingBatch(unique, 'USER', idToUsername)
     }
   },
   { immediate: true },
@@ -341,22 +357,49 @@ const observer = ref<IntersectionObserver | null>(null)
 
 const loadMore = async () => {
   if (!feedStore.canLoadMore || feedStore.isLoading) return
-  await feedStore.loadMore('main')
+  feedStore.setLoading(true)
+  try {
+    const result = await useFeedApi().getHomeFeed({
+      limit: 20,
+      offset: feedStore.currentOffset,
+    })
+    if (result?.items?.length) {
+      feedStore.appendToFeed(result.items, result.meta, 'main')
+    } else {
+      // No more items
+      feedStore.appendToFeed([], { ...result.meta, hasMore: false }, 'main')
+    }
+  } catch {
+    // silently fail — user can scroll back up and try again
+  } finally {
+    feedStore.setLoading(false)
+  }
 }
 
+const hasMounted = ref(false)
+
 onMounted(() => {
+  hasMounted.value = true
+
   if (profileStore.isLoggedIn) {
-    fetchStories()
-      .catch(() => {})
-      .then(() => nextTick(onStoriesScroll))
+    // Defer stories fetch so it doesn't compete with the feed on initial load
+    setTimeout(() => {
+      fetchStories()
+        .catch(() => {})
+        .then(() => nextTick(onStoriesScroll))
+    }, 1000)
   }
 
   observer.value = new IntersectionObserver(
     (entries) => entries[0]?.isIntersecting && loadMore(),
     { rootMargin: '300px' },
   )
+})
 
-  if (loadMoreTrigger.value) observer.value.observe(loadMoreTrigger.value)
+// loadMoreTrigger lives inside v-else, so it's null until the feed renders.
+// Watch for when it mounts and start observing then.
+watch(loadMoreTrigger, (el) => {
+  if (el) observer.value?.observe(el)
 })
 
 onUnmounted(() => observer.value?.disconnect())

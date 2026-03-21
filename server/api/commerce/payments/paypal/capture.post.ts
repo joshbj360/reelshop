@@ -2,6 +2,7 @@
 // Called after buyer approves the PayPal payment.
 // Captures funds and marks the internal order as PAID.
 import { z } from 'zod'
+import { notificationQueue } from '../../../../queues/notification.queue'
 import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
 import { paypal } from '../../../../utils/paypal'
 import { prisma } from '../../../../utils/db'
@@ -32,7 +33,7 @@ async function notifySellers(orderId: number) {
     const sellerId = item.variant?.product?.seller?.profileId
     if (!sellerId || seen.has(sellerId)) continue
     seen.add(sellerId)
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: sellerId,
       type: 'ORDER',
       actorId: sellerId,

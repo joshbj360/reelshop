@@ -1,14 +1,11 @@
 // FILE PATH: layers/seller/app/stores/seller.store.ts
 
-/**
- * Seller Store
- * Manages seller profile state using Pinia
- */
+import type { ISellerProfile } from '../types/seller.types'
 
 export const useSellerStore = defineStore('seller', () => {
   // State
-  const sellers = ref<any[]>([])
-  const currentSeller = ref<any>(null)
+  const sellers = ref<ISellerProfile[]>([])
+  const currentSeller = ref<ISellerProfile | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const message = ref<string | null>(null)
@@ -22,15 +19,15 @@ export const useSellerStore = defineStore('seller', () => {
   )
 
   // Actions - State Management
-  const setSellers = (newSellers: any[]) => {
+  const setSellers = (newSellers: ISellerProfile[]) => {
     sellers.value = newSellers
   }
 
-  const addSeller = (seller: any) => {
+  const addSeller = (seller: ISellerProfile) => {
     sellers.value.push(seller)
   }
 
-  const updateSeller = (sellerId: string, updates: any) => {
+  const updateSeller = (sellerId: string, updates: Partial<ISellerProfile>) => {
     const index = sellers.value.findIndex((s) => s.id === sellerId)
     if (index !== -1) {
       sellers.value[index] = { ...sellers.value[index], ...updates }
@@ -41,7 +38,7 @@ export const useSellerStore = defineStore('seller', () => {
     sellers.value = sellers.value.filter((s) => s.id !== sellerId)
   }
 
-  const setCurrentSeller = (seller: any) => {
+  const setCurrentSeller = (seller: ISellerProfile | null) => {
     currentSeller.value = seller
   }
 
@@ -60,7 +57,6 @@ export const useSellerStore = defineStore('seller', () => {
   const setMessage = (msg: string | null) => {
     message.value = msg
     if (msg) {
-      // Auto-clear message after 5 seconds
       setTimeout(() => {
         message.value = null
       }, 5000)
@@ -73,20 +69,15 @@ export const useSellerStore = defineStore('seller', () => {
   }
 
   return {
-    // State
     sellers,
     currentSeller,
     isLoading,
     error,
     message,
-
-    // Getters
     hasSellers,
     sellerCount,
     activeSellers,
     inactiveSellers,
-
-    // Actions
     setSellers,
     addSeller,
     updateSeller,

@@ -12,14 +12,14 @@ export class NotificationApiClient extends BaseApiClient {
     )
   }
 
-  async markAsRead(id: string): Promise<any> {
+  async markAsRead(id: number): Promise<{ success: boolean; data: INotification }> {
     return this.request(`/api/shared/notifications/${id}`, {
       method: 'PATCH',
       silent: true,
     })
   }
 
-  async markAllAsRead(): Promise<any> {
+  async markAllAsRead(): Promise<{ success: boolean }> {
     return this.request('/api/shared/notifications/read-all', {
       method: 'PATCH',
       silent: true,

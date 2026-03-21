@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     const updated = await prisma.orders.update({
       where: { id },
       data: {
-        status: body.status as any,
+        status: body.status,
         ...(body.trackingNumber ? { trackingNumber: body.trackingNumber } : {}),
         ...(body.shipper ? { shipper: body.shipper } : {}),
         // Record when shipped so auto-release cron can use it
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return { success: true, data: updated }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof UserError)
       throw createError({
         statusCode: error.status,

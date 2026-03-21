@@ -39,7 +39,7 @@
                   @click="isZoomed = true"
                 >
                   <img
-                    :src="mediaItems[currentIndex]?.url"
+                    :src="imgDetail(mediaItems[currentIndex]?.url)"
                     :alt="product.title"
                     class="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
                   />
@@ -528,10 +528,18 @@
               v-if="product._count"
               class="flex items-center justify-center gap-6 pt-1 text-[12px] font-medium text-gray-400 dark:text-neutral-500"
             >
-              <span class="flex items-center gap-1.5"
-                ><Icon name="mdi:heart" size="14" class="text-brand/70" />
-                {{ product._count.likes }}</span
+              <button
+                v-if="product._count.likes > 0"
+                class="flex items-center gap-1.5 transition-colors hover:text-brand"
+                @click="showProductLikes = true"
               >
+                <Icon name="mdi:heart" size="14" class="text-brand/70" />
+                {{ product._count.likes }}
+              </button>
+              <span v-else class="flex items-center gap-1.5">
+                <Icon name="mdi:heart" size="14" class="text-brand/70" />
+                {{ product._count.likes }}
+              </span>
               <button
                 @click="$emit('open-comments', product)"
                 class="flex items-center gap-1.5 transition-colors hover:text-blue-400"
@@ -612,7 +620,7 @@
 
         <!-- Image -->
         <img
-          :src="mediaItems[currentIndex]?.url"
+          :src="imgDetail(mediaItems[currentIndex]?.url)"
           :alt="product?.title"
           class="max-h-[90vh] max-w-[92vw] object-contain drop-shadow-2xl"
         />
@@ -651,12 +659,20 @@
                 : 'border-white/30 opacity-50 hover:opacity-90'
             "
           >
-            <img :src="m.url" class="h-full w-full object-contain" />
+            <img :src="imgDetail(m.url)" class="h-full w-full object-contain" />
           </button>
         </div>
       </div>
     </Transition>
   </Teleport>
+
+  <LikesModal
+    v-if="product"
+    :is-open="showProductLikes"
+    type="product"
+    :target-id="product.id"
+    @close="showProductLikes = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -669,6 +685,8 @@ import type {
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
 import StoryUploadModal from '~/components/modals/StoryUploadModal.vue'
+import LikesModal from '~/components/modals/LikesModal.vue'
+import { imgThumb, imgAvatar, imgDetail } from '~/utils/cloudinary'
 
 // Assume you have a cart composable
 const { addToCart } = useCart()
@@ -683,6 +701,7 @@ const selectedVariant = ref<IProductVariant | null>(null)
 const qty = ref(1)
 const isAdding = ref(false)
 const cartAdded = ref(false)
+const showProductLikes = ref(false)
 const descExpanded = ref(false)
 const showPostModal = ref(false)
 const showStoryModal = ref(false)

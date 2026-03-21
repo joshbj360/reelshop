@@ -1,5 +1,5 @@
 //Location:** `~/layers/profile/app/types/profile.types.ts`
-import type { Profile as ProfileModel } from '@prisma/client'
+import type { NotificationType, Profile as ProfileModel } from '@prisma/client'
 import type { ISellerProfile } from '~~/layers/seller/app/types/seller.types'
 export interface IProfile extends ProfileModel {
   stateOfResidence?: string
@@ -34,13 +34,36 @@ export interface ICreateCommentData {
 }
 
 export interface INotification {
-  id: string
+  id: number
   userId: string
-  type: string
-  actorId: string
+  type: NotificationType
+  actorId?: string | null
   message: string
+  postId?: string | null
+  commentId?: string | null
+  conversationId?: string | null
+  orderId?: number | null
+  productId?: number | null
   read: boolean
-  createdAt: string
+  created_at: string
+  updated_at: string
+  // Relations populated by server
+  actor?: {
+    id: string
+    username: string
+    avatar: string | null
+  } | null
+  product?: {
+    id: number
+    slug: string
+    title: string
+  } | null
+  order?: {
+    id: number
+  } | null
+  conversation?: {
+    id: string
+  } | null
 }
 
 export interface IConversation {

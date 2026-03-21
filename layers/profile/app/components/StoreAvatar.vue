@@ -2,7 +2,7 @@
   <div class="store-avatar-container" :class="sizeClass">
     <img
       v-if="logo && showImage"
-      :src="logo"
+      :src="imgAvatar(logo)"
       :alt="storeName"
       class="h-full w-full object-cover"
       @error="showImage = false"
@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { imgAvatar } from '~/utils/cloudinary'
 
 const props = defineProps({
   storeName: {

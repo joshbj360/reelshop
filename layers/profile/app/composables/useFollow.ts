@@ -209,13 +209,16 @@ export const useFollow = () => {
   const checkFollowingBatch = async (
     targetIds: string[],
     type: 'USER' | 'SELLER' = 'USER',
+    idToUsername?: Record<string, string>, // optional map so we can also cache by username
   ) => {
     try {
       const result = await followApi.checkFollowingBatch(targetIds, type)
 
-      // Cache results
+      // Cache by ID (existing) + by username (so FollowButton finds it without a separate call)
       Object.entries(result.data).forEach(([id, isFollowing]) => {
-        followStore.setFollowStatus(id, isFollowing)
+        followStore.setFollowStatus(id, isFollowing as boolean)
+        const username = idToUsername?.[id]
+        if (username) followStore.setFollowStatus(username, isFollowing as boolean)
       })
 
       return result.data

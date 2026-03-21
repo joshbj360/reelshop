@@ -2,9 +2,11 @@
 
 import { profileRepository } from '../repositories/profile.repository'
 import { notificationService } from './notification.service'
+import { notificationQueue } from '../../../queues/notification.queue'
 import { UserError } from '../types/user.types'
 import { authRepository } from '../../auth/repositories/auth.repository'
 import { auditService } from '../../shared/audit/audit.service'
+import { auditQueue } from '../../../queues/audit.queue'
 
 export const profileService = {
   // ==================== GET PROFILE ====================
@@ -81,7 +83,7 @@ export const profileService = {
     const updated = await profileRepository.updateProfile(userId, data)
 
     // ALIGNED: Audit Log (Object Pattern)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'PROFILE_UPDATED',
       resource: 'Profile',
@@ -110,7 +112,7 @@ export const profileService = {
     const updated = await profileRepository.updateSettings(userId, data)
 
     // ALIGNED: Audit Log
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'SETTINGS_UPDATED',
       resource: 'Settings',
@@ -163,7 +165,7 @@ export const profileService = {
     await authRepository.createEmailVerificationToken(userId)
 
     // 3. ALIGNED: Audit Log
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'EMAIL_UPDATED',
       resource: 'Profile',
@@ -174,7 +176,7 @@ export const profileService = {
     })
 
     // 4. ALIGNED: Notification
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId,
       type: 'MESSAGE',
       actorId: userId,
@@ -218,7 +220,7 @@ export const profileService = {
     await authRepository.revokeAllSessions(userId)
 
     // 4. ALIGNED: Audit Log
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'PASSWORD_CHANGED',
       resource: 'Profile',
@@ -229,7 +231,7 @@ export const profileService = {
     })
 
     // 5. ALIGNED: Notification
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId,
       type: 'MESSAGE',
       actorId: userId,
@@ -256,7 +258,7 @@ export const profileService = {
     }
 
     // 1. Audit Log BEFORE deletion (to maintain FK integrity in the log)
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'ACCOUNT_DELETED',
       resource: 'Profile',

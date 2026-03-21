@@ -24,6 +24,7 @@ export const useLayoutData = () => {
     },
     {
       server: false,
+      dedupe: 'defer',
       default: () => ({
         topSellers: [] as Seller[],
         categories: [] as Category[],

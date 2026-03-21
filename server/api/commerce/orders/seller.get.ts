@@ -17,17 +17,18 @@ export default defineEventHandler(async (event) => {
     // Verify ownership
     const seller = await prisma.sellerProfile.findUnique({
       where: { store_slug: storeSlug },
+      select: { id: true, profileId: true },
     })
     if (!seller) throw new UserError('NOT_FOUND', 'Store not found', 404)
     if (seller.profileId !== user.id)
       throw new UserError('FORBIDDEN', 'Access denied', 403)
 
-    const where: any = {
+    const where: import('@prisma/client').Prisma.OrdersWhereInput = {
       orderItem: {
         some: { variant: { product: { sellerId: seller.id } } },
       },
+      ...(status ? { status: status as import('@prisma/client').OrderStatus } : {}),
     }
-    if (status) where.status = status
 
     const [orders, total] = await Promise.all([
       prisma.orders.findMany({
@@ -89,7 +90,7 @@ export default defineEventHandler(async (event) => {
     })
 
     return { success: true, data: { orders: enriched, total, limit, offset } }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof UserError)
       throw createError({
         statusCode: error.status,

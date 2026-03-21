@@ -77,7 +77,7 @@
                 <!-- Store Row -->
                 <button
                   v-else
-                  @click="startConversation(item.id)"
+                  @click="startConversation(item.id, 'SELLER')"
                   :disabled="isCreating && selectedId === item.id"
                   class="flex w-full items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
                 >
@@ -160,7 +160,7 @@
                 <!-- Existing Following Store Row -->
                 <button
                   v-else
-                  @click="startConversation(item.id)"
+                  @click="startConversation(item.id, 'SELLER')"
                   :disabled="isCreating && selectedId === item.id"
                   class="flex w-full items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
                 >
@@ -246,7 +246,7 @@ definePageMeta({ middleware: 'auth' })
 const router = useRouter()
 const socialApi = useSocialApi()
 const searchApi = useSearchApi()
-const { createConversation } = useChat()
+const { createConversation, createStoreConversation } = useChat()
 
 // ─── FOLLOWING ────────────────────────────────────────────────────────
 const following = ref<any[]>([])
@@ -352,13 +352,15 @@ const doSearch = async () => {
 const isCreating = ref(false)
 const selectedId = ref<string | null>(null)
 
-const startConversation = async (targetId: string) => {
+const startConversation = async (targetId: string, type: 'USER' | 'SELLER' = 'USER') => {
   if (isCreating.value) return
   isCreating.value = true
   selectedId.value = targetId
 
   try {
-    const conv = await createConversation(targetId)
+    const conv = type === 'SELLER'
+      ? await createStoreConversation(targetId)
+      : await createConversation(targetId)
     router.push(`/messages/${conv.id}`)
   } catch (err) {
     console.error('[New Message] Failed to create conversation:', err)

@@ -208,7 +208,7 @@
           </div>
 
           <NuxtLink
-            to="/categories"
+            to="/discover"
             class="mt-4 flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold text-brand shadow-sm transition-all hover:bg-gray-50 hover:shadow dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800"
           >
             View All Categories <Icon name="mdi:arrow-right" size="14" />
@@ -246,7 +246,7 @@
                 >Thrift Store</span
               >
             </NuxtLink>
-            <NuxtLink to="/trending" class="quick-link group">
+            <NuxtLink to="/discover" class="quick-link group">
               <div
                 class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors group-hover:border-brand/30 dark:border-neutral-700 dark:bg-neutral-900"
               >

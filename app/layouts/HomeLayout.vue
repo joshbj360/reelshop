@@ -177,26 +177,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 
-// ─── Imports ────────────────────────────────────────────────────────────────
+// ─── Always-visible layout components (eager) ───────────────────────────────
 import BottomNavMobile from '~/layouts/children/BottomNavMobile.vue'
 import CategoryListMobile from '~/layouts/children/TopMobileCategory.vue'
 import SideNav from '~/layouts/children/SideNav.vue'
 import HeaderNavMobile from '~/layouts/children/HeaderNavMobile.vue'
 import RightSideNav from '~/layouts/children/RightSideNav.vue'
 
-import CreateModal from '~/components/modals/CreateModal.vue'
-import PostUploadModal from '~~/layers/post/app/components/modals/PostUploadModal.vue'
-import StoryUploadModal from '../components/modals/StoryUploadModal.vue'
-import QuickProductModal from '~~/layers/commerce/app/components/modals/QuickProductModal.vue'
-
-import SearchOverlay from '~/components/search/SearchOverLay.vue'
-import NotificationOverlay from '~/components/notifications/NotificationOverlay.vue'
-import CartSidebar from '~/components/shop/CartSidebar.vue'
-import ShareModal from '~/components/modals/ShareModal.vue'
-import MobileAIChatButton from '../../layers/AI/chat/MobileAIChat.vue'
+// ─── Modals & overlays (lazy — only loaded when opened) ─────────────────────
+const CreateModal = defineAsyncComponent(() => import('~/components/modals/CreateModal.vue'))
+const PostUploadModal = defineAsyncComponent(() => import('~~/layers/post/app/components/modals/PostUploadModal.vue'))
+const StoryUploadModal = defineAsyncComponent(() => import('../components/modals/StoryUploadModal.vue'))
+const QuickProductModal = defineAsyncComponent(() => import('~~/layers/commerce/app/components/modals/QuickProductModal.vue'))
+const SearchOverlay = defineAsyncComponent(() => import('~/components/search/SearchOverLay.vue'))
+const NotificationOverlay = defineAsyncComponent(() => import('~/components/notifications/NotificationOverlay.vue'))
+const CartSidebar = defineAsyncComponent(() => import('~/components/shop/CartSidebar.vue'))
+const ShareModal = defineAsyncComponent(() => import('~/components/modals/ShareModal.vue'))
+const MobileAIChatButton = defineAsyncComponent(() => import('../../layers/AI/chat/MobileAIChat.vue'))
 
 import { useLayoutData } from '~/composables/useLayoutData'
 import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'

@@ -212,12 +212,12 @@
       >
         <img
           v-if="imageLoaded"
-          :src="primaryMedia.url"
+          :src="imgFeed(primaryMedia.url)"
           class="pointer-events-none absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-30 blur-xl"
           aria-hidden="true"
         />
         <img
-          :src="primaryMedia.url"
+          :src="imgFeed(primaryMedia.url)"
           :alt="post.caption || 'Post image'"
           class="relative h-full w-full object-contain transition-opacity duration-300"
           :class="imageLoaded ? 'opacity-100' : 'opacity-0'"
@@ -244,7 +244,7 @@
             class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-900"
           >
             <img
-              :src="item.url"
+              :src="imgFeed(item.url)"
               class="h-full w-full object-cover"
               :alt="post.caption || ''"
             />
@@ -271,7 +271,7 @@
               class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900"
             >
               <img
-                :src="mediaItems[0]!.url"
+                :src="imgFeed(mediaItems[0]!.url)"
                 class="absolute inset-0 h-full w-full object-cover"
               />
             </div>
@@ -280,7 +280,7 @@
                 class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900"
               >
                 <img
-                  :src="mediaItems[1]!.url"
+                  :src="imgFeed(mediaItems[1]!.url)"
                   class="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
@@ -288,7 +288,7 @@
                 class="relative overflow-hidden bg-gray-100 dark:bg-neutral-900"
               >
                 <img
-                  :src="mediaItems[2]!.url"
+                  :src="imgFeed(mediaItems[2]!.url)"
                   class="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
@@ -306,7 +306,7 @@
             class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-900"
           >
             <img
-              :src="item.url"
+              :src="imgFeed(item.url)"
               class="h-full w-full object-cover"
               :alt="post.caption || ''"
             />
@@ -317,17 +317,17 @@
           <div
             class="relative col-span-2 aspect-video overflow-hidden bg-gray-100 dark:bg-neutral-900"
           >
-            <img :src="mediaItems[0]!.url" class="h-full w-full object-cover" />
+            <img :src="imgFeed(mediaItems[0]!.url)" class="h-full w-full object-cover" />
           </div>
           <div
             class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-900"
           >
-            <img :src="mediaItems[1]!.url" class="h-full w-full object-cover" />
+            <img :src="imgFeed(mediaItems[1]!.url)" class="h-full w-full object-cover" />
           </div>
           <div
             class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-900"
           >
-            <img :src="mediaItems[2]!.url" class="h-full w-full object-cover" />
+            <img :src="imgFeed(mediaItems[2]!.url)" class="h-full w-full object-cover" />
             <div
               v-if="mediaItems.length > 3"
               class="absolute inset-0 flex items-center justify-center bg-black/55"
@@ -479,13 +479,21 @@
       </div>
 
       <!-- Like count -->
-      <p
+      <button
         v-if="localLikeCount > 0"
-        class="px-1 text-[13px] font-semibold leading-snug text-gray-900 dark:text-neutral-100"
+        class="px-1 text-left text-[13px] font-semibold leading-snug text-gray-900 transition-opacity hover:opacity-70 dark:text-neutral-100"
+        @click.stop="showLikes = true"
       >
         {{ localLikeCount.toLocaleString() }}
         {{ localLikeCount === 1 ? $t('post.like') : $t('post.likes') }}
-      </p>
+      </button>
+
+      <LikesModal
+        :is-open="showLikes"
+        type="post"
+        :target-id="post.id"
+        @close="showLikes = false"
+      />
 
       <!-- Caption (media posts) -->
       <div
@@ -579,6 +587,8 @@ import { usePost } from '../composables/usePost'
 import { usePostStore } from '../store/post.store'
 import { notify } from '@kyvg/vue3-notification'
 import FollowButton from '~~/layers/profile/app/components/FollowButton.vue'
+import LikesModal from '~/components/modals/LikesModal.vue'
+import { imgFeed } from '~/utils/cloudinary'
 import TaggedProductsDisplay from './TaggedProductsDisplay.vue'
 import PostEditModal from './modals/PostEditModal.vue'
 import AudioPlayer from './AudioPlayer.vue'
@@ -610,6 +620,7 @@ const musicPlaying = ref(false)
 const localIsLiked = ref(postStore.isPostLiked(props.post.id))
 const localLikeCount = ref(props.post.likeCount || 0)
 const isBookmarked = ref(postStore.savedPostIds.includes(props.post.id))
+const showLikes = ref(false)
 
 // ─── Owner / menu ─────────────────────────────────────────────────────────────
 const isOwner = computed(

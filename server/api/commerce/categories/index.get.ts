@@ -1,17 +1,17 @@
 // GET /api/commerce/categories
 import { prisma } from '../../../utils/db'
+import { remember } from '../../../utils/cache'
 
 export default defineEventHandler(async (event) => {
-  // Categories rarely change — cache for 10 minutes in browser + CDN
-  setHeader(
-    event,
-    'Cache-Control',
-    'public, max-age=600, s-maxage=600, stale-while-revalidate=300',
+  const categories = await remember(
+    'data:categories',
+    3600, // 1 hour — categories almost never change at runtime
+    () => prisma.category.findMany({
+      select: { id: true, name: true, slug: true, thumbnailCatUrl: true },
+      orderBy: { name: 'asc' },
+    }),
   )
-
-  const categories = await prisma.category.findMany({
-    select: { id: true, name: true, slug: true, thumbnailCatUrl: true },
-    orderBy: { name: 'asc' },
-  })
+  // Browser can cache for 10 min; stale-while-revalidate refreshes silently in background
+  setHeader(event, 'Cache-Control', 'public, max-age=600, stale-while-revalidate=3600')
   return { success: true, data: categories }
 })

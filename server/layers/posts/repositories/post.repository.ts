@@ -1,5 +1,29 @@
 // FILE PATH: server/layers/user/repositories/content.repository.ts
 
+// ── Shared select shapes ─────────────────────────────────────────────────────
+
+/** Safe Profile fields — never expose password_hash, email, links, etc. */
+const authorSelect = {
+  id: true,
+  username: true,
+  avatar: true,
+  role: true,
+} as const
+
+/** Shared post media select */
+const mediaSelect = {
+  id: true,
+  url: true,
+  type: true,
+  isBgMusic: true,
+  altText: true,
+} as const
+
+/** Shared post counts */
+const postCounts = {
+  _count: { select: { likes: true, comments: true, shares: true } },
+} as const
+
 // Shared include for tagged products with full product details
 const taggedProductsInclude = {
   taggedProducts: {
@@ -21,6 +45,14 @@ const taggedProductsInclude = {
     },
   },
 }
+
+/** Standard post include for feed/list views */
+const postInclude = {
+  author: { select: authorSelect },
+  media: { select: mediaSelect },
+  ...postCounts,
+  ...taggedProductsInclude,
+} as const
 
 export const postRepository = {
   async getUserByUsername(username: string) {
@@ -50,7 +82,6 @@ export const postRepository = {
       }
     }
 
-    // Atomically create all Media records (images/videos) + optional bg music
     const mediaCreates: any[] = []
 
     if (data.mediaData && data.mediaData.length > 0) {
@@ -82,24 +113,14 @@ export const postRepository = {
 
     return await prisma.post.create({
       data: postData,
-      include: {
-        author: true,
-        media: true,
-        ...taggedProductsInclude,
-      },
+      include: postInclude,
     })
   },
 
   async getPostById(postId: string) {
     return await prisma.post.findUnique({
       where: { id: postId },
-      include: {
-        author: true,
-        likes: true,
-        comments: true,
-        media: true,
-        ...taggedProductsInclude,
-      },
+      include: postInclude,
     })
   },
 
@@ -111,14 +132,7 @@ export const postRepository = {
   ) {
     return await prisma.post.findMany({
       where: { authorId: userId, ...visibilityFilter },
-      include: {
-        author: {
-          select: { id: true, username: true, avatar: true, role: true },
-        },
-        media: { select: { id: true, url: true, type: true, isBgMusic: true } },
-        _count: { select: { likes: true, comments: true, shares: true } },
-        ...taggedProductsInclude,
-      },
+      include: postInclude,
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' },
@@ -135,7 +149,7 @@ export const postRepository = {
     return await prisma.post.update({
       where: { id: postId },
       data,
-      include: { author: true },
+      include: { author: { select: authorSelect } },
     })
   },
 
@@ -144,65 +158,23 @@ export const postRepository = {
     skip?: number
     where?: any
     orderBy?: any
-    include?: any
   }) {
     return await prisma.post.findMany({
       take: options.take,
       skip: options.skip,
       where: options.where,
       orderBy: options.orderBy,
-      include: {
-        author: true,
-        media: {
-          select: {
-            id: true,
-            url: true,
-            type: true,
-            isBgMusic: true,
-            altText: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-            shares: true,
-          },
-        },
-        ...taggedProductsInclude,
-        ...options.include,
-      },
+      include: postInclude,
     })
   },
 
   async getPostsByAuthorIds(authorIds: string[], options: any) {
     return await prisma.post.findMany({
-      where: {
-        authorId: { in: authorIds },
-      },
+      where: { authorId: { in: authorIds } },
       take: options.limit,
       skip: options.offset,
       orderBy: { created_at: 'desc' },
-      include: {
-        author: true,
-        media: {
-          select: {
-            id: true,
-            url: true,
-            type: true,
-            isBgMusic: true,
-            altText: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-            shares: true,
-          },
-        },
-        ...taggedProductsInclude,
-      },
+      include: postInclude,
     })
   },
 
@@ -218,21 +190,29 @@ export const postRepository = {
   async createComment(userId: string, postId: string, data: any) {
     return await prisma.comment.create({
       data: { id: crypto.randomUUID(), authorId: userId, postId, ...data },
-      include: { author: true },
+      include: { author: { select: authorSelect } },
     })
   },
 
   async getCommentById(commentId: string) {
     return await prisma.comment.findUnique({
       where: { id: commentId },
-      include: { author: true },
+      include: { author: { select: authorSelect } },
     })
   },
 
   async getCommentsByPostId(postId: string, limit: number, offset: number) {
     return await prisma.comment.findMany({
       where: { postId, parentId: null },
-      include: { author: true, replies: { include: { author: true } } },
+      include: {
+        author: { select: authorSelect },
+        replies: {
+          include: { author: { select: authorSelect } },
+          orderBy: { created_at: 'asc' },
+          take: 3,
+        },
+        _count: { select: { replies: true, likes: true } },
+      },
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' },
@@ -247,7 +227,7 @@ export const postRepository = {
     return await prisma.comment.update({
       where: { id: commentId },
       data,
-      include: { author: true },
+      include: { author: { select: authorSelect } },
     })
   },
 
@@ -257,11 +237,11 @@ export const postRepository = {
 
   async getCommentReplies(commentId: string, limit: number, offset: number) {
     return await prisma.comment.findMany({
-      where: { parentId: commentId }, // ← Filters by parent comment
-      include: { author: true },
+      where: { parentId: commentId },
+      include: { author: { select: authorSelect } },
       take: limit,
       skip: offset,
-      orderBy: { created_at: 'desc' },
+      orderBy: { created_at: 'asc' },
     })
   },
 
@@ -287,7 +267,7 @@ export const postRepository = {
   async getPostLikes(postId: string, limit: number, offset: number) {
     return await prisma.postLike.findMany({
       where: { postId },
-      include: { user: true },
+      include: { user: { select: authorSelect } },
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' },
@@ -301,7 +281,7 @@ export const postRepository = {
   async getLikedPostsByUser(userId: string, limit: number, offset: number) {
     return await prisma.postLike.findMany({
       where: { userId },
-      include: { post: { include: { author: true } } },
+      include: { post: { include: postInclude } },
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' },
@@ -347,7 +327,7 @@ export const postRepository = {
   async getPostShares(id: any, limit: number, offset: number) {
     return await prisma.share.findMany({
       where: { id },
-      include: { profile: true },
+      include: { profile: { select: authorSelect } },
       take: limit,
       skip: offset,
       orderBy: { created_at: 'desc' },
@@ -389,23 +369,24 @@ export const postRepository = {
       include: {
         post: {
           include: {
-            media: true,
-            author: { select: { username: true, avatar: true } },
-            _count: { select: { likes: true, comments: true } },
+            media: { select: mediaSelect },
+            author: { select: authorSelect },
+            ...postCounts,
           },
         },
       },
     })
   },
+
   async getSavedPosts(userId: string, limit: number, offset: number) {
     return await prisma.savedPost.findMany({
       where: { userId },
       include: {
         post: {
           include: {
-            media: true,
-            author: { select: { username: true, avatar: true } },
-            _count: { select: { likes: true, comments: true } },
+            media: { select: mediaSelect },
+            author: { select: authorSelect },
+            ...postCounts,
           },
         },
       },

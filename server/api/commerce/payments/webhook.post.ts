@@ -2,6 +2,7 @@
 // Paystack sends this after a transaction completes (even if user closes the tab).
 // Set this URL in the Paystack dashboard: https://yourdomain.com/api/commerce/payments/webhook
 import crypto from 'crypto'
+import { notificationQueue } from '../../../queues/notification.queue'
 import { prisma } from '../../../utils/db'
 import { notificationService } from '../../../layers/profile/services/notification.service'
 import { walletService } from '../../../layers/commerce/services/wallet.service'
@@ -25,7 +26,7 @@ async function notifySellers(orderId: number) {
     const sellerId = item.variant?.product?.seller?.profileId
     if (!sellerId || seen.has(sellerId)) continue
     seen.add(sellerId)
-    await notificationService.createNotification({
+    notificationQueue.enqueue({
       userId: sellerId,
       type: 'ORDER',
       actorId: sellerId,

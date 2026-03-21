@@ -19,47 +19,33 @@ export const feedService = {
    */
   async getHomeFeed(options: IFeedOptions) {
     const { limit = 20, offset = 0 } = options
+    const half = Math.ceil(limit / 2)
 
-    // Fetch from multiple repositories in parallel
-    // We fetch a bit more than limit/2 to ensure we have enough after merging/sorting
-    const [posts, products] = await Promise.all([
+    // Fetch posts, products, and total count all in parallel
+    const [posts, products, total] = await Promise.all([
       postRepository.getPosts({
-        take: limit,
+        take: half,
         skip: offset,
         orderBy: { created_at: 'desc' },
       }),
       productRepository.getProducts(
         { status: 'PUBLISHED' },
-        {
-          // Corrected method name
-          limit,
-          offset,
-        },
+        { limit: half, offset },
       ),
+      this.getTotalCount(),
     ])
 
-    // Normalize and merge
-    const feedItems = [
+    // Normalize, merge and sort by date
+    const items = [
       ...posts.map(normalizePost),
       ...products.map(normalizeProduct),
     ]
-
-    // Sort by date (Business Logic)
-    const sorted = feedItems.sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    )
-
-    const items = sorted.slice(0, limit)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, limit)
 
     return {
       items,
-      meta: {
-        total: await this.getTotalCount(),
-        limit,
-        offset,
-        hasMore: items.length === limit,
-      },
+      meta: { total, limit, offset, hasMore: items.length === limit },
     }
   },
 

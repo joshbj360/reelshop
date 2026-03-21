@@ -1,5 +1,6 @@
 <template>
   <nav
+    v-bind="$attrs"
     class="bottom-nav fixed bottom-0 left-0 right-0 z-30 border-t border-gray-200/60 bg-white/90 backdrop-blur-md dark:border-neutral-800/60 dark:bg-neutral-900/90"
   >
     <div class="flex h-16 items-center justify-around px-2">
@@ -121,6 +122,7 @@ import { useProfileStore } from '~~/layers/profile/app/stores/profile.store'
 import Avatar from '~~/layers/profile/app/components/Avatar.vue'
 
 defineEmits(['create'])
+defineOptions({ inheritAttrs: false })
 
 const route = useRoute()
 const profileStore = useProfileStore()

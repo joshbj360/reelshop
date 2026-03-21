@@ -1,5 +1,6 @@
 import { productRepository } from '../repositories/product.repository'
 import { auditService } from '../../shared/audit/audit.service'
+import { auditQueue } from '../../../queues/audit.queue'
 import {
   createProductSchema,
   updateProductSchema,
@@ -42,7 +43,7 @@ export const productService = {
     )
 
     if (authorId) {
-      await auditService.logUserAction({
+      auditQueue.enqueue({
         userId: authorId,
         action: 'PRODUCT_CREATED',
         resource: 'Products',
@@ -143,7 +144,7 @@ export const productService = {
     )
 
     if (authorId)
-      await auditService.logUserAction({
+      auditQueue.enqueue({
         userId: authorId,
         action: 'PRODUCT_UPDATED',
         resource: 'Products',
@@ -173,7 +174,7 @@ export const productService = {
 
     const product = await productRepository.archiveProduct(id)
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId: sellerId,
       action: 'PRODUCT_ARCHIVED',
       resource: 'Products',

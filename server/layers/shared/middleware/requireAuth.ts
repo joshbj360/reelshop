@@ -12,7 +12,7 @@
  * 4. Set event.context.user for downstream handlers
  */
 
-import { defineEventHandler, createError, getHeader, type H3Event } from 'h3'
+import { createError, getHeader, type H3Event } from 'h3'
 import { jwtVerify } from '../../../utils/auth/auth'
 import { IProfile } from '~~/layers/profile/app/types/profile.types'
 
@@ -24,6 +24,8 @@ export async function requireAuth(event: H3Event) {
   try {
     // 1. Get auth header
     const authHeader = getHeader(event, 'authorization')
+
+    //TODO  I think we should check for the content type of the request here
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw createError({

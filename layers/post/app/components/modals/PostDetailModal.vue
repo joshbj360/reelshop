@@ -25,6 +25,15 @@
         v-if="post"
         class="pointer-events-none fixed inset-x-0 bottom-0 z-50 sm:inset-0 sm:flex sm:items-center sm:justify-center"
       >
+        <!-- Mobile floating close button -->
+        <button
+          @click.stop="$emit('close')"
+          class="pointer-events-auto absolute right-3 top-3 z-[60] flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80 sm:hidden"
+          aria-label="Close"
+        >
+          <Icon name="mdi:close" size="18" />
+        </button>
+
         <div
           @click.stop
           class="pointer-events-auto flex w-full flex-col overflow-hidden bg-white shadow-2xl sm:max-w-3xl sm:flex-row sm:rounded-xl dark:bg-neutral-900"
@@ -44,11 +53,14 @@
             <!-- Media item -->
             <video
               v-if="currentMedia?.type === 'VIDEO'"
+              ref="videoRef"
               :key="currentMedia.url"
               :src="currentMedia.url"
               :poster="currentMedia.thumbnailUrl"
               class="h-full w-full object-contain"
               controls
+              autoplay
+              muted
               playsinline
             />
             <img
@@ -145,6 +157,8 @@
                 :poster="currentMedia.thumbnailUrl"
                 class="h-full w-full object-contain"
                 controls
+                autoplay
+                muted
                 playsinline
               />
               <img
@@ -234,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import PostDetails from '../PostDetails.vue'
 import type { IFeedItem } from '~~/layers/feed/app/types/feed.types'
 
@@ -244,14 +258,17 @@ defineEmits(['close'])
 const currentIndex = ref(0)
 const bgMusicRef = ref<HTMLAudioElement | null>(null)
 const bgMusicRefMob = ref<HTMLAudioElement | null>(null)
+const videoRef = ref<HTMLVideoElement | null>(null)
 const isMusicPlaying = ref(false)
 const isMusicPlayingMob = ref(false)
 
-// Reset carousel index when post changes
+// Reset carousel + autoplay video when post changes
 watch(
   () => props.post?.id,
-  () => {
+  async () => {
     currentIndex.value = 0
+    await nextTick()
+    videoRef.value?.play().catch(() => {})
   },
 )
 

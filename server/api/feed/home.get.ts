@@ -1,6 +1,7 @@
 import { defineEventHandler, getValidatedQuery, createError } from 'h3'
 import { z, ZodError } from 'zod'
 import { feedService } from '~~/server/layers/feed/services/feed.services'
+import { remember, consumeCreatorBypass } from '~~/server/utils/cache'
 
 // Safely parse and convert query strings to numbers
 const querySchema = z.object({
@@ -18,15 +19,25 @@ export default defineEventHandler(async (event) => {
 
     // 2. Extract Context (Optional User Auth)
     const userId = event.context.user?.id
+    const page = Math.floor(query.offset / query.limit)
+    const cacheKey = `feed:home:page:${page}:limit:${query.limit}`
 
-    // 3. Call your existing Feed Service
-    // We pass limit and offset as per your IFeedOptions interface
-    const feed = await feedService.getHomeFeed({
-      limit: query.limit,
-      offset: query.offset,
-      // If your IFeedOptions supports 'type', you can pass it here:
-      type: query.type,
-    })
+    // Creator bypass — skip cache for 30s after they publish content
+    const bypass = userId ? await consumeCreatorBypass(userId) : false
+
+    // 3. Call feed service wrapped in cache
+    const feed = await remember(cacheKey, bypass ? 0 : 120, () =>
+      feedService.getHomeFeed({
+        limit: query.limit,
+        offset: query.offset,
+        type: query.type,
+      }),
+    )
+
+    // Let browsers/CDN cache for 60s (stale-while-revalidate for extra speed)
+    if (!bypass) {
+      setHeader(event, 'Cache-Control', 'public, max-age=60, stale-while-revalidate=120')
+    }
 
     return feed
   } catch (error: any) {

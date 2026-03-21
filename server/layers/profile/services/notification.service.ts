@@ -71,7 +71,7 @@ export const notificationService = {
       sseConnections.send(userId, 'notification', notification)
 
       return notification
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Notifications are non-blocking/non-critical. Log error but don't crash.
       console.error('Error creating notification:', error)
       return null

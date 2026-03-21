@@ -13,13 +13,23 @@ export default defineEventHandler(async (event) => {
       getHeader(event, 'x-forwarded-for') || getClientIP(event) || 'unknown'
     const userAgent = getHeader(event, 'user-agent') || 'unknown'
 
-    const result = await chatService.createConversation(
-      user.id,
-      body.targetId,
-      body.productId,
-      ipAddress,
-      userAgent,
-    )
+    // storeId  → buyer messaging a store
+    // targetId → user messaging another user
+    const result = body.storeId
+      ? await chatService.createStoreConversation(
+          user.id,
+          body.storeId,
+          body.productId,
+          ipAddress,
+          userAgent,
+        )
+      : await chatService.createConversation(
+          user.id,
+          body.targetId,
+          body.productId,
+          ipAddress,
+          userAgent,
+        )
     return { success: true, data: result }
   } catch (error: any) {
     if (error instanceof UserError) {

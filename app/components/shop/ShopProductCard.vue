@@ -164,23 +164,33 @@
     >
       <div class="flex items-center gap-1">
         <!-- Like -->
-        <button
-          @click="handleLike"
-          class="flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-medium transition-colors"
+        <div
+          class="flex items-center rounded-lg transition-colors"
           :class="
             localLiked
               ? 'bg-brand/5 text-brand'
               : 'text-gray-500 hover:bg-brand/5 hover:text-brand dark:text-neutral-400 dark:hover:bg-brand/10'
           "
         >
-          <Icon
-            :name="localLiked ? 'mdi:heart' : 'mdi:heart-outline'"
-            size="16"
-            :class="localLiked ? 'scale-110' : ''"
-            class="transition-transform"
-          />
-          <span>{{ localLikeCount }}</span>
-        </button>
+          <button
+            @click="handleLike"
+            class="flex items-center px-2 py-1.5 text-[11px] font-medium"
+            aria-label="Like"
+          >
+            <Icon
+              :name="localLiked ? 'mdi:heart' : 'mdi:heart-outline'"
+              size="16"
+              :class="localLiked ? 'scale-110' : ''"
+              class="transition-transform"
+            />
+          </button>
+          <button
+            v-if="localLikeCount > 0"
+            @click="showLikes = true"
+            class="pr-2 text-[11px] font-medium leading-none"
+          >{{ localLikeCount }}</button>
+          <span v-else class="pr-2 text-[11px] font-medium leading-none">0</span>
+        </div>
 
         <!-- Comment -->
         <button
@@ -238,6 +248,13 @@
       </div>
     </div>
   </div>
+
+  <ModalsLikesModal
+    :is-open="showLikes"
+    type="product"
+    :target-id="product.id"
+    @close="showLikes = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -291,8 +308,9 @@ const isSingleVariant = computed(
 )
 
 // ── Like ─────────────────────────────────────────────────────────────────────
-const localLiked = ref(false) // Assuming initial state needs checking against user profile if available
+const localLiked = ref(false)
 const localLikeCount = ref(props.product._count?.likes ?? 0)
+const showLikes = ref(false)
 
 const handleLike = async () => {
   if (!profileStore.isLoggedIn) {

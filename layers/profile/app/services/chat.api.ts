@@ -33,6 +33,13 @@ export class ChatApiClient extends BaseApiClient {
       { method: 'POST', body: { text } },
     )
   }
+
+  async createStoreConversation(storeId: string, productId?: number): Promise<any> {
+    return this.request('/api/posts/chat/conversations', {
+      method: 'POST',
+      body: { storeId, productId },
+    })
+  }
 }
 
 let instance: ChatApiClient | null = null

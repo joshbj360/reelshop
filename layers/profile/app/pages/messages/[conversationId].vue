@@ -13,23 +13,46 @@
         >
           <Icon name="mdi:arrow-left" size="22" />
         </NuxtLink>
+
+        <!-- Store conversation header -->
         <NuxtLink
-          v-if="otherUser"
+          v-if="otherUser && isStoreConversation"
+          :to="`/sellers/profile/${(otherUser as any).storeSlug}`"
+          class="flex min-w-0 flex-1 items-center gap-3"
+        >
+          <StoreAvatar
+            :logo="otherUser.avatar ?? ''"
+            :store-name="(otherUser as any).name ?? ''"
+            size="lg"
+          />
+          <div class="min-w-0">
+            <p
+              class="truncate font-semibold text-gray-900 dark:text-neutral-100"
+            >
+              {{ (otherUser as any).name || otherUser.username }}
+            </p>
+            <p class="text-xs text-gray-400 dark:text-neutral-500">Store</p>
+          </div>
+        </NuxtLink>
+
+        <!-- User conversation header -->
+        <NuxtLink
+          v-else-if="otherUser"
           :to="`/profile/${otherUser.username}`"
           class="flex min-w-0 flex-1 items-center gap-3"
         >
-          <img
-            :src="
-              otherUser.avatar ||
-              `https://ui-avatars.com/api/?name=${otherUser.username}&background=f02c56&color=fff`
-            "
-            :alt="otherUser.username"
-            class="h-10 w-10 shrink-0 rounded-full object-cover"
+          <Avatar
+            class="truncate font-semibold text-gray-900 dark:text-neutral-100"
+            :avatar="otherUser.avatar ?? ''"
+            :username="otherUser.username ?? ''"
+            size="lg"
           />
           <p class="truncate font-semibold text-gray-900 dark:text-neutral-100">
-            {{ otherUser.username }}
+            {{ (otherUser as any).name || otherUser.username }}
           </p>
         </NuxtLink>
+
+        <!-- Loading skeleton -->
         <div v-else class="flex flex-1 items-center gap-3">
           <div
             class="h-10 w-10 animate-pulse rounded-full bg-gray-200 dark:bg-neutral-700"
@@ -72,7 +95,7 @@
       <div
         class="shrink-0 border-t border-gray-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
       >
-        <form @submit.prevent="handleSend" class="flex items-center gap-2">
+        <form class="flex items-center gap-2" @submit.prevent="handleSend">
           <input
             v-model="messageText"
             type="text"
@@ -95,9 +118,15 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { definePageMeta, useRoute } from '#imports'
 import HomeLayout from '~/layouts/HomeLayout.vue'
 import MessageBubble from '../../components/MessageBubble.vue'
+import Avatar from '../../components/Avatar.vue'
+import StoreAvatar from '../../components/StoreAvatar.vue'
 import { useChatStore } from '~~/layers/profile/app/stores/chat.store'
+
+import { useChat } from '~~/layers/profile/app/composables/useChat'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -113,6 +142,7 @@ const messages = computed(() =>
   chatStore.getConversationMessages(conversationId.value),
 )
 const otherUser = computed(() => conversation.value?.otherUser)
+const isStoreConversation = computed(() => !!(otherUser.value as any)?.isStore)
 
 const messageText = ref('')
 const isSending = ref(false)
@@ -147,7 +177,7 @@ watch(conversationId, async (id) => {
 
 const shouldShowAvatar = (index: number) => {
   if (index === 0) return true
-  return messages.value[index].senderId !== messages.value[index - 1].senderId
+  return messages.value[index]?.senderId !== messages.value[index - 1]?.senderId
 }
 
 const handleSend = async () => {

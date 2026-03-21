@@ -1,6 +1,7 @@
 import { orderRepository } from '../repositories/order.repository'
 import { cartRepository } from '../repositories/cart.repository'
 import { auditService } from '../../shared/audit/audit.service'
+import { auditQueue } from '../../../queues/audit.queue'
 import { UserError } from '../../profile/types/user.types'
 import { prisma } from '../../../utils/db'
 
@@ -133,7 +134,7 @@ export const orderService = {
     // Clear cart after order
     await cartRepository.clearCart(userId)
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'ORDER_PLACED',
       resource: 'Orders',
@@ -195,7 +196,7 @@ export const orderService = {
       })
     }
 
-    await auditService.logUserAction({
+    auditQueue.enqueue({
       userId,
       action: 'ORDER_CANCELLED',
       resource: 'Orders',

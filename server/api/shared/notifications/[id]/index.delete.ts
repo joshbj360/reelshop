@@ -1,5 +1,4 @@
-// PATCH /api/user/notifications/[id] - Mark as read
-
+// DELETE /api/user/notifications/[id] - Delete notification
 import { requireAuth } from '../../../../layers/shared/middleware/requireAuth'
 import { notificationService } from '../../../../layers/profile/services/notification.service'
 import { UserError } from '../../../../layers/profile/types/user.types'
@@ -18,9 +17,12 @@ export default defineEventHandler(async (event) => {
       throw new UserError('INVALID_ID', 'ID must be a valid number', 400)
     }
 
-    const result = await notificationService.markAsRead(notificationId, user.id)
+    const result = await notificationService.deleteNotification(
+      notificationId,
+      user.id,
+    )
     return { success: true, data: result }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof UserError) {
       throw createError({
         statusCode: error.status,

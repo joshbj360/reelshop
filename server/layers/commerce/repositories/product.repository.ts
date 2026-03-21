@@ -1,5 +1,28 @@
 import { prisma } from '../../../utils/db'
 
+/**
+ * Slim include for feed/list views — only what a card needs.
+ * No offers, no tags, no category, only the first image.
+ * Detail pages use productInclude (full data).
+ */
+const productFeedInclude = {
+  seller: {
+    select: { store_slug: true, store_logo: true, store_name: true, default_currency: true },
+  },
+  media: {
+    where: { isBgMusic: false },
+    select: { id: true, url: true, type: true, isBgMusic: true },
+    take: 1,
+    orderBy: { created_at: 'asc' as const },
+  },
+  variants: {
+    select: { id: true, size: true, stock: true, price: true },
+    take: 1,
+    orderBy: { price: 'asc' as const },
+  },
+  _count: { select: { likes: true, comments: true, shares: true } },
+} as const
+
 const productInclude = {
   seller: {
     select: {
@@ -13,7 +36,10 @@ const productInclude = {
     select: { id: true, url: true, type: true, isBgMusic: true },
     orderBy: { created_at: 'asc' as const },
   },
-  variants: true,
+  variants: {
+    select: { id: true, size: true, stock: true, price: true },
+    orderBy: { price: 'asc' as const },
+  },
   offers: {
     where: { isActive: true },
     orderBy: { minQuantity: 'asc' as const },
@@ -198,7 +224,7 @@ export const productRepository = {
     }
     return prisma.products.findMany({
       where,
-      include: productInclude,
+      include: productFeedInclude,
       take: pagination.limit,
       skip: pagination.offset,
       orderBy: { created_at: 'desc' },
